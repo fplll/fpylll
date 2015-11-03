@@ -78,9 +78,6 @@ class BKZ:
         if max_dist >= delta_max_dist:
             return clean
 
-        if len(solution) == 0:
-            raise ArithmeticError("Enumeration failed.")
-
         nonzero_vectors = len([x for x in solution if x])
 
         if nonzero_vectors == 1:
