@@ -40,7 +40,10 @@ so that Python can find fplll and friends.
 
 5. Start Python::
 
+     $ (fpylll) cd tests
      $ (fpylll) ipython
+
+You may want to change out of the root directory of this repository before starting ``(i)python``, as the presence of a ``fpylll`` directory tends to confuse its module finding.
 
 Example
 =======
