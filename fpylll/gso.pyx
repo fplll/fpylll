@@ -14,6 +14,39 @@ INT_GRAM=GSO_INT_GRAM_c
 ROW_EXPO=GSO_ROW_EXPO_c
 OP_FORCE_LONG=GSO_OP_FORCE_LONG_c
 
+
+cdef class MatGSORowOpContext(object):
+    def __init__(self, MatGSO m, int i, int j):
+        """FIXME! briefly describe function
+
+        :param m: MatGSO object
+        :param i: start row
+        :param j: stop row
+
+        """
+        self.i = i
+        self.j = j
+        self.m = m
+
+    def __enter__(self):
+        """
+        Enter context for working on rows.
+
+        """
+        self.m.row_op_begin(self.i, self.j)
+
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        """
+        Exit context for working on rows.
+
+        :param exception_type:
+        :param exception_value:
+        :param exception_traceback:
+
+        """
+        self.m.row_op_end(self.i, self.j)
+
+
 cdef class MatGSO:
     """
     """
@@ -133,6 +166,15 @@ cdef class MatGSO:
             return self._core.mpz_mpfr.rowOpEnd(first, last)
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+    def row_ops(self, int first, int last):
+        """FIXME! briefly describe function
+
+        :param int first:
+        :param int last:
+
+        """
+        return MatGSORowOpContext(self, first, last)
 
     def get_gram(self, int i, int j):
         preprocess_indices(i, j, self.d, self.d)
