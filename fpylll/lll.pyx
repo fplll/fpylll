@@ -4,45 +4,76 @@
 
 include "interrupt/interrupt.pxi"
 
+from gmp.mpz cimport mpz_t
+from mpfr.mpfr cimport mpfr_t
 from integer_matrix cimport IntegerMatrix
-from fplll cimport LLL_VERBOSE as LLL_VERBOSE_c
-from fplll cimport LLL_EARLY_RED as LLL_EARLY_RED_c
-from fplll cimport LLL_SIEGEL as LLL_SIEGEL_c
-from fplll cimport LLLMethod, LLL_DEF_ETA, LLL_DEF_DELTA, LLL_DEFAULT
+
+from fplll cimport LLL_VERBOSE
+from fplll cimport LLL_EARLY_RED
+from fplll cimport LLL_SIEGEL
+from fplll cimport LLL_DEFAULT
+
+from fplll cimport LLLMethod, LLL_DEF_ETA, LLL_DEF_DELTA
 from fplll cimport LM_WRAPPER, LM_PROVED, LM_HEURISTIC, LM_FAST
 from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE
+
+from fplll cimport Z_NR, FP_NR
 from fplll cimport lllReduction as lllReduction_c
 from fplll cimport RED_SUCCESS
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport LLLReduction as LLLReduction_c
 from fplll cimport getRedStatusStr
 
-from util cimport check_float_type
+from util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll import ReductionError
+from fpylll cimport mpz_double, mpz_mpfr
 
-LLL_VERBOSE = LLL_VERBOSE_c
-LLL_EARLY_RED = LLL_EARLY_RED_c
-LLL_SIEGEL = LLL_SIEGEL_c
+DEFAULT = LLL_DEFAULT
+VERBOSE = LLL_VERBOSE
+EARLY_RED = LLL_EARLY_RED
+SIEGEL = LLL_SIEGEL
+
 
 cdef class LLLReduction:
     def __init__(self, MatGSO M,
                  double delta=LLL_DEF_DELTA,
                  double eta=LLL_DEF_ETA,
                  int flags=LLL_DEFAULT):
+        """FIXME!  briefly describe function
+
+        :param MatGSO M:
+        :param double delta:
+        :param double eta:
+        :param int flags:
+
+            - ``DEFAULT``:
+
+            - ``VERBOSE``:
+
+            - ``EARLY_RED``:
+
+            - ``SIEGEL``:
+
+        """
+
+        check_delta(delta)
+        check_eta(eta)
 
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]] *m_double
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]] *m_mpfr
 
         self.m = M
 
-        if M._core_mpz_double != NULL:
-            m_double = M._core_mpz_double
-            self._core_mpz_double = new LLLReduction_c[Z_NR[mpz_t], FP_NR[double]](m_double[0],
+        if M._type == mpz_double:
+            m_double = M._core.mpz_double
+            self._type = mpz_double
+            self._core.mpz_double = new LLLReduction_c[Z_NR[mpz_t], FP_NR[double]](m_double[0],
                                                                                    delta,
                                                                                    eta, flags)
-        elif M._core_mpz_mpfr != NULL:
-            m_mpfr = M._core_mpz_mpfr
-            self._core_mpz_mpfr = new LLLReduction_c[Z_NR[mpz_t], FP_NR[mpfr_t]](m_mpfr[0],
+        elif M._type == mpz_mpfr:
+            m_mpfr = M._core.mpz_mpfr
+            self._type = mpz_mpfr
+            self._core.mpz_mpfr = new LLLReduction_c[Z_NR[mpz_t], FP_NR[mpfr_t]](m_mpfr[0],
                                                                                  delta,
                                                                                  eta, flags)
         else:
@@ -52,12 +83,12 @@ cdef class LLLReduction:
         self._eta = eta
 
     def __dealloc__(self):
-        if self._core_mpz_double:
-            del self._core_mpz_double
-        if self._core_mpz_mpfr:
-            del self._core_mpz_mpfr
+        if self._type == mpz_double:
+            del self._core.mpz_double
+        if self._type == mpz_mpfr:
+            del self._core.mpz_mpfr
 
-    def __call__(self, kappa_min=0, kappa_start=0, kappa_end=-1):
+    def __call__(self, int kappa_min=0, int kappa_start=0, int kappa_end=-1):
         """FIXME! briefly describe function
 
         :param int kappa_min:
@@ -68,15 +99,15 @@ cdef class LLLReduction:
 
         """
         cdef int r
-        if self._core_mpz_double:
+        if self._type == mpz_double:
             sig_on()
-            self._core_mpz_double.lll(kappa_min, kappa_start, kappa_end)
-            r = self._core_mpz_double.status
+            self._core.mpz_double.lll(kappa_min, kappa_start, kappa_end)
+            r = self._core.mpz_double.status
             sig_off()
-        elif self._core_mpz_mpfr:
+        elif self._type == mpz_mpfr:
             sig_on()
-            self._core_mpz_mpfr.lll(kappa_min, kappa_start, kappa_end)
-            r = self._core_mpz_mpfr.status
+            self._core.mpz_mpfr.lll(kappa_min, kappa_start, kappa_end)
+            r = self._core.mpz_mpfr.status
             sig_off()
         else:
             raise RuntimeError("LLLReduction object '%s' has no core."%self)
@@ -88,14 +119,13 @@ cdef class LLLReduction:
         """FIXME! briefly describe function
 
         :param int kappa_min:
-        :param int kappa_start:
         :param int kappa_end:
 
         """
-        if self._core_mpz_double:
-            r = self._core_mpz_double.sizeReduction(kappa_min, kappa_end)
-        elif self._core_mpz_mpfr:
-            r = self._core_mpz_mpfr.sizeReduction(kappa_min, kappa_end)
+        if self._type == mpz_double:
+            r = self._core.mpz_double.sizeReduction(kappa_min, kappa_end)
+        elif self._type == mpz_mpfr:
+            r = self._core.mpz_mpfr.sizeReduction(kappa_min, kappa_end)
         else:
             raise RuntimeError("LLLReduction object '%s' has no core."%self)
         if not r:
@@ -109,10 +139,10 @@ cdef class LLLReduction:
         :rtype:
 
         """
-        if self._core_mpz_double:
-            return self._core_mpz_double.finalKappa
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.finalKappa
+        if self._type == mpz_double:
+            return self._core.mpz_double.finalKappa
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.finalKappa
         else:
             raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
@@ -124,10 +154,10 @@ cdef class LLLReduction:
         :rtype:
 
         """
-        if self._core_mpz_double:
-            return self._core_mpz_double.lastEarlyRed
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.lastEarlyRed
+        if self._type == mpz_double:
+            return self._core.mpz_double.lastEarlyRed
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.lastEarlyRed
         else:
             raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
@@ -139,10 +169,10 @@ cdef class LLLReduction:
         :rtype:
 
         """
-        if self._core_mpz_double:
-            return self._core_mpz_double.zeros
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.zeros
+        if self._type == mpz_double:
+            return self._core.mpz_double.zeros
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.zeros
         else:
             raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
@@ -154,10 +184,10 @@ cdef class LLLReduction:
         :rtype:
 
         """
-        if self._core_mpz_double:
-            return self._core_mpz_double.nSwaps
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.nSwaps
+        if self._type == mpz_double:
+            return self._core.mpz_double.nSwaps
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.nSwaps
         else:
             raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
@@ -189,14 +219,9 @@ def lll_reduction(IntegerMatrix B, U=None,
 
     """
 
-    if delta <= 0.25:
-        raise TypeError("delta must be > 0.25")
-    elif delta > 1.0:
-        raise TypeError("delta must be ≤ 1.0")
-    if eta < 0.5:
-        raise TypeError(u"eta must be ≥ 0.5")
-    if precision < 0:
-        raise TypeError(u"precision must be ≥ 0")
+    check_delta(delta)
+    check_eta(eta)
+    check_precision(precision)
 
     cdef LLLMethod method_
     if method == "wrapper" or method is None:
@@ -215,6 +240,7 @@ def lll_reduction(IntegerMatrix B, U=None,
 
     if method_ == LM_WRAPPER and check_float_type(float_type) != FT_DEFAULT:
         raise ValueError("LLL wrapper function requires float_type==None")
+
     if method_ == LM_FAST and \
        check_float_type(float_type) not in (FT_DOUBLE, FT_LONG_DOUBLE):
         raise ValueError("LLL fast function requires "
@@ -223,7 +249,6 @@ def lll_reduction(IntegerMatrix B, U=None,
     cdef int r
 
     if U is not None and isinstance(U, IntegerMatrix):
-
         sig_on()
         r = lllReduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
                            delta, eta, method_,
@@ -231,7 +256,6 @@ def lll_reduction(IntegerMatrix B, U=None,
         sig_off()
 
     else:
-
         sig_on()
         r = lllReduction_c(B._core[0],
                            delta, eta, method_,

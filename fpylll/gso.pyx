@@ -1,4 +1,5 @@
 from gmp.mpz cimport mpz_t
+from mpfr.mpfr cimport mpfr_t
 from integer_matrix cimport IntegerMatrix
 from fplll cimport MatGSO as MatGSO_c, Z_NR, FP_NR, Matrix
 from fplll cimport GSO_DEFAULT as GSO_DEFAULT_c
@@ -6,6 +7,7 @@ from fplll cimport GSO_INT_GRAM as GSO_INT_GRAM_c
 from fplll cimport GSO_ROW_EXPO as GSO_ROW_EXPO_c
 from fplll cimport GSO_OP_FORCE_LONG as GSO_OP_FORCE_LONG_c
 from util cimport preprocess_indices
+from fpylll cimport mpz_double, mpz_mpfr
 
 DEFAULT=GSO_DEFAULT_c
 INT_GRAM=GSO_INT_GRAM_c
@@ -46,89 +48,89 @@ cdef class MatGSO:
         cdef Matrix[Z_NR[mpz_t]] *u_inv_t = <Matrix[Z_NR[mpz_t]]*>self._UinvT._core
 
         if float_type == "double":
-            self._core_mpz_double = new MatGSO_c[Z_NR[mpz_t],FP_NR[double]](b[0], u[0], u_inv_t[0], flags)
-            self._core_mpz_mpfr = NULL
+            self._type = mpz_double
+            self._core.mpz_double = new MatGSO_c[Z_NR[mpz_t],FP_NR[double]](b[0], u[0], u_inv_t[0], flags)
         elif float_type == "mpfr":
-            self._core_mpz_double = NULL
-            self._core_mpz_mpfr = new MatGSO_c[Z_NR[mpz_t],FP_NR[mpfr_t]](b[0], u[0], u_inv_t[0], flags)
+            self._type = mpz_mpfr
+            self._core.mpz_mpfr = new MatGSO_c[Z_NR[mpz_t],FP_NR[mpfr_t]](b[0], u[0], u_inv_t[0], flags)
         else:
             raise ValueError("Float type '%s' not understood."%float_type)
 
         self._B = B
 
     def __dealloc__(self):
-        if self._core_mpz_double:
-            del self._core_mpz_double
-        if self._core_mpz_mpfr:
-            del self._core_mpz_mpfr
+        if self._type == mpz_double:
+            del self._core.mpz_double
+        if self._type == mpz_mpfr:
+            del self._core.mpz_mpfr
 
     @property
     def d(self):
-        if self._core_mpz_double:
-            return self._core_mpz_double.d
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.d
+        if self._type == mpz_double:
+            return self._core.mpz_double.d
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.d
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     @property
     def int_gram_enabled(self):
-        if self._core_mpz_double:
-            return self._core_mpz_double.enableIntGram
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.enableIntGram
+        if self._type == mpz_double:
+            return self._core.mpz_double.enableIntGram
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.enableIntGram
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     @property
     def row_expo_enabled(self):
-        if self._core_mpz_double:
-            return self._core_mpz_double.enableRowExpo
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.enableRowExpo
+        if self._type == mpz_double:
+            return self._core.mpz_double.enableRowExpo
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.enableRowExpo
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     @property
     def transform_enabled(self):
-        if self._core_mpz_double:
-            return self._core_mpz_double.enableTransform
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.enableTransform
+        if self._type == mpz_double:
+            return self._core.mpz_double.enableTransform
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.enableTransform
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     @property
     def inv_transform_enabled(self):
-        if self._core_mpz_double:
-            return self._core_mpz_double.enableInvTransform
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.enableInvTransform
+        if self._type == mpz_double:
+            return self._core.mpz_double.enableInvTransform
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.enableInvTransform
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     @property
     def row_op_force_long(self):
-        if self._core_mpz_double:
-            return self._core_mpz_double.rowOpForceLong
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.rowOpForceLong
+        if self._type == mpz_double:
+            return self._core.mpz_double.rowOpForceLong
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.rowOpForceLong
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def row_op_begin(self, int first, int last):
-        if self._core_mpz_double:
-            return self._core_mpz_double.rowOpBegin(first, last)
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.rowOpBegin(first, last)
+        if self._type == mpz_double:
+            return self._core.mpz_double.rowOpBegin(first, last)
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.rowOpBegin(first, last)
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def row_op_end(self, int first, int last):
-        if self._core_mpz_double:
-            return self._core_mpz_double.rowOpEnd(first, last)
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.rowOpEnd(first, last)
+        if self._type == mpz_double:
+            return self._core.mpz_double.rowOpEnd(first, last)
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.rowOpEnd(first, last)
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
@@ -138,12 +140,12 @@ cdef class MatGSO:
         cdef FP_NR[double] t_double
         cdef FP_NR[mpfr_t] t_mpfr
 
-        if self._core_mpz_double:
-            self._core_mpz_double.getGram(t_double, i, j)
+        if self._type == mpz_double:
+            self._core.mpz_double.getGram(t_double, i, j)
             r = t_double.getData()
             return r
-        elif self._core_mpz_mpfr:
-            self._core_mpz_mpfr.getGram(t_mpfr, i, j)
+        elif self._type == mpz_mpfr:
+            self._core.mpz_mpfr.getGram(t_mpfr, i, j)
             raise NotImplementedError("converting from MPFR not implemented")
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
@@ -168,12 +170,12 @@ cdef class MatGSO:
         cdef FP_NR[double] t_double
         cdef FP_NR[mpfr_t] t_mpfr
 
-        if self._core_mpz_double:
-            self._core_mpz_double.getR(t_double, i, j)
+        if self._type == mpz_double:
+            self._core.mpz_double.getR(t_double, i, j)
             return t_double.getData()
-        elif self._core_mpz_mpfr:
+        elif self._type == mpz_mpfr:
             # TODO: don't just return doubles
-            self._core_mpz_mpfr.getR(t_mpfr, i, j)
+            self._core.mpz_mpfr.getR(t_mpfr, i, j)
             return t_mpfr.get_d()
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
@@ -191,11 +193,11 @@ cdef class MatGSO:
         cdef double r = 0.0
         cdef long expo = 0
 
-        if self._core_mpz_double:
-            r = self._core_mpz_double.getRExp(i, j, expo).getData()
-        elif self._core_mpz_mpfr:
+        if self._type == mpz_double:
+            r = self._core.mpz_double.getRExp(i, j, expo).getData()
+        elif self._type == mpz_mpfr:
             # TODO: don't just return doubles
-            r = self._core_mpz_mpfr.getRExp(i, j, expo).get_d()
+            r = self._core.mpz_mpfr.getRExp(i, j, expo).get_d()
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
@@ -207,27 +209,27 @@ cdef class MatGSO:
         # int updateGSORow(int i)
 
     def update_gso(self):
-        if self._core_mpz_double:
-            return bool(self._core_mpz_double.updateGSO())
-        elif self._core_mpz_mpfr:
-            return bool(self._core_mpz_mpfr.updateGSO())
+        if self._type == mpz_double:
+            return bool(self._core.mpz_double.updateGSO())
+        elif self._type == mpz_mpfr:
+            return bool(self._core.mpz_mpfr.updateGSO())
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def discover_all_rows(self):
-        if self._core_mpz_double:
-            self._core_mpz_double.discoverAllRows()
-        elif self._core_mpz_mpfr:
-            self._core_mpz_mpfr.discoverAllRows()
+        if self._type == mpz_double:
+            self._core.mpz_double.discoverAllRows()
+        elif self._type == mpz_mpfr:
+            self._core.mpz_mpfr.discoverAllRows()
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def move_row(self, int old_r, int new_r):
         preprocess_indices(old_r, new_r, self.d, self.d)
-        if self._core_mpz_double:
-            return self._core_mpz_double.moveRow(old_r, new_r)
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.moveRow(old_r, new_r)
+        if self._type == mpz_double:
+            return self._core.mpz_double.moveRow(old_r, new_r)
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.moveRow(old_r, new_r)
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
@@ -241,27 +243,27 @@ cdef class MatGSO:
         cdef FP_NR[double] x_double
         cdef FP_NR[mpfr_t] x_mpfr
 
-        if self._core_mpz_double:
+        if self._type == mpz_double:
             x_double = x_
-            self._core_mpz_double.row_addmul(i, j, x_double)
-        elif self._core_mpz_mpfr:
+            self._core.mpz_double.row_addmul(i, j, x_double)
+        elif self._type == mpz_mpfr:
             x_mpfr = x_
-            self._core_mpz_mpfr.row_addmul(i, j, x_mpfr)
+            self._core.mpz_mpfr.row_addmul(i, j, x_mpfr)
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def create_row(self):
-        if self._core_mpz_double:
-            return self._core_mpz_double.createRow()
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.createRow()
+        if self._type == mpz_double:
+            return self._core.mpz_double.createRow()
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.createRow()
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def remove_last_row(self):
-        if self._core_mpz_double:
-            return self._core_mpz_double.removeLastRow()
-        elif self._core_mpz_mpfr:
-            return self._core_mpz_mpfr.removeLastRow()
+        if self._type == mpz_double:
+            return self._core.mpz_double.removeLastRow()
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.removeLastRow()
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)

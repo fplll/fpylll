@@ -10,13 +10,29 @@ from fplll cimport Enumeration as Enumeration_c
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport Z_NR, FP_NR, mpz_t
 from fplll cimport FastEvaluator
+from fpylll cimport mpz_double, mpz_mpfr
 
 cdef class Enumeration:
 
     @staticmethod
-    def enumerate(MatGSO m, max_dist, max_dist_expo, first, last, pruning):
+    def enumerate(MatGSO M, max_dist, max_dist_expo, first, last, pruning):
+        """FIXME! briefly describe function
 
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]] *gso = m._core_mpz_double
+        :param MatGSO M:
+        :param max_dist:
+        :param max_dist_expo:
+        :param first:
+        :param last:
+        :param pruning:
+        :returns:
+        :rtype:
+
+        """
+
+        if M._type != mpz_double:
+            raise NotImplementedError("Only mpz_double supported for now.")
+
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]] *gso = M._core.mpz_double
 
         cdef FastEvaluator[FP_NR[double]] evaluator
 
@@ -41,6 +57,9 @@ cdef class Enumeration:
                                                target_coord_, sub_tree_,
                                                first, last, pruning_)
         sig_off()
+
+        if not evaluator.solCoord.size():
+            raise ArithmeticError("Enumeration failed.")
 
         solution = []
         for i in range(evaluator.solCoord.size()):
