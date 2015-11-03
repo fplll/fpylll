@@ -93,13 +93,15 @@ class BKZ:
         else:
             d = self.m.d
             self.m.create_row()
-            self.m.row_op_begin(d, d + 1)
-            for i in range(block_size):
-                self.m.row_addmul(d, kappa + i, solution[i])
-            self.m.row_op_end(d, d + 1)
+
+            with self.m.row_ops(d, d+1):
+                for i in range(block_size):
+                    self.m.row_addmul(d, kappa + i, solution[i])
+
             self.m.move_row(d, kappa)
             self.lll_obj(kappa, kappa, kappa + block_size + 1)
             self.m.move_row(kappa + block_size, d)
+
             self.m.remove_last_row()
 
         return False
