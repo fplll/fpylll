@@ -192,12 +192,6 @@ cdef class MatGSO:
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
-        # const Matrix[FT]& getMuMatrix()
-        # const FT& getMuExp(int i, int j, long& expo)
-        # const FT& getMuExp(int i, int j)
-        # void getMu(FT& f, int i, int j)
-
-        # const Matrix[FT]& getRMatrix()
 
     def get_r(self, int i, int j):
         """FIXME! briefly describe function
@@ -245,10 +239,6 @@ cdef class MatGSO:
 
         return r, expo
 
-        # long getMaxMuExp(int i, int nColumns)
-
-        # int updateGSORow(int i, int lastJ)
-        # int updateGSORow(int i)
 
     def update_gso(self):
         if self._type == mpz_double:
