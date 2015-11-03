@@ -4,6 +4,8 @@ __pycache__/
 
 # C extensions
 *.so
+*.cpp
+
 
 # Distribution / packaging
 .Python
@@ -55,3 +57,7 @@ _build/
 
 # PyBuilder
 target/
+
+
+/fpylll/gmp/pylong.c
+/fpylll/interrupt/interrupt.c
