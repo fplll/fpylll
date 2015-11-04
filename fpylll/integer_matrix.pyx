@@ -2,6 +2,8 @@
 # distutils: language = c++
 # distutils: libraries = gmp mpfr fplll
 
+include "interrupt/interrupt.pxi"
+
 from cpython.int cimport PyInt_AS_LONG
 from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
 from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
@@ -160,7 +162,9 @@ cdef class IntegerMatrix:
         """
         if algorithm == "intrel":
             bits = int(kwds["bits"])
+            sig_on()
             self._core.gen_intrel(bits)
+            sig_off()
 
         elif algorithm == "simdioph":
             bits = int(kwds["bits"])
@@ -169,21 +173,29 @@ cdef class IntegerMatrix:
 
         elif algorithm == "uniform":
             bits = int(kwds["bits"])
+            sig_on()
             self._core.gen_uniform(bits)
+            sig_off()
 
         elif algorithm == "ntrulike":
             bits = int(kwds["bits"])
             q = int(kwds["q"])
+            sig_on()
             self._core.gen_ntrulike(bits, q)
+            sig_off()
 
         elif algorithm == "ntrulike2":
             bits = int(kwds["bits"])
             q = int(kwds["q"])
+            sig_on()
             self._core.gen_ntrulike2(bits, q)
+            sig_off()
 
         elif algorithm == "atjai":
             alpha = float(kwds["alpha"])
+            sig_on()
             self._core.gen_ajtai(alpha)
+            sig_off()
 
         else:
             raise ValueError("Algorithm '%s' unknown."%algorithm)
