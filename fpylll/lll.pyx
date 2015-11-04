@@ -4,6 +4,7 @@
 
 include "interrupt/interrupt.pxi"
 
+from qd.qd cimport dd_real, qd_real
 from gmp.mpz cimport mpz_t
 from mpfr.mpfr cimport mpfr_t
 from integer_matrix cimport IntegerMatrix
@@ -15,7 +16,7 @@ from fplll cimport LLL_DEFAULT
 
 from fplll cimport LLLMethod, LLL_DEF_ETA, LLL_DEF_DELTA
 from fplll cimport LM_WRAPPER, LM_PROVED, LM_HEURISTIC, LM_FAST
-from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE
+from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD
 
 from fplll cimport Z_NR, FP_NR
 from fplll cimport lllReduction as lllReduction_c
@@ -26,7 +27,7 @@ from fplll cimport getRedStatusStr
 
 from util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll import ReductionError
-from fpylll cimport mpz_double, mpz_mpfr
+from fpylll cimport mpz_double, mpz_dd, mpz_qd, mpz_mpfr
 
 DEFAULT = LLL_DEFAULT
 VERBOSE = LLL_VERBOSE
@@ -59,8 +60,10 @@ cdef class LLLReduction:
         check_delta(delta)
         check_eta(eta)
 
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]] *m_double
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]] *m_mpfr
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]]  *m_double
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_real]] *m_dd
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_real]] *m_qd
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpfr
 
         self.m = M
 
@@ -70,6 +73,18 @@ cdef class LLLReduction:
             self._core.mpz_double = new LLLReduction_c[Z_NR[mpz_t], FP_NR[double]](m_double[0],
                                                                                    delta,
                                                                                    eta, flags)
+        elif M._type == mpz_dd:
+            m_dd = M._core.mpz_dd
+            self._type = mpz_dd
+            self._core.mpz_dd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[dd_real]](m_dd[0],
+                                                                                delta,
+                                                                                eta, flags)
+        elif M._type == mpz_qd:
+            m_qd = M._core.mpz_qd
+            self._type = mpz_qd
+            self._core.mpz_qd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[qd_real]](m_qd[0],
+                                                                                delta,
+                                                                                eta, flags)
         elif M._type == mpz_mpfr:
             m_mpfr = M._core.mpz_mpfr
             self._type = mpz_mpfr
@@ -85,6 +100,10 @@ cdef class LLLReduction:
     def __dealloc__(self):
         if self._type == mpz_double:
             del self._core.mpz_double
+        if self._type == mpz_dd:
+            del self._core.mpz_dd
+        if self._type == mpz_qd:
+            del self._core.mpz_qd
         if self._type == mpz_mpfr:
             del self._core.mpz_mpfr
 
@@ -103,6 +122,16 @@ cdef class LLLReduction:
             sig_on()
             self._core.mpz_double.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_double.status
+            sig_off()
+        elif self._type == mpz_dd:
+            sig_on()
+            self._core.mpz_dd.lll(kappa_min, kappa_start, kappa_end)
+            r = self._core.mpz_dd.status
+            sig_off()
+        elif self._type == mpz_qd:
+            sig_on()
+            self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end)
+            r = self._core.mpz_qd.status
             sig_off()
         elif self._type == mpz_mpfr:
             sig_on()
@@ -124,6 +153,10 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             r = self._core.mpz_double.sizeReduction(kappa_min, kappa_end)
+        elif self._type == mpz_dd:
+            r = self._core.mpz_dd.sizeReduction(kappa_min, kappa_end)
+        elif self._type == mpz_qd:
+            r = self._core.mpz_qd.sizeReduction(kappa_min, kappa_end)
         elif self._type == mpz_mpfr:
             r = self._core.mpz_mpfr.sizeReduction(kappa_min, kappa_end)
         else:
@@ -141,6 +174,10 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.finalKappa
+        elif self._type == mpz_dd:
+            return self._core.mpz_dd.finalKappa
+        elif self._type == mpz_qd:
+            return self._core.mpz_qd.finalKappa
         elif self._type == mpz_mpfr:
             return self._core.mpz_mpfr.finalKappa
         else:
@@ -156,6 +193,10 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.lastEarlyRed
+        elif self._type == mpz_dd:
+            return self._core.mpz_dd.lastEarlyRed
+        elif self._type == mpz_qd:
+            return self._core.mpz_qd.lastEarlyRed
         elif self._type == mpz_mpfr:
             return self._core.mpz_mpfr.lastEarlyRed
         else:
@@ -171,6 +212,10 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.zeros
+        elif self._type == mpz_dd:
+            return self._core.mpz_dd.zeros
+        elif self._type == mpz_qd:
+            return self._core.mpz_qd.zeros
         elif self._type == mpz_mpfr:
             return self._core.mpz_mpfr.zeros
         else:
@@ -186,6 +231,10 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.nSwaps
+        elif self._type == mpz_dd:
+            return self._core.mpz_dd.nSwaps
+        elif self._type == mpz_qd:
+            return self._core.mpz_qd.nSwaps
         elif self._type == mpz_mpfr:
             return self._core.mpz_mpfr.nSwaps
         else:
@@ -242,7 +291,7 @@ def lll_reduction(IntegerMatrix B, U=None,
         raise ValueError("LLL wrapper function requires float_type==None")
 
     if method_ == LM_FAST and \
-       check_float_type(float_type) not in (FT_DOUBLE, FT_LONG_DOUBLE):
+       check_float_type(float_type) not in (FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD):
         raise ValueError("LLL fast function requires "
                          "float_type == 'double' or 'long double'")
 

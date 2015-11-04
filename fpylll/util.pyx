@@ -1,4 +1,4 @@
-from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
+from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR
 
 cdef FloatType check_float_type(object float_type):
     cdef FloatType float_type_
@@ -9,6 +9,10 @@ cdef FloatType check_float_type(object float_type):
         float_type_ = FT_DOUBLE
     elif float_type == "long double":
         float_type_ = FT_LONG_DOUBLE
+    elif float_type == "dd":
+        float_type_ = FT_DD
+    elif float_type == "qd":
+        float_type_ = FT_QD
     elif float_type == "dpe":
         float_type_ = FT_DPE
     elif float_type == "mpfr":

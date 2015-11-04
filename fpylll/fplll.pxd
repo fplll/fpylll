@@ -76,6 +76,8 @@ cdef extern from "fplll/defs.h" namespace "fplll":
         FT_DEFAULT
         FT_DOUBLE
         FT_LONG_DOUBLE
+        FT_DD
+        FT_QD
         FT_DPE
         FT_MPFR
 
