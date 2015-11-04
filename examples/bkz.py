@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from fpylll import IntegerMatrix, MatGSO, LLLReduction, Wrapper
+from fpylll import BKZAutoAbort
 from fpylll import Enumeration as Enum
 from fpylll import gso
+
 
 class BKZ:
     def __init__(self, A):
@@ -34,9 +36,13 @@ class BKZ:
         """
         self.m.discover_all_rows()
 
+        auto_abort = BKZAutoAbort(self.m, self.A.nrows)
+
         while True:
             clean = self.bkz_loop(block_size, 0, self.A.nrows)
             if clean:
+                break
+            if auto_abort.test_abort():
                 break
 
     def bkz_loop(self, block_size, min_row, max_row):
