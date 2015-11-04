@@ -15,7 +15,7 @@ ROW_EXPO=GSO_ROW_EXPO_c
 OP_FORCE_LONG=GSO_OP_FORCE_LONG_c
 
 
-cdef class MatGSORowOpContext(object):
+class MatGSORowOpContext(object):
     def __init__(self, MatGSO m, int i, int j):
         """FIXME! briefly describe function
 

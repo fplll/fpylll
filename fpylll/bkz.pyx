@@ -2,20 +2,67 @@
 # distutils: language = c++
 # distutils: libraries = gmp mpfr fplll
 
+from gmp.mpz cimport mpz_t
+from mpfr.mpfr cimport mpfr_t
+
 from fplll cimport LLL_DEF_DELTA, FloatType
 from fplll cimport BKZParam as BKZParam_c
+from fplll cimport BKZAutoAbort as BKZAutoAbort_c
 from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
 from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
 from fplll cimport RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT
 from fplll cimport bkzReduction, getRedStatusStr
+from fplll cimport FP_NR, Z_NR
 
 from fpylll import ReductionError
+from fpylll cimport mpz_double, mpz_mpfr
 
 from integer_matrix cimport IntegerMatrix
 from util cimport check_delta, check_precision, check_float_type, recursively_free_bkz_param
 
 
 include "interrupt/interrupt.pxi"
+
+cdef class BKZAutoAbort:
+    def __init__(self, MatGSO M, int num_rows, int start_row=0):
+        """FIXME! briefly describe function
+
+        :param MatGSO M:
+        :param int num_rows:
+        :param int start_row:
+        :returns:
+        :rtype:
+
+        """
+        if M._type == mpz_double:
+            self._type = mpz_double
+            self._core.mpz_double = new BKZAutoAbort_c[FP_NR[double]](M._core.mpz_double[0],
+                                                                      num_rows,
+                                                                      start_row)
+        elif M._type == mpz_mpfr:
+            self._type = mpz_mpfr
+            self._core.mpz_mpfr = new BKZAutoAbort_c[FP_NR[mpfr_t]](M._core.mpz_mpfr[0],
+                                                                  num_rows,
+                                                                  start_row)
+        else:
+            raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+
+    def test_abort(self, scale=1.0, int max_no_dec=5):
+        """FIXME! briefly describe function
+
+        :param scale:
+        :param int max_no_dec:
+        :returns:
+        :rtype:
+
+        """
+        if self._type == mpz_double:
+            return self._core.mpz_double.testAbort(scale, max_no_dec)
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.testAbort(scale, max_no_dec)
+        else:
+            raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+
 
 # TODO: translate to a more fpLLL style interface
 
@@ -32,15 +79,15 @@ def bkz_reduction(IntegerMatrix A, int block_size, double delta=LLL_DEF_DELTA,
     :param delta: LLL parameter `0.25 < δ < 1.0`
     :param float_type: see list below for options
 
-            - ``None``: for automatic choice
+        - ``None``: for automatic choice
 
-            - ``'double'``: double precision
+        - ``'double'``: double precision
 
-            - ``'long double'``: long double precision
+        - ``'long double'``: long double precision
 
-            - ``'dpe'``: double plus exponent
+        - ``'dpe'``: double plus exponent
 
-            - ``'mpfr'``: arbitrary precision, use ``precision`` to set desired bit length
+        - ``'mpfr'``: arbitrary precision, use ``precision`` to set desired bit length
 
     :param verbose: be verbose
     :param no_lll: disable LLL

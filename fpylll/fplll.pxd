@@ -333,6 +333,14 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
 
          void enableLinearPruning(int level)
 
+    cdef cppclass BKZAutoAbort[FT]:
+        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int numRows)
+        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int numRows, int startRow)
+
+        int testAbort()
+        int testAbort(double scale)
+        int testAbort(double scale, int maxNoDec)
+
 
 
 # Utility
