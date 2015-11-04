@@ -92,6 +92,12 @@ cdef class MatGSO:
         self._B = B
 
     def __dealloc__(self):
+        """FIXME! briefly describe function
+
+        :returns:
+        :rtype:
+
+        """
         if self._type == mpz_double:
             del self._core.mpz_double
         if self._type == mpz_mpfr:
@@ -99,6 +105,8 @@ cdef class MatGSO:
 
     @property
     def d(self):
+        """
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.d
         elif self._type == mpz_mpfr:
@@ -108,6 +116,8 @@ cdef class MatGSO:
 
     @property
     def int_gram_enabled(self):
+        """
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.enableIntGram
         elif self._type == mpz_mpfr:
@@ -117,6 +127,8 @@ cdef class MatGSO:
 
     @property
     def row_expo_enabled(self):
+        """
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.enableRowExpo
         elif self._type == mpz_mpfr:
@@ -126,6 +138,8 @@ cdef class MatGSO:
 
     @property
     def transform_enabled(self):
+        """
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.enableTransform
         elif self._type == mpz_mpfr:
@@ -135,6 +149,8 @@ cdef class MatGSO:
 
     @property
     def inv_transform_enabled(self):
+        """
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.enableInvTransform
         elif self._type == mpz_mpfr:
@@ -144,6 +160,8 @@ cdef class MatGSO:
 
     @property
     def row_op_force_long(self):
+        """
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.rowOpForceLong
         elif self._type == mpz_mpfr:
@@ -152,6 +170,14 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def row_op_begin(self, int first, int last):
+        """FIXME! briefly describe function
+
+        :param int first:
+        :param int last:
+        :returns:
+        :rtype:
+
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.rowOpBegin(first, last)
         elif self._type == mpz_mpfr:
@@ -160,6 +186,14 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def row_op_end(self, int first, int last):
+        """FIXME! briefly describe function
+
+        :param int first:
+        :param int last:
+        :returns:
+        :rtype:
+
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.rowOpEnd(first, last)
         elif self._type == mpz_mpfr:
@@ -177,6 +211,14 @@ cdef class MatGSO:
         return MatGSORowOpContext(self, first, last)
 
     def get_gram(self, int i, int j):
+        """FIXME! briefly describe function
+
+        :param int i:
+        :param int j:
+        :returns:
+        :rtype:
+
+        """
         preprocess_indices(i, j, self.d, self.d)
 
         cdef FP_NR[double] t_double
@@ -222,7 +264,7 @@ cdef class MatGSO:
         :param i:
         :param j:
         :returns:
-        :rtype: double
+        :rtype: (float, int)
 
         """
         preprocess_indices(i, j, self.d, self.d)
@@ -241,6 +283,12 @@ cdef class MatGSO:
 
 
     def update_gso(self):
+        """FIXME! briefly describe function
+
+        :returns:
+        :rtype:
+
+        """
         if self._type == mpz_double:
             return bool(self._core.mpz_double.updateGSO())
         elif self._type == mpz_mpfr:
@@ -249,6 +297,12 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def discover_all_rows(self):
+        """FIXME! briefly describe function
+
+        :returns:
+        :rtype:
+
+        """
         if self._type == mpz_double:
             self._core.mpz_double.discoverAllRows()
         elif self._type == mpz_mpfr:
@@ -257,6 +311,14 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def move_row(self, int old_r, int new_r):
+        """FIXME! briefly describe function
+
+        :param int old_r:
+        :param int new_r:
+        :returns:
+        :rtype:
+
+        """
         preprocess_indices(old_r, new_r, self.d, self.d)
         if self._type == mpz_double:
             return self._core.mpz_double.moveRow(old_r, new_r)
@@ -270,6 +332,15 @@ cdef class MatGSO:
         # void swapRows(int row1, int row2)
 
     def row_addmul(self, int i, int j, x):
+        """FIXME! briefly describe function
+
+        :param int i:
+        :param int j:
+        :param x:
+        :returns:
+        :rtype:
+
+        """
         preprocess_indices(i, j, self.d, self.d)
         cdef double x_ = x
         cdef FP_NR[double] x_double
@@ -285,6 +356,12 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def create_row(self):
+        """FIXME! briefly describe function
+
+        :returns:
+        :rtype:
+
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.createRow()
         elif self._type == mpz_mpfr:
@@ -293,6 +370,12 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def remove_last_row(self):
+        """FIXME! briefly describe function
+
+        :returns:
+        :rtype:
+
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.removeLastRow()
         elif self._type == mpz_mpfr:
