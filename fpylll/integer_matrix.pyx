@@ -157,8 +157,7 @@ cdef class IntegerMatrix:
         elif isinstance(key, int):
             i = key
             preprocess_indices(i, i, self._core.getRows(), self._core.getRows())
-            self._core[0][i]
-
+            raise NotImplementedError
         else:
             raise ValueError("Parameter '%s' not understood."%key)
 
