@@ -48,6 +48,32 @@ cdef class IntegerMatrix:
             self._core.getRows(),
             self._core.getCols())
 
+    def __str__(self):
+        cdef int i, j
+        max_length = []
+        for j in range(self._core.getCols()):
+            max_length.append(1)
+            for i in range(self._core.getRows()):
+                value = self[i, j]
+                if not value:
+                    continue
+                length = ceil(log(abs(value), 10))
+                # add one if clean multiple of 10
+                length += int(not (abs(value) % 10))
+                length += int(value < 0)
+                if length > max_length[j]:
+                    max_length[j] = int(length)
+
+        r = []
+        for i in range(self._core.getRows()):
+            r.append(["["])
+            for j in range(self._core.getCols()):
+                r[-1].append(("%%%dd"%max_length[j])%self[i,j])
+            r[-1].append("]")
+            r[-1] = " ".join(r[-1])
+        r = "\n".join(r)
+        return r
+
     def __copy__(self):
         cdef IntegerMatrix A = IntegerMatrix(self.nrows, self.ncols)
         cdef int i, j
