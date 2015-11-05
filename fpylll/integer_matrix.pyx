@@ -120,16 +120,7 @@ cdef class IntegerMatrix:
 
         if isinstance(key, tuple):
             i, j = key
-            if i < 0:
-                i %= self._core.getRows()
-            if j < 0:
-                j %= self._core.getCols()
-
-            if i >= self._core.getRows():
-                raise IndexError("First index must be < %d but got %d."%(self._core.getRows(), i))
-            if j >= self._core.getCols():
-                raise IndexError("Second index must be < %d but got %d."%(self._core.getCols(), j))
-
+            preprocess_indices(i, j, self._core.getRows(), self._core.getCols())
             r = mpz_get_pyintlong(self._core[0][i][j].getData())
             return r
         else:
