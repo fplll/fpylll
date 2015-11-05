@@ -1,15 +1,10 @@
 fpyLLL
 ======
 
-Contents:
-
-.. toctree::
-   :maxdepth: 2
-
 A Python wrapper for fplll.
 
 Getting Started
-===============
+---------------
 
 This is all a bit of a hack. We assume you’re using `virtualenv <https://virtualenv.readthedocs.org/>`_ for isolating Python build environments. You can use `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`_ to manage your virtual enviroments.
 
@@ -46,7 +41,7 @@ so that Python can find fplll and friends.
 You may want to change out of the root directory of this repository before starting ``(i)python``, as the presence of a ``fpylll`` directory tends to confuse its module finding.
 
 Example
-=======
+-------
 
 The interface still rather limited, here is an example session:
 
@@ -79,7 +74,7 @@ The interface still rather limited, here is an example session:
 The interface already allows to implement the basic BKZ algorithm in about 60 pretty readable lines of Python code (cf. `bkz.py <https://github.com/malb/fpylll/blob/master/examples/bkz.py>`_).
 
 Implementation Stuff
-====================
+--------------------
 
 - I copied a decent bit of code over from Sage, mostly from it’s fpLLL interface. But I also imported Sage’s excellent interrupt handling routines.
 
@@ -89,10 +84,3 @@ Implementation Stuff
 
 - Pull requests etc. welcome.
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
