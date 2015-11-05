@@ -29,6 +29,10 @@ cdef class IntegerMatrix:
         ValueError: Number of rows must be >0
 
         """
+        # TODO: support IntegerMatrix(A)
+        # TODO: IntegerMatrix(list)
+        # TODO: IntegerMatrix(list of list)
+
         if nrows < 0:
             raise ValueError("Number of rows must be >0")
 
