@@ -352,6 +352,8 @@ cdef extern from "fplll/util.h" namespace "fplll":
                            vector[Z_NR[mpz_t]] &x,
                            const Matrix[Z_NR[mpz_t]] &m)
 
+    void sqrNorm[T](T& result, const MatrixRow[T]& v, int n)
+
 
 
 # Highlevel Functions
