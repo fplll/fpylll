@@ -6,7 +6,7 @@ from fpylll import Enumeration as Enum
 from fpylll import gso
 
 
-class BKZ:
+class BKZReduction:
     def __init__(self, A):
         """FIXME! briefly describe function
 
