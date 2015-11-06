@@ -4,6 +4,11 @@
 
 from fpylll cimport bkz_auto_abort_core, fplll_type_t
 from gso cimport MatGSO
+from fplll cimport BKZParam as BKZParam_c
+
+cdef class BKZParam:
+    cdef BKZParam_c *o
+    cdef BKZParam preprocessing
 
 cdef class BKZAutoAbort:
     cdef fplll_type_t _type

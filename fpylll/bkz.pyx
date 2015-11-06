@@ -20,10 +20,107 @@ from fpylll cimport mpz_double, mpz_mpfr
 from integer_matrix cimport IntegerMatrix
 from util cimport check_delta, check_precision, check_float_type, recursively_free_bkz_param
 
-
 include "interrupt/interrupt.pxi"
 
+class BKZFlags:
+    DEFAULT = BKZ_DEFAULT
+    VERBOSE = BKZ_VERBOSE
+    NO_LLL = BKZ_NO_LLL
+    BOUNDED_LLL = BKZ_BOUNDED_LLL,
+    GH_BND = BKZ_GH_BND
+    AUTO_ABORT = BKZ_AUTO_ABORT
+    MAX_LOOPS = BKZ_MAX_LOOPS
+    MAX_TIME = BKZ_MAX_TIME
+    DUMP_GSO = BKZ_DUMP_GSO
+
+cdef class BKZParam:
+    def __init__(self, int block_size, float delta=LLL_DEF_DELTA, int flags=BKZ_DEFAULT,
+                 int max_loops=0, int max_time=0,
+                 auto_abort=None, float gh_factor=1.1,
+                 pruning=None, preprocessing=None,
+                 dump_gso_filename=None):
+
+        if block_size <= 0:
+            raise ValueError("block size must be > 0")
+        if max_loops < 0:
+            raise ValueError("maximum number of loops must be >= 0")
+        if max_time < 0:
+            raise ValueError("maximum time must be >= 0")
+        if gh_factor <= 0:
+            raise ValueError("GH factor must be <= 0")
+
+        check_delta(delta)
+        cdef BKZParam_c *o = new BKZParam_c(block_size, delta)
+
+        cdef int linear_pruning_level = 0
+        try:
+            linear_pruning_level = int(pruning)
+            if linear_pruning_level:
+                o.enableLinearPruning(linear_pruning_level)
+        except TypeError:
+            if pruning:
+                o.pruning.resize(block_size)
+                for j in range(block_size):
+                    o.pruning[j] = pruning[j]
+
+        o.flags = flags
+
+        if o.flags & BKZ_GH_BND:
+            o.ghFactor = float(gh_factor)
+
+        if auto_abort is True:
+            o.flags |= BKZ_AUTO_ABORT
+
+        if o.flags & BKZ_AUTO_ABORT:
+            if auto_abort in (True, None):
+                pass
+            else:
+                try:
+                    a_scale, a_max = auto_abort
+                    o.autoAbort_scale = a_scale
+                    o.autoAbort_maxNoDec = a_max
+                except TypeError:
+                    del o
+                    raise ValueError("Parameter auto_abort (%s) not understood."%auto_abort)
+
+        if o.flags & BKZ_MAX_LOOPS:
+            o.maxLoops = max_loops
+
+        if o.flags & BKZ_MAX_TIME:
+            o.maxTime = max_time
+
+        if dump_gso_filename is not None:
+            o.flags |= BKZ_DUMP_GSO
+
+        if o.flags & BKZ_DUMP_GSO:
+            o.dumpGSOFilename = dump_gso_filename
+
+        if preprocessing:
+            self.preprocessing = preprocessing
+            o.preprocessing = self.preprocessing.o
+        self.o = o
+
+    # def __str__(self):
+
+    #     cdef int block_size =
+    #     cdef float delta =
+    #     cdef int flags =
+    #     cdef int max_loops =
+    #     cdef int max_time =
+    #     auto_abort =
+    #     cdef float gh_factor =
+    #     cdef pruning =
+    #     cdef preprocessing =
+    #     cdef dump_gso_filename =
+
+    #     return "BKZParam()"
+
+    def __dealloc__(self):
+        del self.o
+
 cdef class BKZAutoAbort:
+    """
+    """
     def __init__(self, MatGSO M, int num_rows, int start_row=0):
         """FIXME! briefly describe function
 
