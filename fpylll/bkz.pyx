@@ -22,18 +22,8 @@ from util cimport check_delta, check_precision, check_float_type, recursively_fr
 
 include "interrupt/interrupt.pxi"
 
-class BKZFlags:
-    DEFAULT = BKZ_DEFAULT
-    VERBOSE = BKZ_VERBOSE
-    NO_LLL = BKZ_NO_LLL
-    BOUNDED_LLL = BKZ_BOUNDED_LLL,
-    GH_BND = BKZ_GH_BND
-    AUTO_ABORT = BKZ_AUTO_ABORT
-    MAX_LOOPS = BKZ_MAX_LOOPS
-    MAX_TIME = BKZ_MAX_TIME
-    DUMP_GSO = BKZ_DUMP_GSO
-
 cdef class BKZParam:
+
     def __init__(self, int block_size, float delta=LLL_DEF_DELTA, int flags=BKZ_DEFAULT,
                  int max_loops=0, int max_time=0,
                  auto_abort=None, float gh_factor=1.1,
@@ -100,23 +90,25 @@ cdef class BKZParam:
             o.preprocessing = self.preprocessing.o
         self.o = o
 
-    # def __str__(self):
-
-    #     cdef int block_size =
-    #     cdef float delta =
-    #     cdef int flags =
-    #     cdef int max_loops =
-    #     cdef int max_time =
-    #     auto_abort =
-    #     cdef float gh_factor =
-    #     cdef pruning =
-    #     cdef preprocessing =
-    #     cdef dump_gso_filename =
-
-    #     return "BKZParam()"
+    def __str__(self):
+        param = self
+        i = 0
+        r = []
+        while param:
+            t = "BKZParam(block_size={block_size}, flags=0x{flags:04x}, ..."
+            t = t.format(block_size=param.o.blockSize,
+                         flags=param.o.flags)
+            r.append(" "*i + t)
+            param = param.preprocessing
+            i += 4
+        r[-1] += ")"*(i/4)
+        r = "\n".join(r)
+        return r
 
     def __dealloc__(self):
         del self.o
+
+    # TODO add properties for all ... properties
 
 cdef class BKZAutoAbort:
     """
@@ -366,3 +358,18 @@ def bkz_reduction(IntegerMatrix A, int block_size, double delta=LLL_DEF_DELTA,
                 print str(getRedStatusStr(r))
         else:
             raise ReductionError( str(getRedStatusStr(r)) )
+
+class BKZ:
+    DEFAULT = BKZ_DEFAULT
+    VERBOSE = BKZ_VERBOSE
+    NO_LLL = BKZ_NO_LLL
+    BOUNDED_LLL = BKZ_BOUNDED_LLL,
+    GH_BND = BKZ_GH_BND
+    AUTO_ABORT = BKZ_AUTO_ABORT
+    MAX_LOOPS = BKZ_MAX_LOOPS
+    MAX_TIME = BKZ_MAX_TIME
+    DUMP_GSO = BKZ_DUMP_GSO
+
+    Param = BKZParam
+    AutoAbort = BKZAutoAbort
+    reduction = bkz_reduction

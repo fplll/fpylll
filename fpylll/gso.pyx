@@ -10,13 +10,11 @@ from fplll cimport GSO_OP_FORCE_LONG
 from util cimport preprocess_indices
 from fpylll cimport mpz_double, mpz_mpfr, mpz_dd, mpz_qd
 
-class GSOFlags:
-    DEFAULT=GSO_DEFAULT
-    INT_GRAM=GSO_INT_GRAM
-    ROW_EXPO=GSO_ROW_EXPO
-    OP_FORCE_LONG=GSO_OP_FORCE_LONG
-
 class MatGSORowOpContext(object):
+    """
+    Create a context in which performing row operations is safe.  When the context is left, the
+    appropriate updates are performed by calling ``row_op_end()``.
+    """
     def __init__(self, MatGSO m, int i, int j):
         """FIXME! briefly describe function
 
@@ -51,6 +49,7 @@ class MatGSORowOpContext(object):
 cdef class MatGSO:
     """
     """
+
     def __init__(self, IntegerMatrix B, U=None, UinvT=None,
                  int flags=GSO_DEFAULT, float_type="double"):
         """FIXME! briefly describe function
@@ -490,3 +489,11 @@ cdef class MatGSO:
             return self._core.mpz_mpfr.removeLastRow()
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+
+class GSO:
+    DEFAULT=GSO_DEFAULT
+    INT_GRAM=GSO_INT_GRAM
+    ROW_EXPO=GSO_ROW_EXPO
+    OP_FORCE_LONG=GSO_OP_FORCE_LONG
+    Mat = MatGSO

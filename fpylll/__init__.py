@@ -1,8 +1,6 @@
-from easy import *
-
 from integer_matrix import IntegerMatrix
-from gso import MatGSO
-from lll import LLLReduction
+from gso import GSO
+from lll import LLL
 from wrapper import Wrapper
 from enumerate import Enumeration
-from bkz import BKZAutoAbort, BKZParam
+from bkz import BKZ

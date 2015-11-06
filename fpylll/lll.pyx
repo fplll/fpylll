@@ -29,12 +29,6 @@ from util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll import ReductionError
 from fpylll cimport mpz_double, mpz_dd, mpz_qd, mpz_mpfr
 
-class LLLFlags:
-    DEFAULT = LLL_DEFAULT
-    VERBOSE = LLL_VERBOSE
-    EARLY_RED = LLL_EARLY_RED
-    SIEGEL = LLL_SIEGEL
-
 cdef class LLLReduction:
     def __init__(self, MatGSO M,
                  double delta=LLL_DEF_DELTA,
@@ -313,3 +307,11 @@ def lll_reduction(IntegerMatrix B, U=None,
 
     if r:
         raise ReductionError( str(getRedStatusStr(r)) )
+
+class LLL:
+    DEFAULT = LLL_DEFAULT
+    VERBOSE = LLL_VERBOSE
+    EARLY_RED = LLL_EARLY_RED
+    SIEGEL = LLL_SIEGEL
+    Reduction = LLLReduction
+    reduction = lll_reduction
