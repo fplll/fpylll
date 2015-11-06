@@ -3,18 +3,18 @@ from qd.qd cimport dd_real, qd_real
 from mpfr.mpfr cimport mpfr_t
 from integer_matrix cimport IntegerMatrix
 from fplll cimport MatGSO as MatGSO_c, Z_NR, FP_NR, Matrix
-from fplll cimport GSO_DEFAULT as GSO_DEFAULT_c
-from fplll cimport GSO_INT_GRAM as GSO_INT_GRAM_c
-from fplll cimport GSO_ROW_EXPO as GSO_ROW_EXPO_c
-from fplll cimport GSO_OP_FORCE_LONG as GSO_OP_FORCE_LONG_c
+from fplll cimport GSO_DEFAULT
+from fplll cimport GSO_INT_GRAM
+from fplll cimport GSO_ROW_EXPO
+from fplll cimport GSO_OP_FORCE_LONG
 from util cimport preprocess_indices
 from fpylll cimport mpz_double, mpz_mpfr, mpz_dd, mpz_qd
 
-DEFAULT=GSO_DEFAULT_c
-INT_GRAM=GSO_INT_GRAM_c
-ROW_EXPO=GSO_ROW_EXPO_c
-OP_FORCE_LONG=GSO_OP_FORCE_LONG_c
-
+class GSOFlags:
+    DEFAULT=GSO_DEFAULT
+    INT_GRAM=GSO_INT_GRAM
+    ROW_EXPO=GSO_ROW_EXPO
+    OP_FORCE_LONG=GSO_OP_FORCE_LONG
 
 class MatGSORowOpContext(object):
     def __init__(self, MatGSO m, int i, int j):
@@ -52,7 +52,7 @@ cdef class MatGSO:
     """
     """
     def __init__(self, IntegerMatrix B, U=None, UinvT=None,
-                 int flags=DEFAULT, float_type="double"):
+                 int flags=GSO_DEFAULT, float_type="double"):
         """FIXME! briefly describe function
 
         :param IntegerMatrix B:

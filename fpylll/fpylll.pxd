@@ -7,7 +7,7 @@ from qd.qd cimport dd_real, qd_real
 from fplll cimport Z_NR, FP_NR
 from fplll cimport MatGSO, LLLReduction, BKZAutoAbort
 
-ctypedef enum fplll_type:
+ctypedef enum fplll_type_t:
     mpz_double =  1
     mpz_ld     =  2
     mpz_dd     =  4
@@ -15,7 +15,7 @@ ctypedef enum fplll_type:
     mpz_dpe    = 16
     mpz_mpfr   = 32
 
-ctypedef union mat_gso_core:
+ctypedef union mat_gso_core_t:
     MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_double
     # MatGSO[Z_NR[mpz_t], FP_NR[longdouble]] *mpz_ld
     MatGSO[Z_NR[mpz_t], FP_NR[dd_real]] *mpz_dd

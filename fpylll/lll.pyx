@@ -29,11 +29,11 @@ from util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll import ReductionError
 from fpylll cimport mpz_double, mpz_dd, mpz_qd, mpz_mpfr
 
-DEFAULT = LLL_DEFAULT
-VERBOSE = LLL_VERBOSE
-EARLY_RED = LLL_EARLY_RED
-SIEGEL = LLL_SIEGEL
-
+class LLLFlags:
+    DEFAULT = LLL_DEFAULT
+    VERBOSE = LLL_VERBOSE
+    EARLY_RED = LLL_EARLY_RED
+    SIEGEL = LLL_SIEGEL
 
 cdef class LLLReduction:
     def __init__(self, MatGSO M,
