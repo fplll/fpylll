@@ -60,7 +60,7 @@ cdef class IntegerMatrixRow:
         return "(" + ", ".join(r) + ")"
 
     def __repr__(self):
-        return "Row %d of %r"%(self.row, self.m)
+        return "row %d of %r"%(self.row, self.m)
 
     def norm(self):
         """FIXME! briefly describe function
@@ -128,9 +128,10 @@ cdef class IntegerMatrix:
         :rtype:
 
         """
-        return "IntegerMatrix(%d, %d)" % (
+        return "<IntegerMatrix(%d, %d) at %s>" % (
             self._core.getRows(),
-            self._core.getCols())
+            self._core.getCols(),
+            hex(id(self)))
 
     def __str__(self):
         """FIXME! briefly describe function
