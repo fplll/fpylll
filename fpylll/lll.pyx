@@ -29,6 +29,8 @@ from util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll import ReductionError
 from fpylll cimport mpz_double, mpz_dd, mpz_qd, mpz_mpfr
 
+from wrapper import Wrapper
+
 cdef class LLLReduction:
     def __init__(self, MatGSO M,
                  double delta=LLL_DEF_DELTA,
@@ -315,3 +317,5 @@ class LLL:
     SIEGEL = LLL_SIEGEL
     Reduction = LLLReduction
     reduction = lll_reduction
+
+    Wrapper = Wrapper
