@@ -15,6 +15,7 @@ from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 from fpylll.util cimport preprocess_indices
 from fplll cimport MatrixRow, sqrNorm, Z_NR
 
+import re
 from math import log, ceil, sqrt
 
 cdef class IntegerMatrixRow:
@@ -351,3 +352,21 @@ cdef class IntegerMatrix:
 
         """
         self._core.gen_identity(nrows)
+
+
+    @classmethod
+    def from_file(cls, filename):
+        A = IntegerMatrix(0, 0)
+        with open(filename, 'r') as fh:
+            for i, line in enumerate(fh.readlines()):
+                line = re.match("\[+(.*) *\]+", line)
+                if line is None:
+                    continue
+                line = line.groups()[0]
+                line = line.strip()
+                values = map(int, line.split(" "))
+                A._core.setRows(i+1)
+                A._core.setCols(len(values))
+                for j, v in enumerate(values):
+                    A[i, j] = values[j]
+        return A

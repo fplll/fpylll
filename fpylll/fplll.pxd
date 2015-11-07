@@ -147,6 +147,8 @@ cdef extern from "fplll/matrix.h" namespace "fplll":
 
         int getRows()
         int getCols()
+        void setRows(int rows)
+        void setCols(int cols)
 
         Z_NR[T]& operator()(int i, int j)
         MatrixRow[Z_NR[T]] operator[](int i)
