@@ -297,7 +297,6 @@ cdef class MatGSO:
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
-
     def get_r(self, int i, int j):
         """FIXME! briefly describe function
 
@@ -355,6 +354,69 @@ cdef class MatGSO:
         elif self._type == mpz_mpfr:
             # TODO: don't just return doubles
             r = self._core.mpz_mpfr.getRExp(i, j, expo).get_d()
+        else:
+            raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+        return r, expo
+
+
+    def get_mu(self, int i, int j):
+        """FIXME! briefly describe function
+
+        :param i:
+        :param j:
+        :returns:
+        :rtype: double
+
+        """
+        preprocess_indices(i, j, self.d, self.d)
+        cdef FP_NR[double] t_double
+        cdef FP_NR[dd_real] t_dd
+        cdef FP_NR[qd_real] t_qd
+        cdef FP_NR[mpfr_t] t_mpfr
+
+        if self._type == mpz_double:
+            self._core.mpz_double.getMu(t_double, i, j)
+            return t_double.getData()
+        elif self._type == mpz_dd:
+            # TODO: don't just return doubles
+            self._core.mpz_dd.getMu(t_dd, i, j)
+            return t_dd.get_d()
+        elif self._type == mpz_qd:
+            # TODO: don't just return doubles
+            self._core.mpz_qd.getMu(t_qd, i, j)
+            return t_qd.get_d()
+        elif self._type == mpz_mpfr:
+            # TODO: don't just return doubles
+            self._core.mpz_mpfr.getMu(t_mpfr, i, j)
+            return t_mpfr.get_d()
+        else:
+            raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+    def get_mu_exp(self, int i, int j):
+        """FIXME! briefly describe function
+
+        :param i:
+        :param j:
+        :returns:
+        :rtype: (float, int)
+
+        """
+        preprocess_indices(i, j, self.d, self.d)
+        cdef double r = 0.0
+        cdef long expo = 0
+
+        if self._type == mpz_double:
+            r = self._core.mpz_double.getMuExp(i, j, expo).getData()
+        elif self._type == mpz_dd:
+            # TODO: don't just return doubles
+            r = self._core.mpz_dd.getMuExp(i, j, expo).get_d()
+        elif self._type == mpz_qd:
+            # TODO: don't just return doubles
+            r = self._core.mpz_qd.getMuExp(i, j, expo).get_d()
+        elif self._type == mpz_mpfr:
+            # TODO: don't just return doubles
+            r = self._core.mpz_mpfr.getMuExp(i, j, expo).get_d()
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
