@@ -6,3 +6,4 @@
 #include "interrupt/struct_signals.h"
 #include "interrupt/interrupt_api.h"
 #include "interrupt/macros.h"
+#undef _signals
