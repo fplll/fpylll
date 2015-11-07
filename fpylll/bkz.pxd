@@ -8,7 +8,7 @@ from fplll cimport BKZParam as BKZParam_c
 
 cdef class BKZParam:
     cdef BKZParam_c *o
-    cdef BKZParam preprocessing
+    cdef BKZParam _preprocessing
 
 cdef class BKZAutoAbort:
     cdef fplll_type_t _type
