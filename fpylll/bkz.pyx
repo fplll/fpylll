@@ -178,8 +178,11 @@ cdef class BKZParam:
 
     @property
     def pruning(self):
-        p = [self.o.pruning[j] for j in range(self.o.pruning.getSize())]
-        return tuple(p)
+        p = [self.o.pruning[j] for j in range(len(self.o.pruning))]
+        if p:
+            return tuple(p)
+        else:
+            return None
 
     @property
     def preprocessing(self):
