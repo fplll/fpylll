@@ -36,5 +36,5 @@ setup(
     name="fpyLLL",
     ext_package='fpylll',
     ext_modules=cythonize(extensions),
-    packages=["fpylll", "fpylll.gmp", "fpylll.interrupt"],
+    packages=["fpylll", "fpylll.gmp", "fpylll.interrupt", "fpylll.contrib"],
 )
