@@ -86,9 +86,9 @@ class BKZReduction:
         if self.lll_obj.nswaps > 0:
             clean = False
 
-        preproc = param.preprocessing
-
-        if preproc:
+        #  preprocessing
+        if param.preprocessing:
+            preproc = param.preprocessing
             auto_abort = BKZ.AutoAbort(self.m, kappa + block_size, kappa)
             cputime_start = time.clock()
 
@@ -109,6 +109,8 @@ class BKZReduction:
 
         max_dist, expo = self.m.get_r_exp(kappa, kappa)
         delta_max_dist = self.lll_obj.delta * max_dist
+
+        # TODO: Gaussian heuristic
 
         solution, max_dist = Enum.enumerate(self.m, max_dist, expo,
                                             kappa, kappa + block_size,
