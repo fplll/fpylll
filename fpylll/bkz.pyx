@@ -124,8 +124,9 @@ cdef class BKZParam:
         del self.o
 
     def __repr__(self):
-        return "<BKZParam(%d) at %s>" % (
+        return "<BKZParam(%d, flags=0x%04x) at %s>" % (
             self.o.blockSize,
+            self.o.flags,
             hex(id(self)))
 
     def __str__(self):
@@ -139,14 +140,14 @@ cdef class BKZParam:
         i = 0
         r = []
         while param:
-            t = "BKZParam(block_size={block_size}, flags=0x{flags:04x}, ..."
-            t = t.format(block_size=param.o.blockSize,
-                         flags=param.o.flags)
-            r.append(" "*i + t)
+            if i > 0:
+                prep = " "
+            else:
+                prep = ""
+            r.append(prep + str(param.dict(all=False)))
             param = param.preprocessing
-            i += 4
-        r[-1] += ")"*(i/4)
-        r = "\n".join(r)
+            i += 1
+        r = "(" + ",\n".join(r) + ")"
         return r
 
     @property
@@ -195,8 +196,41 @@ cdef class BKZParam:
     def dump_gso_filename(self):
         return self.o.dumpGSOFilename
 
+    def __getitem__(self, key):
+        try:
+            return getattr(self, key)
+        except AttributeError:
+            raise ValueError("Key '%s' not found."%key)
 
 
+    def dict(self, all=True):
+        """
+        """
+        d = {}
+        d["block_size"] = self.block_size
+        if all or self.delta == LLL_DEF_DELTA:
+            d["delta"] = self.delta
+        d["flags"] = self.flags
+        if all or self.max_loops != 0:
+            d["max_loops"] = self.max_loops
+        if all or self.max_time != 0:
+            d["max_time"] = self.max_time
+        if all or self.auto_abort != (1.0, 5):
+            d["auto_abort"] = self.auto_abort
+        if all or self.gh_factor != 1.1:
+            d["gh_factor"] = self.gh_factor
+        if all or self.pruning:
+            d["pruning"] = self.pruning
+        if all or self.preprocessing:
+            d["preprocessing"] =  self.preprocessing
+        if all or self.dump_gso_filename != "gso.log":
+            d["dump_gso_filename"] =  self.dump_gso_filename
+        return d
+
+    def new(self, **kwds):
+        d = self.dict()
+        d.update(kwds)
+        return BKZParam(**d)
 
 cdef class BKZAutoAbort:
     """
@@ -241,8 +275,6 @@ cdef class BKZAutoAbort:
             raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
 
 
-# TODO: translate to a more fpLLL style interface
-
 def bkz_reduction(IntegerMatrix A, BKZParam o, float_type=None, int precision=0):
     """
     Run BKZ reduction.
@@ -275,6 +307,7 @@ def bkz_reduction(IntegerMatrix A, BKZParam o, float_type=None, int precision=0)
             pass
         else:
             raise ReductionError( str(getRedStatusStr(r)) )
+
 
 class BKZ:
     DEFAULT = BKZ_DEFAULT
