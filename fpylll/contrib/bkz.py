@@ -77,6 +77,116 @@ class BKZReduction:
                 stats.log_clean_kappa(kappa, clean)
         return clean
 
+    def svp_preprocessing(self, kappa, param, block_size, stats):
+        """FIXME! briefly describe function
+
+        :param kappa:
+        :param param:
+        :param block_size:
+        :param stats:
+        :returns:
+        :rtype:
+
+        """
+        clean = True
+
+        self.lll_obj(0, kappa, kappa + block_size)
+        if self.lll_obj.nswaps > 0:
+            clean = False
+
+        if param.preprocessing:
+            preproc = param.preprocessing
+            auto_abort = BKZ.AutoAbort(self.m, kappa + block_size, kappa)
+            cputime_start = time.clock()
+
+            i = 0
+            while True:
+                clean_inner = self.tour(preproc, kappa, kappa + block_size)
+                if clean_inner:
+                    break
+                else:
+                    clean = clean_inner
+                if auto_abort.test_abort():
+                    break
+                if (preproc.flags & BKZ.MAX_LOOPS) and i >= preproc.max_loops:
+                    break
+                if (preproc.flags & BKZ.MAX_TIME) and time.clock() - cputime_start >= preproc.max_time:
+                    break
+                i += 1
+
+        return clean
+
+    def svp_call(self, kappa, param, block_size, stats=None):
+        """FIXME! briefly describe function
+
+        :param kappa:
+        :param param:
+        :param block_size:
+        :param stats:
+        :returns:
+        :rtype:
+
+        """
+        max_dist, expo = self.m.get_r_exp(kappa, kappa)
+        delta_max_dist = self.lll_obj.delta * max_dist
+
+        # TODO: Gaussian heuristic
+        try:
+            solution, max_dist = Enum.enumerate(self.m, max_dist, expo,
+                                                kappa, kappa + block_size,
+                                                param.pruning)
+        except EnumerationError, msg:
+            if param.flags & BKZ.GH_BND:
+                return None, True
+            else:
+                raise EnumerationError(msg)
+
+        if max_dist >= delta_max_dist:
+            return None, True
+        else:
+            return solution, False
+
+    def svp_postprocessing(self, solution, kappa, param, block_size, stats=None):
+        """FIXME! briefly describe function
+
+        :param solution:
+        :param kappa:
+        :param param:
+        :param block_size:
+        :param stats:
+        :returns:
+        :rtype:
+
+        """
+        if solution is None:
+            return True
+
+        nonzero_vectors = len([x for x in solution if x])
+        if nonzero_vectors == 1:
+            first_nonzero_vector = None
+            for i in range(block_size):
+                if abs(solution[i]) == 1:
+                    first_nonzero_vector = i
+                    break
+
+            self.m.move_row(kappa + first_nonzero_vector, kappa)
+            self.lll_obj.size_reduction(kappa, kappa + 1)
+
+        else:
+            d = self.m.d
+            self.m.create_row()
+
+            with self.m.row_ops(d, d+1):
+                for i in range(block_size):
+                    self.m.row_addmul(d, kappa + i, solution[i])
+
+            self.m.move_row(d, kappa)
+            self.lll_obj(kappa, kappa, kappa + block_size + 1)
+            self.m.move_row(kappa + block_size, d)
+
+            self.m.remove_last_row()
+        return False
+
     def svp_reduction(self, kappa, param, block_size, stats=None):
         """FIXME! briefly describe function
 
@@ -86,80 +196,20 @@ class BKZReduction:
         :rtype:
 
         """
-        clean = True
-
         if stats is None:
             stats = BKZStats(self)
 
+        clean = True
         with stats.context("preproc"):
-            self.lll_obj(0, kappa, kappa + block_size)
-            if self.lll_obj.nswaps > 0:
-                clean = False
+            clean_pre = self.svp_preprocessing(kappa, param, block_size, stats)
+        clean &= clean_pre
 
-            #  preprocessing
-            if param.preprocessing:
-                preproc = param.preprocessing
-                auto_abort = BKZ.AutoAbort(self.m, kappa + block_size, kappa)
-                cputime_start = time.clock()
-
-                i = 0
-                while True:
-                    clean_inner = self.tour(preproc, kappa, kappa + block_size)
-                    if clean_inner:
-                        break
-                    else:
-                        clean = clean_inner
-                    if auto_abort.test_abort():
-                        break
-                    if (preproc.flags & BKZ.MAX_LOOPS) and i >= preproc.max_loops:
-                        break
-                    if (preproc.flags & BKZ.MAX_TIME) and time.clock() - cputime_start >= preproc.max_time:
-                        break
-                    i += 1
-
-        max_dist, expo = self.m.get_r_exp(kappa, kappa)
-        delta_max_dist = self.lll_obj.delta * max_dist
-
-        # TODO: Gaussian heuristic
         with stats.context("svp"):
-            try:
-                solution, max_dist = Enum.enumerate(self.m, max_dist, expo,
-                                                    kappa, kappa + block_size,
-                                                    param.pruning)
-            except EnumerationError, msg:
-                if param.flags & BKZ.GH_BND:
-                    return clean
-                else:
-                    raise EnumerationError(msg)
-
-        if max_dist >= delta_max_dist:
-            return clean
-
-        nonzero_vectors = len([x for x in solution if x])
+            solution, clean_svp = self.svp_call(kappa, param, block_size, stats)
+        clean &= clean_svp
 
         with stats.context("postproc"):
-            if nonzero_vectors == 1:
-                first_nonzero_vector = None
-                for i in range(block_size):
-                    if abs(solution[i]) == 1:
-                        first_nonzero_vector = i
-                        break
+            clean_post = self.svp_postprocessing(solution, kappa, param, block_size, stats)
+        clean &= clean_post
 
-                self.m.move_row(kappa + first_nonzero_vector, kappa)
-                self.lll_obj.size_reduction(kappa, kappa + 1)
-
-            else:
-                d = self.m.d
-                self.m.create_row()
-
-                with self.m.row_ops(d, d+1):
-                    for i in range(block_size):
-                        self.m.row_addmul(d, kappa + i, solution[i])
-
-                self.m.move_row(d, kappa)
-                self.lll_obj(kappa, kappa, kappa + block_size + 1)
-                self.m.move_row(kappa + block_size, d)
-
-                self.m.remove_last_row()
-
-        return False
+        return clean
