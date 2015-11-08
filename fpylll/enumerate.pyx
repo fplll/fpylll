@@ -12,6 +12,9 @@ from fplll cimport Z_NR, FP_NR, mpz_t
 from fplll cimport FastEvaluator
 from fpylll cimport mpz_double, mpz_mpfr
 
+class EnumerationError(Exception):
+    pass
+
 cdef class Enumeration:
 
     @staticmethod
@@ -59,7 +62,7 @@ cdef class Enumeration:
         sig_off()
 
         if not evaluator.solCoord.size():
-            raise ArithmeticError("Enumeration failed.")
+            raise EnumerationError("No vector found.")
 
         solution = []
         for i in range(evaluator.solCoord.size()):
