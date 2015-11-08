@@ -7,6 +7,7 @@ from fplll cimport GSO_DEFAULT
 from fplll cimport GSO_INT_GRAM
 from fplll cimport GSO_ROW_EXPO
 from fplll cimport GSO_OP_FORCE_LONG
+from fplll cimport getCurrentSlope
 from util cimport preprocess_indices
 from fpylll cimport mpz_double, mpz_mpfr, mpz_dd, mpz_qd
 
@@ -549,6 +550,19 @@ cdef class MatGSO:
             return self._core.mpz_qd.removeLastRow()
         elif self._type == mpz_mpfr:
             return self._core.mpz_mpfr.removeLastRow()
+        else:
+            raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+
+    def get_current_slope(self, int start_row, int stop_row):
+        if self._type == mpz_double:
+            return getCurrentSlope[FP_NR[double]](self._core.mpz_double[0], start_row, stop_row)
+        elif self._type == mpz_dd:
+            return getCurrentSlope[FP_NR[dd_real]](self._core.mpz_dd[0], start_row, stop_row)
+        elif self._type == mpz_qd:
+            return getCurrentSlope[FP_NR[qd_real]](self._core.mpz_qd[0], start_row, stop_row)
+        elif self._type == mpz_mpfr:
+            return getCurrentSlope[FP_NR[mpfr_t]](self._core.mpz_mpfr[0], start_row, stop_row)
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 

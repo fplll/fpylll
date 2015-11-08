@@ -345,6 +345,10 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
         int testAbort(double scale)
         int testAbort(double scale, int maxNoDec)
 
+    void computeGaussHeurDist[FT](MatGSO[Z_NR[mpz_t], FT]& m, FT& maxDist,
+                                  long maxDistExpo, int kappa, int blockSize, double ghFactor)
+
+    double getCurrentSlope[FT](MatGSO[Z_NR[mpz_t], FT]& m, int startRow, int stopRow)
 
 
 # Utility
