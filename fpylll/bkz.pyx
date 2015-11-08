@@ -71,6 +71,9 @@ cdef class BKZParam:
         cdef int linear_pruning_level = 0
         try:
             linear_pruning_level = int(pruning)
+            if linear_pruning_level > block_size:
+                raise ValueError("Linear pruning level (%d) bigger than block size (%d)"%(linear_pruning_level,
+                                                                                          block_size))
             if linear_pruning_level:
                 o.enableLinearPruning(linear_pruning_level)
         except TypeError:
