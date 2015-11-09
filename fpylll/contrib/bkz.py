@@ -130,7 +130,9 @@ class BKZReduction:
         max_dist, expo = self.m.get_r_exp(kappa, kappa)
         delta_max_dist = self.lll_obj.delta * max_dist
 
-        # TODO: Gaussian heuristic
+        if param.flags & BKZ.GH_BND:
+            max_dist, expo = self.m.compute_gaussian_heuristic_distance(kappa, block_size,
+                                                                        max_dist, expo, param.gh_factor)
         try:
             solution, max_dist = Enum.enumerate(self.m, max_dist, expo,
                                                 kappa, kappa + block_size,
