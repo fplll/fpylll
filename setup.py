@@ -34,7 +34,10 @@ extensions = [
 
 setup(
     name="fpyLLL",
+    version='0.1dev',
     ext_package='fpylll',
     ext_modules=cythonize(extensions),
     packages=["fpylll", "fpylll.gmp", "fpylll.interrupt", "fpylll.contrib"],
+    license='GNU General Public License, version 2 or later',
+    long_description=open('README.rst').read(),
 )
