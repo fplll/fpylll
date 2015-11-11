@@ -64,9 +64,3 @@ cdef int check_delta(float delta) except -1:
     elif delta > 1.0:
         raise TypeError("delta must be <= 1.0")
 
-cdef void recursively_free_bkz_param(BKZParam_c *param):
-    if not param:
-        return
-    if param.preprocessing:
-        recursively_free_bkz_param(param.preprocessing)
-    del param

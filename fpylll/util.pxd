@@ -6,4 +6,3 @@ cdef int preprocess_indices(int &i, int &j, int m, int n) except -1
 cdef int check_precision(int precision) except -1
 cdef int check_eta(float eta) except -1
 cdef int check_delta(float delta) except -1
-cdef void recursively_free_bkz_param(BKZParam_c *param)

@@ -18,7 +18,7 @@ from fpylll import ReductionError
 from fpylll cimport mpz_double, mpz_mpfr
 
 from integer_matrix cimport IntegerMatrix
-from util cimport check_delta, check_precision, check_float_type, recursively_free_bkz_param
+from util cimport check_delta, check_precision, check_float_type
 
 include "interrupt/interrupt.pxi"
 
