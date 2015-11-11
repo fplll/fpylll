@@ -9,11 +9,9 @@
 
 include "interrupt/interrupt.pxi"
 
-from cpython.int cimport PyInt_AS_LONG
-from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
-from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
-from fpylll.util cimport preprocess_indices
 from fplll cimport MatrixRow, sqrNorm, Z_NR
+from fpylll.util cimport preprocess_indices, assign_Z_NR_mpz
+from fpylll.gmp.pylong cimport mpz_get_pyintlong
 
 import re
 from math import log, ceil, sqrt
@@ -270,19 +268,8 @@ cdef class IntegerMatrix:
         if isinstance(key, tuple):
             i, j = key
             preprocess_indices(i, j, self._core.getRows(), self._core.getCols())
+            assign_Z_NR_mpz(self._core[0][i][j], value)
 
-            mpz_init(tmp)
-            if isinstance(value, int):
-                mpz_set_si(tmp, PyInt_AS_LONG(value))
-            elif isinstance(value, long):
-                mpz_set_pylong(tmp, value)
-            else:
-                mpz_clear(tmp)
-                msg = "Only Python ints and longs are currently supported, but got type '%s'"%type(value)
-                raise NotImplementedError(msg)
-
-            self._core[0][i][j].set(tmp)
-            mpz_clear(tmp)
         elif isinstance(key, int):
             i = key
             preprocess_indices(i, i, self._core.getRows(), self._core.getRows())

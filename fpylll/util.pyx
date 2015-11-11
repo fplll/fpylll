@@ -1,4 +1,7 @@
 from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR
+from cpython.int cimport PyInt_AS_LONG
+from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
+from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 
 cdef FloatType check_float_type(object float_type):
     cdef FloatType float_type_
@@ -64,3 +67,17 @@ cdef int check_delta(float delta) except -1:
     elif delta > 1.0:
         raise TypeError("delta must be <= 1.0")
 
+cdef int assign_Z_NR_mpz(Z_NR[mpz_t]& t, value) except -1:
+    cdef mpz_t tmp
+    mpz_init(tmp)
+    if isinstance(value, int):
+        mpz_set_si(tmp, PyInt_AS_LONG(value))
+    elif isinstance(value, long):
+        mpz_set_pylong(tmp, value)
+    else:
+        mpz_clear(tmp)
+        msg = "Only Python ints and longs are currently supported, but got type '%s'"%type(value)
+        raise NotImplementedError(msg)
+
+    t.set(tmp)
+    mpz_clear(tmp)
