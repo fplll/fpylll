@@ -67,6 +67,19 @@ cdef extern from "fplll/defs.h" namespace "fplll":
         LM_HEURISTIC
         LM_FAST
 
+    cdef enum SVPMethod:
+        SVPM_FAST
+        SVPM_PROVED
+
+    cdef enum SVPFlags:
+        SVP_DEFAULT
+        SVP_VERBOSE
+        SVP_OVERRIDE_BND
+
+    cdef enum CVPFlags:
+        CVP_DEFAULT
+        CVP_VERBOSE
+
     cdef enum IntType:
         ZT_MPZ
         ZT_LONG
@@ -84,6 +97,8 @@ cdef extern from "fplll/defs.h" namespace "fplll":
     cdef enum SVPMethod:
         SVPM_FAST
         SVPM_PROVED
+
+
 
     cdef double LLL_DEF_DELTA
     cdef double LLL_DEF_ETA
@@ -306,6 +321,24 @@ cdef extern from "fplll/enumerate.h" namespace "fplll":
 
 
 
+# Enumeration
+
+cdef extern from "fplll/svpcvp.h" namespace "fplll":
+
+    int shortestVector(ZZ_mat[mpz_t]& b,
+                       vector[Z_NR[mpz_t]] &solCoord,
+                       SVPMethod method, int flags)
+
+    int shortestVectorPruning(ZZ_mat[mpz_t]& b, vector[Z_NR[mpz_t]]& solCoord,
+                              const vector[double]& pruning, Z_NR[mpz_t]& argIntMaxDist,
+                              int flags)
+
+    # Experimental. Do not use.
+    int closestVector(ZZ_mat[mpz_t] b, vector[Z_NR[mpz_t]] &intTarget,
+                      vector[Z_NR[mpz_t]]& solCoord, int flags)
+
+
+
 # BKZ
 
 cdef extern from "fplll/bkz.h" namespace "fplll":
@@ -356,7 +389,7 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
 cdef extern from "fplll/util.h" namespace "fplll":
     void vectMatrixProduct(vector[Z_NR[mpz_t]] &result,
                            vector[Z_NR[mpz_t]] &x,
-                           const Matrix[Z_NR[mpz_t]] &m)
+                           const ZZ_mat[mpz_t] &m)
 
     void sqrNorm[T](T& result, const MatrixRow[T]& v, int n)
 
@@ -379,8 +412,6 @@ cdef extern from "fplll/fplll.h" namespace "fplll":
     int bkzReduction(ZZ_mat[mpz_t] *b, int blockSize, int flags, FloatType floatType, int precision)
 
     int hkzReduction(ZZ_mat[mpz_t] b)
-    int shortestVector(ZZ_mat[mpz_t] b,
-                       vector[Z_NR[mpz_t]] &solCoord,
-                       SVPMethod method)
+
     const char* getRedStatusStr (int status)
 
