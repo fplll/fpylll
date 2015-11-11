@@ -28,7 +28,7 @@ extensions = [
     Extension("lll", ["fpylll/lll.pyx"], **fplll),
     Extension("wrapper", ["fpylll/wrapper.pyx"], **fplll),
     Extension("bkz", ["fpylll/bkz.pyx"], **fplll),
-    Extension("enumerate", ["fpylll/enumerate.pyx"], **fplll),
+    Extension("enumeration", ["fpylll/enumeration.pyx"], **fplll),
     Extension("fpylll", ["fpylll/fpylll.pyx"], **fplll),
 ]
 
