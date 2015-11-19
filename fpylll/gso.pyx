@@ -13,8 +13,9 @@ from fpylll cimport mpz_double, mpz_mpfr, mpz_dd, mpz_qd
 
 class MatGSORowOpContext(object):
     """
-    Create a context in which performing row operations is safe.  When the context is left, the
-    appropriate updates are performed by calling ``row_op_end()``.
+    Create a context in which performing row operations is safe.  When
+    the context is left, the appropriate updates are performed by
+    calling ``row_op_end()``.
     """
     def __init__(self, MatGSO m, int i, int j):
         """FIXME! briefly describe function
@@ -265,13 +266,18 @@ cdef class MatGSO:
         return MatGSORowOpContext(self, first, last)
 
     def get_gram(self, int i, int j):
-        """FIXME! briefly describe function
+        """
+        Return Gram matrix coefficients (0 ≤ i ≤ n_known_rows and 0 ≤ j ≤ i).
+        If `enable_row_expo=False`, returns the dot product `<b_i, b_j>`.  If
+        `enable_row_expo=True`, returns `<b_i, b_j>/ 2^(row_expo_i +
+        row_expo_j)`.
 
         :param int i:
         :param int j:
-        :returns:
-        :rtype:
 
+        :returns:
+
+        :rtype:
         """
         preprocess_indices(i, j, self.d, self.d)
 
@@ -299,13 +305,15 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def get_r(self, int i, int j):
-        """FIXME! briefly describe function
+        """
+        Return `<b_i, b*_j>`.
 
         :param i:
         :param j:
-        :returns:
-        :rtype: double
 
+        :returns:
+
+        :rtype: double
         """
         preprocess_indices(i, j, self.d, self.d)
         cdef FP_NR[double] t_double
@@ -332,13 +340,19 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def get_r_exp(self, int i, int j):
-        """FIXME! briefly describe function
+        """
+        Return `f = r(i, j)` and expo such that `<b_i, b*_j>` = f * 2^expo`.  If
+        `enable_row_expo=False`, `expo` is always 0.  If `enable_row_expo=True`,
+        `expo = row_expo[i] + row_expo[j]`
+
+        It is assumed that `r(i, j)` is valid.
 
         :param i:
         :param j:
-        :returns:
-        :rtype: (float, int)
 
+        :returns:
+
+        :rtype: (float, int)
         """
         preprocess_indices(i, j, self.d, self.d)
         cdef double r = 0.0
@@ -362,7 +376,8 @@ cdef class MatGSO:
 
 
     def get_mu(self, int i, int j):
-        """FIXME! briefly describe function
+        """
+        Return `<b_i, b*_j> / ||b*_j||^2`.
 
         :param i:
         :param j:
@@ -395,13 +410,18 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def get_mu_exp(self, int i, int j):
-        """FIXME! briefly describe function
+        """
+        Return `f = mu(i, j)` and `expo` such that `f * 2^expo = (b_i, b*_j) /
+        ||b*_j||^2`.  If `enable_row_expo=False`, `expo` is always zero.  If
+        `enable_row_expo=True`, `expo = rowExpo[i] - rowExpo[j]`.  It is assumed
+        that `mu(i, j)` is valid.
 
         :param i:
         :param j:
-        :returns:
-        :rtype: (float, int)
 
+        :returns:
+
+        :rtype: (float, int)
         """
         preprocess_indices(i, j, self.d, self.d)
         cdef double r = 0.0
@@ -425,11 +445,8 @@ cdef class MatGSO:
 
 
     def update_gso(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
-
+        """
+        Updates all GSO coefficients (mu and r).
         """
         if self._type == mpz_double:
             return bool(self._core.mpz_double.updateGSO())
@@ -443,11 +460,9 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def discover_all_rows(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
-
+        """
+        Allows `row_addmul(_we)` for all rows even if the GSO has never been
+        computed.
         """
         if self._type == mpz_double:
             self._core.mpz_double.discoverAllRows()
