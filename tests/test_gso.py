@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from fpylll import MatGSO, IntegerMatrix, gso, lll_reduction
+from fpylll import GSO, IntegerMatrix, LLL
 from copy import copy
 from nose.tools import assert_almost_equal
 
@@ -18,15 +18,15 @@ def test_gso_init():
     for m, n in dimensions:
         A = make_integer_matrix(m, n)
         for float_type in float_types:
-            M = MatGSO(copy(A), float_type=float_type)
+            M = GSO.Mat(copy(A), float_type=float_type)
             del M
 
             U = IntegerMatrix(m, m)
-            M = MatGSO(copy(A), U=U, float_type=float_type)
+            M = GSO.Mat(copy(A), U=U, float_type=float_type)
             del M
 
             UinvT = IntegerMatrix(m, m)
-            M = MatGSO(copy(A), U=U, UinvT=UinvT, float_type=float_type)
+            M = GSO.Mat(copy(A), U=U, UinvT=UinvT, float_type=float_type)
             del M
 
 
@@ -34,7 +34,7 @@ def test_gso_d():
     for m, n in dimensions:
         A = make_integer_matrix(m, n)
         for float_type in float_types:
-            M = MatGSO(copy(A), float_type=float_type)
+            M = GSO.Mat(copy(A), float_type=float_type)
             assert M.d == m
 
 
@@ -42,22 +42,22 @@ def test_gso_int_gram_enabled():
     for m, n in dimensions:
         A = make_integer_matrix(m, n)
         for float_type in float_types:
-            M = MatGSO(copy(A), float_type=float_type)
+            M = GSO.Mat(copy(A), float_type=float_type)
             assert M.int_gram_enabled is False
             assert M.transform_enabled is False
 
-            M = MatGSO(copy(A), float_type=float_type, flags=gso.INT_GRAM)
+            M = GSO.Mat(copy(A), float_type=float_type, flags=GSO.INT_GRAM)
             assert M.int_gram_enabled is True
             assert M.transform_enabled is False
 
             # BUG: U and UinvT don't take, investigate
             # U = IntegerMatrix(m, m)
-            # M = MatGSO(copy(A), U=U, float_type=float_type)
+            # M = GSO.Mat(copy(A), U=U, float_type=float_type)
             # assert M.transform_enabled is True
             # assert M.inverse_transform_enabled is False
 
             # UinvT = IntegerMatrix(m, m)
-            # M = MatGSO(copy(A), U=U, UinvT=UinvT, float_type=float_type)
+            # M = GSO.Mat(copy(A), U=U, UinvT=UinvT, float_type=float_type)
             # assert M.transform_enabled is True
             # assert M.inverse_transform_enabled is True
 
@@ -65,13 +65,13 @@ def test_gso_int_gram_enabled():
 def test_gso_update_gso():
     for m, n in dimensions:
         A = make_integer_matrix(m, n)
-        lll_reduction(A)
+        LLL.reduction(A)
 
         r00 = []
         re00 = []
         g00 = []
         for float_type in float_types:
-            M = MatGSO(copy(A), float_type=float_type)
+            M = GSO.Mat(copy(A), float_type=float_type)
             M.update_gso()
             if (m, n) == (0, 0):
                 continue
