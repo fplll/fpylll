@@ -16,12 +16,12 @@ This package relies on the following C/C++ libraries:
 It also relies on
 
 - `Cython <http://cython.org>`_ for linking Python and C/C++.
-- `nose <https://nose.readthedocs.org/en/latest/>`_ for testing Python (this is probably going to change soon)
+- `py.test <http://pytest.org/latest/>`_ for testing Python
 
 Getting Started
 ---------------
 
-This is all a bit of a hack. We assume you’re using `virtualenv <https://virtualenv.readthedocs.org/>`_ for isolating Python build environments. You can use `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`_ to manage your virtual environments.
+We recommend `virtualenv <https://virtualenv.readthedocs.org/>`_ for isolating Python build environments and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`_ to manage virtual environments.
 
 1. create a new virtualenv and activate it::
 
@@ -34,8 +34,7 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
 
      $ (fpylll) pip install -r requirements.txt
 
-to install `Cython <http://cython.org>`_ and `nose <https://nose.readthedocs.org/en/latest/>`_.
-
+to install `Cython <http://cython.org>`_ and `pytest <http://pytest.org/latest/>`_.
 
 3. install the ``fpylll-changes`` branch of fplll from https://github.com/malb/fplll in this virtualenv::
 
