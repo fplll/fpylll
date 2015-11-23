@@ -61,3 +61,5 @@ target/
 
 /fpylll/gmp/pylong.c
 /fpylll/interrupt/interrupt.c
+/.vagrant/
+/Vagrantfile

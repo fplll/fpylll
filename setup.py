@@ -18,10 +18,12 @@ if "VIRTUAL_ENV" in os.environ:
     fplll["include_dirs"] = [os.path.join(prefix, "include"),  interrupt_include]
     fplll["library_dirs"] = [os.path.join(prefix, "lib")]
 
+else:
+    fplll["include_dirs"] = [interrupt_include]
+
 extensions = [
-    Extension("interrupt.interrupt", ["fpylll/interrupt/interrupt.pyx"],
-              include_dirs=[interrupt_include]),
-    Extension("gmp.pylong", ["fpylll/gmp/pylong.pyx"]),
+    Extension("interrupt.interrupt", ["fpylll/interrupt/interrupt.pyx"], **fplll),
+    Extension("gmp.pylong", ["fpylll/gmp/pylong.pyx"], **fplll),
     Extension("util", ["fpylll/util.pyx"], **fplll),
     Extension("integer_matrix", ["fpylll/integer_matrix.pyx"], **fplll),
     Extension("gso", ["fpylll/gso.pyx"], **fplll),
