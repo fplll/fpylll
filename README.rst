@@ -1,7 +1,10 @@
 fpyLLL
 ======
 
-A Python wrapper for `fplll <https://github.com/dstehle/fplll>`.
+.. image:: https://travis-ci.org/malb/fpylll.svg
+    :target: https://travis-ci.org/malb/fpylll
+
+A Python wrapper for `fplll <https://github.com/dstehle/fplll>`_.
 
 Requirements
 ------------
@@ -18,6 +21,10 @@ It also relies on
 - `Cython <http://cython.org>`_ for linking Python and C/C++.
 - `py.test <http://pytest.org/latest/>`_ for testing Python
 
+We recommend
+
+- `IPython  <https://ipython.org>`_ for interacting with Python
+
 Getting Started
 ---------------
 
@@ -25,8 +32,8 @@ We recommend `virtualenv <https://virtualenv.readthedocs.org/>`_ for isolating P
 
 1. Create a new virtualenv and activate it::
 
-     $ virtualenv fpylll
-     $ source ./fpylll/bin/activate
+     $ virtualenv env
+     $ source ./env/bin/activate
 
 We indicate active virtualenvs by the prefix ``(fpylll)``.
 
@@ -34,30 +41,29 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
 
 3. Install the ``fpylll-changes`` branch of fplll from https://github.com/malb/fplll to the virtual environment::
 
-     $ (fpylll) ./install-dependencies.sh $VIRTUAL_ENV
+     $ (env) ./install-dependencies.sh $VIRTUAL_ENV
 
 4. Then, execute::
 
-     $ (fpylll) pip install -r requirements.txt
+     $ (env) pip install -r requirements.txt
 
 to install `Cython <http://cython.org>`_ and `pytest <http://pytest.org/latest/>`_.
 
 5. build the Python extension::
 
-     $ (fpylll) python setup.py build_ext
-     $ (fpylll) python setup.py install
+     $ (env) python setup.py build_ext
+     $ (env) python setup.py install
 
 6. You will need to::
 
-     $ (fpylll) export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib"
+     $ (env) export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib"
 
 so that Python can find fplll and friends.
 
 7. You may want to change out of the root directory of this repository before starting ``(i)python``, as the presence of a ``fpylll`` directory tends to confuse its module finding. For example::
 
-     $ (fpylll) cd tests
-     $ (fpylll) ipython
-
+     $ (env) cd tests
+     $ (env) ipython
 
 Example
 -------
@@ -68,37 +74,33 @@ The interface still rather limited, here is an example session:
 
     >>> A = IntegerMatrix(50, 50)
     >>> A.randomize("ntrulike", bits=50, q=127)
-    >>> lll_reduction(A)
+    >>> A[0].norm()
+    3564748886669202.5
+    >>> LLL.reduction(A)
+    >>> A[0].norm()
+    24.06241883103193
 
-    >>> M = MatGSO(A)
-    >>> L = LLLReduction(M)
-    >>> M.discover_all_rows()
-    >>> M.get_r_exp(0,0)
-    (6.92881365683287e-310, 0)
+    >>> A = IntegerMatrix(50, 50)
+    >>> A.randomize("ntrulike", bits=50, q=127)
+    >>> M = GSO.Mat(A)
+    >>> M.update_gso()
+    >>> M.get_mu(1,0)
+    0.815748944429783
 
+    >>> L = LLL.Reduction(M)
     >>> L()
-    >>> M.get_r_exp(0,0)
-    (782.0, 0)
-
-    >>> M = MatGSO(A, flags=gso.ROW_EXPO)
-    >>> L = LLLReduction(M)
-    >>> M.discover_all_rows()
-    >>> M.get_r_exp(0,0)
-    (1.976e-321, 8)
-
-    >>> L()
-    >>> M.get_r_exp(0,0)
-    (3.0546875, 8)
+    >>> M.get_mu(1,0)
+    0.41812865497076024
 
 The interface already allows to implement the basic BKZ algorithm in about 60 pretty readable lines of Python code (cf. `bkz.py <https://github.com/malb/fpylll/blob/master/examples/simple_bkz.py>`_).
 
 Implementation Stuff
 --------------------
 
-- I copied a decent bit of code over from Sage, mostly from it’s fpLLL interface. But I also imported Sage’s excellent interrupt handling routines.
+- We copied a decent bit of code over from Sage, mostly from it’s fpLLL interface. But We also imported Sage’s excellent interrupt handling routines.
 
-- I had to make some minor changes to some C++ files, essentially inlining more functions. The trouble with templated C++ is that the compiler seem not to like to instantiate small-ish functions which are called only once, even if they are not inlined. Hence, those symbols were missing and I had to work around that.
+- We had to make some minor changes to some C++ files, essentially inlining more functions. The trouble with templated C++ is that the compiler seem not to like to instantiate small-ish functions which are called only once, even if they are not inlined. Hence, those symbols were missing and I had to work around that.
 
-- I stuck to fpLLL’s naming conventions in general except for a few cases where they were rather “un-Pythonic“.
+- We stuck to fpLLL’s naming conventions in general except for a few cases where they were rather “un-Pythonic“.
 
 - Pull requests etc. welcome.
