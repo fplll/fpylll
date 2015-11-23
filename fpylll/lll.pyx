@@ -113,6 +113,9 @@ cdef class LLLReduction:
         :rtype:
 
         """
+        if self.m.d == 0:
+            return
+
         cdef int r
         if self._type == mpz_double:
             sig_on()
