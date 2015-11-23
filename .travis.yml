@@ -14,7 +14,6 @@ install:
 
   
 script:
-  - echo "$VIRTUAL_ENV/lib"
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" py.test
 
 notifications:
