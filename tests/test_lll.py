@@ -2,7 +2,6 @@
 
 from fpylll import GSO, IntegerMatrix, LLL
 from copy import copy
-from nose.tools import assert_almost_equal
 
 dimensions = ((0, 0), (1, 1), (1, 2), (3, 3), (10, 10), (50, 50), (40, 60),)
 float_types = ("double", "dd", "qd", "mpfr")
