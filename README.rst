@@ -23,38 +23,37 @@ Getting Started
 
 We recommend `virtualenv <https://virtualenv.readthedocs.org/>`_ for isolating Python build environments and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`_ to manage virtual environments.
 
-1. create a new virtualenv and activate it::
+1. Create a new virtualenv and activate it::
 
      $ virtualenv fpylll
      $ source ./fpylll/bin/activate
 
 We indicate active virtualenvs by the prefix ``(fpylll)``.
 
-2. install required libraries – `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_, `MPFR <http://www.mpfr.org>`_, `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_ – if not available system-wide. Then, execute::
+2. Install the required libraries – `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_, `MPFR <http://www.mpfr.org>`_ and `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_ – if not available already.
+
+3. Install the ``fpylll-changes`` branch of fplll from https://github.com/malb/fplll to the virtual environment::
+
+     $ (fpylll) ./install-dependencies.sh $VIRTUAL_ENV
+
+4. Then, execute::
 
      $ (fpylll) pip install -r requirements.txt
 
 to install `Cython <http://cython.org>`_ and `pytest <http://pytest.org/latest/>`_.
 
-3. install the ``fpylll-changes`` branch of fplll from https://github.com/malb/fplll in this virtualenv::
+5. build the Python extension::
 
-     $ (fpylll) cd <path-to-your-fplll>
-     $ (fpylll) ./configure –prefix=$VIRTUAL_ENV
-     $ (fpylll) make install
-
-4. build the Python extension::
-
-     $ (fpylll) cd <path-to-the-python-extension>
      $ (fpylll) python setup.py build_ext
      $ (fpylll) python setup.py install
 
-5. You will need to::
+6. You will need to::
 
      $ (fpylll) export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib"
 
 so that Python can find fplll and friends.
 
-6. You may want to change out of the root directory of this repository before starting ``(i)python``, as the presence of a ``fpylll`` directory tends to confuse its module finding. For example::
+7. You may want to change out of the root directory of this repository before starting ``(i)python``, as the presence of a ``fpylll`` directory tends to confuse its module finding. For example::
 
      $ (fpylll) cd tests
      $ (fpylll) ipython

@@ -1,0 +1,18 @@
+language: python
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq -y build-essential libtool autoconf
+  - sudo apt-get install -qq -y libgmp-dev libmpfr-dev libqd-dev
+  - sudo apt-get install -qq -y python-pip python-dev
+
+install:
+  - ./install-dependencies.sh
+  - python setup.py build
+  - python setup.py -q install
+  
+script: py.test
+
+notifications:
+  on_success: change
+  on_failure: always
