@@ -17,7 +17,7 @@ class MatGSORowOpContext(object):
     the context is left, the appropriate updates are performed by
     calling ``row_op_end()``.
     """
-    def __init__(self, MatGSO m, int i, int j):
+    def __init__(self, MatGSO m, i, j):
         """FIXME! briefly describe function
 
         :param m: MatGSO object

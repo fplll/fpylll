@@ -1,6 +1,3 @@
-fpyLLL
-======
-
 .. image:: https://travis-ci.org/malb/fpylll.svg
     :target: https://travis-ci.org/malb/fpylll
 
@@ -60,9 +57,8 @@ to install `Cython <http://cython.org>`_ and `pytest <http://pytest.org/latest/>
 
 so that Python can find fplll and friends.
 
-7. You may want to change out of the root directory of this repository before starting ``(i)python``, as the presence of a ``fpylll`` directory tends to confuse its module finding. For example::
+7. Start Python::
 
-     $ (env) cd tests
      $ (env) ipython
 
 Example

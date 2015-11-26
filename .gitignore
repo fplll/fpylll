@@ -59,7 +59,7 @@ _build/
 target/
 
 
-/fpylll/gmp/pylong.c
-/fpylll/interrupt/interrupt.c
+/src/fpylll/gmp/pylong.c
+/src/fpylll/interrupt/interrupt.c
 /.vagrant/
 /Vagrantfile

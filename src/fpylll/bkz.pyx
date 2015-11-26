@@ -36,24 +36,29 @@ cdef class BKZParam:
         :param delta: LLL parameter `0.25 < δ < 1.0`
         :param max_loops: maximum number of full loops
         :param max_time: stop after time seconds (up to loop completion)
-        :param auto_abort: heuristic, stop when the average slope of `\log(||b_i^*||)` does not decrease
-            fast enough.  If a tuple is given it is parsed as ``(scale, max_iter)`` such that the
-            algorithm will terminate if for ``max_iter`` loops the slope is not smaller than ``scale *
-            old_slope`` where ``old_slope`` was the old minimum.  If ``True`` is given, this is
-            equivalent to providing ``(1.0,5)`` which is fpLLL's default.
+
+        :param auto_abort: heuristic, stop when the average slope of `\log(||b_i^*||)` does not
+            decrease fast enough.  If a tuple is given it is parsed as ``(scale, max_iter)`` such
+            that the algorithm will terminate if for ``max_iter`` loops the slope is not smaller
+            than ``scale * old_slope`` where ``old_slope`` was the old minimum.  If ``True`` is
+            given, this is equivalent to providing ``(1.0,5)`` which is fpLLL's default.
+
         :param pruning: pruning parameter.
+
         :param gh_factor: heuristic, if ``True`` then the enumeration bound will be set to ``gh_bound``
-            times the Gaussian Heuristic.  If ``True`` then gh_bound is set to 1.1, which is fpLLL's
-            default.
-        :param preprocessing:- if not ``None`` this is parameter is interpreted as a list of
+            times the Gaussian Heuristic.  If ``True`` then ``gh_bound`` is set to 1.1,
+            which is fpLLL's default.
+
+        :param preprocessing: if not ``None`` this is parameter is interpreted as a list of
             preprocessing options.  The following options are supported.
 
-            - ``None``: LLL is run for pre-processing local blocks.
+                - ``None``: LLL is run for pre-processing local blocks.
 
-            - an BKZParam object
+                - an BKZParam object
 
-        :param dump_gso_filename:- if this is not ``None`` then the logs of the norms of the
+        :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
+
         """
 
         if block_size <= 0:
