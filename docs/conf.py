@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# fpyLLL documentation build configuration file, created by
+# fpylll documentation build configuration file, created by
 # sphinx-quickstart on Tue Nov  3 20:50:11 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -53,7 +53,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'fpyLLL'
+project = u'fpylll'
 copyright = u'2015, Martin R. Albrecht'
 author = u'Martin R. Albrecht'
 
@@ -121,7 +121,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if on_rtd:
     html_theme = 'default'
 else:
-    html_theme = 'alabaster'
+    html_theme = 'haiku'
 
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -214,7 +214,7 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'fpyLLLdoc'
+htmlhelp_basename = 'fpyllldoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -236,7 +236,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'fpyLLL.tex', u'fpyLLL Documentation',
+  (master_doc, 'fpylll.tex', u'fpylll Documentation',
    u'Martin R. Albrecht', 'manual'),
 ]
 
@@ -266,7 +266,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'fpylll', u'fpyLLL Documentation',
+    (master_doc, 'fpylll', u'fpylll Documentation',
      [author], 1)
 ]
 
@@ -280,8 +280,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'fpyLLL', u'fpyLLL Documentation',
-   author, 'fpyLLL', 'One line description of project.',
+  (master_doc, 'fpylll', u'fpylll Documentation',
+   author, 'fpylll', 'One line description of project.',
    'Miscellaneous'),
 ]
 
