@@ -20,11 +20,10 @@ cdef class Wrapper:
         :param int flags:
 
 
-        >>> from fpylll import Wrapper, IntegerMatrix
+        >>> from fpylll import LLL, IntegerMatrix
         >>> A = IntegerMatrix(50, 50)
         >>> A.randomize("ntrulike", bits=100, q=1023)
-        >>> U =
-        
+        >>> W = LLL.Wrapper(A)
 
         """
         self._B = B
@@ -41,6 +40,19 @@ cdef class Wrapper:
         del self._core
 
     def __call__(self):
+        """FIXME! briefly describe function
+
+        :returns:
+        :rtype:
+
+        >>> from fpylll import LLL, IntegerMatrix, GSO
+        >>> A = IntegerMatrix(40, 40)
+        >>> A.randomize("ntrulike", bits=10, q=1023)
+        >>> W = LLL.Wrapper(A)
+        >>> W()
+
+        """
+
         if self._called:
             raise ValueError("lll() may only be called once.")
 

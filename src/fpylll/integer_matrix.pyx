@@ -93,11 +93,11 @@ cdef class IntegerMatrix:
         :param int ncols: number of columns ≥ 0
 
         >>> from fpylll import IntegerMatrix
-        >>> IntegerMatrix(10, 10)
-        IntegerMatrix(10, 10)
+        >>> IntegerMatrix(10, 10) # doctest: +ELLIPSIS
+        <IntegerMatrix(10, 10) at 0x...>
 
-        >>> IntegerMatrix(10,  0)
-        IntegerMatrix(10, 0)
+        >>> IntegerMatrix(10, 0) # doctest: +ELLIPSIS
+        <IntegerMatrix(10, 0) at 0x...>
 
         >>> IntegerMatrix(-1,  0)
         Traceback (most recent call last):
