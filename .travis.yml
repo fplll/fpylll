@@ -15,6 +15,7 @@ install:
   
 script:
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" py.test
+  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/*.pyx
 
 notifications:
   on_success: change
