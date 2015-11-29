@@ -256,7 +256,7 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def row_ops(self, int first, int last):
-        """FIXME! briefly describe function
+        """Return context in which row operations are safe.
 
         :param int first:
         :param int last:
@@ -266,10 +266,10 @@ cdef class MatGSO:
 
     def get_gram(self, int i, int j):
         """
-        Return Gram matrix coefficients (0 ≤ i ≤ n_known_rows and 0 ≤ j ≤ i).
-        If `enable_row_expo=False`, returns the dot product `<b_i, b_j>`.  If
-        `enable_row_expo=True`, returns `<b_i, b_j>/ 2^(row_expo_i +
-        row_expo_j)`.
+        Return Gram matrix coefficients (0 ≤ i ≤ ``n_known_rows`` and 0 ≤ j ≤ i).  If
+        ``enable_row_expo`` is false, returns the dot product `⟨b_i, b_j⟩`.  If ``enable_row_expo``
+        is true, returns `⟨b_i, b_j⟩/ 2^{(r_i + r_j)}`, where `r_i` and `r_j` are the row exponents
+        of rows `i` and `j` respectively.
 
         :param int i:
         :param int j:
@@ -305,7 +305,7 @@ cdef class MatGSO:
 
     def get_r(self, int i, int j):
         """
-        Return `<b_i, b*_j>`.
+        Return `⟨b_i, b*_j⟩`.
 
         :param i:
         :param j:
@@ -340,11 +340,11 @@ cdef class MatGSO:
 
     def get_r_exp(self, int i, int j):
         """
-        Return `f = r(i, j)` and expo such that `<b_i, b*_j>` = f * 2^expo`.  If
-        `enable_row_expo=False`, `expo` is always 0.  If `enable_row_expo=True`,
-        `expo = row_expo[i] + row_expo[j]`
+        Return `f = r_{i, j}` and exponent `x` such that `⟨b_i, b^*_j⟩ = f ⋅ 2^x`.  If
+        ``enable_row_expo`` is false, `x` is always 0.  If ``enable_row_expo`` is true, `x = r_i +
+        r_j`, where `r_i` and `r_j` are the row exponents of rows `i` and `j` respectively.
 
-        It is assumed that `r(i, j)` is valid.
+        .. note:: It is assumed that `r(i, j)` is valid.
 
         :param i:
         :param j:
@@ -376,7 +376,7 @@ cdef class MatGSO:
 
     def get_mu(self, int i, int j):
         """
-        Return `<b_i, b*_j> / ||b*_j||^2`.
+        Return `<b_i, b^*_j> / ||b^*_j||^2`.
 
         :param i:
         :param j:
@@ -410,10 +410,11 @@ cdef class MatGSO:
 
     def get_mu_exp(self, int i, int j):
         """
-        Return `f = mu(i, j)` and `expo` such that `f * 2^expo = (b_i, b*_j) /
-        ||b*_j||^2`.  If `enable_row_expo=False`, `expo` is always zero.  If
-        `enable_row_expo=True`, `expo = rowExpo[i] - rowExpo[j]`.  It is assumed
-        that `mu(i, j)` is valid.
+        Return `f = μ_{i, j}` and exponent `x` such that `f ⋅ 2^x = ⟨b_i, b^*_j⟩ / ‖b^*_j‖^2`.  If
+        ``enable_row_expo`` is false, `x` is always zero.  If ``enable_row_expo`` is true, `x = r_i
+        - r_j`, where `r_i` and `r_j` are the row exponents of rows `i` and `j` respectively.
+
+        .. note:: It is assumed that `μ_{i, j}` is valid.
 
         :param i:
         :param j:
@@ -445,7 +446,7 @@ cdef class MatGSO:
 
     def update_gso(self):
         """
-        Updates all GSO coefficients (mu and r).
+        Updates all GSO coefficients (`μ` and `r`).
         """
         if self._type == mpz_double:
             return bool(self._core.mpz_double.updateGSO())
@@ -460,8 +461,7 @@ cdef class MatGSO:
 
     def discover_all_rows(self):
         """
-        Allows `row_addmul(_we)` for all rows even if the GSO has never been
-        computed.
+        Allows ``row_addmul(_we)`` for all rows even if the GSO has never been computed.
         """
         if self._type == mpz_double:
             self._core.mpz_double.discoverAllRows()
@@ -636,8 +636,6 @@ cdef class MatGSO:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
         return max_dist, max_dist_expo
-
-
 
 
 class GSO:
