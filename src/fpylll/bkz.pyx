@@ -57,6 +57,30 @@ cdef class BKZParam:
             the latter case, only LLL is run.
         :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
+
+        fplll supports preprocessing local blocks with BKZ in a smaller block size::
+
+            >>> from fpylll import BKZ
+            >>> inner = BKZ.Param(block_size=10, auto_abort=5)
+            >>> outer = BKZ.Param(block_size=20, preprocessing=inner)
+
+        Note, however, that preprocessing always auto aborts, regardless of whether this is
+        disabled in the inner parameters set.
+
+        The pruning parameter can be either a list or tuple::
+
+            >>> from fpylll import BKZ
+            >>> P = BKZ.Param(10, pruning=(1,1,1,1,1,1,1,1,1,0.9))
+            >>> P.pruning
+            (1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9)
+
+        or an integer, in which case it is interpreted as a linear pruning level::
+
+            >>> from fpylll import BKZ
+            >>> P = BKZ.Param(10, pruning=2)
+            >>> P.pruning
+            (1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9, 0.8)
+
         """
 
         if block_size <= 0:
