@@ -24,6 +24,7 @@ from fplll cimport RED_SUCCESS
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport LLLReduction as LLLReduction_c
 from fplll cimport getRedStatusStr
+from fplll cimport isLLLReduced
 
 from util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll import ReductionError
@@ -313,6 +314,59 @@ def lll_reduction(IntegerMatrix B, U=None,
     if r:
         raise ReductionError( str(getRedStatusStr(r)) )
 
+
+def is_LLL_reduced(M, delta=LLL_DEF_DELTA, eta=LLL_DEF_ETA):
+    """Test if ``M`` is LLL reduced.
+
+    :param M: either an GSO object of an integer matrix or an integer matrix.
+    :param delta: LLL parameter δ < 1
+    :param eta: LLL parameter η > 0.5
+
+    :returns: Return ``True`` if ``M`` is definitely LLL reduced, ``False`` otherwise.
+
+    Random matrices are typically not LLL reduced::
+
+        >>> from fpylll import IntegerMatrix, LLL
+        >>> A = IntegerMatrix(40, 40)
+        >>> A.randomize('uniform', bits=32)
+        >>> LLL.is_reduced(A)
+        False
+
+    LLL reduction should produce matrices which are LLL reduced::
+
+        >>> LLL.reduction(A)
+        >>> LLL.is_reduced(A)
+        True
+
+    ..  note:: This function may return ``False`` for LLL reduced matrices if the precision used
+        to compute the GSO is too small.
+    """
+    check_delta(delta)
+    check_eta(eta)
+
+    cdef MatGSO M_
+
+    if isinstance(M, MatGSO):
+        M_ = M
+    elif isinstance(M, IntegerMatrix):
+        M_ = MatGSO(M)
+        M_.update_gso()
+    else:
+        raise TypeError("Type '%s' not understood."%type(M))
+
+    if M_._type == mpz_double:
+        r = isLLLReduced[Z_NR[mpz_t], FP_NR[double]](M_._core.mpz_double[0], delta, eta)
+    elif M_._type == mpz_dd:
+        r = isLLLReduced[Z_NR[mpz_t], FP_NR[dd_real]](M_._core.mpz_dd[0], delta, eta)
+    elif M_._type == mpz_qd:
+        r = isLLLReduced[Z_NR[mpz_t], FP_NR[qd_real]](M_._core.mpz_qd[0], delta, eta)
+    elif M_._type == mpz_mpfr:
+        r = isLLLReduced[Z_NR[mpz_t], FP_NR[mpfr_t]](M_._core.mpz_mpfr[0], delta, eta)
+    else:
+        raise RuntimeError("MatGSO object '%s' has no core."%M)
+
+    return bool(r)
+
 class LLL:
     DEFAULT = LLL_DEFAULT
     VERBOSE = LLL_VERBOSE
@@ -320,5 +374,6 @@ class LLL:
     SIEGEL = LLL_SIEGEL
     Reduction = LLLReduction
     reduction = lll_reduction
+    is_reduced = is_LLL_reduced
 
     Wrapper = Wrapper

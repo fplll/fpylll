@@ -264,6 +264,7 @@ cdef extern from "fplll/lll.h" namespace "fplll":
         int zeros
         int nSwaps
 
+    int isLLLReduced[ZT, FT](MatGSO[ZT, FT]& m, double delta, double eta)
 
 
 # LLL Wrapper

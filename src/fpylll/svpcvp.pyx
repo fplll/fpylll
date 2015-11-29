@@ -2,8 +2,6 @@
 # distutils: language = c++
 # distutils: libraries = gmp mpfr fplll
 """
-.. module:: svpcvp
-
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
 

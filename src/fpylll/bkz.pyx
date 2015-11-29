@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 # distutils: language = c++
 # distutils: libraries = gmp mpfr fplll
+"""
+..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
+
+"""
 
 from gmp.mpz cimport mpz_t
 from mpfr.mpfr cimport mpfr_t
@@ -23,7 +27,9 @@ from util cimport check_delta, check_precision, check_float_type
 include "interrupt/interrupt.pxi"
 
 cdef class BKZParam:
-
+    """
+    Parameters for the BKZ algorithm.
+    """
     def __init__(self, int block_size, float delta=LLL_DEF_DELTA, int flags=BKZ_DEFAULT,
                  int max_loops=0, int max_time=0,
                  auto_abort=None, float gh_factor=1.1,
@@ -36,29 +42,21 @@ cdef class BKZParam:
         :param delta: LLL parameter `0.25 < δ < 1.0`
         :param max_loops: maximum number of full loops
         :param max_time: stop after time seconds (up to loop completion)
-
         :param auto_abort: heuristic, stop when the average slope of `\log(||b_i^*||)` does not
             decrease fast enough.  If a tuple is given it is parsed as ``(scale, max_iter)`` such
             that the algorithm will terminate if for ``max_iter`` loops the slope is not smaller
             than ``scale * old_slope`` where ``old_slope`` was the old minimum.  If ``True`` is
             given, this is equivalent to providing ``(1.0,5)`` which is fpLLL's default.
-
-        :param pruning: pruning parameter.
-
-        :param gh_factor: heuristic, if ``True`` then the enumeration bound will be set to ``gh_bound``
-            times the Gaussian Heuristic.  If ``True`` then ``gh_bound`` is set to 1.1,
+        :param pruning: pruning parameter.  If an integer is provided, this is interpreted as a
+            linear pruning parameter.  Otherwise, a list of length ``block_size`` is expected which
+            is interpreted as pruning parameters.
+        :param gh_factor: heuristic, if ``True`` then the enumeration bound will be set to
+            ``gh_bound`` times the Gaussian Heuristic.  If ``True`` then ``gh_bound`` is set to 1.1,
             which is fpLLL's default.
-
-        :param preprocessing: if not ``None`` this is parameter is interpreted as a list of
-            preprocessing options.  The following options are supported.
-
-                - ``None``: LLL is run for pre-processing local blocks.
-
-                - an BKZParam object
-
+        :param preprocessing: preprocessing options, either a ``BKZParam`` object or ``None``.  In
+            the latter case, only LLL is run.
         :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
-
         """
 
         if block_size <= 0:
@@ -318,7 +316,7 @@ class BKZ:
     DEFAULT = BKZ_DEFAULT
     VERBOSE = BKZ_VERBOSE
     NO_LLL = BKZ_NO_LLL
-    BOUNDED_LLL = BKZ_BOUNDED_LLL,
+    BOUNDED_LLL = BKZ_BOUNDED_LLL
     GH_BND = BKZ_GH_BND
     AUTO_ABORT = BKZ_AUTO_ABORT
     MAX_LOOPS = BKZ_MAX_LOOPS

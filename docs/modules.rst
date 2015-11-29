@@ -9,7 +9,7 @@ Integer Matrices
 .. automodule:: fpylll.integer_matrix
    :members:
    :undoc-members:
-   :special-members: __init__, __call__, __copy__, __getitem__, __setitem__, 
+   :special-members: __init__, __call__, __copy__, __getitem__, __setitem__,
 
 Gram Schmidt Orthogonalization
 ------------------------------
@@ -26,10 +26,10 @@ LLL Wrapper
    :members:
    :undoc-members:
    :special-members: __init__, __call__
-                     
+
 LLL
 ---
-     
+
 .. automodule:: fpylll.lll
    :members:
    :undoc-members:
@@ -53,7 +53,7 @@ SVP and CVP
 
 Enumeration
 -----------
-      
+
 .. automodule:: fpylll.enumeration
    :members:
    :undoc-members:
@@ -87,4 +87,3 @@ BKZ
    :special-members: __init__, __call__
    :members:
    :undoc-members:
-

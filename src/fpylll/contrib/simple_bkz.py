@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from fpylll import IntegerMatrix, GSO, LLL, Wrapper, BKZ
+from fpylll import IntegerMatrix, GSO, LLL, BKZ
 from fpylll import Enumeration as Enum
 from fpylll import gso
 
@@ -18,7 +18,7 @@ class BKZReduction:
             raise TypeError("Matrix must be IntegerMatrix but got type '%s'"%type(A))
 
         # run LLL first
-        wrapper = Wrapper(A)
+        wrapper = LLL.Wrapper(A)
         wrapper()
 
         self.A = A

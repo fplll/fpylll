@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-..  module:: bkz
-
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 
 An implementation of the BKZ algorithm in Python.
 
-This implementation has feature parity with the C++ implementation in fplll.  Additionally, this
-implementation collects some additional statistics.
 """
 import time
 
@@ -19,6 +15,12 @@ from bkz_stats import BKZStats
 
 
 class BKZReduction:
+    """
+    An implementation of the BKZ algorithm in Python.
+
+    This implementation has feature parity with the C++ implementation in fplll.  Additionally, this
+    implementation collects some additional statistics.
+    """
     def __init__(self, A):
         """Construct a new instance of the BKZ algorithm.
 
@@ -72,7 +74,7 @@ class BKZReduction:
         :param min_row: start index ≥ 0
         :param max_row: last index ≤ n
 
-        :returns: `True` if no change was made and `False` otherwise
+        :returns: ``True`` if no change was made and ``False`` otherwise
         """
         clean = True
         for kappa in range(min_row, max_row-1):
@@ -169,8 +171,8 @@ class BKZReduction:
         :param param: BKZ parameters
         :param block_size: block size
         :param stats: object for maintaining statistics
-        :returns: ``True`` if no change was made and ``False`` otherwise
 
+        :returns: ``True`` if no change was made and ``False`` otherwise
         """
         if solution is None:
             return True
@@ -202,13 +204,15 @@ class BKZReduction:
         return False
 
     def svp_reduction(self, kappa, param, block_size, stats=None):
-        """FIXME! briefly describe function
+        """Find shortest vector in projected lattice of dimension ``block_size`` and insert into
+        current basis.
 
-        :param kappa:
-        :param block_size:
-        :returns:
-        :rtype:
+        :param kappa: current index
+        :param param: BKZ parameters
+        :param block_size: block size
+        :param stats: object for maintaining statistics
 
+        :returns: ``True`` if no change was made and ``False`` otherwise
         """
         if stats is None:
             stats = BKZStats(self)
