@@ -13,11 +13,10 @@ from fpylll cimport mpz_double, mpz_mpfr, mpz_dd, mpz_qd
 
 class MatGSORowOpContext(object):
     """
-    Create a context in which performing row operations is safe.  When
-    the context is left, the appropriate updates are performed by
-    calling ``row_op_end()``.
+    A context in which performing row operations is safe.  When the context is left, the appropriate
+    updates are performed by calling ``row_op_end()``.
     """
-    def __init__(self, MatGSO m, i, j):
+    def __init__(self, m, i, j):
         """FIXME! briefly describe function
 
         :param m: MatGSO object
@@ -576,7 +575,7 @@ cdef class MatGSO:
         :param int stop_row:
         :returns:
 
-        .. note:: we call getCurrentSlope which is declared in bkz.h
+        .. note:: we call ``getCurrentSlope`` which is declared in bkz.h
 
         """
         if self._type == mpz_double:
@@ -604,7 +603,7 @@ cdef class MatGSO:
         :returns: (max_dist, max_dist_expo)
 
 
-        .. note:: we call computeGaussianHeurDist which is declared in bkz.h
+        .. note:: we call ``computeGaussianHeurDist`` which is declared in bkz.h
 
         """
 

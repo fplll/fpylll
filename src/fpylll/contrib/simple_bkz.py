@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from fpylll import IntegerMatrix, MatGSO, LLLReduction, Wrapper
-from fpylll import BKZAutoAbort
+from fpylll import IntegerMatrix, GSO, LLL, Wrapper, BKZ
 from fpylll import Enumeration as Enum
 from fpylll import gso
 
@@ -23,8 +22,8 @@ class BKZReduction:
         wrapper()
 
         self.A = A
-        self.m = MatGSO(A, flags=gso.ROW_EXPO)
-        self.lll_obj = LLLReduction(self.m)
+        self.m = GSO.Mat(A, flags=gso.ROW_EXPO)
+        self.lll_obj = LLL.Reduction(self.m)
 
     def __call__(self, block_size):
         """FIXME! briefly describe function
@@ -36,7 +35,7 @@ class BKZReduction:
         """
         self.m.discover_all_rows()
 
-        auto_abort = BKZAutoAbort(self.m, self.A.nrows)
+        auto_abort = BKZ.AutoAbort(self.m, self.A.nrows)
 
         while True:
             clean = self.bkz_loop(block_size, 0, self.A.nrows)

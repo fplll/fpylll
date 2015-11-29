@@ -83,6 +83,9 @@ cdef class IntegerMatrixRow:
         return self.norm()
 
 cdef class IntegerMatrix:
+    """
+    Dense matrices over the Integers.
+    """
     def __init__(self, int nrows, int ncols):
         """Construct a new integer matrix
 
@@ -115,8 +118,8 @@ cdef class IntegerMatrix:
         self._core = new ZZ_mat[mpz_t](nrows, ncols)
 
     def __dealloc__(self):
-        """Delete integer matrix
-
+        """
+        Delete integer matrix
         """
         del self._core
 
@@ -205,11 +208,10 @@ cdef class IntegerMatrix:
         return self._core.getCols()
 
     def __getitem__(self, key):
-        """FIXME! briefly describe function
+        """Select a row or entry.
 
-        :param key:
-        :returns:
-
+        :param key: either an integer for the row or a tuple for row and column.
+        :returns: a reference to a row or an integer depending on format of ``key``
 
         >>> from fpylll import IntegerMatrix
         >>> A = IntegerMatrix(10, 10)
@@ -238,27 +240,28 @@ cdef class IntegerMatrix:
 
     def __setitem__(self, key, value):
         """
-        FIXME! briefly describe function
+        Assign value to index.
 
-        :param key:
-        :param value:
+        :param key: a tuple of row and column indices
+        :param value: an integer
 
-        >>> from fpylll import IntegerMatrix
-        >>> A = IntegerMatrix(10, 10)
-        >>> A.gen_identity(10)
+        EXAMPLE::
 
-        >>> A[1,0] = 2
-        >>> A[1,0]
-        2
+            >>> from fpylll import IntegerMatrix
+            >>> A = IntegerMatrix(10, 10)
+            >>> A.gen_identity(10)
+            >>> A[1,0] = 2
+            >>> A[1,0]
+            2
 
-        The notation A[i][j] is not supported. This is because A[i] returns an ``IntegerMatrixRow``
-        object which is immutable by design. This is to avoid the user confusing such an object
-        with a proper vector.
+        The notation ``A[i][j]`` is not supported.  This is because ``A[i]`` returns an object
+        of type ``IntegerMatrixRow`` object which is immutable by design.  This is to avoid the
+        user confusing such an object with a proper vector.::
 
-        >>> A[1][0] = 2
-        Traceback (most recent call last):
-        ...
-        TypeError: 'fpylll.integer_matrix.IntegerMatrixRow' object does not support item assignment
+            >>> A[1][0] = 2
+            Traceback (most recent call last):
+            ...
+            TypeError: 'fpylll.integer_matrix.IntegerMatrixRow' object does not support item assignment
 
         """
         cdef int i = 0
@@ -278,18 +281,18 @@ cdef class IntegerMatrix:
             raise ValueError("Parameter '%s' not understood."%key)
 
     def randomize(self, algorithm, **kwds):
-        """Randomize this matrix using 'algorithm;
+        """Randomize this matrix using ``algorithm``.
 
         :param algorithm: string, see below for choices.
 
         Available algorithms:
 
-        - "intrel"
-        - "simdioph"
-        - "uniform"
-        - "ntrulike"
-        - "ntrulike2"
-        - "atjai"
+        - ``"intrel"`` -
+        - ``"simdioph"`` -
+        - ``"uniform"`` -
+        - ``"ntrulike"`` -
+        - ``"ntrulike2"`` -
+        - ``"atjai"`` -
 
         """
         if algorithm == "intrel":
@@ -343,6 +346,14 @@ cdef class IntegerMatrix:
 
     @classmethod
     def from_file(cls, filename):
+        """FIXME! briefly describe function
+
+        :param cls:
+        :param filename:
+        :returns:
+        :rtype:
+
+        """
         A = IntegerMatrix(0, 0)
         with open(filename, 'r') as fh:
             for i, line in enumerate(fh.readlines()):

@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
+..  module:: bkz
+
+..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
+
+An implementation of the BKZ algorithm in Python.
+
+This implementation has feature parity with the C++ implementation in fplll.  Additionally, this
+implementation collects some additional statistics.
+"""
 import time
 
 from fpylll import IntegerMatrix, GSO, LLL
@@ -10,11 +20,9 @@ from bkz_stats import BKZStats
 
 class BKZReduction:
     def __init__(self, A):
-        """FIXME! briefly describe function
+        """Construct a new instance of the BKZ algorithm.
 
-        :param A:
-        :returns:
-        :rtype:
+        :param A: an integer matrix
 
         """
         if not isinstance(A, IntegerMatrix):
@@ -29,11 +37,9 @@ class BKZReduction:
         self.lll_obj = LLL.Reduction(self.m)
 
     def __call__(self, param):
-        """FIXME! briefly describe function
+        """Run the BKZ algorithm with parameters `param`.
 
-        :param block_size:
-        :returns:
-        :rtype:
+        :param param: BKZ parameters
 
         """
         stats = BKZStats(self, verbose=param.flags & BKZ.VERBOSE)
@@ -60,14 +66,13 @@ class BKZReduction:
             i += 1
 
     def tour(self, param, min_row, max_row, stats=None):
-        """FIXME! briefly describe function
+        """One BKZ loop over all indices.
 
-        :param block_size:
-        :param min_row:
-        :param max_row:
-        :returns:
-        :rtype:
+        :param param: BKZ parameters
+        :param min_row: start index ≥ 0
+        :param max_row: last index ≤ n
 
+        :returns: `True` if no change was made and `False` otherwise
         """
         clean = True
         for kappa in range(min_row, max_row-1):
@@ -78,14 +83,18 @@ class BKZReduction:
         return clean
 
     def svp_preprocessing(self, kappa, param, block_size, stats):
-        """FIXME! briefly describe function
+        """Perform preprocessing for calling the SVP oracle
 
-        :param kappa:
-        :param param:
-        :param block_size:
-        :param stats:
-        :returns:
-        :rtype:
+        :param kappa: current index
+        :param param: BKZ parameters
+        :param block_size: block size
+        :param stats: object for maintaining statistics
+
+        :returns: ``True`` if no change was made and ``False`` otherwise
+
+        .. note::
+
+            ``block_size`` may be smaller than ``param.block_size`` for the last blocks.
 
         """
         clean = True
@@ -117,15 +126,19 @@ class BKZReduction:
         return clean
 
     def svp_call(self, kappa, param, block_size, stats=None):
-        """FIXME! briefly describe function
+        """Call SVP oracle
 
-        :param kappa:
-        :param param:
-        :param block_size:
-        :param stats:
-        :returns:
-        :rtype:
+        :param kappa: current index
+        :param param: BKZ parameters
+        :param block_size: block size
+        :param stats: object for maintaining statistics
 
+        :returns: tuple containing ``True`` if no change was made and ``False`` otherwise and
+                  coordinates of SVP solution or ``None`` if none was found.
+
+        ..  note::
+
+            ``block_size`` may be smaller than ``param.block_size`` for the last blocks.
         """
         max_dist, expo = self.m.get_r_exp(kappa, kappa)
         delta_max_dist = self.lll_obj.delta * max_dist
@@ -149,15 +162,14 @@ class BKZReduction:
             return solution, False
 
     def svp_postprocessing(self, solution, kappa, param, block_size, stats=None):
-        """FIXME! briefly describe function
+        """Insert SVP solution into basis and LLL reduce.
 
-        :param solution:
-        :param kappa:
-        :param param:
-        :param block_size:
-        :param stats:
-        :returns:
-        :rtype:
+        :param solution: coordinates of an SVP solution
+        :param kappa: current index
+        :param param: BKZ parameters
+        :param block_size: block size
+        :param stats: object for maintaining statistics
+        :returns: ``True`` if no change was made and ``False`` otherwise
 
         """
         if solution is None:
