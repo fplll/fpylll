@@ -26,10 +26,10 @@ cdef class Wrapper:
         >>> W = LLL.Wrapper(A)
 
         """
-        self._B = B
+        self.B = B
         # TODO: Don't hardcode this
-        self._U = IntegerMatrix(0,0)
-        self._UinvT = IntegerMatrix(0,0)
+        self.U = IntegerMatrix(0,0)
+        self.UinvT = IntegerMatrix(0,0)
 
         self._core = new Wrapper_c((self.B._core)[0],
                                    (self.U._core)[0],
