@@ -7,6 +7,6 @@ cdef class Wrapper:
     cdef Wrapper_c *_core
     cdef object _called
 
-    cdef IntegerMatrix _B
-    cdef IntegerMatrix _U
-    cdef IntegerMatrix _UinvT
+    cdef readonly IntegerMatrix B
+    cdef readonly IntegerMatrix U
+    cdef readonly IntegerMatrix UinvT

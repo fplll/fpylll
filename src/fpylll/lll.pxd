@@ -10,6 +10,6 @@ cdef class LLLReduction:
     cdef fplll_type_t _type
     cdef lll_reduction_core _core
 
-    cdef MatGSO m
+    cdef readonly MatGSO M
     cdef double _delta
     cdef double _eta

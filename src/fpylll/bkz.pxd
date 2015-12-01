@@ -14,4 +14,4 @@ cdef class BKZAutoAbort:
     cdef fplll_type_t _type
     cdef bkz_auto_abort_core _core
 
-    cdef MatGSO m
+    cdef MatGSO M

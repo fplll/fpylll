@@ -285,6 +285,8 @@ cdef class BKZAutoAbort:
         else:
             raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
 
+        self.M = M
+
     def test_abort(self, scale=1.0, int max_no_dec=5):
         """FIXME! briefly describe function
 

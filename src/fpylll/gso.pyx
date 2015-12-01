@@ -16,24 +16,24 @@ class MatGSORowOpContext(object):
     A context in which performing row operations is safe.  When the context is left, the appropriate
     updates are performed by calling ``row_op_end()``.
     """
-    def __init__(self, m, i, j):
+    def __init__(self, M, i, j):
         """FIXME! briefly describe function
 
-        :param m: MatGSO object
+        :param M: MatGSO object
         :param i: start row
         :param j: stop row
 
         """
         self.i = i
         self.j = j
-        self.m = m
+        self.M = M
 
     def __enter__(self):
         """
         Enter context for working on rows.
 
         """
-        self.m.row_op_begin(self.i, self.j)
+        self.M.row_op_begin(self.i, self.j)
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         """
@@ -44,7 +44,7 @@ class MatGSORowOpContext(object):
         :param exception_traceback:
 
         """
-        self.m.row_op_end(self.i, self.j)
+        self.M.row_op_end(self.i, self.j)
 
 
 cdef class MatGSO:
@@ -66,20 +66,20 @@ cdef class MatGSO:
         """
 
         if U is None:
-            self._U = IntegerMatrix(0, 0)
+            self.U = IntegerMatrix(0, 0)
         elif isinstance(U, IntegerMatrix):
-            self._U = U
-            self._U.gen_identity(B.nrows)
+            self.U = U
+            self.U.gen_identity(B.nrows)
 
         if UinvT is None:
-            self._UinvT = IntegerMatrix(0, 0)
+            self.UinvT = IntegerMatrix(0, 0)
         elif isinstance(UinvT, IntegerMatrix):
-            self._UinvT = UinvT
-            self._UinvT.gen_identity(B.nrows)
+            self.UinvT = UinvT
+            self.UinvT.gen_identity(B.nrows)
 
         cdef Matrix[Z_NR[mpz_t]] *b = <Matrix[Z_NR[mpz_t]]*>B._core
-        cdef Matrix[Z_NR[mpz_t]] *u = <Matrix[Z_NR[mpz_t]]*>self._U._core
-        cdef Matrix[Z_NR[mpz_t]] *u_inv_t = <Matrix[Z_NR[mpz_t]]*>self._UinvT._core
+        cdef Matrix[Z_NR[mpz_t]] *u = <Matrix[Z_NR[mpz_t]]*>self.U._core
+        cdef Matrix[Z_NR[mpz_t]] *u_inv_t = <Matrix[Z_NR[mpz_t]]*>self.UinvT._core
 
         if float_type == "double":
             self._type = mpz_double
@@ -96,7 +96,7 @@ cdef class MatGSO:
         else:
             raise ValueError("Float type '%s' not understood."%float_type)
 
-        self._B = B
+        self.B = B
 
     def __dealloc__(self):
         """FIXME! briefly describe function

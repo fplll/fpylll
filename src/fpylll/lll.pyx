@@ -62,7 +62,7 @@ cdef class LLLReduction:
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_real]] *m_qd
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpfr
 
-        self.m = M
+        self.M = M
 
         if M._type == mpz_double:
             m_double = M._core.mpz_double
@@ -114,7 +114,7 @@ cdef class LLLReduction:
         :rtype:
 
         """
-        if self.m.d == 0:
+        if self.M.d == 0:
             return
 
         cdef int r

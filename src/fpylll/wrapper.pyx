@@ -27,12 +27,13 @@ cdef class Wrapper:
 
         """
         self._B = B
+        # TODO: Don't hardcode this
         self._U = IntegerMatrix(0,0)
         self._UinvT = IntegerMatrix(0,0)
 
-        self._core = new Wrapper_c((self._B._core)[0],
-                                   (self._U._core)[0],
-                                   (self._UinvT._core)[0],
+        self._core = new Wrapper_c((self.B._core)[0],
+                                   (self.U._core)[0],
+                                   (self.UinvT._core)[0],
                                    delta, eta, flags)
         self._called = False
 
@@ -66,14 +67,3 @@ cdef class Wrapper:
     def status(self):
         return self._core.status
 
-    @property
-    def B(self):
-        return self._B
-
-    @property
-    def U(self):
-        return self._U
-
-    @property
-    def UinvT(self):
-        return self._UinvT
