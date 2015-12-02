@@ -5,6 +5,7 @@
 # General Includes
 
 from gmp.mpz cimport mpz_t
+from gmp.random cimport gmp_randstate_t
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 
@@ -27,6 +28,37 @@ cdef extern from "fplll/nr.h" namespace "fplll":
         inline void operator=(const FP_NR[T]& a)
         inline void operator=(double a)
 
+        @staticmethod
+        unsigned int getprec()
+
+        @staticmethod
+        unsigned int setprec(unsigned int)
+
+
+
+# Random Numbers
+
+
+cdef extern from "fplll/nr.h" namespace "fplll":
+
+    cdef cppclass RandGen:
+        @staticmethod
+        void init()
+
+        @staticmethod
+        void initWithSeed(unsigned long seed)
+
+        @staticmethod
+        void initWithTime()
+
+        @staticmethod
+        void initWithTime2()
+
+        @staticmethod
+        int getInitialized()
+
+        @staticmethod
+        gmp_randstate_t& getGMPState()
 
 
 # Definitions & Enums

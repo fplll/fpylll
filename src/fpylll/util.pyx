@@ -1,7 +1,10 @@
 from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR
+from fplll cimport FP_NR, RandGen
 from cpython.int cimport PyInt_AS_LONG
 from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
 from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
+from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
+from fpylll.mpfr.mpfr cimport mpfr_t
 
 cdef FloatType check_float_type(object float_type):
     cdef FloatType float_type_
@@ -81,3 +84,32 @@ cdef int assign_Z_NR_mpz(Z_NR[mpz_t]& t, value) except -1:
 
     t.set(tmp)
     mpz_clear(tmp)
+
+
+def set_random_seed(unsigned long seed):
+    """Set random seed.
+
+    :param seed: a new seed.
+
+    """
+    cdef gmp_randstate_t state = RandGen.getGMPState()
+    gmp_randseed_ui(state, seed)
+
+def get_precision():
+    """Get currently set precision for MPFR
+
+    :returns: precision in bits
+
+    """
+    return FP_NR[mpfr_t].getprec()
+
+def set_precision(unsigned int prec):
+    """Set precision globally for MPFR
+
+    :param prec: an integer >= 53
+    :returns: current precision
+
+    """
+    if prec < 53:
+        raise ValueError("Precision (%d) too small."%prec)
+    return FP_NR[mpfr_t].setprec(prec)
