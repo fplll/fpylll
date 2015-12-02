@@ -17,7 +17,7 @@ ctypedef enum fplll_type_t:
 
 ctypedef union mat_gso_core_t:
     MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_double
-    # MatGSO[Z_NR[mpz_t], FP_NR[longdouble]] *mpz_ld
+    MatGSO[Z_NR[mpz_t], FP_NR[longdouble]] *mpz_ld
     MatGSO[Z_NR[mpz_t], FP_NR[dd_real]] *mpz_dd
     MatGSO[Z_NR[mpz_t], FP_NR[qd_real]] *mpz_qd
     #MatGSO[Z_NR[mpz_t], FP_NR[dpe]] *mpz_dpe
@@ -25,7 +25,7 @@ ctypedef union mat_gso_core_t:
 
 ctypedef union lll_reduction_core:
     LLLReduction[Z_NR[mpz_t], FP_NR[double]] *mpz_double
-    #LLLReduction[Z_NR[mpz_t], FP_NR[longdouble]] *mpz_ld
+    LLLReduction[Z_NR[mpz_t], FP_NR[longdouble]] *mpz_ld
     LLLReduction[Z_NR[mpz_t], FP_NR[dd_real]] *mpz_dd
     LLLReduction[Z_NR[mpz_t], FP_NR[qd_real]] *mpz_qd
     #LLLReduction[Z_NR[mpz_t], FP_NR[dpe]] *mpz_dpe
@@ -33,7 +33,7 @@ ctypedef union lll_reduction_core:
 
 ctypedef union bkz_auto_abort_core:
     BKZAutoAbort[FP_NR[double]] *mpz_double
-    #BKZAutoAbort[FP_NR[ld]] *mpz_ld
+    BKZAutoAbort[FP_NR[longdouble]] *mpz_ld
     BKZAutoAbort[FP_NR[dd_real]] *mpz_dd
     BKZAutoAbort[FP_NR[qd_real]] *mpz_qd
     #BKZAutoAbort[FP_NR[dpe]] *mpz_dpe
