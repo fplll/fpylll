@@ -34,6 +34,10 @@ cdef extern from "fplll/nr.h" namespace "fplll":
         @staticmethod
         unsigned int setprec(unsigned int)
 
+cdef extern from "fplll/nr.h":
+    cdef struct dpe_struct:
+        pass
+    ctypedef dpe_struct *dpe_t
 
 
 # Random Numbers

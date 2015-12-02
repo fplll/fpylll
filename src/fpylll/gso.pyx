@@ -2,6 +2,7 @@ from gmp.mpz cimport mpz_t
 from qd.qd cimport dd_real, qd_real
 from mpfr.mpfr cimport mpfr_t
 from integer_matrix cimport IntegerMatrix
+from fplll cimport dpe_t
 from fplll cimport MatGSO as MatGSO_c, Z_NR, FP_NR, Matrix
 from fplll cimport GSO_DEFAULT
 from fplll cimport GSO_INT_GRAM
@@ -9,7 +10,7 @@ from fplll cimport GSO_ROW_EXPO
 from fplll cimport GSO_OP_FORCE_LONG
 from fplll cimport getCurrentSlope, computeGaussHeurDist
 from util cimport preprocess_indices
-from fpylll cimport mpz_double, mpz_ld, mpz_mpfr, mpz_dd, mpz_qd
+from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, mpz_dd, mpz_qd
 
 class MatGSORowOpContext(object):
     """
@@ -87,6 +88,9 @@ cdef class MatGSO:
         elif float_type == "long double":
             self._type = mpz_ld
             self._core.mpz_ld = new MatGSO_c[Z_NR[mpz_t],FP_NR[longdouble]](b[0], u[0], u_inv_t[0], flags)
+        elif float_type == "dpe":
+            self._type = mpz_dpe
+            self._core.mpz_dpe = new MatGSO_c[Z_NR[mpz_t],FP_NR[dpe_t]](b[0], u[0], u_inv_t[0], flags)
         elif float_type == "dd":
             self._type = mpz_dd
             self._core.mpz_dd = new MatGSO_c[Z_NR[mpz_t],FP_NR[dd_real]](b[0], u[0], u_inv_t[0], flags)
@@ -112,6 +116,8 @@ cdef class MatGSO:
             del self._core.mpz_double
         if self._type == mpz_ld:
             del self._core.mpz_ld
+        if self._type == mpz_dpe:
+            del self._core.mpz_dpe
         if self._type == mpz_dd:
             del self._core.mpz_dd
         if self._type == mpz_qd:
@@ -125,6 +131,8 @@ cdef class MatGSO:
             return "double"
         if self._type == mpz_ld:
             return "long double"
+        if self._type == mpz_dpe:
+            return "dpe"
         if self._type == mpz_dd:
             return "dd"
         if self._type == mpz_qd:
@@ -140,6 +148,8 @@ cdef class MatGSO:
             return self._core.mpz_double.d
         elif self._type == mpz_ld:
             return self._core.mpz_ld.d
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.d
         elif self._type == mpz_dd:
             return self._core.mpz_dd.d
         elif self._type == mpz_qd:
@@ -157,6 +167,8 @@ cdef class MatGSO:
             return bool(self._core.mpz_double.enableIntGram)
         if self._type == mpz_ld:
             return bool(self._core.mpz_ld.enableIntGram)
+        if self._type == mpz_dpe:
+            return bool(self._core.mpz_dpe.enableIntGram)
         elif self._type == mpz_dd:
             return bool(self._core.mpz_dd.enableIntGram)
         elif self._type == mpz_qd:
@@ -174,6 +186,8 @@ cdef class MatGSO:
             return bool(self._core.mpz_double.enableRowExpo)
         elif self._type == mpz_ld:
             return bool(self._core.mpz_ld.enableRowExpo)
+        elif self._type == mpz_dpe:
+            return bool(self._core.mpz_dpe.enableRowExpo)
         elif self._type == mpz_dd:
             return bool(self._core.mpz_dd.enableRowExpo)
         elif self._type == mpz_qd:
@@ -191,6 +205,8 @@ cdef class MatGSO:
             return bool(self._core.mpz_double.enableTransform)
         elif self._type == mpz_ld:
             return bool(self._core.mpz_ld.enableTransform)
+        elif self._type == mpz_dpe:
+            return bool(self._core.mpz_dpe.enableTransform)
         elif self._type == mpz_dd:
             return bool(self._core.mpz_dd.enableTransform)
         elif self._type == mpz_qd:
@@ -208,6 +224,8 @@ cdef class MatGSO:
             return bool(self._core.mpz_double.enableInvTransform)
         elif self._type == mpz_ld:
             return bool(self._core.mpz_ld.enableInvTransform)
+        elif self._type == mpz_dpe:
+            return bool(self._core.mpz_dpe.enableInvTransform)
         elif self._type == mpz_dd:
             return bool(self._core.mpz_dd.enableInvTransform)
         elif self._type == mpz_qd:
@@ -225,6 +243,8 @@ cdef class MatGSO:
             return bool(self._core.mpz_double.rowOpForceLong)
         elif self._type == mpz_ld:
             return bool(self._core.mpz_ld.rowOpForceLong)
+        elif self._type == mpz_dpe:
+            return bool(self._core.mpz_dpe.rowOpForceLong)
         elif self._type == mpz_dd:
             return bool(self._core.mpz_dd.rowOpForceLong)
         elif self._type == mpz_qd:
@@ -247,6 +267,8 @@ cdef class MatGSO:
             return self._core.mpz_double.rowOpBegin(first, last)
         elif self._type == mpz_ld:
             return self._core.mpz_ld.rowOpBegin(first, last)
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.rowOpBegin(first, last)
         elif self._type == mpz_dd:
             return self._core.mpz_dd.rowOpBegin(first, last)
         elif self._type == mpz_qd:
@@ -269,6 +291,8 @@ cdef class MatGSO:
             return self._core.mpz_double.rowOpEnd(first, last)
         elif self._type == mpz_ld:
             return self._core.mpz_ld.rowOpEnd(first, last)
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.rowOpEnd(first, last)
         elif self._type == mpz_dd:
             return self._core.mpz_dd.rowOpEnd(first, last)
         elif self._type == mpz_qd:
@@ -305,6 +329,7 @@ cdef class MatGSO:
 
         cdef FP_NR[double] t_double
         cdef FP_NR[longdouble] t_ld
+        cdef FP_NR[dpe_t] t_dpe
         cdef FP_NR[dd_real] t_dd
         cdef FP_NR[qd_real] t_qd
         cdef FP_NR[mpfr_t] t_mpfr
@@ -316,6 +341,10 @@ cdef class MatGSO:
             # TODO: don't just return doubles
             self._core.mpz_ld.getGram(t_ld, i, j)
             return t_ld.getData()
+        elif self._type == mpz_dpe:
+            # TODO: don't just return doubles
+            self._core.mpz_dpe.getGram(t_dpe, i, j)
+            return t_dpe.get_d()
         elif self._type == mpz_dd:
             # TODO: don't just return doubles
             self._core.mpz_dd.getGram(t_dd, i, j)
@@ -345,6 +374,7 @@ cdef class MatGSO:
         preprocess_indices(i, j, self.d, self.d)
         cdef FP_NR[double] t_double
         cdef FP_NR[longdouble] t_ld
+        cdef FP_NR[dpe_t] t_dpe
         cdef FP_NR[dd_real] t_dd
         cdef FP_NR[qd_real] t_qd
         cdef FP_NR[mpfr_t] t_mpfr
@@ -356,6 +386,10 @@ cdef class MatGSO:
             # TODO: don't just return doubles
             self._core.mpz_ld.getR(t_ld, i, j)
             return t_ld.get_d()
+        elif self._type == mpz_dpe:
+            # TODO: don't just return doubles
+            self._core.mpz_dpe.getR(t_dpe, i, j)
+            return t_dpe.get_d()
         elif self._type == mpz_dd:
             # TODO: don't just return doubles
             self._core.mpz_dd.getR(t_dd, i, j)
@@ -395,6 +429,9 @@ cdef class MatGSO:
         elif self._type == mpz_ld:
             # TODO: don't just return doubles
             r = self._core.mpz_ld.getRExp(i, j, expo).get_d()
+        elif self._type == mpz_dpe:
+            # TODO: don't just return doubles
+            r = self._core.mpz_dpe.getRExp(i, j, expo).get_d()
         elif self._type == mpz_dd:
             # TODO: don't just return doubles
             r = self._core.mpz_dd.getRExp(i, j, expo).get_d()
@@ -423,6 +460,7 @@ cdef class MatGSO:
         preprocess_indices(i, j, self.d, self.d)
         cdef FP_NR[double] t_double
         cdef FP_NR[longdouble] t_ld
+        cdef FP_NR[dpe_t] t_dpe
         cdef FP_NR[dd_real] t_dd
         cdef FP_NR[qd_real] t_qd
         cdef FP_NR[mpfr_t] t_mpfr
@@ -434,6 +472,10 @@ cdef class MatGSO:
             # TODO: don't just return doubles
             self._core.mpz_ld.getMu(t_ld, i, j)
             return t_ld.get_d()
+        elif self._type == mpz_dpe:
+            # TODO: don't just return doubles
+            self._core.mpz_dpe.getMu(t_dpe, i, j)
+            return t_dpe.get_d()
         elif self._type == mpz_dd:
             # TODO: don't just return doubles
             self._core.mpz_dd.getMu(t_dd, i, j)
@@ -473,6 +515,9 @@ cdef class MatGSO:
         elif self._type == mpz_ld:
             # TODO: don't just return doubles
             r = self._core.mpz_ld.getMuExp(i, j, expo).get_d()
+        elif self._type == mpz_dpe:
+            # TODO: don't just return doubles
+            r = self._core.mpz_dpe.getMuExp(i, j, expo).get_d()
         elif self._type == mpz_dd:
             # TODO: don't just return doubles
             r = self._core.mpz_dd.getMuExp(i, j, expo).get_d()
@@ -496,6 +541,8 @@ cdef class MatGSO:
             return bool(self._core.mpz_double.updateGSO())
         elif self._type == mpz_ld:
             return bool(self._core.mpz_ld.updateGSO())
+        elif self._type == mpz_dpe:
+            return bool(self._core.mpz_dpe.updateGSO())
         elif self._type == mpz_dd:
             return bool(self._core.mpz_dd.updateGSO())
         elif self._type == mpz_qd:
@@ -513,6 +560,8 @@ cdef class MatGSO:
             self._core.mpz_double.discoverAllRows()
         elif self._type == mpz_ld:
             self._core.mpz_ld.discoverAllRows()
+        elif self._type == mpz_dpe:
+            self._core.mpz_dpe.discoverAllRows()
         elif self._type == mpz_dd:
             self._core.mpz_dd.discoverAllRows()
         elif self._type == mpz_qd:
@@ -536,6 +585,8 @@ cdef class MatGSO:
             return self._core.mpz_double.moveRow(old_r, new_r)
         elif self._type == mpz_ld:
             return self._core.mpz_ld.moveRow(old_r, new_r)
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.moveRow(old_r, new_r)
         elif self._type == mpz_dd:
             return self._core.mpz_dd.moveRow(old_r, new_r)
         elif self._type == mpz_qd:
@@ -563,6 +614,7 @@ cdef class MatGSO:
         cdef double x_ = x
         cdef FP_NR[double] x_double
         cdef FP_NR[longdouble] x_ld
+        cdef FP_NR[dpe_t] x_dpe
         cdef FP_NR[dd_real] x_dd
         cdef FP_NR[qd_real] x_qd
         cdef FP_NR[mpfr_t] x_mpfr
@@ -573,6 +625,9 @@ cdef class MatGSO:
         elif self._type == mpz_ld:
             x_ld = x_
             self._core.mpz_ld.row_addmul(i, j, x_ld)
+        elif self._type == mpz_dpe:
+            x_dpe = x_
+            self._core.mpz_dpe.row_addmul(i, j, x_dpe)
         elif self._type == mpz_dd:
             x_dd = x_
             self._core.mpz_dd.row_addmul(i, j, x_dd)
@@ -596,6 +651,8 @@ cdef class MatGSO:
             return self._core.mpz_double.createRow()
         elif self._type == mpz_ld:
             return self._core.mpz_ld.createRow()
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.createRow()
         elif self._type == mpz_dd:
             return self._core.mpz_dd.createRow()
         elif self._type == mpz_qd:
@@ -616,6 +673,8 @@ cdef class MatGSO:
             return self._core.mpz_double.removeLastRow()
         elif self._type == mpz_ld:
             return self._core.mpz_ld.removeLastRow()
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.removeLastRow()
         elif self._type == mpz_dd:
             return self._core.mpz_dd.removeLastRow()
         elif self._type == mpz_qd:
@@ -640,6 +699,8 @@ cdef class MatGSO:
             return getCurrentSlope[FP_NR[double]](self._core.mpz_double[0], start_row, stop_row)
         elif self._type == mpz_ld:
             return getCurrentSlope[FP_NR[longdouble]](self._core.mpz_ld[0], start_row, stop_row)
+        elif self._type == mpz_dpe:
+            return getCurrentSlope[FP_NR[dpe_t]](self._core.mpz_dpe[0], start_row, stop_row)
         elif self._type == mpz_dd:
             return getCurrentSlope[FP_NR[dd_real]](self._core.mpz_dd[0], start_row, stop_row)
         elif self._type == mpz_qd:
@@ -669,6 +730,7 @@ cdef class MatGSO:
 
         cdef FP_NR[double] max_dist_double
         cdef FP_NR[longdouble] max_dist_ld
+        cdef FP_NR[dpe_t] max_dist_dpe
         cdef FP_NR[dd_real] max_dist_dd
         cdef FP_NR[qd_real] max_dist_qd
         cdef FP_NR[mpfr_t] max_dist_mpfr
@@ -683,6 +745,11 @@ cdef class MatGSO:
             computeGaussHeurDist[FP_NR[longdouble]](self._core.mpz_ld[0],
                                                     max_dist_ld, max_dist_expo, kappa, block_size, gh_factor)
             max_dist = max_dist_ld.get_d()
+        elif self._type == mpz_dpe:
+            max_dist_dpe = max_dist
+            computeGaussHeurDist[FP_NR[dpe_t]](self._core.mpz_dpe[0],
+                                               max_dist_dpe, max_dist_expo, kappa, block_size, gh_factor)
+            max_dist = max_dist_dpe.get_d()
         elif self._type == mpz_dd:
             max_dist_dd = max_dist
             computeGaussHeurDist[FP_NR[dd_real]](self._core.mpz_dd[0],

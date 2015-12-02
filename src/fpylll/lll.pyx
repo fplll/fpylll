@@ -18,6 +18,7 @@ from fplll cimport LLLMethod, LLL_DEF_ETA, LLL_DEF_DELTA
 from fplll cimport LM_WRAPPER, LM_PROVED, LM_HEURISTIC, LM_FAST
 from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD
 
+from fplll cimport dpe_t
 from fplll cimport Z_NR, FP_NR
 from fplll cimport lllReduction as lllReduction_c
 from fplll cimport RED_SUCCESS
@@ -28,7 +29,7 @@ from fplll cimport isLLLReduced
 
 from util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll import ReductionError
-from fpylll cimport mpz_double, mpz_ld, mpz_dd, mpz_qd, mpz_mpfr
+from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_dd, mpz_qd, mpz_mpfr
 
 from wrapper import Wrapper
 
@@ -59,6 +60,7 @@ cdef class LLLReduction:
 
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]]  *m_double
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]] *m_ld
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]] *m_dpe
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_real]] *m_dd
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_real]] *m_qd
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpfr
@@ -77,6 +79,12 @@ cdef class LLLReduction:
             self._core.mpz_ld = new LLLReduction_c[Z_NR[mpz_t], FP_NR[longdouble]](m_ld[0],
                                                                                    delta,
                                                                                    eta, flags)
+        elif M._type == mpz_dpe:
+            m_dpe = M._core.mpz_dpe
+            self._type = mpz_dpe
+            self._core.mpz_dpe = new LLLReduction_c[Z_NR[mpz_t], FP_NR[dpe_t]](m_dpe[0],
+                                                                               delta,
+                                                                               eta, flags)
         elif M._type == mpz_dd:
             m_dd = M._core.mpz_dd
             self._type = mpz_dd
@@ -106,6 +114,8 @@ cdef class LLLReduction:
             del self._core.mpz_double
         if self._type == mpz_ld:
             del self._core.mpz_ld
+        if self._type == mpz_dpe:
+            del self._core.mpz_dpe
         if self._type == mpz_dd:
             del self._core.mpz_dd
         if self._type == mpz_qd:
@@ -136,6 +146,11 @@ cdef class LLLReduction:
             sig_on()
             self._core.mpz_ld.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_ld.status
+            sig_off()
+        elif self._type == mpz_dpe:
+            sig_on()
+            self._core.mpz_dpe.lll(kappa_min, kappa_start, kappa_end)
+            r = self._core.mpz_dpe.status
             sig_off()
         elif self._type == mpz_dd:
             sig_on()
@@ -169,6 +184,8 @@ cdef class LLLReduction:
             r = self._core.mpz_double.sizeReduction(kappa_min, kappa_end)
         elif self._type == mpz_ld:
             r = self._core.mpz_ld.sizeReduction(kappa_min, kappa_end)
+        elif self._type == mpz_dpe:
+            r = self._core.mpz_dpe.sizeReduction(kappa_min, kappa_end)
         elif self._type == mpz_dd:
             r = self._core.mpz_dd.sizeReduction(kappa_min, kappa_end)
         elif self._type == mpz_qd:
@@ -192,6 +209,8 @@ cdef class LLLReduction:
             return self._core.mpz_double.finalKappa
         elif self._type == mpz_ld:
             return self._core.mpz_ld.finalKappa
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.finalKappa
         elif self._type == mpz_dd:
             return self._core.mpz_dd.finalKappa
         elif self._type == mpz_qd:
@@ -213,6 +232,8 @@ cdef class LLLReduction:
             return self._core.mpz_double.lastEarlyRed
         elif self._type == mpz_ld:
             return self._core.mpz_ld.lastEarlyRed
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.lastEarlyRed
         elif self._type == mpz_dd:
             return self._core.mpz_dd.lastEarlyRed
         elif self._type == mpz_qd:
@@ -234,6 +255,8 @@ cdef class LLLReduction:
             return self._core.mpz_double.zeros
         elif self._type == mpz_ld:
             return self._core.mpz_ld.zeros
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.zeros
         elif self._type == mpz_dd:
             return self._core.mpz_dd.zeros
         elif self._type == mpz_qd:
@@ -255,6 +278,8 @@ cdef class LLLReduction:
             return self._core.mpz_double.nSwaps
         elif self._type == mpz_ld:
             return self._core.mpz_ld.nSwaps
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.nSwaps
         elif self._type == mpz_dd:
             return self._core.mpz_dd.nSwaps
         elif self._type == mpz_qd:
