@@ -341,6 +341,112 @@ cdef class IntegerMatrix:
         """
         self._core.gen_identity(nrows)
 
+    def submatrix(self, a, b, c=None, d=None):
+        """Construct a new submatrix.
+
+        :param a: either the index of the first row or an iterable of row indices
+        :param b: either the index of the first column or an iterable of column indices
+        :param c: the index of first excluded row (or ``None``)
+        :param d: the index of first excluded column (or ``None``)
+        :returns:
+        :rtype:
+
+        We illustrate the calling conventions of this function using a 10 x 10 matrix::
+
+            >>> from fpylll import IntegerMatrix, set_random_seed
+            >>> A = IntegerMatrix(10, 10)
+            >>> A.randomize("ntrulike", bits=22, q=4194319)
+            >>> print A
+            [ 1 0 0 0 0 3975284 1209675 1060143  521155  769480 ]
+            [ 0 1 0 0 0 1209675 1060143  521155  769480 3975284 ]
+            [ 0 0 1 0 0 1060143  521155  769480 3975284 1209675 ]
+            [ 0 0 0 1 0  521155  769480 3975284 1209675 1060143 ]
+            [ 0 0 0 0 1  769480 3975284 1209675 1060143  521155 ]
+            [ 0 0 0 0 0 4194319       0       0       0       0 ]
+            [ 0 0 0 0 0       0 4194319       0       0       0 ]
+            [ 0 0 0 0 0       0       0 4194319       0       0 ]
+            [ 0 0 0 0 0       0       0       0 4194319       0 ]
+            [ 0 0 0 0 0       0       0       0       0 4194319 ]
+
+        We can either specify start/stop rows and columns::
+
+            >>> print A.submatrix(0,0,2,8)
+            [ 1 0 0 0 0 3975284 1209675 1060143 ]
+            [ 0 1 0 0 0 1209675 1060143  521155 ]
+
+        Or we can give lists of rows, columns explicitly::
+
+            >>> print A.submatrix([0,1,2],range(3,9))
+            [ 0 0 3975284 1209675 1060143  521155 ]
+            [ 0 0 1209675 1060143  521155  769480 ]
+            [ 0 0 1060143  521155  769480 3975284 ]
+
+
+        """
+        cdef int m = 0
+        cdef int n = 0
+        cdef int i, j, row, col
+
+        if c is None and d is None:
+            try:
+                iter(a)
+                rows = a
+                iter(b)
+                cols = b
+            except TypeError:
+                raise ValueError("Inputs to submatrix not understood.")
+            it = iter(rows)
+            try:
+                while True:
+                    it.next()
+                    m += 1
+            except StopIteration:
+                pass
+
+            it = iter(cols)
+            try:
+                while True:
+                    it.next()
+                    n += 1
+            except StopIteration:
+                pass
+
+            A = IntegerMatrix(m, n)
+
+            i = 0
+            for row in iter(rows):
+                j = 0
+                for col in iter(cols):
+                    preprocess_indices(row, col, self._core.getRows(), self._core.getCols())
+                    A._core[0][i][j].set(self._core[0][row][col].getData())
+                    j += 1
+                i += 1
+            return A
+        else:
+            if c < 0:
+                c %= self._core.getRows()
+            if d < 0:
+                d %= self._core.getCols()
+
+            preprocess_indices(a, b, self._core.getRows(), self._core.getCols())
+            preprocess_indices(c, d, self._core.getRows()+1, self._core.getCols()+1)
+
+            if c < a:
+                raise ValueError("Last row (%d) < first row (%d)"%(c,a))
+            if d < b:
+                raise ValueError("Last column (%d) < first column (%d)"%(d,b))
+            i = 0
+            m = c - a
+            n = d - b
+            A = IntegerMatrix(m, n)
+            for row in range(a, c):
+                j = 0
+                for col in range(b, d):
+                    A._core[0][i][j].set(self._core[0][row][col].getData())
+                    j += 1
+                i += 1
+            return A
+
 
     @classmethod
     def from_file(cls, filename):
