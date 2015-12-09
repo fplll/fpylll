@@ -621,7 +621,8 @@ cdef class IntegerMatrix:
                     continue
                 line = line.groups()[0]
                 line = line.strip()
-                values = map(int, line.split(" "))
+                line = [e for e in line.split(" ") if e != '']
+                values = map(int, line)
                 A._core.setRows(i+1)
                 A._core.setCols(len(values))
                 for j, v in enumerate(values):
