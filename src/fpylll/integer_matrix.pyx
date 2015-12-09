@@ -80,6 +80,7 @@ cdef class IntegerMatrixRow:
         """
         return self.norm()
 
+
 cdef class IntegerMatrix:
     """
     Dense matrices over the Integers.
@@ -278,6 +279,50 @@ cdef class IntegerMatrix:
         else:
             raise ValueError("Parameter '%s' not understood."%key)
 
+    def __mul__(IntegerMatrix A, IntegerMatrix B):
+        """Naive matrix × matrix products.
+
+        :param IntegerMatrix A: m × n integer matrix A
+        :param IntegerMatrix B: n × k integer matrix B
+        :returns: m × k integer matrix C = A × B
+
+        >>> from fpylll import set_random_seed
+        >>> set_random_seed(1337)
+        >>> A = IntegerMatrix(2, 2)
+        >>> A.randomize("uniform", bits=2)
+        >>> print A
+        [ 2 0 ]
+        [ 1 3 ]
+
+        >>> B = IntegerMatrix(2, 2)
+        >>> B.randomize("uniform", bits=2)
+        >>> print B
+        [ 3 2 ]
+        [ 3 3 ]
+
+        >>> print A*B
+        [  6  4 ]
+        [ 12 11 ]
+
+        >>> print B*A
+        [ 8 6 ]
+        [ 9 9 ]
+
+        """
+        if A.ncols != B.nrows:
+            raise ValueError("Number of columns of A (%d) does not match number of rows of B (%d)"%(A.ncols, B.nrows))
+
+        cdef IntegerMatrix res = IntegerMatrix(A.nrows, B.ncols)
+        cdef int i, j
+        cdef Z_NR[mpz_t] tmp
+        for i in range(A.nrows):
+            for j in range(B.ncols):
+                tmp = res._core[0][i][j]
+                for k in range(A.ncols):
+                    tmp.addmul(A._core[0][i][k], B._core[0][k][j])
+                res._core[0][i][j] = tmp
+        return res
+
     def randomize(self, algorithm, **kwds):
         """Randomize this matrix using ``algorithm``.
 
@@ -355,32 +400,32 @@ cdef class IntegerMatrix:
 
             >>> from fpylll import IntegerMatrix, set_random_seed
             >>> A = IntegerMatrix(10, 10)
+            >>> set_random_seed(1337)
             >>> A.randomize("ntrulike", bits=22, q=4194319)
             >>> print A
-            [ 1 0 0 0 0 3975284 1209675 1060143  521155  769480 ]
-            [ 0 1 0 0 0 1209675 1060143  521155  769480 3975284 ]
-            [ 0 0 1 0 0 1060143  521155  769480 3975284 1209675 ]
-            [ 0 0 0 1 0  521155  769480 3975284 1209675 1060143 ]
-            [ 0 0 0 0 1  769480 3975284 1209675 1060143  521155 ]
-            [ 0 0 0 0 0 4194319       0       0       0       0 ]
-            [ 0 0 0 0 0       0 4194319       0       0       0 ]
-            [ 0 0 0 0 0       0       0 4194319       0       0 ]
-            [ 0 0 0 0 0       0       0       0 4194319       0 ]
-            [ 0 0 0 0 0       0       0       0       0 4194319 ]
+            [ 1 0 0 0 0   752690  1522220  2972677   890755  2612607 ]
+            [ 0 1 0 0 0  1522220  2972677   890755  2612607   752690 ]
+            [ 0 0 1 0 0  2972677   890755  2612607   752690  1522220 ]
+            [ 0 0 0 1 0   890755  2612607   752690  1522220  2972677 ]
+            [ 0 0 0 0 1  2612607   752690  1522220  2972677   890755 ]
+            [ 0 0 0 0 0  4194319        0        0        0        0 ]
+            [ 0 0 0 0 0        0  4194319        0        0        0 ]
+            [ 0 0 0 0 0        0        0  4194319        0        0 ]
+            [ 0 0 0 0 0        0        0        0  4194319        0 ]
+            [ 0 0 0 0 0        0        0        0        0  4194319 ]
 
         We can either specify start/stop rows and columns::
 
             >>> print A.submatrix(0,0,2,8)
-            [ 1 0 0 0 0 3975284 1209675 1060143 ]
-            [ 0 1 0 0 0 1209675 1060143  521155 ]
+            [ 1 0 0 0 0   752690  1522220 2972677 ]
+            [ 0 1 0 0 0  1522220  2972677  890755 ]
 
         Or we can give lists of rows, columns explicitly::
 
             >>> print A.submatrix([0,1,2],range(3,9))
-            [ 0 0 3975284 1209675 1060143  521155 ]
-            [ 0 0 1209675 1060143  521155  769480 ]
-            [ 0 0 1060143  521155  769480 3975284 ]
-
+            [ 0 0   752690  1522220 2972677  890755 ]
+            [ 0 0  1522220  2972677  890755 2612607 ]
+            [ 0 0  2972677   890755 2612607  752690 ]
 
         """
         cdef int m = 0
