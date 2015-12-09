@@ -8,11 +8,13 @@
 include "interrupt/interrupt.pxi"
 
 from fplll cimport MatrixRow, sqrNorm, Z_NR
-from fpylll.util cimport preprocess_indices, assign_Z_NR_mpz
+from fpylll.util cimport preprocess_indices, assign_Z_NR_mpz, assign_mpz
 from fpylll.gmp.pylong cimport mpz_get_pyintlong
 
 import re
 from math import log, ceil, sqrt
+
+from gmp.mpz cimport mpz_init, mpz_mod, mpz_fdiv_q_ui, mpz_clear, mpz_cmp, mpz_sub, mpz_set
 
 cdef class IntegerMatrixRow:
     """
@@ -322,6 +324,52 @@ cdef class IntegerMatrix:
                     tmp.addmul(A._core[0][i][k], B._core[0][k][j])
                 res._core[0][i][j] = tmp
         return res
+
+
+    def __mod__(IntegerMatrix self, q):
+        """FIXME! briefly describe function
+
+        :param q:
+        :returns:
+        :rtype:
+
+        """
+        cdef mpz_t q_
+        mpz_init(q_)
+        try:
+            assign_mpz(q_, q)
+        except NotImplementedError, msg:
+            mpz_clear(q_)
+            raise NotImplementedError(msg)
+
+        cdef mpz_t t1
+        mpz_init(t1)
+        cdef mpz_t t2
+        mpz_init(t2)
+
+        cdef mpz_t q2_
+        mpz_init(q2_)
+        mpz_fdiv_q_ui(q2_, q_, 2)
+
+        cdef IntegerMatrix A = IntegerMatrix(self.nrows, self.ncols)
+
+        cdef int i, j
+        for i in range(self.nrows):
+            for j in range(self.ncols):
+                mpz_set(t1, self._core[0][i][j].getData())
+                mpz_set(t2, A._core[0][i][j].getData())
+
+                mpz_mod(t2, t1, q_)
+                if mpz_cmp(t2, q2_) > 0:
+                    mpz_sub(t2, t2, q_)
+                A._core[0][i][j].set(t2)
+
+        mpz_clear(q_)
+        mpz_clear(q2_)
+        mpz_clear(t1)
+        mpz_clear(t2)
+
+        return A
 
     def __richcmp__(IntegerMatrix self, IntegerMatrix other, int op):
         """Compare two matrices.

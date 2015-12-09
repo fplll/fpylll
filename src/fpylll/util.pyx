@@ -86,6 +86,16 @@ cdef int assign_Z_NR_mpz(Z_NR[mpz_t]& t, value) except -1:
     mpz_clear(tmp)
 
 
+cdef int assign_mpz(mpz_t& t, value) except -1:
+    if isinstance(value, int):
+        mpz_set_si(t, PyInt_AS_LONG(value))
+    elif isinstance(value, long):
+        mpz_set_pylong(t, value)
+    else:
+        msg = "Only Python ints and longs are currently supported, but got type '%s'"%type(value)
+        raise NotImplementedError(msg)
+
+
 def set_random_seed(unsigned long seed):
     """Set random seed.
 
