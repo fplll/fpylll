@@ -404,6 +404,25 @@ cdef class IntegerMatrix:
             return eq
         elif op == 3:
             return not eq
+
+    def apply_transform(self, IntegerMatrix U, int start_row=0):
+        """FIXME! briefly describe function
+
+        :param IntegerMatrix U:
+        :param int start_row:
+        :returns:
+        :rtype:
+
+        """
+        cdef int i, j
+        cdef mpz_t tmp
+        S = self.submatrix(start_row, 0, start_row + U.nrows, self.ncols)
+        cdef IntegerMatrix B = U*S
+        for i in range(B.nrows):
+            for j in range(B.ncols):
+                tmp = B._core[0][i][j].getData()
+                self._core[0][start_row+i][j].set(tmp)
+
     def randomize(self, algorithm, **kwds):
         """Randomize this matrix using ``algorithm``.
 
