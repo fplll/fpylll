@@ -20,6 +20,49 @@ cdef extern from "fplll/nr.h" namespace "fplll":
         T& getData()
         void set(T d)
         double get_d()
+        long exponent()
+        void set_str(const char* s)
+        int cmp(const Z_NR[T]& m)
+        int sgn() const
+
+        void operator=(const Z_NR[T]& z);
+        void operator=(const mpz_t& z);
+        void operator=(long i);
+        int operator<(const Z_NR[T]& a)
+        int operator<(long a)
+        int operator>(const Z_NR[T]& a)
+        int operator>(long a)
+        int operator<=(const Z_NR[T]& a)
+        int operator<=(long a)
+        int operator>=(const Z_NR[T]& a)
+        int operator>=(long a)
+        int operator==(const Z_NR[T]& a)
+        int operator==(long a)
+        int operator!=(const Z_NR[T]& a)
+        int operator!=(long a)
+
+        void add(const Z_NR[T]& a, const Z_NR[T]& b)
+        void add_ui(const Z_NR[T]& a, unsigned int b)
+        void sub(const Z_NR[T]& a, const Z_NR[T]& b)
+        void sub_ui(const Z_NR[T]& a, unsigned int b)
+        void neg(const Z_NR[T]& a)
+        void mul(const Z_NR[T]& a, const Z_NR[T]& b)
+        void mul_si(const Z_NR[T]& a, long b)
+        void mul_ui(const Z_NR[T]& a, unsigned long b)
+        void mul_2si(const Z_NR[T]& a, long b)
+        void div_2si(const Z_NR[T]& a, long b)
+        void addmul(const Z_NR[T]& a, const Z_NR[T]& b)
+        void addmul_ui(const Z_NR[T]& a, unsigned long b)
+        void addmul_si(const Z_NR[T]& a, long b)
+        void submul(const Z_NR[T]& a, const Z_NR[T]& b)
+        void submul_ui(const Z_NR[T]& a, unsigned long b)
+        void abs(const Z_NR[T]& a)
+        void swap(Z_NR[T]& a)
+        void randb(int bits)
+        void randb_si(int bits)
+        void randm(const Z_NR[T]& max)
+        void randm_si(const Z_NR[T]& max)
+
 
     cdef cppclass FP_NR[T]:
         T& getData()
