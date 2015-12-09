@@ -323,6 +323,39 @@ cdef class IntegerMatrix:
                 res._core[0][i][j] = tmp
         return res
 
+    def __richcmp__(IntegerMatrix self, IntegerMatrix other, int op):
+        """Compare two matrices.
+
+        :param IntegerMatrix self:
+        :param IntegerMatrix other:
+        :param int op:
+        :returns:
+        :rtype:
+
+        """
+        cdef int i, j
+        cdef Z_NR[mpz_t] a, b
+        if op == 2 or op == 3:
+            eq = True
+            if self.nrows != other.nrows:
+                eq = False
+            elif self.ncols != other.ncols:
+                eq = False
+            for i in range(self.nrows):
+                if eq is False:
+                    break
+                for j in range(self.ncols):
+                    a = self._core[0][i][j]
+                    b = other._core[0][i][j]
+                    if a != b:
+                        eq = False
+                        break
+        else:
+            raise NotImplementedError("Only != and == are implemented for integer matrices.")
+        if op == 2:
+            return eq
+        elif op == 3:
+            return not eq
     def randomize(self, algorithm, **kwds):
         """Randomize this matrix using ``algorithm``.
 
