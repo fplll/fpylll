@@ -325,8 +325,10 @@ cdef class IntegerMatrix:
                 res._core[0][i][j] = tmp
         return res
 
-
     def __mod__(IntegerMatrix self, q):
+        return self.mod(q)
+
+    def mod(IntegerMatrix self, q, int start_row=0, int start_col=0, int stop_row=-1, int stop_col=-1):
         """FIXME! briefly describe function
 
         :param q:
@@ -334,6 +336,10 @@ cdef class IntegerMatrix:
         :rtype:
 
         """
+
+        preprocess_indices(start_row, start_col, self.nrows, self.ncols)
+        preprocess_indices(stop_row, stop_col, self.nrows+1, self.ncols+1)
+
         cdef mpz_t q_
         mpz_init(q_)
         try:
@@ -357,11 +363,15 @@ cdef class IntegerMatrix:
         for i in range(self.nrows):
             for j in range(self.ncols):
                 mpz_set(t1, self._core[0][i][j].getData())
-                mpz_set(t2, A._core[0][i][j].getData())
 
-                mpz_mod(t2, t1, q_)
-                if mpz_cmp(t2, q2_) > 0:
-                    mpz_sub(t2, t2, q_)
+                if start_row <= i < stop_row and start_col <= i < stop_col:
+                    mpz_set(t2, A._core[0][i][j].getData())
+                    mpz_mod(t2, t1, q_)
+                    if mpz_cmp(t2, q2_) > 0:
+                        mpz_sub(t2, t2, q_)
+                else:
+                    mpz_set(t2, t1)
+
                 A._core[0][i][j].set(t2)
 
         mpz_clear(q_)
