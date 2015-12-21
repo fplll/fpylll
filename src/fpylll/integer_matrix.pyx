@@ -326,17 +326,47 @@ cdef class IntegerMatrix:
         return res
 
     def __mod__(IntegerMatrix self, q):
-        return self.mod(q)
+        A = self.__copy__()
+        A.mod(q)
+        return A
 
     def mod(IntegerMatrix self, q, int start_row=0, int start_col=0, int stop_row=-1, int stop_col=-1):
-        """FIXME! briefly describe function
+        """Apply moduluar reduction modulo `q` to this matrix.
 
-        :param q:
-        :returns:
-        :rtype:
+        :param q: modulus
+        :param int start_row: starting row
+        :param int start_col: starting column
+        :param int stop_row: last row (excluding)
+        :param int stop_col: last column (excluding)
+
+        >>> A = IntegerMatrix(2, 2)
+        >>> A[0,0] = 1001
+        >>> A[1,0] = 13
+        >>> A[0,1] = 102
+        >>> print A
+        [ 1001 102 ]
+        [   13   0 ]
+
+        >>> A.mod(10, start_row=1, start_col=0)
+        >>> print A
+        [ 1001 102 ]
+        [    3   0 ]
+
+        >>> A.mod(10)
+        >>> print A
+        [ 1 2 ]
+        [ 3 0 ]
+
+        >>> A = IntegerMatrix(2, 2)
+        >>> A[0,0] = 1001
+        >>> A[1,0] = 13
+        >>> A[0,1] = 102
+        >>> A.mod(10, stop_row=1)
+        >>> print A
+        [  1 2 ]
+        [ 13 0 ]
 
         """
-
         preprocess_indices(start_row, start_col, self.nrows, self.ncols)
         preprocess_indices(stop_row, stop_col, self.nrows+1, self.ncols+1)
 
@@ -357,29 +387,23 @@ cdef class IntegerMatrix:
         mpz_init(q2_)
         mpz_fdiv_q_ui(q2_, q_, 2)
 
-        cdef IntegerMatrix A = IntegerMatrix(self.nrows, self.ncols)
-
         cdef int i, j
         for i in range(self.nrows):
             for j in range(self.ncols):
                 mpz_set(t1, self._core[0][i][j].getData())
 
                 if start_row <= i < stop_row and start_col <= i < stop_col:
-                    mpz_set(t2, A._core[0][i][j].getData())
                     mpz_mod(t2, t1, q_)
                     if mpz_cmp(t2, q2_) > 0:
                         mpz_sub(t2, t2, q_)
-                else:
-                    mpz_set(t2, t1)
+                    self._core[0][i][j].set(t2)
 
-                A._core[0][i][j].set(t2)
 
         mpz_clear(q_)
         mpz_clear(q2_)
         mpz_clear(t1)
         mpz_clear(t2)
 
-        return A
 
     def __richcmp__(IntegerMatrix self, IntegerMatrix other, int op):
         """Compare two matrices.
