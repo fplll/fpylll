@@ -7,8 +7,13 @@ from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
 
+float_aliases = {'d': 'double',
+                 'ld': 'long double'}
+
 cdef FloatType check_float_type(object float_type):
     cdef FloatType float_type_
+
+    float_type = float_aliases.get(float_type, float_type)
 
     if float_type == "default" or float_type is None:
         float_type_= FT_DEFAULT
@@ -136,17 +141,19 @@ def get_precision(float_type="mpfr"):
         212
 
     """
-    if float_type == "double":
+    cdef FloatType float_type_ = check_float_type(float_type)
+
+    if float_type_ == FT_DOUBLE:
         return FP_NR[double].getprec()
-    elif float_type == "long double":
+    elif float_type_ == FT_LONG_DOUBLE:
         return FP_NR[longdouble].getprec()
-    elif float_type == "dpe":
+    elif float_type_ == FT_DPE:
         return FP_NR[dpe_t].getprec()
-    elif float_type == "dd":
+    elif float_type_ == FT_DD:
         return FP_NR[dd_real].getprec()
-    elif float_type == "qd":
+    elif float_type_ == FT_QD:
         return FP_NR[qd_real].getprec()
-    elif float_type == "mpfr":
+    elif float_type_ == FT_MPFR:
         return FP_NR[mpfr_t].getprec()
     else:
         raise ValueError("Floating point type '%s' unknown."%float_type)

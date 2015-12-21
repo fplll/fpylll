@@ -9,8 +9,9 @@ from fplll cimport GSO_INT_GRAM
 from fplll cimport GSO_ROW_EXPO
 from fplll cimport GSO_OP_FORCE_LONG
 from fplll cimport getCurrentSlope, computeGaussHeurDist
-from util cimport preprocess_indices
+from util cimport preprocess_indices, check_float_type
 from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, mpz_dd, mpz_qd
+from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR, FloatType
 
 class MatGSORowOpContext(object):
     """
@@ -82,22 +83,24 @@ cdef class MatGSO:
         cdef Matrix[Z_NR[mpz_t]] *u = <Matrix[Z_NR[mpz_t]]*>self.U._core
         cdef Matrix[Z_NR[mpz_t]] *u_inv_t = <Matrix[Z_NR[mpz_t]]*>self.UinvT._core
 
-        if float_type == "double":
+        cdef FloatType float_type_ = check_float_type(float_type)
+
+        if float_type_ == FT_DOUBLE:
             self._type = mpz_double
             self._core.mpz_double = new MatGSO_c[Z_NR[mpz_t],FP_NR[double]](b[0], u[0], u_inv_t[0], flags)
-        elif float_type == "long double":
+        elif float_type_ == FT_LONG_DOUBLE:
             self._type = mpz_ld
             self._core.mpz_ld = new MatGSO_c[Z_NR[mpz_t],FP_NR[longdouble]](b[0], u[0], u_inv_t[0], flags)
-        elif float_type == "dpe":
+        elif float_type_ == FT_DPE:
             self._type = mpz_dpe
             self._core.mpz_dpe = new MatGSO_c[Z_NR[mpz_t],FP_NR[dpe_t]](b[0], u[0], u_inv_t[0], flags)
-        elif float_type == "dd":
+        elif float_type_ == FT_DD:
             self._type = mpz_dd
             self._core.mpz_dd = new MatGSO_c[Z_NR[mpz_t],FP_NR[dd_real]](b[0], u[0], u_inv_t[0], flags)
-        elif float_type == "qd":
+        elif float_type_ == FT_QD:
             self._type = mpz_qd
             self._core.mpz_qd = new MatGSO_c[Z_NR[mpz_t],FP_NR[qd_real]](b[0], u[0], u_inv_t[0], flags)
-        elif float_type == "mpfr":
+        elif float_type_ == FT_MPFR:
             self._type = mpz_mpfr
             self._core.mpz_mpfr = new MatGSO_c[Z_NR[mpz_t],FP_NR[mpfr_t]](b[0], u[0], u_inv_t[0], flags)
         else:

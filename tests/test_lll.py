@@ -4,7 +4,7 @@ from fpylll import GSO, IntegerMatrix, LLL
 from copy import copy
 
 dimensions = ((0, 0), (1, 1), (1, 2), (3, 3), (10, 10), (50, 50), (40, 60),)
-float_types = ("double", "long double", "dpe", "dd", "qd", "mpfr")
+float_types = ("d", "ld", "dpe", "dd", "qd", "mpfr")
 
 
 def make_integer_matrix(m, n):
