@@ -1,5 +1,6 @@
 from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR
-from fplll cimport FP_NR, RandGen
+from fplll cimport FP_NR, RandGen, dpe_t
+from qd.qd cimport dd_real, qd_real
 from cpython.int cimport PyInt_AS_LONG
 from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
 from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
@@ -105,13 +106,50 @@ def set_random_seed(unsigned long seed):
     cdef gmp_randstate_t state = RandGen.getGMPState()
     gmp_randseed_ui(state, seed)
 
-def get_precision():
-    """Get currently set precision for MPFR
+def get_precision(float_type="mpfr"):
+    """Get currently set precision
 
+    :param float_type: one of 'double', 'long double', 'dpe', 'dd', 'qd' or 'mpfr'
     :returns: precision in bits
 
+    This function returns the precision per type::
+
+        >>> from fpylll import get_precision, set_precision
+        >>> get_precision('double')
+        53
+        >>> get_precision('long double')
+        64
+        >>> get_precision('dpe')
+        53
+        >>> get_precision('dd')
+        106
+        >>> get_precision('qd')
+        212
+
+    For the MPFR type different precisions are supported::
+
+        >>> set_precision(212)
+        53
+        >>> get_precision('mpfr')
+        212
+        >>> get_precision()
+        212
+
     """
-    return FP_NR[mpfr_t].getprec()
+    if float_type == "double":
+        return FP_NR[double].getprec()
+    elif float_type == "long double":
+        return FP_NR[longdouble].getprec()
+    elif float_type == "dpe":
+        return FP_NR[dpe_t].getprec()
+    elif float_type == "dd":
+        return FP_NR[dd_real].getprec()
+    elif float_type == "qd":
+        return FP_NR[qd_real].getprec()
+    elif float_type == "mpfr":
+        return FP_NR[mpfr_t].getprec()
+    else:
+        raise ValueError("Floating point type '%s' unknown."%float_type)
 
 def set_precision(unsigned int prec):
     """Set precision globally for MPFR
