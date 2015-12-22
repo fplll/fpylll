@@ -59,7 +59,31 @@ so that Python can find fplll and friends.
 
 7. Start Python::
 
-     $ (env) ipython
+    $ (env) ipython
+
+To reactivate the virtual environment later, simply run::
+
+    $ source ./env/bin/activate
+
+Note that you can also patch ``activate`` to set ``LD_LIBRRY_PATH``. For this, add::
+
+    ### LD_LIBRARY_HACK
+    _OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+    LD_LIBRARY_PATH="$VIRTUAL_ENV/lib:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH
+    ### END_LD_LIBRARY_HACK
+
+towards the end and::
+
+    ### LD_LIBRARY_HACK
+    if ! [ -z ${_OLD_LD_LIBRARY_PATH+x} ] ; then
+        LD_LIBRARY_PATH="$_OLD_LD_LIBRARY_PATH"
+        export LD_LIBRARY_PATH
+        unset _OLD_LD_LIBRARY_PATH
+    fi
+    ### END_LD_LIBRARY_HACK
+
+in the ``deactivate`` function in the ``activate`` script.
 
 Example
 -------
