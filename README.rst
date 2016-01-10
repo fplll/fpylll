@@ -112,7 +112,7 @@ The interface still rather limited, here is an example session:
     >>> M.get_mu(1,0)
     0.41812865497076024
 
-The interface already allows to implement the basic BKZ algorithm in about 60 pretty readable lines of Python code (cf. `bkz.py <https://github.com/malb/fpylll/blob/master/examples/simple_bkz.py>`_).
+The interface already allows to implement the basic BKZ algorithm in about 60 pretty readable lines of Python code (cf. `bkz.py <https://github.com/malb/fpylll/blob/master/src/fpylll/contrib/simple_bkz.py>`_).
 
 Implementation Stuff
 --------------------
