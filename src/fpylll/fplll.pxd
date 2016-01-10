@@ -397,7 +397,7 @@ cdef extern from "fplll/enumerate.h" namespace "fplll":
         void enumerate[FT](MatGSO[Z_NR[mpz_t], FT]& gso, FT& fMaxDist, long maxDistExpo,
                            FastEvaluator[FT]& evaluator, const vector[FT]& targetCoord,
                            const vector[FT]& subTree, int first, int last,
-                           const vector[double]& pruning);
+                           const vector[double]& pruning, int dual);
 
 
 

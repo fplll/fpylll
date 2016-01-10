@@ -18,20 +18,19 @@ class EnumerationError(Exception):
 cdef class Enumeration:
 
     @staticmethod
-    def enumerate(MatGSO M, max_dist, max_dist_expo, first, last, pruning):
-        """FIXME! briefly describe function
+    def enumerate(MatGSO M, max_dist, max_dist_expo, int first, int last, pruning, dual=False):
+        """Run enumeration on `M`
 
-        :param MatGSO M:
-        :param max_dist:
-        :param max_dist_expo:
-        :param first:
-        :param last:
-        :param pruning:
-        :returns:
-        :rtype:
+        :param MatGSO M:       GSO matrix to run enumeration on
+        :param max_dist:       length bound
+        :param max_dist_expo:  exponent of length bound
+        :param first:          first index
+        :param last:           last index
+        :param pruning:        pruning parameters
+        :param dual:           run enumeration in the primal or dual lattice.
+        :returns: solution, length
 
         """
-
         if M._type != mpz_double:
             raise NotImplementedError("Only mpz_double supported for now.")
 
@@ -58,7 +57,7 @@ cdef class Enumeration:
         sig_on()
         Enumeration_c.enumerate[FP_NR[double]](gso[0], max_dist_, max_dist_expo, evaluator,
                                                target_coord_, sub_tree_,
-                                               first, last, pruning_)
+                                               first, last, pruning_, dual)
         sig_off()
 
         if not evaluator.solCoord.size():
