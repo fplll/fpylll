@@ -22,7 +22,7 @@ class BKZReduction:
         wrapper()
 
         self.A = A
-        self.m = GSO.Mat(A, flags=gso.ROW_EXPO)
+        self.m = GSO.Mat(A, flags=gso.GSO.ROW_EXPO)
         self.lll_obj = LLL.Reduction(self.m)
 
     def __call__(self, block_size):
