@@ -4,7 +4,6 @@ from fpylll import IntegerMatrix, GSO, LLL, BKZ
 from fpylll import Enumeration as Enum
 from fpylll import gso
 
-
 class BKZReduction:
     def __init__(self, A):
         """FIXME! briefly describe function
