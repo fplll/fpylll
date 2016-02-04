@@ -3,7 +3,6 @@
 from fpylll import IntegerMatrix, GSO, LLL, BKZ
 from fpylll import Enumeration as Enum
 from fpylll import gso
-import math
 
 class BKZReduction:
     def __init__(self, A):
@@ -108,61 +107,5 @@ class BKZReduction:
             self.m.move_row(kappa + block_size, d)
 
             self.m.remove_last_row()
-
-        return False
-
-class DBKZReduction(BKZReduction):
-    
-    def bkz_loop(self, block_size, min_row, max_row):
-        self.m.update_gso()
-        clean = True
-        for kappa in range(max_row - block_size, min_row - 1, -1):
-            clean &= self.dsvp_reduction(kappa, block_size)
-        clean &= BKZReduction.bkz_loop(self, block_size, min_row, max_row)
-        return clean
-
-    def dsvp_reduction(self, kappa, block_size):
-        """FIXME! briefly describe function
-
-        :param kappa:
-        :param block_size:
-        :returns:
-        :rtype:
-
-        """
-        clean = True
-
-        self.lll_obj(0, kappa, kappa + block_size)
-        if self.lll_obj.nswaps > 0:
-            clean = False
-
-        max_dist, expo = self.m.get_r_exp(kappa + block_size - 1, kappa + block_size - 1)
-        max_dist = 1.0/max_dist
-        expo *= -1.0
-        delta_max_dist = self.lll_obj.delta * max_dist
-        
-        solution, max_dist = Enum.enumerate(self.m, max_dist, expo, kappa, kappa + block_size, None, dual=True)
-        if max_dist >= delta_max_dist:
-            return clean
-        
-        with self.m.row_ops(kappa, kappa+block_size):
-            def euclid(pair1, pair2):
-                row1, x1 = pair1
-                row2, x2 = pair2
-                if not x1:
-                    return pair2
-                c = math.floor(x2/x1)
-                self.m.row_addmul(row2, row1, -c)
-                return euclid((row2, x2 - c*x1), pair1)
-            
-            pairs = list(enumerate(solution, start=kappa))
-            [self.m.negate_row(pair[0]) for pair in pairs if pair[1] < 0]
-            pairs = map(lambda x: (x[0], abs(x[1])), pairs)
-            # GCD should be tree based but for proof of conceot implementation, this will do
-            row, x = reduce(euclid, pairs) 
-            if (x != 1):
-                raise RuntimeError("Euclid failed!")
-            self.m.move_row(row, kappa + block_size - 1)
-        self.lll_obj(kappa, kappa, kappa + block_size)
 
         return False
