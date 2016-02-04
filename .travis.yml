@@ -12,6 +12,8 @@ install:
   - python setup.py build
   - python setup.py -q install
 
+before_script:
+  - "flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src"
   
 script:
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" py.test

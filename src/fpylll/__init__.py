@@ -1,3 +1,4 @@
+# flake8: noqa
 from integer_matrix import IntegerMatrix
 from gso import GSO
 from lll import LLL
