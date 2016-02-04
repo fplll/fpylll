@@ -129,4 +129,4 @@ Implementation Stuff
 
     flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src
 
-  See `.travis.yml <https://github.com/malb/fpylll/blob/master/.travis.tml>`_ for details.
+  See `.travis.yml <https://github.com/malb/fpylll/blob/master/.travis.yml>`_ for details.
