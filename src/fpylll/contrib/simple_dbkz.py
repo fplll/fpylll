@@ -1,11 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from simple_bkz import *
+from simple_bkz import BKZReduction
+from fpylll import Enumeration as Enum
 import math
 
+
 class DBKZReduction(BKZReduction):
-    
     def bkz_loop(self, block_size, min_row, max_row):
+        """FIXME! briefly describe function
+
+        :param block_size:
+        :param min_row:
+        :param max_row:
+        :returns:
+        :rtype:
+
+        """
         self.m.update_gso()
         clean = True
         for kappa in range(max_row - block_size, min_row - 1, -1):
@@ -14,6 +24,14 @@ class DBKZReduction(BKZReduction):
         return clean
 
     def euclid(self, pair1, pair2):
+        """FIXME! briefly describe function
+
+        :param pair1:
+        :param pair2:
+        :returns:
+        :rtype:
+
+        """
         row1, x1 = pair1
         row2, x2 = pair2
         if not x1:
@@ -41,17 +59,17 @@ class DBKZReduction(BKZReduction):
         max_dist = 1.0/max_dist
         expo *= -1.0
         delta_max_dist = self.lll_obj.delta * max_dist
-        
+
         solution, max_dist = Enum.enumerate(self.m, max_dist, expo, kappa, kappa + block_size, None, dual=True)
         if max_dist >= delta_max_dist:
             return clean
-        
-        with self.m.row_ops(kappa, kappa+block_size):            
+
+        with self.m.row_ops(kappa, kappa+block_size):
             pairs = list(enumerate(solution, start=kappa))
             [self.m.negate_row(pair[0]) for pair in pairs if pair[1] < 0]
             pairs = map(lambda x: (x[0], abs(x[1])), pairs)
             # GCD should be tree based but for proof of concept implementation, this will do
-            row, x = reduce(self.euclid, pairs) 
+            row, x = reduce(self.euclid, pairs)
             if x != 1:
                 raise RuntimeError("Euclid failed!")
             self.m.move_row(row, kappa + block_size - 1)
