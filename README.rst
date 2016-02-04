@@ -127,6 +127,6 @@ Implementation Stuff
 
 - We run `flake8 <https://flake8.readthedocs.org/en/latest/>`_ on every commit automatically, In particular, we run::
 
-    flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src"
+    flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src
 
   See `.travis.yml <https://github.com/malb/fpylll/blob/master/.travis.tml>`_ for details.
