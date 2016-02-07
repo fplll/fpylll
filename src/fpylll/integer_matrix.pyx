@@ -5,7 +5,7 @@
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
 
-include "interrupt/interrupt.pxi"
+include "cysignals/signals.pxi"
 
 from fplll cimport MatrixRow, sqrNorm, Z_NR
 from fpylll.util cimport preprocess_indices, assign_Z_NR_mpz, assign_mpz

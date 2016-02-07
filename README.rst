@@ -16,6 +16,7 @@ This package relies on the following C/C++ libraries:
 It also relies on
 
 - `Cython <http://cython.org>`_ for linking Python and C/C++.
+- `cysignals <https://github.com/sagemath/cysignals>`_ for signal handling such as interrupting C++ code
 - `py.test <http://pytest.org/latest/>`_ for testing Python
 
 We recommend
@@ -117,7 +118,7 @@ The interface already allows to implement the basic BKZ algorithm in about 60 pr
 Implementation Stuff
 --------------------
 
-- We copied a decent bit of code over from Sage, mostly from it’s fpLLL interface. But We also imported Sage’s excellent interrupt handling routines.
+- We copied a decent bit of code over from Sage, mostly from it’s fpLLL interface.
 
 - We had to make some minor changes to some C++ files, essentially inlining more functions. The trouble with templated C++ is that the compiler seem not to like to instantiate small-ish functions which are called only once, even if they are not inlined. Hence, those symbols were missing and I had to work around that.
 

@@ -2,7 +2,7 @@
 # distutils: language = c++
 # distutils: libraries = gmp mpfr fplll
 
-include "interrupt/interrupt.pxi"
+include "cysignals/signals.pxi"
 
 from libcpp.vector cimport vector
 from gso cimport MatGSO

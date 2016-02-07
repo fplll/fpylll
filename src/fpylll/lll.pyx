@@ -2,7 +2,7 @@
 # distutils: language = c++
 # distutils: libraries = gmp mpfr fplll
 
-include "interrupt/interrupt.pxi"
+include "cysignals/signals.pxi"
 
 from qd.qd cimport dd_real, qd_real
 from gmp.mpz cimport mpz_t

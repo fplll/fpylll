@@ -5,7 +5,7 @@
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
 
-include "interrupt/interrupt.pxi"
+include "cysignals/signals.pxi"
 
 from libcpp.vector cimport vector
 from gmp.mpz cimport mpz_t
