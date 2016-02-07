@@ -1,4 +1,4 @@
 Cython
 pytest
--e git+https://github.com/sagemath/cysignals#egg=cysignals
+git+https://github.com/sagemath/cysignals#egg=cysignals
 
