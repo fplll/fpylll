@@ -2,11 +2,6 @@
 __pycache__/
 *.py[cod]
 
-# C extensions
-*.so
-*.cpp
-
-
 # Distribution / packaging
 .Python
 env/
@@ -58,8 +53,5 @@ _build/
 # PyBuilder
 target/
 
-
-/src/fpylll/gmp/pylong.c
-/src/fpylll/interrupt/interrupt.c
 /.vagrant/
 /Vagrantfile

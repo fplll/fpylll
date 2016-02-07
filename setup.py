@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from distutils.core import setup
 from distutils.extension import Extension
@@ -5,21 +6,23 @@ from Cython.Build import cythonize
 
 import os
 
-# TODO: Don't hardcode use of virtualenv
+cythonize_dir = "build"
 
 fplll = {"include_dirs": None,
          "library_dirs": None}
 
-interrupt_include = os.path.join("./src/fpylll")
+interrupt_include = [os.path.join(cythonize_dir, "src", "fpylll"),
+                     os.path.join("src", "fpylll"),
+                     os.path.join("src", "fpylll", "interrupt")]
 
 if "VIRTUAL_ENV" in os.environ:
 
     prefix = os.environ["VIRTUAL_ENV"]
-    fplll["include_dirs"] = [os.path.join(prefix, "include"),  interrupt_include]
+    fplll["include_dirs"] = [os.path.join(prefix, "include")] + interrupt_include
     fplll["library_dirs"] = [os.path.join(prefix, "lib")]
 
 else:
-    fplll["include_dirs"] = [interrupt_include]
+    fplll["include_dirs"] = interrupt_include
 
 extensions = [
     Extension("interrupt.interrupt", ["src/fpylll/interrupt/interrupt.pyx"], **fplll),
@@ -39,7 +42,7 @@ setup(
     name="fpyLLL",
     version='0.1dev',
     ext_package='fpylll',
-    ext_modules=cythonize(extensions, include_path=["src"]),
+    ext_modules=cythonize(extensions, include_path=["src"], build_dir=cythonize_dir),
     package_dir={"": "src"},
     packages=["fpylll", "fpylll.gmp", "fpylll.interrupt", "fpylll.contrib"],
     license='GNU General Public License, version 2 or later',
