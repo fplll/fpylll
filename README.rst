@@ -43,6 +43,7 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
 
 4. Then, execute::
 
+     $ (env) pip install Cython
      $ (env) pip install -r requirements.txt
 
 to install `Cython <http://cython.org>`_ and `pytest <http://pytest.org/latest/>`_.
