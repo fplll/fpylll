@@ -603,6 +603,10 @@ cdef class MatGSO:
         # void setR(int i, int j, FT& f)
         # void swapRows(int row1, int row2)
 
+    def negate_row(self, int i):
+        self.row_addmul(i, i, -2.0)
+        
+    
     def row_addmul(self, int i, int j, x):
         """FIXME! briefly describe function
 
