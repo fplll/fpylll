@@ -604,6 +604,38 @@ cdef class MatGSO:
         # void swapRows(int row1, int row2)
 
     def negate_row(self, int i):
+        """Set b_i to -b_i.
+
+        :param int i: index of the row to negate
+        :returns:
+        :rtype:
+        
+        >>> from fpylll import *
+        >>> set_random_seed(42)
+        >>> A = IntegerMatrix(6, 6)
+        >>> A.randomize("ntrulike", bits=6, q=31)
+        >>> print A
+        [ 1 0 0 57 25  7 ]
+        [ 0 1 0 25  7 57 ]
+        [ 0 0 1  7 57 25 ]
+        [ 0 0 0 31  0  0 ]
+        [ 0 0 0  0 31  0 ]
+        [ 0 0 0  0  0 31 ]
+        >>> M = GSO.Mat(A)
+        >>> M.update_gso()
+        True
+        >>> with M.row_ops(2,2):
+        ...     M.negate_row(2)
+        ... 
+        >>> print A
+        [ 1 0 0 57  25   7 ]
+        [ 0 1 0 25   7  57 ]
+        [ 0 0 -1 -7 -57 -25 ]
+        [ 0 0 0 31   0   0 ]
+        [ 0 0 0  0  31   0 ]
+        [ 0 0 0  0   0  31 ]
+
+        """
         self.row_addmul(i, i, -2.0)
         
     
