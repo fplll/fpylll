@@ -13,6 +13,16 @@ from util cimport preprocess_indices, check_float_type
 from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, mpz_dd, mpz_qd
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR, FloatType
 
+from ctypes import *
+
+
+cdef class gso_dump_pointers:
+    cdef double* mu
+    cdef double* r
+
+
+
+
 class MatGSORowOpContext(object):
     """
     A context in which performing row operations is safe.  When the context is left, the appropriate
@@ -493,6 +503,43 @@ cdef class MatGSO:
             return t_mpfr.get_d()
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+
+    
+    def dump_sub_gso(self, int beg,int end):
+        """
+        Return ``.
+
+        :param i:
+        :param j:
+        :returns:
+        :rtype: double
+
+        """
+        res = gso_dump_pointers()
+
+        if self._type == mpz_double:
+            self._core.mpz_double.GetSubMuR(res.mu,res.r,beg,end)
+            return res
+        elif self._type == mpz_ld:
+            self._core.mpz_ld.GetSubMuR(res.mu,res.r,beg,end)
+            return res
+        elif self._type == mpz_dpe:
+            self._core.mpz_dpe.GetSubMuR(res.mu,res.r,beg,end)
+            return res
+        elif self._type == mpz_dd:
+            self._core.mpz_dd.GetSubMuR(res.mu,res.r,beg,end)
+            return res
+        elif self._type == mpz_qd:
+            self._core.mpz_qd.GetSubMuR(res.mu,res.r,beg,end)
+            return res
+        elif self._type == mpz_mpfr:
+            self._core.mpz_mpfr.GetSubMuR(res.mu,res.r,beg,end)
+            return res
+
+        else:
+            raise RuntimeError("MatGSO object '%s' has no core."%self)
+
 
     def get_mu_exp(self, int i, int j):
         """

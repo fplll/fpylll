@@ -281,6 +281,7 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         const FT& getMuExp(int i, int j, long& expo)
         const FT& getMuExp(int i, int j)
         void getMu(FT& f, int i, int j)
+        void GetSubMuR(double* Mu_t, double* R_t,  int beg, int blocksize)
 
         const Matrix[FT]& getRMatrix()
         const FT& getRExp(int i, int j, long& expo)

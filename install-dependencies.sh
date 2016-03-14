@@ -1,5 +1,5 @@
 #!/bin/bash
-git clone -b fpylll-changes https://github.com/lducas/fplll
+#git clone -b fpylll-changes https://github.com/lducas/fplll
 cd fplll
 ./autogen.sh
 if test "$1" != ""; then
