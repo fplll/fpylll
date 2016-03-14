@@ -13,8 +13,9 @@ from util cimport preprocess_indices, check_float_type
 from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, mpz_dd, mpz_qd
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR, FloatType
 
-from ctypes import *
-
+import cython
+import numpy as np
+cimport numpy as np
 
 cdef class gso_dump_pointers:
     cdef double* mu
@@ -506,7 +507,9 @@ cdef class MatGSO:
 
 
     
-    def dump_sub_gso(self, int beg,int end):
+    def get_Sub_mu_r_numpy(self,np.ndarray[double, ndim=2, mode="c"] mu not None, 
+                                np.ndarray[double, ndim=1, mode="c"] r not None, 
+                                int beg,int end):
         """
         Return ``.
 
@@ -519,22 +522,22 @@ cdef class MatGSO:
         res = gso_dump_pointers()
 
         if self._type == mpz_double:
-            self._core.mpz_double.GetSubMuR(res.mu,res.r,beg,end)
+            self._core.mpz_double.GetSubMuR(&mu[0,0],&r[0],beg,end)
             return res
         elif self._type == mpz_ld:
-            self._core.mpz_ld.GetSubMuR(res.mu,res.r,beg,end)
+            self._core.mpz_ld.GetSubMuR(&mu[0,0],&r[0],beg,end)
             return res
         elif self._type == mpz_dpe:
-            self._core.mpz_dpe.GetSubMuR(res.mu,res.r,beg,end)
+            self._core.mpz_dpe.GetSubMuR(&mu[0,0],&r[0],beg,end)
             return res
         elif self._type == mpz_dd:
-            self._core.mpz_dd.GetSubMuR(res.mu,res.r,beg,end)
+            self._core.mpz_dd.GetSubMuR(&mu[0,0],&r[0],beg,end)
             return res
         elif self._type == mpz_qd:
-            self._core.mpz_qd.GetSubMuR(res.mu,res.r,beg,end)
+            self._core.mpz_qd.GetSubMuR(&mu[0,0],&r[0],beg,end)
             return res
         elif self._type == mpz_mpfr:
-            self._core.mpz_mpfr.GetSubMuR(res.mu,res.r,beg,end)
+            self._core.mpz_mpfr.GetSubMuR(&mu[0,0],&r[0],beg,end)
             return res
 
         else:
