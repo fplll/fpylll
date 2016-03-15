@@ -49,10 +49,14 @@ else:
 config_pxi_path = os.path.join(".", "src", "fpylll", "config.pxi")
 config_pxi = "\n".join(config_pxi) + "\n"
 
-with open(config_pxi_path, "r") as fr:
-    if fr.read() != config_pxi:  # check if we need to write
-        with open(config_pxi_path, "w") as fw:
-            fw.write(config_pxi)
+try:
+    cur_config_pxi = open(config_pxi_path, "r").read()
+except IOError:
+    cur_config_pxi = ""
+
+if cur_config_pxi != config_pxi:  # check if we need to write
+    with open(config_pxi_path, "w") as fw:
+        fw.write(config_pxi)
 
 
 # EXTENSIONS
