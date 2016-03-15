@@ -17,12 +17,6 @@ import cython
 import numpy as np
 cimport numpy as np
 
-cdef class gso_dump_pointers:
-    cdef double* mu
-    cdef double* r
-
-
-
 
 class MatGSORowOpContext(object):
     """
@@ -507,55 +501,56 @@ cdef class MatGSO:
 
 
     
-    def dump_mu(self,np.ndarray[double, ndim=2, mode="c"] mu not None, int beg,int end):
+    def dump_mu(self,np.ndarray[double, ndim=2, mode="c"] mu not None, int kappa,int blocksize):
         """
-        Return ``.
-
-        :param i:
-        :param j:
-        :returns:
-        :rtype: double
+        Return `Nothing` Dump a block of the fplll gso matrix mu into a a numpy array.
+        :param mu: A numpy array of size (blocksize*blocksize) and type float64
+        :param kappa: index of the beginning of the block
+        :param blocksize: size of the considered block
+        :returns: Nothing
+        :rtype: None
 
         """
         if self._type == mpz_double:
-            self._core.mpz_double.DumpMu_d(&mu[0,0],beg,end)
+            self._core.mpz_double.DumpMu_d(&mu[0,0],kappa,blocksize)
         elif self._type == mpz_ld:
-            self._core.mpz_ld.DumpMu_d(&mu[0,0],beg,end)
+            self._core.mpz_ld.DumpMu_d(&mu[0,0],kappa,blocksize)
         elif self._type == mpz_dpe:
-            self._core.mpz_dpe.DumpMu_d(&mu[0,0],beg,end)
+            self._core.mpz_dpe.DumpMu_d(&mu[0,0],kappa,blocksize)
         elif self._type == mpz_dd:
-            self._core.mpz_dd.DumpMu_d(&mu[0,0],beg,end)
+            self._core.mpz_dd.DumpMu_d(&mu[0,0],kappa,blocksize)
         elif self._type == mpz_qd:
-            self._core.mpz_qd.DumpMu_d(&mu[0,0],beg,end)
+            self._core.mpz_qd.DumpMu_d(&mu[0,0],kappa,blocksize)
         elif self._type == mpz_mpfr:
-            self._core.mpz_mpfr.DumpMu_d(&mu[0,0],beg,end)
+            self._core.mpz_mpfr.DumpMu_d(&mu[0,0],kappa,blocksize)
 
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 
-    def dump_r(self,np.ndarray[double, ndim=1, mode="c"] r not None, int beg,int end):
+    def dump_r(self,np.ndarray[double, ndim=1, mode="c"] r not None, int kappa,int blocksize):
         """
-        Return ``.
-
-        :param i:
-        :param j:
-        :returns:
-        :rtype: double
+        Return Nothing. Dump a block of the fplll gso vector r into a a numpy array.
+        :param mu: A numpy array of size (blocksize) and type float64
+        :param kappa: index of the beginning of the block
+        :param blocksize: size of the considered block
+        :returns: Nothing
+        :rtype: None
 
         """
+
         if self._type == mpz_double:
-            self._core.mpz_double.DumpR_d(&r[0],beg,end)
+            self._core.mpz_double.DumpR_d(&r[0],kappa,blocksize)
         elif self._type == mpz_ld:
-            self._core.mpz_ld.DumpR_d(&r[0],beg,end)
+            self._core.mpz_ld.DumpR_d(&r[0],kappa,blocksize)
         elif self._type == mpz_dpe:
-            self._core.mpz_dpe.DumpR_d(&r[0],beg,end)
+            self._core.mpz_dpe.DumpR_d(&r[0],kappa,blocksize)
         elif self._type == mpz_dd:
-            self._core.mpz_dd.DumpR_d(&r[0],beg,end)
+            self._core.mpz_dd.DumpR_d(&r[0],kappa,blocksize)
         elif self._type == mpz_qd:
-            self._core.mpz_qd.DumpR_d(&r[0],beg,end)
+            self._core.mpz_qd.DumpR_d(&r[0],kappa,blocksize)
         elif self._type == mpz_mpfr:
-            self._core.mpz_mpfr.DumpR_d(&r[0],beg,end)
+            self._core.mpz_mpfr.DumpR_d(&r[0],kappa,blocksize)
 
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
