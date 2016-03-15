@@ -7,6 +7,7 @@ from Cython.Build import cythonize
 import os
 import subprocess
 import sys
+from copy import copy
 
 
 # CONFIG VARIABLES
@@ -66,6 +67,22 @@ if have_sage:
     config_pxi.append("DEF HAVE_SAGE=True")
 else:
     config_pxi.append("DEF HAVE_SAGE=False")
+
+# NUMPY
+
+try:
+    import numpy
+    have_numpy = True
+except ImportError:
+    have_numpy = False
+
+if have_numpy:
+    config_pxi.append("DEF HAVE_NUMPY=True")
+    print numpy.get_include()
+    numpy_args = copy(fplll)
+    numpy_args["include_dirs"].append(numpy.get_include())
+else:
+    config_pxi.append("DEF HAVE_NUMPY=False")
 
 
 # CONFIG.PXI
@@ -97,6 +114,9 @@ extensions = [
     Extension("svpcvp", ["src/fpylll/svpcvp.pyx"], **fplll),
     Extension("fpylll", ["src/fpylll/fpylll.pyx"], **fplll),
 ]
+
+if have_numpy:
+    extensions.append(Extension("numpy", ["src/fpylll/numpy.pyx"], **numpy_args))
 
 setup(
     name="fpyLLL",

@@ -312,6 +312,12 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         void applyTransform(const Matrix[FT]& transform, int srcBase, int targetBase)
         void applyTransform(const Matrix[FT]& transform, int srcBase)
 
+        void dumpMu_d(double* mu, int offset, int blocksize)
+        void dumpMu_d(vector[double] mu, int offset, int blocksize)
+
+        void dumpR_d(double* r, int offset, int blocksize)
+        void dumpR_d(vector[double] r, int offset, int blocksize)
+
         const int enableIntGram
         const int enableRowExpo
         const int enableTransform
