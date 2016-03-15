@@ -19,9 +19,10 @@ It also relies on
 - `cysignals <https://github.com/sagemath/cysignals>`_ for signal handling such as interrupting C++ code
 - `py.test <http://pytest.org/latest/>`_ for testing Python
 
-We recommend
+We also suggest
 
 - `IPython  <https://ipython.org>`_ for interacting with Python
+- `Numpy <http://www.numpy.org>`_ for numerical computations (e.g. with Gram-Schmidt values)
 
 Getting Started
 ---------------
@@ -46,20 +47,26 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
      $ (env) pip install Cython
      $ (env) pip install -r requirements.txt
 
-to install `Cython <http://cython.org>`_ and `pytest <http://pytest.org/latest/>`_.
+to install the required Python packages (see above).
 
-5. build the Python extension::
+5. If you are so inclined, run::
+
+     $ (env) pip install -r suggestions.txt
+
+to install suggested Python packages as well (optional).
+
+6. Build the Python extension::
 
      $ (env) python setup.py build_ext
      $ (env) python setup.py install
 
-6. You will need to::
+7. To run fpylll, you will need to::
 
      $ (env) export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib"
 
 so that Python can find fplll and friends.
 
-7. Start Python::
+8. Start Python::
 
     $ (env) ipython
 
@@ -90,7 +97,7 @@ in the ``deactivate`` function in the ``activate`` script.
 Example
 -------
 
-The interface still rather limited, here is an example session:
+Here is an example session:
 
     >>> from fpylll import *
 
@@ -120,8 +127,6 @@ Implementation Stuff
 --------------------
 
 - We copied a decent bit of code over from Sage, mostly from it’s fpLLL interface.
-
-- We had to make some minor changes to some C++ files, essentially inlining more functions. The trouble with templated C++ is that the compiler seem not to like to instantiate small-ish functions which are called only once, even if they are not inlined. Hence, those symbols were missing and I had to work around that.
 
 - We stuck to fpLLL’s naming conventions in general except for a few cases where they were rather “un-Pythonic“.
 
