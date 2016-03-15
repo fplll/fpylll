@@ -3,9 +3,11 @@ fpylll
 
 A Python wrapper for `fplll <https://github.com/dstehle/fplll>`_.
 
-.. image:: https://travis-ci.org/malb/fpylll.svg
+.. image:: https://travis-ci.org/malb/fpylll.svg?branch=master
     :target: https://travis-ci.org/malb/fpylll
 
+An example run of fpylll::
+       
     >>> from fpylll import *
    
     >>> A = IntegerMatrix(50, 50)
