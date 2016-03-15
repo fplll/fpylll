@@ -507,9 +507,7 @@ cdef class MatGSO:
 
 
     
-    def get_Sub_mu_r_numpy(self,np.ndarray[double, ndim=2, mode="c"] mu not None, 
-                                np.ndarray[double, ndim=1, mode="c"] r not None, 
-                                int beg,int end):
+    def dump_mu(self,np.ndarray[double, ndim=2, mode="c"] mu not None, int beg,int end):
         """
         Return ``.
 
@@ -519,29 +517,49 @@ cdef class MatGSO:
         :rtype: double
 
         """
-        res = gso_dump_pointers()
-
         if self._type == mpz_double:
-            self._core.mpz_double.GetSubMuR(&mu[0,0],&r[0],beg,end)
-            return res
+            self._core.mpz_double.DumpMu_d(&mu[0,0],beg,end)
         elif self._type == mpz_ld:
-            self._core.mpz_ld.GetSubMuR(&mu[0,0],&r[0],beg,end)
-            return res
+            self._core.mpz_ld.DumpMu_d(&mu[0,0],beg,end)
         elif self._type == mpz_dpe:
-            self._core.mpz_dpe.GetSubMuR(&mu[0,0],&r[0],beg,end)
-            return res
+            self._core.mpz_dpe.DumpMu_d(&mu[0,0],beg,end)
         elif self._type == mpz_dd:
-            self._core.mpz_dd.GetSubMuR(&mu[0,0],&r[0],beg,end)
-            return res
+            self._core.mpz_dd.DumpMu_d(&mu[0,0],beg,end)
         elif self._type == mpz_qd:
-            self._core.mpz_qd.GetSubMuR(&mu[0,0],&r[0],beg,end)
-            return res
+            self._core.mpz_qd.DumpMu_d(&mu[0,0],beg,end)
         elif self._type == mpz_mpfr:
-            self._core.mpz_mpfr.GetSubMuR(&mu[0,0],&r[0],beg,end)
-            return res
+            self._core.mpz_mpfr.DumpMu_d(&mu[0,0],beg,end)
 
         else:
             raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+
+    def dump_r(self,np.ndarray[double, ndim=1, mode="c"] r not None, int beg,int end):
+        """
+        Return ``.
+
+        :param i:
+        :param j:
+        :returns:
+        :rtype: double
+
+        """
+        if self._type == mpz_double:
+            self._core.mpz_double.DumpR_d(&r[0],beg,end)
+        elif self._type == mpz_ld:
+            self._core.mpz_ld.DumpR_d(&r[0],beg,end)
+        elif self._type == mpz_dpe:
+            self._core.mpz_dpe.DumpR_d(&r[0],beg,end)
+        elif self._type == mpz_dd:
+            self._core.mpz_dd.DumpR_d(&r[0],beg,end)
+        elif self._type == mpz_qd:
+            self._core.mpz_qd.DumpR_d(&r[0],beg,end)
+        elif self._type == mpz_mpfr:
+            self._core.mpz_mpfr.DumpR_d(&r[0],beg,end)
+
+        else:
+            raise RuntimeError("MatGSO object '%s' has no core."%self)
+
 
 
     def get_mu_exp(self, int i, int j):
