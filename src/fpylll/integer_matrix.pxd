@@ -1,5 +1,4 @@
-# distutils: language = c++
-# distutils: libraries = gmp mpfr fplll
+# -*- coding: utf-8 -*-
 
 from gmp.types cimport mpz_t
 from fplll cimport ZZ_mat

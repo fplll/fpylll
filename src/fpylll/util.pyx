@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+include "config.pxi"
+include "cysignals/signals.pxi"
+
+
 from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR
 from fplll cimport FP_NR, RandGen, dpe_t
 from qd.qd cimport dd_real, qd_real

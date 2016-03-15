@@ -1,5 +1,4 @@
-# distutils: language = c++
-# distutils: libraries = gmp mpfr fplll
+# -*- coding: utf-8 -*-
 
 #
 # General Includes

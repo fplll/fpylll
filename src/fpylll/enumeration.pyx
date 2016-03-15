@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# distutils: language = c++
-# distutils: libraries = gmp mpfr fplll
-
+include "config.pxi"
 include "cysignals/signals.pxi"
+
 
 from libcpp.vector cimport vector
 from gso cimport MatGSO

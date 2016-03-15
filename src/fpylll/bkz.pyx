@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-# distutils: language = c++
-# distutils: libraries = gmp mpfr fplll
+include "config.pxi"
+include "cysignals/signals.pxi"
+
 """
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 

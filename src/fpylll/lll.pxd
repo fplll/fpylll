@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# distutils: language = c++
-# distutils: libraries = gmp mpfr fplll
 
 from gso cimport MatGSO
 from fpylll cimport lll_reduction_core, fplll_type_t

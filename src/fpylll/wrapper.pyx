@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# distutils: language = c++
-# distutils: libraries = gmp mpfr fplll
-
+include "config.pxi"
 include "cysignals/signals.pxi"
+
 
 from fplll cimport Matrix, Z_NR, mpz_t
 from fplll cimport LLL_DEF_ETA, LLL_DEF_DELTA, LLL_DEFAULT

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-# distutils: language = c++
-# distutils: libraries = gmp mpfr fplll
-
+include "config.pxi"
 include "cysignals/signals.pxi"
+
 
 from qd.qd cimport dd_real, qd_real
 from gmp.mpz cimport mpz_t
@@ -29,7 +28,10 @@ from fplll cimport isLLLReduced
 
 from util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll import ReductionError
-from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_dd, mpz_qd, mpz_mpfr
+from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
+
+IF HAVE_QD:
+    from fpylll cimport mpz_dd, mpz_qd
 
 from wrapper import Wrapper
 
@@ -85,18 +87,6 @@ cdef class LLLReduction:
             self._core.mpz_dpe = new LLLReduction_c[Z_NR[mpz_t], FP_NR[dpe_t]](m_dpe[0],
                                                                                delta,
                                                                                eta, flags)
-        elif M._type == mpz_dd:
-            m_dd = M._core.mpz_dd
-            self._type = mpz_dd
-            self._core.mpz_dd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[dd_real]](m_dd[0],
-                                                                                delta,
-                                                                                eta, flags)
-        elif M._type == mpz_qd:
-            m_qd = M._core.mpz_qd
-            self._type = mpz_qd
-            self._core.mpz_qd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[qd_real]](m_qd[0],
-                                                                                delta,
-                                                                                eta, flags)
         elif M._type == mpz_mpfr:
             m_mpfr = M._core.mpz_mpfr
             self._type = mpz_mpfr
@@ -104,7 +94,23 @@ cdef class LLLReduction:
                                                                                  delta,
                                                                                  eta, flags)
         else:
-            raise RuntimeError("MatGSO object '%s' has no core."%self)
+            IF HAVE_QD:
+                if M._type == mpz_dd:
+                    m_dd = M._core.mpz_dd
+                    self._type = mpz_dd
+                    self._core.mpz_dd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[dd_real]](m_dd[0],
+                                                                                        delta,
+                                                                                        eta, flags)
+                elif M._type == mpz_qd:
+                    m_qd = M._core.mpz_qd
+                    self._type = mpz_qd
+                    self._core.mpz_qd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[qd_real]](m_qd[0],
+                                                                                        delta,
+                                                                                        eta, flags)
+                else:
+                    raise RuntimeError("MatGSO object '%s' has no core."%self)
+            ELSE:
+                raise RuntimeError("MatGSO object '%s' has no core."%self)
 
         self._delta = delta
         self._eta = eta
@@ -116,10 +122,11 @@ cdef class LLLReduction:
             del self._core.mpz_ld
         if self._type == mpz_dpe:
             del self._core.mpz_dpe
-        if self._type == mpz_dd:
-            del self._core.mpz_dd
-        if self._type == mpz_qd:
-            del self._core.mpz_qd
+        IF HAVE_QD:
+            if self._type == mpz_dd:
+                del self._core.mpz_dd
+            if self._type == mpz_qd:
+                del self._core.mpz_qd
         if self._type == mpz_mpfr:
             del self._core.mpz_mpfr
 
@@ -152,23 +159,27 @@ cdef class LLLReduction:
             self._core.mpz_dpe.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_dpe.status
             sig_off()
-        elif self._type == mpz_dd:
-            sig_on()
-            self._core.mpz_dd.lll(kappa_min, kappa_start, kappa_end)
-            r = self._core.mpz_dd.status
-            sig_off()
-        elif self._type == mpz_qd:
-            sig_on()
-            self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end)
-            r = self._core.mpz_qd.status
-            sig_off()
         elif self._type == mpz_mpfr:
             sig_on()
             self._core.mpz_mpfr.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_mpfr.status
             sig_off()
         else:
-            raise RuntimeError("LLLReduction object '%s' has no core."%self)
+            IF HAVE_QD:
+                if self._type == mpz_dd:
+                    sig_on()
+                    self._core.mpz_dd.lll(kappa_min, kappa_start, kappa_end)
+                    r = self._core.mpz_dd.status
+                    sig_off()
+                elif self._type == mpz_qd:
+                    sig_on()
+                    self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end)
+                    r = self._core.mpz_qd.status
+                    sig_off()
+                else:
+                    raise RuntimeError("LLLReduction object '%s' has no core."%self)
+            ELSE:
+                raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
         if r:
             raise ReductionError( str(getRedStatusStr(r)) )
@@ -186,14 +197,18 @@ cdef class LLLReduction:
             r = self._core.mpz_ld.sizeReduction(kappa_min, kappa_end)
         elif self._type == mpz_dpe:
             r = self._core.mpz_dpe.sizeReduction(kappa_min, kappa_end)
-        elif self._type == mpz_dd:
-            r = self._core.mpz_dd.sizeReduction(kappa_min, kappa_end)
-        elif self._type == mpz_qd:
-            r = self._core.mpz_qd.sizeReduction(kappa_min, kappa_end)
         elif self._type == mpz_mpfr:
             r = self._core.mpz_mpfr.sizeReduction(kappa_min, kappa_end)
         else:
-            raise RuntimeError("LLLReduction object '%s' has no core."%self)
+            IF HAVE_QD:
+                if self._type == mpz_dd:
+                    r = self._core.mpz_dd.sizeReduction(kappa_min, kappa_end)
+                elif self._type == mpz_qd:
+                    r = self._core.mpz_qd.sizeReduction(kappa_min, kappa_end)
+                else:
+                    raise RuntimeError("LLLReduction object '%s' has no core."%self)
+            ELSE:
+                raise RuntimeError("LLLReduction object '%s' has no core."%self)
         if not r:
             raise ReductionError( str(getRedStatusStr(r)) )
 
@@ -207,18 +222,19 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.finalKappa
-        elif self._type == mpz_ld:
+        if self._type == mpz_ld:
             return self._core.mpz_ld.finalKappa
-        elif self._type == mpz_dpe:
+        if self._type == mpz_dpe:
             return self._core.mpz_dpe.finalKappa
-        elif self._type == mpz_dd:
-            return self._core.mpz_dd.finalKappa
-        elif self._type == mpz_qd:
-            return self._core.mpz_qd.finalKappa
-        elif self._type == mpz_mpfr:
+        IF HAVE_QD:
+            if self._type == mpz_dd:
+                return self._core.mpz_dd.finalKappa
+            if self._type == mpz_qd:
+                return self._core.mpz_qd.finalKappa
+        if self._type == mpz_mpfr:
             return self._core.mpz_mpfr.finalKappa
-        else:
-            raise RuntimeError("LLLReduction object '%s' has no core."%self)
+
+        raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
     @property
     def last_early_red(self):
@@ -230,18 +246,19 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.lastEarlyRed
-        elif self._type == mpz_ld:
+        if self._type == mpz_ld:
             return self._core.mpz_ld.lastEarlyRed
-        elif self._type == mpz_dpe:
+        if self._type == mpz_dpe:
             return self._core.mpz_dpe.lastEarlyRed
-        elif self._type == mpz_dd:
-            return self._core.mpz_dd.lastEarlyRed
-        elif self._type == mpz_qd:
-            return self._core.mpz_qd.lastEarlyRed
-        elif self._type == mpz_mpfr:
+        IF HAVE_QD:
+            if self._type == mpz_dd:
+                return self._core.mpz_dd.lastEarlyRed
+            if self._type == mpz_qd:
+                return self._core.mpz_qd.lastEarlyRed
+        if self._type == mpz_mpfr:
             return self._core.mpz_mpfr.lastEarlyRed
-        else:
-            raise RuntimeError("LLLReduction object '%s' has no core."%self)
+
+        raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
     @property
     def zeros(self):
@@ -253,18 +270,19 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.zeros
-        elif self._type == mpz_ld:
+        if self._type == mpz_ld:
             return self._core.mpz_ld.zeros
-        elif self._type == mpz_dpe:
+        if self._type == mpz_dpe:
             return self._core.mpz_dpe.zeros
-        elif self._type == mpz_dd:
-            return self._core.mpz_dd.zeros
-        elif self._type == mpz_qd:
-            return self._core.mpz_qd.zeros
-        elif self._type == mpz_mpfr:
+        IF HAVE_QD:
+            if self._type == mpz_dd:
+                return self._core.mpz_dd.zeros
+            if self._type == mpz_qd:
+                return self._core.mpz_qd.zeros
+        if self._type == mpz_mpfr:
             return self._core.mpz_mpfr.zeros
-        else:
-            raise RuntimeError("LLLReduction object '%s' has no core."%self)
+
+        raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
     @property
     def nswaps(self):
@@ -276,18 +294,19 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.nSwaps
-        elif self._type == mpz_ld:
+        if self._type == mpz_ld:
             return self._core.mpz_ld.nSwaps
-        elif self._type == mpz_dpe:
+        if self._type == mpz_dpe:
             return self._core.mpz_dpe.nSwaps
-        elif self._type == mpz_dd:
-            return self._core.mpz_dd.nSwaps
-        elif self._type == mpz_qd:
-            return self._core.mpz_qd.nSwaps
-        elif self._type == mpz_mpfr:
+        IF HAVE_QD:
+            if self._type == mpz_dd:
+                return self._core.mpz_dd.nSwaps
+            if self._type == mpz_qd:
+                return self._core.mpz_qd.nSwaps
+        if self._type == mpz_mpfr:
             return self._core.mpz_mpfr.nSwaps
-        else:
-            raise RuntimeError("LLLReduction object '%s' has no core."%self)
+
+        raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
     @property
     def delta(self):
@@ -404,19 +423,19 @@ def is_LLL_reduced(M, delta=LLL_DEF_DELTA, eta=LLL_DEF_ETA):
         raise TypeError("Type '%s' not understood."%type(M))
 
     if M_._type == mpz_double:
-        r = isLLLReduced[Z_NR[mpz_t], FP_NR[double]](M_._core.mpz_double[0], delta, eta)
-    elif M_._type == mpz_ld:
-        r = isLLLReduced[Z_NR[mpz_t], FP_NR[longdouble]](M_._core.mpz_ld[0], delta, eta)
-    elif M_._type == mpz_dd:
-        r = isLLLReduced[Z_NR[mpz_t], FP_NR[dd_real]](M_._core.mpz_dd[0], delta, eta)
-    elif M_._type == mpz_qd:
-        r = isLLLReduced[Z_NR[mpz_t], FP_NR[qd_real]](M_._core.mpz_qd[0], delta, eta)
-    elif M_._type == mpz_mpfr:
-        r = isLLLReduced[Z_NR[mpz_t], FP_NR[mpfr_t]](M_._core.mpz_mpfr[0], delta, eta)
-    else:
-        raise RuntimeError("MatGSO object '%s' has no core."%M)
+        return bool(isLLLReduced[Z_NR[mpz_t], FP_NR[double]](M_._core.mpz_double[0], delta, eta))
+    if M_._type == mpz_ld:
+        return bool(isLLLReduced[Z_NR[mpz_t], FP_NR[longdouble]](M_._core.mpz_ld[0], delta, eta))
+    IF HAVE_QD:
+        if M_._type == mpz_dd:
+            return bool(isLLLReduced[Z_NR[mpz_t], FP_NR[dd_real]](M_._core.mpz_dd[0], delta, eta))
+        if M_._type == mpz_qd:
+            return bool(isLLLReduced[Z_NR[mpz_t], FP_NR[qd_real]](M_._core.mpz_qd[0], delta, eta))
+    if M_._type == mpz_mpfr:
+        return bool(isLLLReduced[Z_NR[mpz_t], FP_NR[mpfr_t]](M_._core.mpz_mpfr[0], delta, eta))
 
-    return bool(r)
+    raise RuntimeError("MatGSO object '%s' has no core."%M)
+
 
 class LLL:
     DEFAULT = LLL_DEFAULT

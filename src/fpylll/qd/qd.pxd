@@ -1,5 +1,4 @@
-# distutils: language = c++
-# distutils: libraries = gmp mpfr qd
+# -*- coding: utf-8 -*-
 
 
 cdef extern from "qd/dd_real.h":

@@ -7,18 +7,58 @@ from Cython.Build import cythonize
 import sys
 import os
 
+
+# CONFIG VARIABLES
+
 cythonize_dir = "build"
 
 fplll = {"include_dirs": None,
-         "library_dirs": None}
+         "library_dirs": None,
+         "language": "c++",
+         "libraries": ["gmp", "mpfr", "fplll"]}
+
+other = {"include_dirs": None,
+         "library_dirs": None,
+         "libraries": ["gmp"]}
+
+config_pxi = []
+
+
+# VIRTUALENVS
 
 if "VIRTUAL_ENV" in os.environ:
     prefix = os.environ["VIRTUAL_ENV"]
     fplll["include_dirs"] = [os.path.join(prefix, "include")]
     fplll["library_dirs"] = [os.path.join(prefix, "lib")]
+    other["include_dirs"] = [os.path.join(prefix, "include")]
+    other["library_dirs"] = [os.path.join(prefix, "lib")]
+
+
+# QD
+
+have_qd = True  # TODO: hardcoded for now
+
+if have_qd:
+    fplll["libraries"].append("qd")
+    config_pxi.append("DEF HAVE_QD=True")
+else:
+    config_pxi.append("DEF HAVE_QD=False")
+
+
+# CONFIG.PXI
+config_pxi_path = os.path.join(".", "src", "fpylll", "config.pxi")
+config_pxi = "\n".join(config_pxi) + "\n"
+
+with open(config_pxi_path, "r") as fr:
+    if fr.read() != config_pxi:  # check if we need to write
+        with open(config_pxi_path, "w") as fw:
+            fw.write(config_pxi)
+
+
+# EXTENSIONS
 
 extensions = [
-    Extension("gmp.pylong", ["src/fpylll/gmp/pylong.pyx"], **fplll),
+    Extension("gmp.pylong", ["src/fpylll/gmp/pylong.pyx"], **other),
     Extension("util", ["src/fpylll/util.pyx"], **fplll),
     Extension("integer_matrix", ["src/fpylll/integer_matrix.pyx"], **fplll),
     Extension("gso", ["src/fpylll/gso.pyx"], **fplll),
@@ -36,7 +76,8 @@ setup(
     ext_package='fpylll',
     ext_modules=cythonize(extensions,
                           include_path=["src"] + sys.path,
-                          build_dir=cythonize_dir),
+                          build_dir=cythonize_dir,
+                          compiler_directives={'embedsignature': True}),
     package_dir={"": "src"},
     packages=["fpylll", "fpylll.gmp", "fpylll.contrib"],
     license='GNU General Public License, version 2 or later',

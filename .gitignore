@@ -55,3 +55,4 @@ target/
 
 /.vagrant/
 /Vagrantfile
+/src/fpylll/config.pxi
