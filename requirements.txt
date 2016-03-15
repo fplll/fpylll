@@ -1,4 +1,3 @@
 Cython
 pytest
-git+https://github.com/sagemath/cysignals#egg=cysignals
-
+cysignals
