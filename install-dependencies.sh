@@ -1,5 +1,5 @@
 #!/bin/bash
-git clone https://github.com/dstehle/fplll
+git clone -b leo https://github.com/malb/fplll
 
 cd fplll
 ./autogen.sh
