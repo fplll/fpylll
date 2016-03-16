@@ -125,11 +125,11 @@ Contributing
 
 To contribute to fpylll, clone this repository, commit your code on a separate branch and send a pull request. Please write tests for your code. You can run them by calling::
 
-    py.test
+    $ (fpylll) py.test
 
- from the top-level directory which runs all tests in ``tests/test_*.py``. We run `flake8 <https://flake8.readthedocs.org/en/latest/>`_ on every commit automatically, In particular, we run::
+from the top-level directory which runs all tests in ``tests/test_*.py``. We run `flake8 <https://flake8.readthedocs.org/en/latest/>`_ on every commit automatically, In particular, we run::
 
-    flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src
+    $ (fpylll) flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src
     
 See `.travis.yml <https://github.com/malb/fpylll/blob/master/.travis.yml>`_ for details.
 
