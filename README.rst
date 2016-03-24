@@ -7,7 +7,7 @@ A Python (2 and 3) wrapper for `fplll <https://github.com/dstehle/fplll>`_.
     :target: https://travis-ci.org/malb/fpylll
 
 .. code-block:: python
-               
+
     >>> from fpylll import *
    
     >>> A = IntegerMatrix(50, 50)
@@ -56,7 +56,9 @@ Getting Started
 
 We recommend `virtualenv <https://virtualenv.readthedocs.org/>`_ for isolating Python build environments and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`_ to manage virtual environments.
 
-1. Create a new virtualenv and activate it::
+1. Create a new virtualenv and activate it:
+
+   .. code-block:: bash
 
      $ virtualenv env
      $ source ./env/bin/activate
@@ -65,44 +67,60 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
 
 2. Install the required libraries – `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_ and `MPFR <http://www.mpfr.org>`_  – if not available already. You may also want to install `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_.
 
-3. Install fplll::
+3. Install fplll:
+
+   .. code-block:: bash
 
      $ (fpylll) ./install-dependencies.sh $VIRTUAL_ENV
 
-4. Then, execute::
+4. Then, execute:
+
+   .. code-block:: bash
 
      $ (fpylll) pip install Cython
      $ (fpylll) pip install -r requirements.txt
 
 to install the required Python packages (see above).
 
-5. If you are so inclined, run::
+5. If you are so inclined, run:
+
+   .. code-block:: bash
 
      $ (fpylll) pip install -r suggestions.txt
 
 to install suggested Python packages as well (optional).
 
-6. Build the Python extension::
+6. Build the Python extension:
+
+   .. code-block:: bash
 
      $ (fpylll) export PKG_CONFIG_PATH="$VIRTUAL_ENV/lib/pkgconfig:$PKG_CONFIG_PATH"
      $ (fpylll) python setup.py build_ext
      $ (fpylll) python setup.py install
 
-7. To run fpylll, you will need to::
+7. To run fpylll, you will need to:
+
+   .. code-block:: bash
 
      $ (fpylll) export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib"
 
 so that Python can find fplll and friends.
 
-8. Start Python::
+8. Start Python:
+
+   .. code-block:: bash
 
     $ (fpylll) ipython
 
-To reactivate the virtual environment later, simply run::
+To reactivate the virtual environment later, simply run:
+
+   .. code-block:: bash
 
     $ source ./env/bin/activate
 
-Note that you can also patch ``activate`` to set ``LD_LIBRRY_PATH``. For this, add::
+Note that you can also patch ``activate`` to set ``LD_LIBRRY_PATH``. For this, add:
+
+.. code-block:: bash
 
     ### LD_LIBRARY_HACK
     _OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
@@ -116,7 +134,9 @@ Note that you can also patch ``activate`` to set ``LD_LIBRRY_PATH``. For this, a
     export PKG_CONFIG_PATH
     ### END_PKG_CONFIG_HACK
 
-towards the end and::
+towards the end and:
+
+.. code-block:: bash
 
     ### LD_LIBRARY_HACK
     if ! [ -z ${_OLD_LD_LIBRARY_PATH+x} ] ; then

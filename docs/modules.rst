@@ -80,6 +80,14 @@ Simple BKZ
    :members:
    :undoc-members:
 
+Simple Dual BKZ
+---------------
+
+.. automodule:: fpylll.contrib.simple_dbkz
+   :special-members: __init__, __call__
+   :members:
+   :undoc-members:
+
 BKZ
 ---
 
