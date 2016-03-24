@@ -1,3 +1,4 @@
 Cython
 pytest
 cysignals
+flake8

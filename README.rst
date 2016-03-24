@@ -44,6 +44,7 @@ fpylll also relies on
 - `Cython <http://cython.org>`_ for linking Python and C/C++.
 - `cysignals <https://github.com/sagemath/cysignals>`_ for signal handling such as interrupting C++ code.
 - `py.test <http://pytest.org/latest/>`_ for testing Python.
+- `flake8 <https://flake8.readthedocs.org/en/latest/>`_ for linting.
 
 We also suggest
 
