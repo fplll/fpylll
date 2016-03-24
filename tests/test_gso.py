@@ -49,16 +49,16 @@ def test_gso_int_gram_enabled():
             assert M.int_gram_enabled is True
             assert M.transform_enabled is False
 
-            # BUG: U and UinvT don't take, investigate
-            # U = IntegerMatrix(m, m)
-            # M = GSO.Mat(copy(A), U=U, float_type=float_type)
-            # assert M.transform_enabled is True
-            # assert M.inverse_transform_enabled is False
+            if m and n:
+                U = IntegerMatrix(m, m)
+                M = GSO.Mat(copy(A), U=U, float_type=float_type)
+                assert M.transform_enabled is True
+                assert M.inverse_transform_enabled is False
 
-            # UinvT = IntegerMatrix(m, m)
-            # M = GSO.Mat(copy(A), U=U, UinvT=UinvT, float_type=float_type)
-            # assert M.transform_enabled is True
-            # assert M.inverse_transform_enabled is True
+                UinvT = IntegerMatrix(m, m)
+                M = GSO.Mat(copy(A), U=U, UinvT=UinvT, float_type=float_type)
+                assert M.transform_enabled is True
+                assert M.inverse_transform_enabled is True
 
 
 def test_gso_update_gso():

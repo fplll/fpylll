@@ -240,7 +240,7 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     @property
-    def inv_transform_enabled(self):
+    def inverse_transform_enabled(self):
         """
         """
         if self._type == mpz_double:
