@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from __future__ import unicode_literals
+
 import time
 from collections import OrderedDict
 
@@ -72,7 +74,7 @@ class BKZStats:
         self.tours[i]["total time"] += self.tours[i]["time"]
 
         if self.verbose:
-            print(unicode(self))
+            print(self)
         self.i += 1
 
     def preproc_begin(self):
@@ -97,22 +99,18 @@ class BKZStats:
         i = self.i
         self.tours[i]["postproc time"] += time
 
-    def __unicode__(self):
+    def __str__(self):
         s = []
         tour = self.tours[self.i]
-        s.append(u"\"i\": %3d"%self.i)
-        s.append(u"\"total\": %9.2f"%(tour["total time"]))
-        s.append(u"\"time\": %8.2f"%(tour["time"]))
-        s.append(u"\"preproc\": %8.2f"%(tour["preproc time"]))
-        s.append(u"\"svp\": %8.2f"%(tour["svp time"]))
-        s.append(u"\"r_0\": %.4e"%(tour["r_0"]))
-        s.append(u"\"slope\": %7.4f"%(tour["slope"]))
-        s.append(u"\"max(κ)\": %3d"%(tour["max(kappa)"]))
-        return u"{" + u",  ".join(s) + u"}"
-
-    def __str__(self):
-        u = unicode(self)
-        return u.replace(u"κ", "kappa")
+        s.append("\"i\": %3d"%self.i)
+        s.append("\"total\": %9.2f"%(tour["total time"]))
+        s.append("\"time\": %8.2f"%(tour["time"]))
+        s.append("\"preproc\": %8.2f"%(tour["preproc time"]))
+        s.append("\"svp\": %8.2f"%(tour["svp time"]))
+        s.append("\"r_0\": %.4e"%(tour["r_0"]))
+        s.append("\"slope\": %7.4f"%(tour["slope"]))
+        s.append("\"max(kappa)\": %3d"%(tour["max(kappa)"]))
+        return "{" + ",  ".join(s) + "}"
 
     def log_clean_kappa(self, kappa, clean):
         if clean and self.tours[self.i]["max(kappa)"] < kappa:

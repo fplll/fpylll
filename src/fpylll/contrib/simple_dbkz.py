@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from simple_bkz import BKZReduction
+from __future__ import absolute_import
+from .simple_bkz import BKZReduction
 from fpylll import Enumeration as Enum
 import math
+from functools import reduce
 
 
 class DBKZReduction(BKZReduction):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 from fpylll import IntegerMatrix, GSO, LLL, BKZ
 from fpylll import Enumeration as Enum
 from fpylll import gso
