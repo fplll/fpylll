@@ -3,6 +3,7 @@ from __future__ import print_function
 import time
 from collections import OrderedDict
 
+
 class BKZStatsContext:
     def __init__(self, stats, what):
         self.stats = stats
