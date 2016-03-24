@@ -34,16 +34,16 @@ Requirements
 
 fpylll relies on the following C/C++ libraries:
 
-- `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_ for arbitrary precision integer arithmetic,
-- `MPFR <http://www.mpfr.org>`_ for arbitrary precision floating point arithmetic
-- `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_ for double double and quad double arithmetic,
+- `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_ for arbitrary precision integer arithmetic.
+- `MPFR <http://www.mpfr.org>`_ for arbitrary precision floating point arithmetic.
+- `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_ for double double and quad double arithmetic (optional).
 - `fpLLL <https://github.com/dstehle/fplll>`_ for pretty much everything.
 
 fpylll also relies on
 
 - `Cython <http://cython.org>`_ for linking Python and C/C++.
-- `cysignals <https://github.com/sagemath/cysignals>`_ for signal handling such as interrupting C++ code
-- `py.test <http://pytest.org/latest/>`_ for testing Python
+- `cysignals <https://github.com/sagemath/cysignals>`_ for signal handling such as interrupting C++ code.
+- `py.test <http://pytest.org/latest/>`_ for testing Python.
 
 We also suggest
 
@@ -62,9 +62,9 @@ We recommend `virtualenv <https://virtualenv.readthedocs.org/>`_ for isolating P
 
 We indicate active virtualenvs by the prefix ``(fpylll)``.
 
-2. Install the required libraries – `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_, `MPFR <http://www.mpfr.org>`_ and `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_ – if not available already.
+2. Install the required libraries – `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_ and `MPFR <http://www.mpfr.org>`_  – if not available already. You may also want to install `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_.
 
-3. Install the ``fpylll-changes`` branch of fplll from https://github.com/malb/fplll to the virtual environment::
+3. Install fplll::
 
      $ (fpylll) ./install-dependencies.sh $VIRTUAL_ENV
 
