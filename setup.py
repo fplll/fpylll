@@ -38,9 +38,12 @@ if "VIRTUAL_ENV" in os.environ:
 have_qd = False
 
 import subprocess
-libs = subprocess.check_output(["pkg-config", "fplll", "--libs"])
-if "-lqd" in libs:
-    have_qd = True
+try:
+    libs = subprocess.check_output(["pkg-config", "fplll", "--libs"])
+    if "-lqd" in libs:
+        have_qd = True
+except subprocess.CalledProcessError:
+    pass
 
 if have_qd:
     fplll["libraries"].append("qd")
