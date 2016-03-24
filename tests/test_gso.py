@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from fpylll import GSO, IntegerMatrix, LLL
+from fpylll.fpylll import float_types
 from copy import copy
 
 dimensions = ((0, 0), (1, 1), (1, 2), (3, 3), (50, 50), (10, 10), (50, 70))
-float_types = ("d", "ld", "dpe", "dd", "qd", "mpfr")
 
 
 def make_integer_matrix(m, n):
