@@ -635,7 +635,7 @@ cdef class MatGSO:
             >>> set_random_seed(42)
             >>> A = IntegerMatrix(6, 6)
             >>> A.randomize("ntrulike", bits=6, q=31)
-            >>> print A
+            >>> print(A)
             [ 1 0 0 57 25  7 ]
             [ 0 1 0 25  7 57 ]
             [ 0 0 1  7 57 25 ]
@@ -648,7 +648,7 @@ cdef class MatGSO:
             >>> with M.row_ops(2,2):
             ...     M.negate_row(2)
             ...
-            >>> print A
+            >>> print(A)
             [ 1 0 0 57  25   7 ]
             [ 0 1 0 25   7  57 ]
             [ 0 0 -1 -7 -57 -25 ]

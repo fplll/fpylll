@@ -17,6 +17,7 @@ from math import log, ceil, sqrt
 
 from gmp.mpz cimport mpz_init, mpz_mod, mpz_fdiv_q_ui, mpz_clear, mpz_cmp, mpz_sub, mpz_set
 
+
 cdef class IntegerMatrixRow:
     """
     """
@@ -221,7 +222,7 @@ cdef class IntegerMatrix:
         >>> A[1,0]
         0
 
-        >>> print A[1]
+        >>> print(A[1])
         (0, 1, 0, 0, 0, 0, 0, 0, 0, 0)
 
         """
@@ -293,21 +294,21 @@ cdef class IntegerMatrix:
         >>> set_random_seed(1337)
         >>> A = IntegerMatrix(2, 2)
         >>> A.randomize("uniform", bits=2)
-        >>> print A
+        >>> print(A)
         [ 2 0 ]
         [ 1 3 ]
 
         >>> B = IntegerMatrix(2, 2)
         >>> B.randomize("uniform", bits=2)
-        >>> print B
+        >>> print(B)
         [ 3 2 ]
         [ 3 3 ]
 
-        >>> print A*B
+        >>> print(A*B)
         [  6  4 ]
         [ 12 11 ]
 
-        >>> print B*A
+        >>> print(B*A)
         [ 8 6 ]
         [ 9 9 ]
 
@@ -344,17 +345,17 @@ cdef class IntegerMatrix:
         >>> A[0,0] = 1001
         >>> A[1,0] = 13
         >>> A[0,1] = 102
-        >>> print A
+        >>> print(A)
         [ 1001 102 ]
         [   13   0 ]
 
         >>> A.mod(10, start_row=1, start_col=0)
-        >>> print A
+        >>> print(A)
         [ 1001 102 ]
         [    3   0 ]
 
         >>> A.mod(10)
-        >>> print A
+        >>> print(A)
         [ 1 2 ]
         [ 3 0 ]
 
@@ -363,7 +364,7 @@ cdef class IntegerMatrix:
         >>> A[1,0] = 13
         >>> A[0,1] = 102
         >>> A.mod(10, stop_row=1)
-        >>> print A
+        >>> print(A)
         [  1 2 ]
         [ 13 0 ]
 
@@ -399,12 +400,10 @@ cdef class IntegerMatrix:
                         mpz_sub(t2, t2, q_)
                     self._core[0][i][j].set(t2)
 
-
         mpz_clear(q_)
         mpz_clear(q2_)
         mpz_clear(t1)
         mpz_clear(t2)
-
 
     def __richcmp__(IntegerMatrix self, IntegerMatrix other, int op):
         """Compare two matrices.
@@ -537,7 +536,7 @@ cdef class IntegerMatrix:
             >>> A = IntegerMatrix(10, 10)
             >>> set_random_seed(1337)
             >>> A.randomize("ntrulike", bits=22, q=4194319)
-            >>> print A
+            >>> print(A)
             [ 1 0 0 0 0   752690  1522220  2972677   890755  2612607 ]
             [ 0 1 0 0 0  1522220  2972677   890755  2612607   752690 ]
             [ 0 0 1 0 0  2972677   890755  2612607   752690  1522220 ]
@@ -551,13 +550,13 @@ cdef class IntegerMatrix:
 
         We can either specify start/stop rows and columns::
 
-            >>> print A.submatrix(0,0,2,8)
+            >>> print(A.submatrix(0,0,2,8))
             [ 1 0 0 0 0   752690  1522220 2972677 ]
             [ 0 1 0 0 0  1522220  2972677  890755 ]
 
         Or we can give lists of rows, columns explicitly::
 
-            >>> print A.submatrix([0,1,2],range(3,9))
+            >>> print(A.submatrix([0,1,2],range(3,9)))
             [ 0 0   752690  1522220 2972677  890755 ]
             [ 0 0  1522220  2972677  890755 2612607 ]
             [ 0 0  2972677   890755 2612607  752690 ]
@@ -578,7 +577,7 @@ cdef class IntegerMatrix:
             it = iter(rows)
             try:
                 while True:
-                    it.next()
+                    next(it)
                     m += 1
             except StopIteration:
                 pass
@@ -586,7 +585,7 @@ cdef class IntegerMatrix:
             it = iter(cols)
             try:
                 while True:
-                    it.next()
+                    next(it)
                     n += 1
             except StopIteration:
                 pass
@@ -612,9 +611,9 @@ cdef class IntegerMatrix:
             preprocess_indices(c, d, self._core.getRows()+1, self._core.getCols()+1)
 
             if c < a:
-                raise ValueError("Last row (%d) < first row (%d)"%(c,a))
+                raise ValueError("Last row (%d) < first row (%d)"%(c, a))
             if d < b:
-                raise ValueError("Last column (%d) < first column (%d)"%(d,b))
+                raise ValueError("Last column (%d) < first column (%d)"%(d, b))
             i = 0
             m = c - a
             n = d - b
@@ -626,7 +625,6 @@ cdef class IntegerMatrix:
                     j += 1
                 i += 1
             return A
-
 
     @classmethod
     def from_file(cls, filename):
