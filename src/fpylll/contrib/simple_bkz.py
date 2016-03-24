@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
+
+A minimal implementation of the BKZ algorithm in Python.
+
+"""
 
 from __future__ import absolute_import
 from fpylll import IntegerMatrix, GSO, LLL, BKZ
@@ -8,11 +14,9 @@ from fpylll import gso
 
 class BKZReduction:
     def __init__(self, A):
-        """FIXME! briefly describe function
+        """Construct a new BKZ reduction instance.
 
-        :param A:
-        :returns:
-        :rtype:
+        :param A: Integer matrix to reduce.
 
         """
         if not isinstance(A, IntegerMatrix):
@@ -27,11 +31,11 @@ class BKZReduction:
         self.lll_obj = LLL.Reduction(self.m)
 
     def __call__(self, block_size):
-        """FIXME! briefly describe function
+        """Perform BKZ reduction with given``block_size``.
 
-        :param block_size:
-        :returns:
-        :rtype:
+        Nothing is returned, the matrix ``A`` given during construction is modified in-place.
+
+        :param block_size: an integer > 2
 
         """
         self.m.discover_all_rows()
@@ -46,13 +50,11 @@ class BKZReduction:
                 break
 
     def bkz_loop(self, block_size, min_row, max_row):
-        """FIXME! briefly describe function
+        """Perform one BKZ loop, often also called a "BKZ tour".
 
-        :param block_size:
-        :param min_row:
-        :param max_row:
-        :returns:
-        :rtype:
+        :param block_size: an integer > 2
+        :param min_row: algorithm starts in this row (inclusive)
+        :param max_row: algorithm stops at this row (exclusive)
 
         """
         clean = True
@@ -62,12 +64,10 @@ class BKZReduction:
         return clean
 
     def svp_reduction(self, kappa, block_size):
-        """FIXME! briefly describe function
+        """Call the SVP oracle and insert found vector into basis.
 
-        :param kappa:
-        :param block_size:
-        :returns:
-        :rtype:
+        :param kappa: row index
+        :param block_size: an integer > 2
 
         """
         clean = True
