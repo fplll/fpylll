@@ -83,6 +83,7 @@ to install suggested Python packages as well (optional).
 
 6. Build the Python extension::
 
+     $ (fpylll) export PKG_CONFIG_PATH="$VIRTUAL_ENV/lib/pkgconfig:$PKG_CONFIG_PATH"
      $ (fpylll) python setup.py build_ext
      $ (fpylll) python setup.py install
 
@@ -108,6 +109,12 @@ Note that you can also patch ``activate`` to set ``LD_LIBRRY_PATH``. For this, a
     export LD_LIBRARY_PATH
     ### END_LD_LIBRARY_HACK
 
+    ### PKG_CONFIG_HACK
+    _OLD_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
+    PKG_CONFIG_PATH="$VIRTUAL_ENV/lib/pkgconfig:$PKG_CONFIG_PATH"
+    export PKG_CONFIG_PATH
+    ### END_PKG_CONFIG_HACK
+
 towards the end and::
 
     ### LD_LIBRARY_HACK
@@ -117,6 +124,14 @@ towards the end and::
         unset _OLD_LD_LIBRARY_PATH
     fi
     ### END_LD_LIBRARY_HACK
+
+    ### PKG_CONFIG_HACK
+    if ! [ -z ${_OLD_PKG_CONFIG_PATH+x} ] ; then
+        PKG_CONFIG_PATH="$_OLD_PKG_CONFIG_PATH"
+        export PKG_CONFIG_PATH
+        unset _OLD_PKG_CONFIG_PATH
+    fi
+    ### END_PKG_CONFIG_HACK
 
 in the ``deactivate`` function in the ``activate`` script.
 
