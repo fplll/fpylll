@@ -152,7 +152,7 @@ class BKZReduction:
             solution, max_dist = Enum.enumerate(self.m, max_dist, expo,
                                                 kappa, kappa + block_size,
                                                 param.pruning)
-        except EnumerationError, msg:
+        except EnumerationError as msg:
             if param.flags & BKZ.GH_BND:
                 return None, True
             else:

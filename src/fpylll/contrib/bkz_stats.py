@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import time
 from collections import OrderedDict
-
 
 class BKZStatsContext:
     def __init__(self, stats, what):
@@ -71,7 +71,7 @@ class BKZStats:
         self.tours[i]["total time"] += self.tours[i]["time"]
 
         if self.verbose:
-            print unicode(self)
+            print(unicode(self))
         self.i += 1
 
     def preproc_begin(self):

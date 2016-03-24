@@ -8,8 +8,14 @@ cdef extern from "longintrepr.h":
     cdef long PyLong_SHIFT
     ctypedef unsigned int digit
     ctypedef struct PyLongObject:
-        Py_ssize_t ob_size
         digit* ob_digit
+
+    ctypedef struct PyObject:
+        pass
+
+    ctypedef struct PyVarObject:
+        PyObject ob_base
+        Py_ssize_t ob_size
 
 from fpylll.gmp.types cimport *
 
