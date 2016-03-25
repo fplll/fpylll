@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """
+A minimal implementation of the Block Korkine Zolotarev algorithm in Python.
+
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
-
-A minimal implementation of the BKZ algorithm in Python.
-
 """
 
 from __future__ import absolute_import

@@ -3,8 +3,9 @@ include "config.pxi"
 include "cysignals/signals.pxi"
 
 """
-..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
+Block Korkine Zolotarev algorithm.
 
+..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
 
 from gmp.mpz cimport mpz_t

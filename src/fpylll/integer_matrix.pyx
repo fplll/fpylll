@@ -3,6 +3,8 @@ include "config.pxi"
 include "cysignals/signals.pxi"
 
 """
+Integer matrices.
+
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
 
@@ -20,14 +22,26 @@ from gmp.mpz cimport mpz_init, mpz_mod, mpz_fdiv_q_ui, mpz_clear, mpz_cmp, mpz_s
 
 cdef class IntegerMatrixRow:
     """
+    A reference to a row in an integer matrix.
     """
     def __init__(self, IntegerMatrix M, int row):
-        """FIXME! briefly describe function
+        """Create a row reference.
 
-        :param IntegerMatrix M:
-        :param int row:
-        :returns:
-        :rtype:
+        :param IntegerMatrix M: Integer matrix
+        :param int row: row index
+
+        Row references are immutable::
+
+            >>> from fpylll import IntegerMatrix
+            >>> A = IntegerMatrix(2, 3)
+            >>> A[0,0] = 1; A[0,1] = 2; A[0,2] = 3
+            >>> r = A[0]
+            >>> r[0]
+            1
+            >>> r[0] = 1
+            Traceback (most recent call last):
+            ...
+            TypeError: 'fpylll.integer_matrix.IntegerMatrixRow' object does not support item assignment
 
         """
         preprocess_indices(row, row, M.nrows, M.nrows)
@@ -35,11 +49,9 @@ cdef class IntegerMatrixRow:
         self.m = M
 
     def __getitem__(self, int column):
-        """FIXME! briefly describe function
+        """Return entry at ``column``
 
-        :param int column:
-        :returns:
-        :rtype:
+        :param int column: integer offset
 
         """
         preprocess_indices(column, column, self.m._core.getCols(), self.m._core.getCols())
@@ -47,11 +59,7 @@ cdef class IntegerMatrixRow:
         return r
 
     def __str__(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
-
+        """String representation of this row.
         """
         cdef int i
         r = []

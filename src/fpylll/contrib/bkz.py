@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Block Korkine Zolotarev algorithm in Python.
+
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 
-An implementation of the BKZ algorithm in Python.
-
+This module reimplements fplll's BKZ algorithm in Python.  It has feature parity with the C++
+implementation in fplll's core.  Additionally, this implementation collects some additional
+statistics.  Hence, it should provide a good basis for implementing variants of this algorithm.
 """
 from __future__ import absolute_import
 import time
@@ -18,8 +21,9 @@ class BKZReduction:
     """
     An implementation of the BKZ algorithm in Python.
 
-    This implementation has feature parity with the C++ implementation in fplll.  Additionally, this
-    implementation collects some additional statistics.
+    This class has feature parity with the C++ implementation in fplll's core.  Additionally, this
+    implementation collects some additional statistics.  Hence, it should provide a good basis for
+    implementing variants of this algorithm.
     """
     def __init__(self, A):
         """Construct a new instance of the BKZ algorithm.

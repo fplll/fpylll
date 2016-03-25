@@ -3,6 +3,8 @@ include "config.pxi"
 include "cysignals/signals.pxi"
 
 """
+Shortest and Closest Vectors.
+
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
 
