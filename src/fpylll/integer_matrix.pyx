@@ -11,8 +11,8 @@ Integer matrices.
 include "cysignals/signals.pxi"
 
 from fplll cimport MatrixRow, sqrNorm, Z_NR
-from fpylll.util cimport preprocess_indices, assign_Z_NR_mpz, assign_mpz
-from fpylll.gmp.pylong cimport mpz_get_pyintlong
+from fpylll.util cimport preprocess_indices
+from fpylll.io_types cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
 
 import re
 from math import log, ceil, sqrt
@@ -55,7 +55,7 @@ cdef class IntegerMatrixRow:
 
         """
         preprocess_indices(column, column, self.m._core.getCols(), self.m._core.getCols())
-        r = mpz_get_pyintlong(self.m._core[0][self.row][column].getData())
+        r = mpz_get_python(self.m._core[0][self.row][column].getData())
         return r
 
     def __str__(self):
@@ -64,7 +64,7 @@ cdef class IntegerMatrixRow:
         cdef int i
         r = []
         for i in range(self.m._core.getCols()):
-            t = mpz_get_pyintlong(self.m._core[0][self.row][i].getData())
+            t = mpz_get_python(self.m._core[0][self.row][i].getData())
             r.append(str(t))
         return "(" + ", ".join(r) + ")"
 
@@ -240,7 +240,7 @@ cdef class IntegerMatrix:
         if isinstance(key, tuple):
             i, j = key
             preprocess_indices(i, j, self._core.getRows(), self._core.getCols())
-            r = mpz_get_pyintlong(self._core[0][i][j].getData())
+            r = mpz_get_python(self._core[0][i][j].getData())
             return r
         elif isinstance(key, int):
             i = key

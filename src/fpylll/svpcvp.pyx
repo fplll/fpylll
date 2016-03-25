@@ -12,7 +12,6 @@ include "cysignals/signals.pxi"
 
 from libcpp.vector cimport vector
 from gmp.mpz cimport mpz_t
-from gmp.pylong cimport mpz_get_pyintlong
 from fplll cimport Z_NR
 from fplll cimport SVP_DEFAULT, CVP_DEFAULT
 from fplll cimport SVP_VERBOSE, CVP_VERBOSE
@@ -22,7 +21,7 @@ from fplll cimport SVPMethod
 from fplll cimport shortestVectorPruning, shortestVector
 from fplll cimport vectMatrixProduct
 from lll import lll_reduction
-from util cimport assign_Z_NR_mpz
+from io_types cimport assign_Z_NR_mpz, mpz_get_python
 from fpylll import ReductionError
 
 from integer_matrix cimport IntegerMatrix
@@ -85,7 +84,7 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, max_dis
     cdef list v = []
 
     for i in range(solution.size()):
-        v.append(mpz_get_pyintlong(solution[i].getData()))
+        v.append(mpz_get_python(solution[i].getData()))
 
     return tuple(v)
 

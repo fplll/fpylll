@@ -6,9 +6,6 @@ include "cysignals/signals.pxi"
 from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR
 from fplll cimport FP_NR, RandGen, dpe_t
 from qd.qd cimport dd_real, qd_real
-from cpython.int cimport PyInt_AS_LONG
-from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
-from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set_si
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
 
@@ -80,31 +77,6 @@ cdef int check_delta(float delta) except -1:
         raise TypeError("delta must be > 0.25")
     elif delta > 1.0:
         raise TypeError("delta must be <= 1.0")
-
-cdef int assign_Z_NR_mpz(Z_NR[mpz_t]& t, value) except -1:
-    cdef mpz_t tmp
-    mpz_init(tmp)
-    if isinstance(value, int):
-        mpz_set_si(tmp, PyInt_AS_LONG(value))
-    elif isinstance(value, long):
-        mpz_set_pylong(tmp, value)
-    else:
-        mpz_clear(tmp)
-        msg = "Only Python ints and longs are currently supported, but got type '%s'"%type(value)
-        raise NotImplementedError(msg)
-
-    t.set(tmp)
-    mpz_clear(tmp)
-
-
-cdef int assign_mpz(mpz_t& t, value) except -1:
-    if isinstance(value, int):
-        mpz_set_si(t, PyInt_AS_LONG(value))
-    elif isinstance(value, long):
-        mpz_set_pylong(t, value)
-    else:
-        msg = "Only Python ints and longs are currently supported, but got type '%s'"%type(value)
-        raise NotImplementedError(msg)
 
 
 def set_random_seed(unsigned long seed):
