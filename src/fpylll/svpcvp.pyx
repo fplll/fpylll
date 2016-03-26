@@ -21,7 +21,7 @@ from fplll cimport SVPMethod
 from fplll cimport shortestVectorPruning, shortestVector
 from fplll cimport vectMatrixProduct
 from lll import lll_reduction
-from io_types cimport assign_Z_NR_mpz, mpz_get_python
+from io cimport assign_Z_NR_mpz, mpz_get_python
 from fpylll import ReductionError
 
 from integer_matrix cimport IntegerMatrix

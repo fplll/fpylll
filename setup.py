@@ -87,7 +87,7 @@ if cur_config_pxi != config_pxi:  # check if we need to write
 extensions = [
     Extension("gmp.pylong", ["src/fpylll/gmp/pylong.pyx"], **other),
     Extension("util", ["src/fpylll/util.pyx"], **fplll),
-    Extension("io_types", ["src/fpylll/io_types.pyx"], **fplll),
+    Extension("io", ["src/fpylll/io.pyx"], **fplll),
     Extension("integer_matrix", ["src/fpylll/integer_matrix.pyx"], **fplll),
     Extension("gso", ["src/fpylll/gso.pyx"], **fplll),
     Extension("lll", ["src/fpylll/lll.pyx"], **fplll),

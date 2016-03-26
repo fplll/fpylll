@@ -10,5 +10,10 @@ ELSE:
     have_qd = False
     float_types = ("d", "ld", "dpe", "mpfr")
 
+IF HAVE_SAGE:
+    have_sage = True
+ELSE:
+    have_sage = False
+
 class ReductionError(RuntimeError):
     pass

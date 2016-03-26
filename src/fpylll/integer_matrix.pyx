@@ -13,7 +13,7 @@ include "cysignals/signals.pxi"
 from cpython cimport PyIndex_Check
 from fplll cimport MatrixRow, sqrNorm, Z_NR
 from fpylll.util cimport preprocess_indices
-from fpylll.io_types cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
+from fpylll.io cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
 
 import re
 from math import log, ceil, sqrt
