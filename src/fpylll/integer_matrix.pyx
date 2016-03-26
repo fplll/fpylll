@@ -72,11 +72,18 @@ cdef class IntegerMatrixRow:
     def __repr__(self):
         return "row %d of %r"%(self.row, self.m)
 
-    def norm(self):
-        """FIXME! briefly describe function
 
-        :returns:
-        :rtype:
+    def __abs__(self):
+        """Return ℓ_2 norm of this vector.
+
+        >>> A = IntegerMatrix.from_iterable(1, 3, [1,2,3])
+        >>> A[0].norm()  # doctest: +ELLIPSIS
+        3.74165...
+        >>> 1*1 + 2*2 + 3*3
+        14
+        >>> from math import sqrt
+        >>> sqrt(14)  # doctest: +ELLIPSIS
+        3.74165...
 
         """
         cdef Z_NR[mpz_t] t
@@ -84,50 +91,125 @@ cdef class IntegerMatrixRow:
         # TODO: don't just use doubles
         return sqrt(t.get_d())
 
-    def __abs__(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
-
-        """
-        return self.norm()
-
+    norm = __abs__
 
 cdef class IntegerMatrix:
     """
     Dense matrices over the Integers.
     """
-    def __init__(self, int nrows, int ncols):
+    def __init__(self, arg0, arg1=None):
         """Construct a new integer matrix
 
-        :param int nrows: number of rows ≥ 0
-        :param int ncols: number of columns ≥ 0
+        :param int arg0: number of rows ≥ 0 or matrix
+        :param int arg1: number of columns ≥ 0 or ``None``
 
-        >>> from fpylll import IntegerMatrix
-        >>> IntegerMatrix(10, 10) # doctest: +ELLIPSIS
-        <IntegerMatrix(10, 10) at 0x...>
+        The default constructor takes the number of rows and columns::
 
-        >>> IntegerMatrix(10, 0) # doctest: +ELLIPSIS
-        <IntegerMatrix(10, 0) at 0x...>
+            >>> from fpylll import IntegerMatrix
+            >>> IntegerMatrix(10, 10) # doctest: +ELLIPSIS
+            <IntegerMatrix(10, 10) at 0x...>
 
-        >>> IntegerMatrix(-1,  0)
-        Traceback (most recent call last):
-        ...
-        ValueError: Number of rows must be >0
+            >>> IntegerMatrix(10, 0) # doctest: +ELLIPSIS
+            <IntegerMatrix(10, 0) at 0x...>
+
+            >>> IntegerMatrix(-1,  0)
+            Traceback (most recent call last):
+            ...
+            ValueError: Number of rows must be >0
+
+        The default constructor is also a copy constructor::
+
+            >>> A = IntegerMatrix(2, 2)
+            >>> A[0,0] = 1
+            >>> B = IntegerMatrix(A)
+            >>> B[0,0]
+            1
+            >>> A[0,0] = 2
+            >>> B[0,0]
+            1
 
         """
-        # TODO: support IntegerMatrix(A)
-        # TODO: IntegerMatrix(list)
-        # TODO: IntegerMatrix(list of list)
+        cdef int i, j
 
-        if nrows < 0:
-            raise ValueError("Number of rows must be >0")
+        if PyIndex_Check(arg0) and PyIndex_Check(arg1):
+            if arg0 < 0:
+                raise ValueError("Number of rows must be >0")
 
-        if ncols < 0:
-            raise ValueError("Number of columns must be >0")
+            if arg1 < 0:
+                raise ValueError("Number of columns must be >0")
 
-        self._core = new ZZ_mat[mpz_t](nrows, ncols)
+            self._core = new ZZ_mat[mpz_t](arg0, arg1)
+            return
+
+        elif isinstance(arg0, IntegerMatrix) and arg1 is None:
+            self._core = new ZZ_mat[mpz_t](arg0.nrows, arg0.ncols)
+            for i in range(self.nrows):
+                for j in range(self.ncols):
+                    self._core[0][i][j] = (<IntegerMatrix>arg0)._core[0][i][j]
+            return
+
+        else:
+            raise TypeError("Parameters arg0 and arg1 not understood")
+
+    def read_matrix(self, A):
+        """Set this matrix from matrix-like object A
+
+        :param A: a matrix like object, with element access A[i,j] or A[i][j]
+
+        .. note:: entries starting at ``A[nrows, ncols]`` are ignored.
+
+        """
+        cdef int i, j
+        cdef int m = self.nrows
+        cdef int n = self.ncols
+
+        try:
+            for i in range(m):
+                for j in range(n):
+                    self[i, j] = A[i, j]
+        except TypeError:
+            for i in range(m):
+                for j in range(n):
+                    self[i, j] = A[i][j]
+
+
+    def read_iterable(self, A):
+        """Set this matrix from iterable A
+
+        :param A: an iterable object such as a list or tuple
+
+        .. note:: entries starting at ``A[nrows * ncols]`` are ignored.
+
+        """
+        cdef int i, j
+        cdef int m = self.nrows
+        cdef int n = self.ncols
+        it = iter(A)
+
+        for i in range(m):
+            for j in range(n):
+                self[i, j] = next(it)
+
+    def to_matrix(self, A):
+        """Write this matrix to matrix-like object A
+
+        :param A: a matrix like object, with element access A[i,j] or A[i][j]
+        :returns: A
+
+        """
+        cdef int i, j
+        cdef int m = self.nrows
+        cdef int n = self.ncols
+
+        try:
+            for i in range(m):
+                for j in range(n):
+                    A[i, j] = self[i, j]
+        except TypeError:
+            for i in range(m):
+                for j in range(n):
+                    A[i][j] = A[i][j]
+        return A
 
     def __dealloc__(self):
         """
@@ -180,11 +262,7 @@ cdef class IntegerMatrix:
         return r
 
     def __copy__(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
-
+        """Copy this matrix.
         """
         cdef IntegerMatrix A = IntegerMatrix(self.nrows, self.ncols)
         cdef int i, j
@@ -456,8 +534,8 @@ cdef class IntegerMatrix:
     def apply_transform(self, IntegerMatrix U, int start_row=0):
         """Apply transformation matrix ``U`` to this matrix starting at row ``start_row``.
 
-        :param IntegerMatrix U:
-        :param int start_row:
+        :param IntegerMatrix U: transformation matrix
+        :param int start_row: start transformation in this row
 
         """
         cdef int i, j
@@ -525,7 +603,7 @@ cdef class IntegerMatrix:
             raise ValueError("Algorithm '%s' unknown."%algorithm)
 
     def gen_identity(self, int nrows):
-        """Generate identity matrix:
+        """Generate identity matrix.
 
         :param nrows: number of rows
 
@@ -642,9 +720,7 @@ cdef class IntegerMatrix:
     def from_file(cls, filename):
         """Construct new matrix from file.
 
-        :param filename:
-        :returns:
-        :rtype:
+        :param filename: name of file to read from
 
         """
         A = cls(0, 0)
@@ -661,4 +737,74 @@ cdef class IntegerMatrix:
                 A._core.setCols(len(values))
                 for j, v in enumerate(values):
                     A[i, j] = values[j]
+        return A
+
+
+    @classmethod
+    def from_matrix(cls, A, nrows=None, ncols=None):
+        """Construct a new integer matrix from matrix-like object A
+
+        :param A: a matrix like object, with element access A[i,j] or A[i][j]
+        :param nrows: number of rows (optional)
+        :param ncols: number of columns (optional)
+
+
+        >>> A = IntegerMatrix.from_matrix([[1,2,3],[4,5,6]])
+        >>> print(A)
+        [ 1 2 3 ]
+        [ 4 5 6 ]
+
+        """
+        cdef int i, j
+        cdef int m, n
+
+        if nrows is None:
+            if hasattr(A, "nrows"):
+                nrows = A.nrows
+            elif hasattr(A, "__len__"):
+                nrows = len(A)
+            else:
+                raise ValueError("Cannot determine number of rows.")
+            if not PyIndex_Check(nrows):
+                if callable(nrows):
+                    nrows = nrows()
+                else:
+                    raise ValueError("Cannot determine number of rows.")
+
+        if ncols is None:
+            if hasattr(A, "ncols"):
+                ncols = A.ncols
+            elif hasattr(A[0], "__len__"):
+                ncols = len(A[0])
+            else:
+                raise ValueError("Cannot determine number of rows.")
+            if not PyIndex_Check(ncols):
+                if callable(ncols):
+                    ncols = ncols()
+                else:
+                    raise ValueError("Cannot determine number of rows.")
+
+        m = nrows
+        n = ncols
+
+        B = cls(m, n)
+        B.read_matrix(A)
+        return B
+
+    @classmethod
+    def from_iterable(cls, nrows, ncols, it):
+        """Construct a new integer matrix from matrix-like object A
+
+        :param nrows: number of rows
+        :param ncols: number of columns
+        :param it: an iterable of length at least ``nrows * ncols``
+
+        >>> A = IntegerMatrix.from_iterable(2,3, [1,2,3,4,5,6])
+        >>> print(A)
+        [ 1 2 3 ]
+        [ 4 5 6 ]
+
+        """
+        A = cls(nrows, ncols)
+        A.read_iterable(it)
         return A
