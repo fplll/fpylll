@@ -151,7 +151,7 @@ cdef class IntegerMatrix:
         else:
             raise TypeError("Parameters arg0 and arg1 not understood")
 
-    def read_matrix(self, A):
+    def set_matrix(self, A):
         """Set this matrix from matrix-like object A
 
         :param A: a matrix like object, with element access A[i,j] or A[i][j]
@@ -173,7 +173,7 @@ cdef class IntegerMatrix:
                     self[i, j] = A[i][j]
 
 
-    def read_iterable(self, A):
+    def set_iterable(self, A):
         """Set this matrix from iterable A
 
         :param A: an iterable object such as a list or tuple
@@ -189,6 +189,7 @@ cdef class IntegerMatrix:
         for i in range(m):
             for j in range(n):
                 self[i, j] = next(it)
+
 
     def to_matrix(self, A):
         """Write this matrix to matrix-like object A
@@ -781,7 +782,7 @@ cdef class IntegerMatrix:
         n = ncols
 
         B = cls(m, n)
-        B.read_matrix(A)
+        B.set_matrix(A)
         return B
 
     @classmethod
@@ -799,5 +800,5 @@ cdef class IntegerMatrix:
 
         """
         A = cls(nrows, ncols)
-        A.read_iterable(it)
+        A.set_iterable(it)
         return A
