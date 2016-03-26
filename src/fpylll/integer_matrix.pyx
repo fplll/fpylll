@@ -10,6 +10,7 @@ Integer matrices.
 
 include "cysignals/signals.pxi"
 
+from cpython cimport PyIndex_Check
 from fplll cimport MatrixRow, sqrNorm, Z_NR
 from fpylll.util cimport preprocess_indices
 from fpylll.io_types cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
@@ -221,7 +222,7 @@ cdef class IntegerMatrix:
     def __getitem__(self, key):
         """Select a row or entry.
 
-        :param key: either an integer for the row or a tuple for row and column.
+        :param key: an integer for the row, a tuple for row and column or a slice.
         :returns: a reference to a row or an integer depending on format of ``key``
 
         >>> from fpylll import IntegerMatrix
@@ -233,6 +234,10 @@ cdef class IntegerMatrix:
         >>> print(A[1])
         (0, 1, 0, 0, 0, 0, 0, 0, 0, 0)
 
+        >>> print(A[0:2])
+        [ 1 0 0 0 0 0 0 0 0 0 ]
+        [ 0 1 0 0 0 0 0 0 0 0 ]
+
         """
         cdef int i = 0
         cdef int j = 0
@@ -242,7 +247,10 @@ cdef class IntegerMatrix:
             preprocess_indices(i, j, self._core.getRows(), self._core.getCols())
             r = mpz_get_python(self._core[0][i][j].getData())
             return r
-        elif isinstance(key, int):
+        elif isinstance(key, slice):
+            key = range(*key.indices(self.nrows))
+            return self.submatrix(key, range(self.ncols))
+        elif PyIndex_Check(key):
             i = key
             preprocess_indices(i, i, self._core.getRows(), self._core.getRows())
             return IntegerMatrixRow(self, i)
@@ -336,6 +344,11 @@ cdef class IntegerMatrix:
         return res
 
     def __mod__(IntegerMatrix self, q):
+        """Return A mod q.
+
+        :param q: a modulus > 0
+
+        """
         A = self.__copy__()
         A.mod(q)
         return A
@@ -414,14 +427,7 @@ cdef class IntegerMatrix:
         mpz_clear(t2)
 
     def __richcmp__(IntegerMatrix self, IntegerMatrix other, int op):
-        """Compare two matrices.
-
-        :param IntegerMatrix self:
-        :param IntegerMatrix other:
-        :param int op:
-        :returns:
-        :rtype:
-
+        """Compare two matrices
         """
         cdef int i, j
         cdef Z_NR[mpz_t] a, b
@@ -448,12 +454,10 @@ cdef class IntegerMatrix:
             return not eq
 
     def apply_transform(self, IntegerMatrix U, int start_row=0):
-        """FIXME! briefly describe function
+        """Apply transformation matrix ``U`` to this matrix starting at row ``start_row``.
 
         :param IntegerMatrix U:
         :param int start_row:
-        :returns:
-        :rtype:
 
         """
         cdef int i, j
@@ -472,12 +476,12 @@ cdef class IntegerMatrix:
 
         Available algorithms:
 
-        - ``"intrel"`` -
-        - ``"simdioph"`` -
-        - ``"uniform"`` -
-        - ``"ntrulike"`` -
-        - ``"ntrulike2"`` -
-        - ``"atjai"`` -
+        - ``"intrel"`` - assumes `d × (d+1)` matrix and size parameter ``bits``
+        - ``"simdioph"`` - assumes `d × d` matrix and size parameter ``bits`` and ``bits``
+        - ``"uniform"`` - assumes parameter ``bits``
+        - ``"ntrulike"`` - assumes `2d × 2d` matrix, size parameter ``bits`` and modulus ``q``
+        - ``"ntrulike2"`` - assumes `2d × 2d` matrix and size parameter ``bits``
+        - ``"atjai"`` - assumes `d × d` matrix and float parameter ``alpha``
 
         """
         if algorithm == "intrel":
@@ -636,15 +640,14 @@ cdef class IntegerMatrix:
 
     @classmethod
     def from_file(cls, filename):
-        """FIXME! briefly describe function
+        """Construct new matrix from file.
 
-        :param cls:
         :param filename:
         :returns:
         :rtype:
 
         """
-        A = IntegerMatrix(0, 0)
+        A = cls(0, 0)
         with open(filename, 'r') as fh:
             for i, line in enumerate(fh.readlines()):
                 line = re.match("\[+(.*) *\]+", line)
