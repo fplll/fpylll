@@ -218,10 +218,7 @@ cdef class IntegerMatrix:
         del self._core
 
     def __repr__(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
+        """Short representation.
 
         """
         return "<IntegerMatrix(%d, %d) at %s>" % (
@@ -230,10 +227,7 @@ cdef class IntegerMatrix:
             hex(id(self)))
 
     def __str__(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
+        """Full string representation of this matrix.
 
         """
         cdef int i, j
@@ -244,9 +238,8 @@ cdef class IntegerMatrix:
                 value = self[i, j]
                 if not value:
                     continue
-                length = ceil(log(abs(value), 10))
-                # add one if clean multiple of 10
-                length += int(not (abs(value) % 10))
+                length = max(ceil(log(abs(value), 10)), 1)
+                # sign
                 length += int(value < 0)
                 if length > max_length[j]:
                     max_length[j] = int(length)
@@ -627,29 +620,29 @@ cdef class IntegerMatrix:
             >>> set_random_seed(1337)
             >>> A.randomize("ntrulike", bits=22, q=4194319)
             >>> print(A)
-            [ 1 0 0 0 0   752690  1522220  2972677   890755  2612607 ]
-            [ 0 1 0 0 0  1522220  2972677   890755  2612607   752690 ]
-            [ 0 0 1 0 0  2972677   890755  2612607   752690  1522220 ]
-            [ 0 0 0 1 0   890755  2612607   752690  1522220  2972677 ]
-            [ 0 0 0 0 1  2612607   752690  1522220  2972677   890755 ]
-            [ 0 0 0 0 0  4194319        0        0        0        0 ]
-            [ 0 0 0 0 0        0  4194319        0        0        0 ]
-            [ 0 0 0 0 0        0        0  4194319        0        0 ]
-            [ 0 0 0 0 0        0        0        0  4194319        0 ]
-            [ 0 0 0 0 0        0        0        0        0  4194319 ]
+            [ 1 0 0 0 0  752690 1522220 2972677  890755 2612607 ]
+            [ 0 1 0 0 0 1522220 2972677  890755 2612607  752690 ]
+            [ 0 0 1 0 0 2972677  890755 2612607  752690 1522220 ]
+            [ 0 0 0 1 0  890755 2612607  752690 1522220 2972677 ]
+            [ 0 0 0 0 1 2612607  752690 1522220 2972677  890755 ]
+            [ 0 0 0 0 0 4194319       0       0       0       0 ]
+            [ 0 0 0 0 0       0 4194319       0       0       0 ]
+            [ 0 0 0 0 0       0       0 4194319       0       0 ]
+            [ 0 0 0 0 0       0       0       0 4194319       0 ]
+            [ 0 0 0 0 0       0       0       0       0 4194319 ]
 
         We can either specify start/stop rows and columns::
 
             >>> print(A.submatrix(0,0,2,8))
-            [ 1 0 0 0 0   752690  1522220 2972677 ]
-            [ 0 1 0 0 0  1522220  2972677  890755 ]
+            [ 1 0 0 0 0  752690 1522220 2972677 ]
+            [ 0 1 0 0 0 1522220 2972677  890755 ]
 
         Or we can give lists of rows, columns explicitly::
 
             >>> print(A.submatrix([0,1,2],range(3,9)))
-            [ 0 0   752690  1522220 2972677  890755 ]
-            [ 0 0  1522220  2972677  890755 2612607 ]
-            [ 0 0  2972677   890755 2612607  752690 ]
+            [ 0 0  752690 1522220 2972677  890755 ]
+            [ 0 0 1522220 2972677  890755 2612607 ]
+            [ 0 0 2972677  890755 2612607  752690 ]
 
         """
         cdef int m = 0
