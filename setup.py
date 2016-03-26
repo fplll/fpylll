@@ -12,13 +12,13 @@ import os
 
 cythonize_dir = "build"
 
-fplll = {"include_dirs": None,
-         "library_dirs": None,
+fplll = {"include_dirs": [],
+         "library_dirs": [],
          "language": "c++",
          "libraries": ["gmp", "mpfr", "fplll"]}
 
-other = {"include_dirs": None,
-         "library_dirs": None,
+other = {"include_dirs": [],
+         "library_dirs": [],
          "libraries": ["gmp"]}
 
 config_pxi = []
@@ -55,7 +55,14 @@ else:
 # SAGE
 have_sage = False
 
+try:
+    import sage
+    have_sage = True
+except ImportError:
+    pass
+
 if have_sage:
+    fplll["include_dirs"].append(os.getenv("SAGE_SRC"))
     config_pxi.append("DEF HAVE_SAGE=True")
 else:
     config_pxi.append("DEF HAVE_SAGE=False")
