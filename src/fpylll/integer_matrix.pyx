@@ -11,12 +11,12 @@ Integer matrices.
 include "cysignals/signals.pxi"
 
 from cpython cimport PyIndex_Check
-from fplll cimport MatrixRow, sqrNorm, Z_NR
+from fplll cimport Matrix, MatrixRow, sqrNorm, Z_NR
 from fpylll.util cimport preprocess_indices
 from fpylll.io cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
 
 import re
-from math import log, ceil, sqrt
+from math import log10, ceil, sqrt, floor
 
 from gmp.mpz cimport mpz_init, mpz_mod, mpz_fdiv_q_ui, mpz_clear, mpz_cmp, mpz_sub, mpz_set
 
@@ -72,7 +72,6 @@ cdef class IntegerMatrixRow:
     def __repr__(self):
         return "row %d of %r"%(self.row, self.m)
 
-
     def __abs__(self):
         """Return ℓ_2 norm of this vector.
 
@@ -93,6 +92,106 @@ cdef class IntegerMatrixRow:
 
     norm = __abs__
 
+    def __len__(self):
+        """
+        >>> A = IntegerMatrix.from_matrix([[1,2],[3,4]], 2, 2)
+        >>> len(A[0])
+        2
+
+        """
+        return self.m._core[0][self.row].size()
+
+    def is_zero(self, int frm=0):
+        """Return ``True`` if this vector consists of only zeros starting at index ``frm``
+
+        >>> A = IntegerMatrix.from_matrix([[1,0,0]])
+        >>> A[0].is_zero()
+        False
+        >>> A[0].is_zero(1)
+        True
+
+        """
+        return bool(self.m._core[0][self.row].is_zero(frm))
+
+    def size_nz(self):
+        """Index at which an all zero vector starts.
+
+        >>> A = IntegerMatrix.from_matrix([[0,2,3],[0,2,0],[0,0,0]])
+        >>> A[0].size_nz()
+        3
+        >>> A[1].size_nz()
+        2
+        >>> A[2].size_nz()
+        0
+
+        """
+
+        return self.m._core[0][self.row].sizeNZ()
+
+    def __iadd__(self, IntegerMatrixRow v):
+        """
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+        >>> A[0] += A[1]
+        >>> print A[0]
+        (3, 6)
+        >>> v = A[0]
+        >>> v += A[1]
+        >>> print A[0]
+        (6, 10)
+
+        """
+        self.m._core[0][self.row].add(v.m._core[0][v.row])
+        return self
+
+    def __isub__(self, IntegerMatrixRow v):
+        """
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+        >>> A[0] -= A[1]
+        >>> print A[0]
+        (-3, -2)
+        >>> v = A[0]
+        >>> v -= A[1]
+        >>> print A[0]
+        (-6, -6)
+
+        """
+        self.m._core[0][self.row].sub(v.m._core[0][v.row])
+        return self
+
+
+    def addmul(self, IntegerMatrixRow v, x=1, int expo=0):
+        """In-place add row vector ``2^expo ⋅ x ⋅ v``
+
+        :param IntegerMatrixRow v: row vector
+        :param x: multiplier
+        :param int expo: scaling exponent.
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+        >>> A[0].addmul(A[1])
+        >>> print(A[0])
+        (3, 6)
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+        >>> A[0].addmul(A[1],x=0)
+        >>> print(A[0])
+        (0, 2)
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+        >>> A[0].addmul(A[1],x=1,expo=2)
+        >>> print(A[0])
+        (12, 18)
+
+        """
+        cdef Z_NR[mpz_t] x_
+        cdef Z_NR[mpz_t] tmp
+        assign_Z_NR_mpz(x_, x)
+
+        self.m._core[0][self.row].addmul_2exp(v.m._core[0][v.row], x_, expo, tmp)
+        return
+
+
 cdef class IntegerMatrix:
     """
     Dense matrices over the Integers.
@@ -100,8 +199,8 @@ cdef class IntegerMatrix:
     def __init__(self, arg0, arg1=None):
         """Construct a new integer matrix
 
-        :param int arg0: number of rows ≥ 0 or matrix
-        :param int arg1: number of columns ≥ 0 or ``None``
+        :param arg0: number of rows ≥ 0 or matrix
+        :param arg1: number of columns ≥ 0 or ``None``
 
         The default constructor takes the number of rows and columns::
 
@@ -150,6 +249,75 @@ cdef class IntegerMatrix:
 
         else:
             raise TypeError("Parameters arg0 and arg1 not understood")
+
+    @classmethod
+    def from_matrix(cls, A, nrows=None, ncols=None):
+        """Construct a new integer matrix from matrix-like object A
+
+        :param A: a matrix like object, with element access A[i,j] or A[i][j]
+        :param nrows: number of rows (optional)
+        :param ncols: number of columns (optional)
+
+
+        >>> A = IntegerMatrix.from_matrix([[1,2,3],[4,5,6]])
+        >>> print(A)
+        [ 1 2 3 ]
+        [ 4 5 6 ]
+
+        """
+        cdef int m, n
+
+        if nrows is None:
+            if hasattr(A, "nrows"):
+                nrows = A.nrows
+            elif hasattr(A, "__len__"):
+                nrows = len(A)
+            else:
+                raise ValueError("Cannot determine number of rows.")
+            if not PyIndex_Check(nrows):
+                if callable(nrows):
+                    nrows = nrows()
+                else:
+                    raise ValueError("Cannot determine number of rows.")
+
+        if ncols is None:
+            if hasattr(A, "ncols"):
+                ncols = A.ncols
+            elif hasattr(A[0], "__len__"):
+                ncols = len(A[0])
+            else:
+                raise ValueError("Cannot determine number of rows.")
+            if not PyIndex_Check(ncols):
+                if callable(ncols):
+                    ncols = ncols()
+                else:
+                    raise ValueError("Cannot determine number of rows.")
+
+        m = nrows
+        n = ncols
+
+        B = cls(m, n)
+        B.set_matrix(A)
+        return B
+
+    @classmethod
+    def from_iterable(cls, nrows, ncols, it):
+        """Construct a new integer matrix from matrix-like object A
+
+        :param nrows: number of rows
+        :param ncols: number of columns
+        :param it: an iterable of length at least ``nrows * ncols``
+
+        >>> A = IntegerMatrix.from_iterable(2,3, [1,2,3,4,5,6])
+        >>> print(A)
+        [ 1 2 3 ]
+        [ 4 5 6 ]
+
+        """
+        A = cls(nrows, ncols)
+        A.set_iterable(it)
+        return A
+
 
     def set_matrix(self, A):
         """Set this matrix from matrix-like object A
@@ -239,7 +407,8 @@ cdef class IntegerMatrix:
                 value = self[i, j]
                 if not value:
                     continue
-                length = max(ceil(log(abs(value), 10)), 1)
+                length = ceil(log10(abs(value)))
+                length += int(ceil(log10(abs(value))) == floor(log10(abs(value))))
                 # sign
                 length += int(value < 0)
                 if length > max_length[j]:
@@ -366,9 +535,245 @@ cdef class IntegerMatrix:
         elif isinstance(key, int):
             i = key
             preprocess_indices(i, i, self._core.getRows(), self._core.getRows())
-            raise NotImplementedError
+            if isinstance(value, IntegerMatrixRow) and (<IntegerMatrixRow>value).row == i and (<IntegerMatrixRow>value).m == self:
+                pass
+            else:
+                raise NotImplementedError
         else:
             raise ValueError("Parameter '%s' not understood."%key)
+
+    def randomize(self, algorithm, **kwds):
+        """Randomize this matrix using ``algorithm``.
+
+        :param algorithm: string, see below for choices.
+
+        Available algorithms:
+
+        - ``"intrel"`` - assumes `d × (d+1)` matrix and size parameter ``bits``
+        - ``"simdioph"`` - assumes `d × d` matrix and size parameter ``bits`` and ``bits``
+        - ``"uniform"`` - assumes parameter ``bits``
+        - ``"ntrulike"`` - assumes `2d × 2d` matrix, size parameter ``bits`` and modulus ``q``
+        - ``"ntrulike2"`` - assumes `2d × 2d` matrix and size parameter ``bits``
+        - ``"atjai"`` - assumes `d × d` matrix and float parameter ``alpha``
+
+        """
+        if algorithm == "intrel":
+            bits = int(kwds["bits"])
+            sig_on()
+            self._core.gen_intrel(bits)
+            sig_off()
+
+        elif algorithm == "simdioph":
+            bits = int(kwds["bits"])
+            bits2 = int(kwds["bits2"])
+            self._core.gen_simdioph(bits, bits2)
+
+        elif algorithm == "uniform":
+            bits = int(kwds["bits"])
+            sig_on()
+            self._core.gen_uniform(bits)
+            sig_off()
+
+        elif algorithm == "ntrulike":
+            bits = int(kwds["bits"])
+            q = int(kwds["q"])
+            sig_on()
+            self._core.gen_ntrulike(bits, q)
+            sig_off()
+
+        elif algorithm == "ntrulike2":
+            bits = int(kwds["bits"])
+            q = int(kwds["q"])
+            sig_on()
+            self._core.gen_ntrulike2(bits, q)
+            sig_off()
+
+        elif algorithm == "atjai":
+            alpha = float(kwds["alpha"])
+            sig_on()
+            self._core.gen_ajtai(alpha)
+            sig_off()
+
+        else:
+            raise ValueError("Algorithm '%s' unknown."%algorithm)
+
+    def gen_identity(self, int nrows):
+        """Generate identity matrix.
+
+        :param nrows: number of rows
+
+        """
+        self._core.gen_identity(nrows)
+
+
+    def clear(self):
+        """
+
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).clear()
+
+    def is_empty(self):
+        """
+
+
+        """
+        return bool((<Matrix[Z_NR[mpz_t]]*>self._core).empty())
+
+    def resize(self, int rows, int cols):
+        """
+
+        :param int rows:
+        :param int cols:
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).resize(rows, cols)
+
+    def set_rows(self, int rows):
+        """
+
+        :param int rows:
+
+        """
+        (<Matrix[Z_NR[mpz_t]]*>self._core).setRows(rows)
+
+    def set_cols(self, int cols):
+        """
+
+        :param int cols:
+
+        """
+        (<Matrix[Z_NR[mpz_t]]*>self._core).setCols(cols)
+
+    def swap_rows(self, int r1, int r2):
+        """
+
+        :param int r1:
+        :param int r2:
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+        >>> A.swap_rows(0, 1)
+        >>> print(A)
+        [ 3 4 ]
+        [ 0 2 ]
+
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).swapRows(r1, r2)
+
+    def rotate_left(self, int first, int last):
+        """Row permutation.
+
+        ``(M[first],…,M[last])`` becomes ``(M[first+1],…,M[last],M[first])``
+
+        :param int first:
+        :param int last:
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotateLeft(first, last)
+
+    def rotate_right(self, int first, int last):
+        """Row permutation.
+
+        ``(M[first],…,M[last])`` becomes ``(M[last],M[first],…,M[last-1])``
+
+        :param int first:
+        :param int last:
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotateRight(first, last)
+
+    def rotate(self, int first, int middle, int last):
+        """
+        Rotates the order of the elements in the range [first,last), in such a way that the element
+        pointed by middle becomes the new first element.
+
+        ``(M[first],…,M[middle-1],M[middle],M[last])`` becomes
+        ``(M[middle],…,M[last],M[first],…,M[middle-1])``
+
+        :param int first: first index
+        :param int middle: new first index
+        :param int last: last index (inclusive)
+
+        >>> A = IntegerMatrix.from_matrix([[0,1,2],[3,4,5],[6,7,8]])
+        >>> A.rotate(0,0,2)
+        >>> print(A)
+        [ 0 1 2 ]
+        [ 3 4 5 ]
+        [ 6 7 8 ]
+
+        >>> A = IntegerMatrix.from_matrix([[0,1,2],[3,4,5],[6,7,8]])
+        >>> A.rotate(0,2,2)
+        >>> print(A)
+        [ 6 7 8 ]
+        [ 0 1 2 ]
+        [ 3 4 5 ]
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotate(first, middle, last)
+
+    def rotate_gram_left(self, int first, int last, int n_valid_rows):
+        """
+        Transformation needed to update the lower triangular Gram matrix when
+        ``rotateLeft(first, last)`` is done on the basis of the lattice.
+
+        :param int first:
+        :param int last:
+        :param int n_valid_rows:
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotateGramLeft(first, last, n_valid_rows)
+
+    def rotate_gram_right(self, int first, int last, int n_valid_rows):
+        """
+        Transformation needed to update the lower triangular Gram matrix when
+        ``rotateRight(first, last)`` is done on the basis of the lattice.
+
+        :param int first:
+        :param int last:
+        :param int n_valid_rows:
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotateGramRight(first, last, n_valid_rows)
+
+    def transpose(self):
+        """
+        Transpose.
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+        >>> A.transpose()
+        >>> print(A)
+        [ 0 3 ]
+        [ 2 4 ]
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).transpose()
+
+    def get_max_exp(self):
+        """
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+        >>> A.get_max_exp()
+        3
+
+        >>> A = IntegerMatrix.from_matrix([[0,2],[3,9]])
+        >>> A.get_max_exp()
+        4
+
+        """
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).getMaxExp()
+
+
+
+# Extensions
 
     def __mul__(IntegerMatrix A, IntegerMatrix B):
         """Naive matrix × matrix products.
@@ -540,68 +945,6 @@ cdef class IntegerMatrix:
                 tmp = B._core[0][i][j].getData()
                 self._core[0][start_row+i][j].set(tmp)
 
-    def randomize(self, algorithm, **kwds):
-        """Randomize this matrix using ``algorithm``.
-
-        :param algorithm: string, see below for choices.
-
-        Available algorithms:
-
-        - ``"intrel"`` - assumes `d × (d+1)` matrix and size parameter ``bits``
-        - ``"simdioph"`` - assumes `d × d` matrix and size parameter ``bits`` and ``bits``
-        - ``"uniform"`` - assumes parameter ``bits``
-        - ``"ntrulike"`` - assumes `2d × 2d` matrix, size parameter ``bits`` and modulus ``q``
-        - ``"ntrulike2"`` - assumes `2d × 2d` matrix and size parameter ``bits``
-        - ``"atjai"`` - assumes `d × d` matrix and float parameter ``alpha``
-
-        """
-        if algorithm == "intrel":
-            bits = int(kwds["bits"])
-            sig_on()
-            self._core.gen_intrel(bits)
-            sig_off()
-
-        elif algorithm == "simdioph":
-            bits = int(kwds["bits"])
-            bits2 = int(kwds["bits2"])
-            self._core.gen_simdioph(bits, bits2)
-
-        elif algorithm == "uniform":
-            bits = int(kwds["bits"])
-            sig_on()
-            self._core.gen_uniform(bits)
-            sig_off()
-
-        elif algorithm == "ntrulike":
-            bits = int(kwds["bits"])
-            q = int(kwds["q"])
-            sig_on()
-            self._core.gen_ntrulike(bits, q)
-            sig_off()
-
-        elif algorithm == "ntrulike2":
-            bits = int(kwds["bits"])
-            q = int(kwds["q"])
-            sig_on()
-            self._core.gen_ntrulike2(bits, q)
-            sig_off()
-
-        elif algorithm == "atjai":
-            alpha = float(kwds["alpha"])
-            sig_on()
-            self._core.gen_ajtai(alpha)
-            sig_off()
-
-        else:
-            raise ValueError("Algorithm '%s' unknown."%algorithm)
-
-    def gen_identity(self, int nrows):
-        """Generate identity matrix.
-
-        :param nrows: number of rows
-
-        """
-        self._core.gen_identity(nrows)
 
     def submatrix(self, a, b, c=None, d=None):
         """Construct a new submatrix.
@@ -730,73 +1073,4 @@ cdef class IntegerMatrix:
                 A._core.setCols(len(values))
                 for j, v in enumerate(values):
                     A[i, j] = v
-        return A
-
-
-    @classmethod
-    def from_matrix(cls, A, nrows=None, ncols=None):
-        """Construct a new integer matrix from matrix-like object A
-
-        :param A: a matrix like object, with element access A[i,j] or A[i][j]
-        :param nrows: number of rows (optional)
-        :param ncols: number of columns (optional)
-
-
-        >>> A = IntegerMatrix.from_matrix([[1,2,3],[4,5,6]])
-        >>> print(A)
-        [ 1 2 3 ]
-        [ 4 5 6 ]
-
-        """
-        cdef int m, n
-
-        if nrows is None:
-            if hasattr(A, "nrows"):
-                nrows = A.nrows
-            elif hasattr(A, "__len__"):
-                nrows = len(A)
-            else:
-                raise ValueError("Cannot determine number of rows.")
-            if not PyIndex_Check(nrows):
-                if callable(nrows):
-                    nrows = nrows()
-                else:
-                    raise ValueError("Cannot determine number of rows.")
-
-        if ncols is None:
-            if hasattr(A, "ncols"):
-                ncols = A.ncols
-            elif hasattr(A[0], "__len__"):
-                ncols = len(A[0])
-            else:
-                raise ValueError("Cannot determine number of rows.")
-            if not PyIndex_Check(ncols):
-                if callable(ncols):
-                    ncols = ncols()
-                else:
-                    raise ValueError("Cannot determine number of rows.")
-
-        m = nrows
-        n = ncols
-
-        B = cls(m, n)
-        B.set_matrix(A)
-        return B
-
-    @classmethod
-    def from_iterable(cls, nrows, ncols, it):
-        """Construct a new integer matrix from matrix-like object A
-
-        :param nrows: number of rows
-        :param ncols: number of columns
-        :param it: an iterable of length at least ``nrows * ncols``
-
-        >>> A = IntegerMatrix.from_iterable(2,3, [1,2,3,4,5,6])
-        >>> print(A)
-        [ 1 2 3 ]
-        [ 4 5 6 ]
-
-        """
-        A = cls(nrows, ncols)
-        A.set_iterable(it)
         return A
