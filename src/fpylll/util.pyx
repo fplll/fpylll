@@ -110,8 +110,7 @@ def get_precision(float_type="mpfr"):
 
     For the MPFR type different precisions are supported::
 
-        >>> set_precision(212)
-        53
+        >>> _ = set_precision(212)
         >>> get_precision('mpfr')
         212
         >>> get_precision()

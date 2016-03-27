@@ -2,6 +2,12 @@
 include "config.pxi"
 include "cysignals/signals.pxi"
 
+"""
+Elementary basis operations, Gram matrix and Gram-Schmidt orthogonalization.
+
+..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
+"""
+
 
 from gmp.mpz cimport mpz_t
 from qd.qd cimport dd_real, qd_real
@@ -29,7 +35,7 @@ class MatGSORowOpContext(object):
     updates are performed by calling ``row_op_end()``.
     """
     def __init__(self, M, i, j):
-        """FIXME! briefly describe function
+        """Construct new context for ``M[i:j]``.
 
         :param M: MatGSO object
         :param i: start row
@@ -61,33 +67,61 @@ class MatGSORowOpContext(object):
 
 cdef class MatGSO:
     """
+    MatGSO provides an interface for performing elementary operations on a basis and computing its
+    Gram matrix and its Gram-Schmidt orthogonalization.  The Gram-Schmidt coefficients are computed
+    on demand.  The object keeps track of which coefficients are valid after each row operation.
     """
 
     def __init__(self, IntegerMatrix B, U=None, UinvT=None,
                  int flags=GSO_DEFAULT, float_type="double"):
-        """FIXME! briefly describe function
+        """
+        :param IntegerMatrix B: The matrix on which row operations are performed.  It must not be
+            empty.
+        :param IntegerMatrix U: If ``U`` is not empty, operations on ``B`` are also done on ``u``
+            (in this case both must have the same number of rows).  If ``u`` is initially the
+            identity matrix, multiplying transform by the initial basis gives the current basis.
+        :param IntegerMatrix UinvT: Inverse transform (should be empty, which disables the
+            computation, or initialized with identity matrix).  It works only if ``U`` is not empty.
+        :param int flags: Flags
 
-        :param IntegerMatrix B:
-        :param IntegerMatrix U:
-        :param IntegerMatrix UinvT:
-        :param int flags:
-        :param float_type:
-        :returns:
-        :rtype:
+                - ``GSO.INT_GRAM`` - If true, coefficients of the Gram matrix are computed with
+                  exact integer arithmetic.  Otherwise, they are computed in floating-point.  Note
+                  that when exact arithmetic is used, all coefficients of the first ``n_known_rows``
+                  are continuously updated, whereas in floating-point, they are computed only
+                  on-demand.  This option cannot be enabled when ``GSO.ROW_EXPO`` is set.
 
+                - ``GSO.ROW_EXPO`` - If true, each row of ``B`` is normalized by a power of 2 before
+                  doing conversion to floating-point, which hopefully avoids some overflows.  This
+                  option cannot be enabled if ``GSO.INT_GRAM`` is set and works only with
+                  ``float_type="double"`` and ``float_type="long double"``.  It is useless and
+                  **must not** be used for ``float_type="dpe"``, ``float_type="dd"``,
+                  ``float_type="qd"`` or ``float_type=mpfr_t``.
+
+                - ``GSO.OP_FORCE_LONG`` - Affects the behaviour of ``row_addmul``.  See its
+                  documentation.
+
+        :param float_type: A floating point type, i.e. an element of ``fpylll.fpylll.float_types``.
+
+        ..  note:: If ``float_type="mpfr"`` set precision with ``set_precision()`` before
+            constructing this object and do not change the precision during the lifetime of this
+            object.
         """
 
         if U is None:
             self.U = IntegerMatrix(0, 0)
         elif isinstance(U, IntegerMatrix):
+            if U.nrows != B.nrows:
+                raise ValueError("U.nrows != B.nrows")
             self.U = U
-            self.U.gen_identity(B.nrows)
 
         if UinvT is None:
             self.UinvT = IntegerMatrix(0, 0)
         elif isinstance(UinvT, IntegerMatrix):
+            if U is None:
+                raise ValueError("Uinvt != None but U != None.")
+            if UinvT.nrows != B.nrows:
+                raise ValueError("UinvT.nrows != B.nrows")
             self.UinvT = UinvT
-            self.UinvT.gen_identity(B.nrows)
 
         cdef Matrix[Z_NR[mpz_t]] *b = <Matrix[Z_NR[mpz_t]]*>B._core
         cdef Matrix[Z_NR[mpz_t]] *u = <Matrix[Z_NR[mpz_t]]*>self.U._core
@@ -123,12 +157,6 @@ cdef class MatGSO:
         self.B = B
 
     def __dealloc__(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
-
-        """
         if self._type == mpz_double:
             del self._core.mpz_double
         if self._type == mpz_ld:
@@ -145,6 +173,19 @@ cdef class MatGSO:
 
     @property
     def float_type(self):
+        """
+        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> A = IntegerMatrix(10, 10)
+        >>> M = GSO.Mat(A)
+        >>> M.float_type
+        'double'
+        >>> set_precision(100)
+        53
+        >>> M = GSO.Mat(A, float_type='mpfr')
+        >>> M.float_type
+        'mpfr'
+
+        """
         if self._type == mpz_double:
             return "double"
         if self._type == mpz_ld:
@@ -162,6 +203,14 @@ cdef class MatGSO:
     @property
     def d(self):
         """
+        Number of rows of ``B`` (dimension of the lattice).
+
+        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> A = IntegerMatrix(11, 11)
+        >>> M = GSO.Mat(A)
+        >>> M.d
+        11
+
         """
         if self._type == mpz_double:
             return self._core.mpz_double.d
@@ -182,6 +231,18 @@ cdef class MatGSO:
     @property
     def int_gram_enabled(self):
         """
+        Exact computation of dot products.
+
+        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> A = IntegerMatrix(11, 11)
+        >>> M = GSO.Mat(A)
+        >>> M.int_gram_enabled
+        False
+
+        >>> M = GSO.Mat(A, flags=GSO.INT_GRAM)
+        >>> M.int_gram_enabled
+        True
+
         """
         if self._type == mpz_double:
             return bool(self._core.mpz_double.enableIntGram)
@@ -202,6 +263,18 @@ cdef class MatGSO:
     @property
     def row_expo_enabled(self):
         """
+        Normalization of each row of b by a power of 2.
+
+        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> A = IntegerMatrix(11, 11)
+        >>> M = GSO.Mat(A)
+        >>> M.row_expo_enabled
+        False
+
+        >>> M = GSO.Mat(A, flags=GSO.ROW_EXPO)
+        >>> M.row_expo_enabled
+        True
+
         """
         if self._type == mpz_double:
             return bool(self._core.mpz_double.enableRowExpo)
@@ -222,6 +295,20 @@ cdef class MatGSO:
     @property
     def transform_enabled(self):
         """
+        Computation of the transform matrix.
+
+        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> A = IntegerMatrix(11, 11)
+        >>> M = GSO.Mat(A)
+        >>> M.transform_enabled
+        False
+
+        >>> U = IntegerMatrix.identity(11)
+        >>> M = GSO.Mat(A, U=U)
+
+        >>> M.transform_enabled
+        True
+
         """
         if self._type == mpz_double:
             return bool(self._core.mpz_double.enableTransform)
@@ -242,6 +329,20 @@ cdef class MatGSO:
     @property
     def inverse_transform_enabled(self):
         """
+        Computation of the inverse transform matrix (transposed).
+
+        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> A = IntegerMatrix(11, 11)
+        >>> M = GSO.Mat(A)
+        >>> M.inverse_transform_enabled
+        False
+
+        >>> U = IntegerMatrix.identity(11)
+        >>> UinvT = IntegerMatrix.identity(11)
+        >>> M = GSO.Mat(A, U=U, UinvT=UinvT)
+        >>> M.inverse_transform_enabled
+        True
+
         """
         if self._type == mpz_double:
             return bool(self._core.mpz_double.enableInvTransform)
@@ -262,6 +363,18 @@ cdef class MatGSO:
     @property
     def row_op_force_long(self):
         """
+        Changes the behaviour of ``row_addmul``, see its documentation.
+
+        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> A = IntegerMatrix(11, 11)
+        >>> M = GSO.Mat(A)
+        >>> M.row_op_force_long
+        False
+
+        >>> M = GSO.Mat(A, flags=GSO.OP_FORCE_LONG)
+        >>> M.row_op_force_long
+        True
+
         """
         if self._type == mpz_double:
             return bool(self._core.mpz_double.rowOpForceLong)
@@ -280,13 +393,13 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def row_op_begin(self, int first, int last):
-        """FIXME! briefly describe function
+        """
+        Must be called before a sequence of ``row_addmul``.
 
-        :param int first:
-        :param int last:
-        :returns:
-        :rtype:
+        :param int first: start index for ``row_addmul`` operations.
+        :param int last: final index (exclusive).
 
+        .. note:: It is preferable to use ``MatGSORowOpContext`` via ``row_ops``.
         """
         if self._type == mpz_double:
             return self._core.mpz_double.rowOpBegin(first, last)
@@ -305,13 +418,14 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def row_op_end(self, int first, int last):
-        """FIXME! briefly describe function
+        """
+        Must be called after a sequence of ``row_addmul``.  This invalidates the `i`-th line of the
+        GSO.
 
-        :param int first:
-        :param int last:
-        :returns:
-        :rtype:
+        :param int first: start index to invalidate.
+        :param int last:  final index to invalidate (exclusive).
 
+        .. note:: It is preferable to use ``MatGSORowOpContext`` via ``row_ops``.
         """
         if self._type == mpz_double:
             return self._core.mpz_double.rowOpEnd(first, last)
@@ -330,10 +444,10 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def row_ops(self, int first, int last):
-        """Return context in which row operations are safe.
+        """Return context in which ``row_addmul`` operations are safe.
 
-        :param int first:
-        :param int last:
+        :param int first: start index.
+        :param int last: final index (exclusive).
 
         """
         return MatGSORowOpContext(self, first, last)
@@ -348,9 +462,6 @@ cdef class MatGSO:
         :param int i:
         :param int j:
 
-        :returns:
-
-        :rtype:
         """
         preprocess_indices(i, j, self.d, self.d)
 
@@ -392,9 +503,6 @@ cdef class MatGSO:
         :param i:
         :param j:
 
-        :returns:
-
-        :rtype: double
         """
         preprocess_indices(i, j, self.d, self.d)
         cdef FP_NR[double] t_double
@@ -439,9 +547,6 @@ cdef class MatGSO:
         :param i:
         :param j:
 
-        :returns:
-
-        :rtype: (float, int)
         """
         preprocess_indices(i, j, self.d, self.d)
         cdef double r = 0.0
@@ -477,8 +582,6 @@ cdef class MatGSO:
 
         :param i:
         :param j:
-        :returns:
-        :rtype: double
 
         """
         preprocess_indices(i, j, self.d, self.d)
@@ -524,9 +627,6 @@ cdef class MatGSO:
         :param i:
         :param j:
 
-        :returns:
-
-        :rtype: (float, int)
         """
         preprocess_indices(i, j, self.d, self.d)
         cdef double r = 0.0
@@ -576,9 +676,35 @@ cdef class MatGSO:
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
+    def update_gso_row(self, int i, int last_j):
+        """
+        Updates `r_{i, j}` and `μ_{i, j}` if needed for all `j` in `[0, last_j]`.  All coefficients
+        of `r` and `μ` above the `i`-th row in columns `[0, min(last_j, i - 1)]` must be valid.
+
+        :param int i:
+        :param int last_j:
+
+        """
+        if self._type == mpz_double:
+            return bool(self._core.mpz_double.updateGSORow(i, last_j))
+        if self._type == mpz_ld:
+            return bool(self._core.mpz_ld.updateGSORow(i, last_j))
+        if self._type == mpz_dpe:
+            return bool(self._core.mpz_dpe.updateGSORow(i, last_j))
+        IF HAVE_QD:
+            if self._type == mpz_dd:
+                return bool(self._core.mpz_dd.updateGSORow(i, last_j))
+            if self._type == mpz_qd:
+                return bool(self._core.mpz_qd.updateGSORow(i, last_j))
+        if self._type == mpz_mpfr:
+            return bool(self._core.mpz_mpfr.updateGSORow(i, last_j))
+
+        raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+
     def discover_all_rows(self):
         """
-        Allows ``row_addmul(_we)`` for all rows even if the GSO has never been computed.
+        Allows ``row_addmul`` for all rows even if the GSO has never been computed.
         """
         if self._type == mpz_double:
             return self._core.mpz_double.discoverAllRows()
@@ -597,12 +723,12 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def move_row(self, int old_r, int new_r):
-        """FIXME! briefly describe function
+        """
+        Row ``old_r`` becomes row ``new_r`` and intermediate rows are shifted.
+        If ``new_r < old_r``, then ``old_r`` must be ``< nKnownRows``.
 
-        :param int old_r:
-        :param int new_r:
-        :returns:
-        :rtype:
+        :param int old_r: row index
+        :param int new_r: row index
 
         """
         preprocess_indices(old_r, new_r, self.d, self.d)
@@ -622,12 +748,8 @@ cdef class MatGSO:
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
-
-        # void setR(int i, int j, FT& f)
-        # void swapRows(int row1, int row2)
-
     def negate_row(self, int i):
-        """Set b_i to -b_i.
+        """Set `b_i` to `-b_i`.
 
         :param int i: index of the row to negate
 
@@ -663,13 +785,17 @@ cdef class MatGSO:
 
 
     def row_addmul(self, int i, int j, x):
-        """FIXME! briefly describe function
+        """Set `b_i = b_i + x ⋅ b_j`.
 
-        :param int i:
-        :param int j:
-        :param x:
-        :returns:
-        :rtype:
+        After one or several calls to ``row_addmul``, ``row_op_end`` must be called.
+
+        If ``row_op_force_long=true``, ``x`` is always converted to (``2^expo * long``) instead of
+        (``2^expo * ZT``), which is faster if ``ZT=mpz_t`` but might lead to a loss of precision in
+        LLL, more Babai iterations are needed.
+
+        :param int i: target row
+        :param int j: source row
+        :param x: multiplier
 
         """
         preprocess_indices(i, j, self.d, self.d)
@@ -705,12 +831,14 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def create_row(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
+        """Adds a zero row to ``B`` (and to ``U`` if ``enable_tranform=true``).  One or several
+        operations can be performed on this row with ``row_addmul``, then ``row_op_end`` must be
+        called.  Do not use if ``enable_inv_transform=true``.
 
         """
+        if self.enable_inv_transform:
+            raise ValueError("create_row is incompatible with ``enable_inv_transform``")
+
         if self._type == mpz_double:
             return self._core.mpz_double.createRow()
         if self._type == mpz_ld:
@@ -728,12 +856,13 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def remove_last_row(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
+        """Remove.  the last row of ``B`` (and of ``U`` if ``enable_transform=true``).  Do not use
+        if ``enable_inv_transform=true``.
 
         """
+        if self.enable_inv_transform:
+            raise ValueError("remove_last_row is incompatible with ``enable_inv_transform``")
+
         if self._type == mpz_double:
             return self._core.mpz_double.removeLastRow()
         if self._type == mpz_ld:
@@ -750,16 +879,15 @@ cdef class MatGSO:
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
-
     def get_current_slope(self, int start_row, int stop_row):
-        """FIXME! briefly describe function
+        """
+        Finds the slope of the curve fitted to the lengths of the vectors from ``start_row`` to
+        ``stop_row``.  The slope gives an indication of the quality of the LLL-reduced basis.
 
-        :param int start_row:
-        :param int stop_row:
-        :returns:
+        :param int start_row: start row index
+        :param int stop_row: stop row index (exclusive)
 
-        .. note:: we call ``getCurrentSlope`` which is declared in bkz.h
-
+        ..  note:: we call ``getCurrentSlope`` which is declared in bkz.h
         """
         if self._type == mpz_double:
             return getCurrentSlope[FP_NR[double]](self._core.mpz_double[0], start_row, stop_row)
@@ -781,18 +909,18 @@ cdef class MatGSO:
     def compute_gaussian_heuristic_distance(self, int kappa, int block_size,
                                             double max_dist, int max_dist_expo,
                                             double gh_factor):
-        """FIXME! briefly describe function
+        """
+        Use Gaussian Heuristic Distance to compute a bound on the length of the shortest vector.
 
-        :param int kappa:
-        :param int block_size:
-        :param double max_dist:
-        :param int max_dist_expo:
-        :param double gh_factor:
+        :param int kappa: row index
+        :param int block_size: block size
+        :param double max_dist: current maximal distance
+        :param int max_dist_expo: exponent of current maximal distance
+        :param double gh_factor: Gaussian heuristic factor to use
+
         :returns: (max_dist, max_dist_expo)
 
-
-        .. note:: we call ``computeGaussianHeurDist`` which is declared in bkz.h
-
+        ..  note:: we call ``computeGaussianHeurDist`` which is declared in bkz.h
         """
 
         cdef FP_NR[double] max_dist_double
@@ -821,6 +949,7 @@ cdef class MatGSO:
                                                max_dist_dpe, max_dist_expo, kappa, block_size, gh_factor)
             max_dist = max_dist_dpe.get_d()
             return max_dist, max_dist_expo
+
         IF HAVE_QD:
             if self._type == mpz_dd:
                 max_dist_dd = max_dist
@@ -834,6 +963,7 @@ cdef class MatGSO:
                                                      max_dist_qd, max_dist_expo, kappa, block_size, gh_factor)
                 max_dist = max_dist_qd.get_d()
                 return max_dist, max_dist_expo
+
         if self._type == mpz_mpfr:
             max_dist_mpfr = max_dist
             computeGaussHeurDist[FP_NR[mpfr_t]](self._core.mpz_mpfr[0],

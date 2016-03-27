@@ -160,7 +160,6 @@ cdef class IntegerMatrixRow:
         self.m._core[0][self.row].sub(v.m._core[0][v.row])
         return self
 
-
     def addmul(self, IntegerMatrixRow v, x=1, int expo=0):
         """In-place add row vector ``2^expo ⋅ x ⋅ v``
 
@@ -316,6 +315,24 @@ cdef class IntegerMatrix:
         """
         A = cls(nrows, ncols)
         A.set_iterable(it)
+        return A
+
+    @classmethod
+    def identity(cls, nrows):
+        """Construct a new identity matrix of dimension ``nrows × nrows``
+
+        :param nrows: number of rows.
+
+        >>> A = IntegerMatrix.identity(4)
+        >>> print(A)
+        [ 1 0 0 0 ]
+        [ 0 1 0 0 ]
+        [ 0 0 1 0 ]
+        [ 0 0 0 1 ]
+
+        """
+        A = IntegerMatrix(nrows, nrows)
+        A.gen_identity(nrows)
         return A
 
 
