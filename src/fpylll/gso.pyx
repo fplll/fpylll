@@ -833,11 +833,11 @@ cdef class MatGSO:
     def create_row(self):
         """Adds a zero row to ``B`` (and to ``U`` if ``enable_tranform=true``).  One or several
         operations can be performed on this row with ``row_addmul``, then ``row_op_end`` must be
-        called.  Do not use if ``enable_inv_transform=true``.
+        called.  Do not use if ``inverse_transform_enabled=true``.
 
         """
-        if self.enable_inv_transform:
-            raise ValueError("create_row is incompatible with ``enable_inv_transform``")
+        if self.inverse_transform_enabled:
+            raise ValueError("create_row is incompatible with ``inverse_transform_enabled``")
 
         if self._type == mpz_double:
             return self._core.mpz_double.createRow()
@@ -857,11 +857,11 @@ cdef class MatGSO:
 
     def remove_last_row(self):
         """Remove.  the last row of ``B`` (and of ``U`` if ``enable_transform=true``).  Do not use
-        if ``enable_inv_transform=true``.
+        if ``inverse_transform_enabled=true``.
 
         """
-        if self.enable_inv_transform:
-            raise ValueError("remove_last_row is incompatible with ``enable_inv_transform``")
+        if self.inverse_transform_enabled:
+            raise ValueError("remove_last_row is incompatible with ``inverse_transform_enabled``")
 
         if self._type == mpz_double:
             return self._core.mpz_double.removeLastRow()
