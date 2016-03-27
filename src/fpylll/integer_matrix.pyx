@@ -357,7 +357,6 @@ cdef class IntegerMatrix:
         """
         cdef int i = 0
         cdef int j = 0
-        cdef mpz_t tmp
 
         if isinstance(key, tuple):
             i, j = key
@@ -730,7 +729,7 @@ cdef class IntegerMatrix:
                 A._core.setRows(i+1)
                 A._core.setCols(len(values))
                 for j, v in enumerate(values):
-                    A[i, j] = values[j]
+                    A[i, j] = v
         return A
 
 
@@ -749,7 +748,6 @@ cdef class IntegerMatrix:
         [ 4 5 6 ]
 
         """
-        cdef int i, j
         cdef int m, n
 
         if nrows is None:

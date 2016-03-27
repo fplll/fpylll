@@ -63,8 +63,9 @@ cdef class LLLReduction:
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]]  *m_double
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]] *m_ld
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]] *m_dpe
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_real]] *m_dd
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_real]] *m_qd
+        IF HAVE_QD:
+            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_real]] *m_dd
+            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_real]] *m_qd
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpfr
 
         self.M = M

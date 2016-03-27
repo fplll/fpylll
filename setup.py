@@ -4,8 +4,9 @@ from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
 
-import sys
 import os
+import subprocess
+import sys
 
 
 # CONFIG VARIABLES
@@ -37,7 +38,6 @@ if "VIRTUAL_ENV" in os.environ:
 # QD
 have_qd = False
 
-import subprocess
 try:
     libs = subprocess.check_output(["pkg-config", "fplll", "--libs"])
     if "-lqd" in libs:

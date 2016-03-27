@@ -357,8 +357,9 @@ cdef class MatGSO:
         cdef FP_NR[double] t_double
         cdef FP_NR[longdouble] t_ld
         cdef FP_NR[dpe_t] t_dpe
-        cdef FP_NR[dd_real] t_dd
-        cdef FP_NR[qd_real] t_qd
+        IF HAVE_QD:
+            cdef FP_NR[dd_real] t_dd
+            cdef FP_NR[qd_real] t_qd
         cdef FP_NR[mpfr_t] t_mpfr
 
         # TODO: don't just return doubles
@@ -399,8 +400,9 @@ cdef class MatGSO:
         cdef FP_NR[double] t_double
         cdef FP_NR[longdouble] t_ld
         cdef FP_NR[dpe_t] t_dpe
-        cdef FP_NR[dd_real] t_dd
-        cdef FP_NR[qd_real] t_qd
+        IF HAVE_QD:
+            cdef FP_NR[dd_real] t_dd
+            cdef FP_NR[qd_real] t_qd
         cdef FP_NR[mpfr_t] t_mpfr
 
         # TODO: don't just return doubles
