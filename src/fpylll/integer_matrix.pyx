@@ -133,11 +133,11 @@ cdef class IntegerMatrixRow:
 
         >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
         >>> A[0] += A[1]
-        >>> print A[0]
+        >>> print(A[0])
         (3, 6)
         >>> v = A[0]
         >>> v += A[1]
-        >>> print A[0]
+        >>> print(A[0])
         (6, 10)
 
         """
@@ -149,11 +149,11 @@ cdef class IntegerMatrixRow:
 
         >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
         >>> A[0] -= A[1]
-        >>> print A[0]
+        >>> print(A[0])
         (-3, -2)
         >>> v = A[0]
         >>> v -= A[1]
-        >>> print A[0]
+        >>> print(A[0])
         (-6, -6)
 
         """
