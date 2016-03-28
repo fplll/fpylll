@@ -139,8 +139,7 @@ class BKZReduction:
         :param block_size: block size
         :param stats: object for maintaining statistics
 
-        :returns: tuple containing ``True`` if no change was made and ``False`` otherwise and
-                  coordinates of SVP solution or ``None`` if none was found.
+        :returns: Coordinates of SVP solution or ``None`` if none was found.
 
         ..  note::
 
@@ -158,14 +157,14 @@ class BKZReduction:
                                                 params.pruning)
         except EnumerationError as msg:
             if params.flags & BKZ.GH_BND:
-                return None, True
+                return None
             else:
                 raise EnumerationError(msg)
 
         if max_dist >= delta_max_dist:
-            return None, True
+            return None
         else:
-            return solution, False
+            return solution
 
     def svp_postprocessing(self, solution, kappa, params, block_size, stats=None):
         """Insert SVP solution into basis and LLL reduce.
@@ -228,8 +227,7 @@ class BKZReduction:
         clean &= clean_pre
 
         with stats.context("svp"):
-            solution, clean_svp = self.svp_call(kappa, params, block_size, stats)
-        clean &= clean_svp
+            solution = self.svp_call(kappa, params, block_size, stats)
 
         with stats.context("postproc"):
             clean_post = self.svp_postprocessing(solution, kappa, params, block_size, stats)
