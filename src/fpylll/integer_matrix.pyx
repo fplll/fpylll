@@ -335,13 +335,36 @@ cdef class IntegerMatrix:
         A.gen_identity(nrows)
         return A
 
+    @classmethod
+    def random(cls, d, algorithm, **kwds):
+        """Construct new random matrix.
+
+        :seealso: `IntegerMatrix.randomize`
+        """
+        if algorithm == "intrel":
+            A = IntegerMatrix(d, d+1)
+        elif algorithm == "simdioph":
+            A = IntegerMatrix(d, d)
+        elif algorithm == "uniform":
+            A = IntegerMatrix(d, d)
+        elif algorithm == "ntrulike":
+            A = IntegerMatrix(2*d, 2*d)
+        elif algorithm == "ntrulike2":
+            A = IntegerMatrix(2*d, 2*d)
+        elif algorithm == "atjai":
+            A = IntegerMatrix(d, d)
+        else:
+            raise ValueError("Algorithm '%s' unknown."%algorithm)
+        A.randomize(algorithm, **kwds)
+        return A
+
 
     def set_matrix(self, A):
         """Set this matrix from matrix-like object A
 
         :param A: a matrix like object, with element access A[i,j] or A[i][j]
 
-        .. note:: entries starting at ``A[nrows, ncols]`` are ignored.
+        .. warning:: entries starting at ``A[nrows, ncols]`` are ignored.
 
         """
         cdef int i, j
@@ -363,7 +386,7 @@ cdef class IntegerMatrix:
 
         :param A: an iterable object such as a list or tuple
 
-        .. note:: entries starting at ``A[nrows * ncols]`` are ignored.
+        .. warning:: entries starting at ``A[nrows * ncols]`` are ignored.
 
         """
         cdef int i, j
