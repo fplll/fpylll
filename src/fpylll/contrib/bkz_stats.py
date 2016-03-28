@@ -68,9 +68,9 @@ class BKZStats:
     def tour_end(self, time):
         i = self.i
         self.tours[i]["time"] = time
-        r, exp = self.bkz.m.get_r_exp(0, 0)
+        r, exp = self.bkz.M.get_r_exp(0, 0)
         self.tours[i]["r_0"] = r * 2 **exp
-        self.tours[i]["slope"] = self.bkz.m.get_current_slope(0, self.bkz.A.nrows)
+        self.tours[i]["slope"] = self.bkz.M.get_current_slope(0, self.bkz.A.nrows)
         self.tours[i]["total time"] += self.tours[i]["time"]
 
         if self.verbose:

@@ -39,8 +39,8 @@ class BKZReduction:
         wrapper()
 
         self.A = A
-        self.m = GSO.Mat(A, flags=GSO.ROW_EXPO)
-        self.lll_obj = LLL.Reduction(self.m)
+        self.M = GSO.Mat(A, flags=GSO.ROW_EXPO)
+        self.lll_obj = LLL.Reduction(self.M)
 
     def __call__(self, params):
         """Run the BKZ algorithm with parameters `param`.
@@ -51,11 +51,11 @@ class BKZReduction:
         stats = BKZStats(self, verbose=params.flags & BKZ.VERBOSE)
 
         if params.flags & BKZ.AUTO_ABORT:
-            auto_abort = BKZ.AutoAbort(self.m, self.A.nrows)
-
-        self.m.discover_all_rows()
+            auto_abort = BKZ.AutoAbort(self.M, self.A.nrows)
 
         cputime_start = time.clock()
+
+        self.M.discover_all_rows()
 
         i = 0
         while True:
@@ -111,7 +111,7 @@ class BKZReduction:
 
         if params.preprocessing:
             preproc = params.preprocessing
-            auto_abort = BKZ.AutoAbort(self.m, kappa + block_size, kappa)
+            auto_abort = BKZ.AutoAbort(self.M, kappa + block_size, kappa)
             cputime_start = time.clock()
 
             i = 0
@@ -146,14 +146,14 @@ class BKZReduction:
 
             ``block_size`` may be smaller than ``params.block_size`` for the last blocks.
         """
-        max_dist, expo = self.m.get_r_exp(kappa, kappa)
+        max_dist, expo = self.M.get_r_exp(kappa, kappa)
         delta_max_dist = self.lll_obj.delta * max_dist
 
         if params.flags & BKZ.GH_BND:
-            max_dist, expo = self.m.compute_gaussian_heuristic_distance(kappa, block_size,
+            max_dist, expo = self.M.compute_gaussian_heuristic_distance(kappa, block_size,
                                                                         max_dist, expo, params.gh_factor)
         try:
-            solution, max_dist = Enum.enumerate(self.m, max_dist, expo,
+            solution, max_dist = Enum.enumerate(self.M, max_dist, expo,
                                                 kappa, kappa + block_size,
                                                 params.pruning)
         except EnumerationError as msg:
@@ -189,22 +189,23 @@ class BKZReduction:
                     first_nonzero_vector = i
                     break
 
-            self.m.move_row(kappa + first_nonzero_vector, kappa)
+            self.M.move_row(kappa + first_nonzero_vector, kappa)
             self.lll_obj.size_reduction(kappa, kappa + 1)
 
         else:
-            d = self.m.d
-            self.m.create_row()
+            d = self.M.d
+            self.M.create_row()
 
-            with self.m.row_ops(d, d+1):
+            with self.M.row_ops(d, d+1):
                 for i in range(block_size):
-                    self.m.row_addmul(d, kappa + i, solution[i])
+                    self.M.row_addmul(d, kappa + i, solution[i])
 
-            self.m.move_row(d, kappa)
+            self.M.move_row(d, kappa)
             self.lll_obj(kappa, kappa, kappa + block_size + 1)
-            self.m.move_row(kappa + block_size, d)
+            self.M.move_row(kappa + block_size, d)
 
-            self.m.remove_last_row()
+            self.M.remove_last_row()
+
         return False
 
     def svp_reduction(self, kappa, params, block_size, stats=None):
