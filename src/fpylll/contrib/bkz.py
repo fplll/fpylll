@@ -71,6 +71,9 @@ class BKZReduction:
                 break
             i += 1
 
+        stats.finalize()
+        self.stats = stats
+
     def tour(self, params, min_row, max_row, stats=None):
         """One BKZ loop over all indices.
 
