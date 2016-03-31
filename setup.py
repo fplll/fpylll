@@ -78,7 +78,6 @@ except ImportError:
 
 if have_numpy:
     config_pxi.append("DEF HAVE_NUMPY=True")
-    print numpy.get_include()
     numpy_args = copy(fplll)
     numpy_args["include_dirs"].append(numpy.get_include())
 else:
