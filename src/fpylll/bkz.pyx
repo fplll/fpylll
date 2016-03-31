@@ -53,7 +53,7 @@ cdef class BKZParam:
             linear pruning parameter.  Otherwise, a list of length ``block_size`` is expected which
             is interpreted as pruning parameters.
         :param gh_factor: heuristic, if ``True`` then the enumeration bound will be set to
-            ``gh_bound`` times the Gaussian Heuristic.  If ``True`` then ``gh_bound`` is set to 1.1,
+            ``gh_factor`` times the Gaussian Heuristic.  If ``True`` then ``gh_factor`` is set to 1.1,
             which is fpLLL's default.
         :param preprocessing: preprocessing options, either a ``BKZParam`` object or ``None``.  In
             the latter case, only LLL is run.
