@@ -403,6 +403,8 @@ cdef extern from "fplll/enumerate.h" namespace "fplll":
                            FastEvaluator[FT]& evaluator, const vector[FT]& targetCoord,
                            const vector[FT]& subTree, int first, int last,
                            const vector[double]& pruning, int dual);
+        @staticmethod
+        long getNodes();
 
 
 

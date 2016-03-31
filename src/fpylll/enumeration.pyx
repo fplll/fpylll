@@ -68,3 +68,9 @@ cdef class Enumeration:
 
         max_dist = max_dist_.get_d()
         return tuple(solution), max_dist
+
+    @staticmethod
+    def get_nodes():
+        """Return number of visited nodes in last enumeration call.
+        """
+        return Enumeration_c.getNodes()
