@@ -607,13 +607,23 @@ cdef class IntegerMatrix:
 
         Available algorithms:
 
-        - ``"intrel"`` - assumes `d × (d+1)` matrix and size parameter ``bits``
-        - ``"simdioph"`` - assumes `d × d` matrix and size parameter ``bits`` and ``bits``
-        - ``"uniform"`` - assumes parameter ``bits``
-        - ``"ntrulike"`` - assumes `2d × 2d` matrix, size parameter ``bits`` and modulus ``q``
-        - ``"ntrulike2"`` - assumes `2d × 2d` matrix and size parameter ``bits``
-        - ``"atjai"`` - assumes `d × d` matrix and float parameter ``alpha``
+            - ``"intrel"`` - assumes `d × (d+1)` matrix and size parameter ``bits``
 
+            - ``"simdioph"`` - assumes `d × d` matrix and size parameter ``bits`` and ``bits``
+
+            - ``"uniform"`` - assumes parameter ``bits``
+
+            - ``"ntrulike"`` - assumes `2d × 2d` matrix, size parameter ``bits`` and modulus ``q``.
+              Constructs a matrix ``A = [[I,H],[0,qI]]`` where ``H`` is constructed from rotations
+              of a vector ``h``.  Note that the constructed matrix will not come with a guarantee of
+              unusually short vectors.
+
+            - ``"ntrulike2"`` - assumes `2d × 2d` matrix and size parameter ``bits`` and modulus
+              ``q``.  Constructs a matrix ``A = [[qI,0],[H,I]]`` where ``H`` is constructed from
+              rotations of a vector ``h``.  Note that the constructed matrix will not come with a
+              guarantee of unusually short vectors.
+
+            - ``"atjai"`` - assumes `d × d` matrix and float parameter ``alpha``
         """
         if algorithm == "intrel":
             bits = int(kwds["bits"])
