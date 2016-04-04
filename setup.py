@@ -41,7 +41,7 @@ have_qd = False
 
 try:
     libs = subprocess.check_output(["pkg-config", "fplll", "--libs"])
-    if "-lqd" in libs:
+    if b"-lqd" in libs:
         have_qd = True
 except subprocess.CalledProcessError:
     pass
