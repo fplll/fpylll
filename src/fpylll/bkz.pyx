@@ -339,11 +339,8 @@ def bkz_reduction(IntegerMatrix A, BKZParam o, float_type=None, int precision=0)
     cdef int r = bkzReduction(A._core, NULL, o.o[0], floatType, precision)
     sig_off()
 
-    if r:
-        if r in (RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT):
-            pass
-        else:
-            raise ReductionError( str(getRedStatusStr(r)) )
+    if r and r not in (RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT):
+        raise ReductionError( str(getRedStatusStr(r)) )
 
 
 class BKZ:
