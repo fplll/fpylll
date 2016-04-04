@@ -18,6 +18,7 @@ from fpylll.io cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
 import re
 from math import log10, ceil, sqrt, floor
 
+from gmp.pylong cimport mpz_get_pyintlong
 from gmp.mpz cimport mpz_init, mpz_mod, mpz_fdiv_q_ui, mpz_clear, mpz_cmp, mpz_sub, mpz_set
 
 
@@ -71,6 +72,12 @@ cdef class IntegerMatrixRow:
 
     def __repr__(self):
         return "row %d of %r"%(self.row, self.m)
+
+    def __reduce__(self):
+        """
+        Make sure attempts at pickling raise an error until proper pickling is implemented.
+        """
+        raise NotImplementedError
 
     def __abs__(self):
         """Return ℓ_2 norm of this vector.
@@ -473,6 +480,17 @@ cdef class IntegerMatrix:
             for j in range(self.ncols):
                 A._core[0][i][j] = self._core[0][i][j]
         return A
+
+    def __reduce__(self):
+        """Serialize this matrix
+        """
+        cdef int i, j
+        l = []
+        for i in range(self._core.getRows()):
+            for j in range(self._core.getCols()):
+                # mpz_get_pyintlong ensure pickles work between Sage & not-Sage
+                l.append(int(mpz_get_pyintlong(self._core[0][i][j].getData())))
+        return unpickle_IntegerMatrix, (self.nrows, self.ncols, l)
 
     @property
     def nrows(self):
@@ -1114,3 +1132,14 @@ cdef class IntegerMatrix:
                 for j, v in enumerate(values):
                     A[i, j] = v
         return A
+
+
+def unpickle_IntegerMatrix(nrows, ncols, l):
+    """Deserialize an integer matrix.
+
+    :param nrows: number of rows
+    :param ncols: number of columns
+    :param l: list of entries
+
+    """
+    return IntegerMatrix.from_iterable(nrows, ncols, l)
