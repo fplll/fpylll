@@ -46,7 +46,7 @@ cdef class Wrapper:
         raise NotImplementedError
 
     def __call__(self):
-        """FIXME! briefly describe function
+        """Run LLL.
 
         :returns:
         :rtype:
