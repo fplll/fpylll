@@ -131,6 +131,12 @@ cdef class LLLReduction:
         if self._type == mpz_mpfr:
             del self._core.mpz_mpfr
 
+    def __reduce__(self):
+        """
+        Make sure attempts at pickling raise an error until proper pickling is implemented.
+        """
+        raise NotImplementedError
+
     def __call__(self, int kappa_min=0, int kappa_start=0, int kappa_end=-1):
         """FIXME! briefly describe function
 

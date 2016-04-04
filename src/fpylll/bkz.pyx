@@ -158,6 +158,12 @@ cdef class BKZParam:
             self.o.flags,
             hex(id(self)))
 
+    def __reduce__(self):
+        """
+        Make sure attempts at pickling raise an error until proper pickling is implemented.
+        """
+        raise NotImplementedError
+
     def __str__(self):
         """FIXME! briefly describe function
 

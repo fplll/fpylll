@@ -39,6 +39,12 @@ cdef class Wrapper:
     def __dealloc__(self):
         del self._core
 
+    def __reduce__(self):
+        """
+        Make sure attempts at pickling raise an error until proper pickling is implemented.
+        """
+        raise NotImplementedError
+
     def __call__(self):
         """FIXME! briefly describe function
 

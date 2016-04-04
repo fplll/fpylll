@@ -171,6 +171,12 @@ cdef class MatGSO:
         if self._type == mpz_mpfr:
             del self._core.mpz_mpfr
 
+    def __reduce__(self):
+        """
+        Make sure attempts at pickling raise an error until proper pickling is implemented.
+        """
+        raise NotImplementedError
+
     @property
     def float_type(self):
         """
