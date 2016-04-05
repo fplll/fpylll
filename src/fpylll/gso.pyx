@@ -666,19 +666,32 @@ cdef class MatGSO:
         """
         Updates all GSO coefficients (`μ` and `r`).
         """
+        cdef int r
         if self._type == mpz_double:
-            return bool(self._core.mpz_double.updateGSO())
+            with nogil:
+                r = self._core.mpz_double.updateGSO()
+            return bool(r)
         if self._type == mpz_ld:
-            return bool(self._core.mpz_ld.updateGSO())
+            with nogil:
+                r = self._core.mpz_ld.updateGSO()
+            return bool(r)
         if self._type == mpz_dpe:
-            return bool(self._core.mpz_dpe.updateGSO())
+            with nogil:
+                r = self._core.mpz_dpe.updateGSO()
+            return bool(r)
         IF HAVE_QD:
             if self._type == mpz_dd:
-                return bool(self._core.mpz_dd.updateGSO())
+                with nogil:
+                    r = self._core.mpz_dd.updateGSO()
+                return bool(r)
             if self._type == mpz_qd:
-                return bool(self._core.mpz_qd.updateGSO())
+                with nogil:
+                    r = self._core.mpz_qd.updateGSO()
+                return bool(r)
         if self._type == mpz_mpfr:
-            return bool(self._core.mpz_mpfr.updateGSO())
+            with nogil:
+                r = self._core.mpz_mpfr.updateGSO()
+            return bool(r)
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
