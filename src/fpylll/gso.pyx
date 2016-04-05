@@ -667,33 +667,25 @@ cdef class MatGSO:
         Updates all GSO coefficients (`μ` and `r`).
         """
         cdef int r
-        if self._type == mpz_double:
-            with nogil:
-                r = self._core.mpz_double.updateGSO()
-            return bool(r)
-        if self._type == mpz_ld:
-            with nogil:
-                r = self._core.mpz_ld.updateGSO()
-            return bool(r)
-        if self._type == mpz_dpe:
-            with nogil:
-                r = self._core.mpz_dpe.updateGSO()
-            return bool(r)
-        IF HAVE_QD:
-            if self._type == mpz_dd:
-                with nogil:
-                    r = self._core.mpz_dd.updateGSO()
-                return bool(r)
-            if self._type == mpz_qd:
-                with nogil:
-                    r = self._core.mpz_qd.updateGSO()
-                return bool(r)
-        if self._type == mpz_mpfr:
-            with nogil:
-                r = self._core.mpz_mpfr.updateGSO()
-            return bool(r)
-
-        raise RuntimeError("MatGSO object '%s' has no core."%self)
+        with nogil:
+            if self._type == mpz_double:
+                    r = self._core.mpz_double.updateGSO()
+            elif self._type == mpz_ld:
+                    r = self._core.mpz_ld.updateGSO()
+            elif self._type == mpz_dpe:
+                    r = self._core.mpz_dpe.updateGSO()
+            IF HAVE_QD:
+                elif self._type == mpz_dd:
+                        r = self._core.mpz_dd.updateGSO()
+                elif self._type == mpz_qd:
+                        r = self._core.mpz_qd.updateGSO()
+            elif self._type == mpz_mpfr:
+                    r = self._core.mpz_mpfr.updateGSO()
+            else:
+                with gil:
+                    raise RuntimeError("MatGSO object '%s' has no core." % self)
+        
+        return bool(r)
 
     def update_gso_row(self, int i, int last_j):
         """
