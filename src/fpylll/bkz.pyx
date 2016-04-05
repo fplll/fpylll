@@ -162,7 +162,7 @@ cdef class BKZParam:
         """
         Make sure attempts at pickling raise an error until proper pickling is implemented.
         """
-        raise NotImplementedError
+        return unpickle_BKZParam, tuple(self.dict().iteritems())
 
     def __str__(self):
         """FIXME! briefly describe function
@@ -311,6 +311,18 @@ cdef class BKZAutoAbort:
         else:
             raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
 
+
+def unpickle_BKZParam(*args):
+    """
+    Deserialize this set of BKZ parameters.
+
+    >>> import pickle
+    >>> pickle.loads(pickle.dumps(BKZ.Param(10, preprocessing=BKZ.Param(5)))) # doctest: +ELLIPSIS
+    <BKZParam(10, flags=0x0040) at 0x...>
+
+    """
+    kwds = dict(args)
+    return BKZParam(**kwds)
 
 def bkz_reduction(IntegerMatrix A, BKZParam o, float_type=None, int precision=0):
     """
