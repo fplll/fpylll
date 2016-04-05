@@ -16,65 +16,65 @@ cdef extern from "fplll/nr.h" namespace "fplll":
     ctypedef double enumf
 
     cdef cppclass Z_NR[T]:
-        T& getData()
-        void set(T d)
-        double get_d()
-        long exponent()
-        void set_str(const char* s)
-        int cmp(const Z_NR[T]& m)
-        int sgn() const
+        T& getData() nogil
+        void set(T d) nogil
+        double get_d() nogil
+        long exponent() nogil
+        void set_str(const char* s) nogil
+        int cmp(const Z_NR[T]& m) nogil
+        int sgn() nogil
 
-        void operator=(const Z_NR[T]& z);
-        void operator=(const mpz_t& z);
-        void operator=(long i);
-        int operator<(const Z_NR[T]& a)
-        int operator<(long a)
-        int operator>(const Z_NR[T]& a)
-        int operator>(long a)
-        int operator<=(const Z_NR[T]& a)
-        int operator<=(long a)
-        int operator>=(const Z_NR[T]& a)
-        int operator>=(long a)
-        int operator==(const Z_NR[T]& a)
-        int operator==(long a)
-        int operator!=(const Z_NR[T]& a)
-        int operator!=(long a)
+        void operator=(const Z_NR[T]& z) nogil
+        void operator=(const mpz_t& z) nogil
+        void operator=(long i) nogil
+        int operator<(const Z_NR[T]& a) nogil
+        int operator<(long a) nogil
+        int operator>(const Z_NR[T]& a) nogil
+        int operator>(long a) nogil
+        int operator<=(const Z_NR[T]& a) nogil
+        int operator<=(long a) nogil
+        int operator>=(const Z_NR[T]& a) nogil
+        int operator>=(long a) nogil
+        int operator==(const Z_NR[T]& a) nogil
+        int operator==(long a) nogil
+        int operator!=(const Z_NR[T]& a) nogil
+        int operator!=(long a) nogil
 
-        void add(const Z_NR[T]& a, const Z_NR[T]& b)
-        void add_ui(const Z_NR[T]& a, unsigned int b)
-        void sub(const Z_NR[T]& a, const Z_NR[T]& b)
-        void sub_ui(const Z_NR[T]& a, unsigned int b)
-        void neg(const Z_NR[T]& a)
-        void mul(const Z_NR[T]& a, const Z_NR[T]& b)
-        void mul_si(const Z_NR[T]& a, long b)
-        void mul_ui(const Z_NR[T]& a, unsigned long b)
-        void mul_2si(const Z_NR[T]& a, long b)
-        void div_2si(const Z_NR[T]& a, long b)
-        void addmul(const Z_NR[T]& a, const Z_NR[T]& b)
-        void addmul_ui(const Z_NR[T]& a, unsigned long b)
-        void addmul_si(const Z_NR[T]& a, long b)
-        void submul(const Z_NR[T]& a, const Z_NR[T]& b)
-        void submul_ui(const Z_NR[T]& a, unsigned long b)
-        void abs(const Z_NR[T]& a)
-        void swap(Z_NR[T]& a)
-        void randb(int bits)
-        void randb_si(int bits)
-        void randm(const Z_NR[T]& max)
-        void randm_si(const Z_NR[T]& max)
+        void add(const Z_NR[T]& a, const Z_NR[T]& b) nogil
+        void add_ui(const Z_NR[T]& a, unsigned int b) nogil
+        void sub(const Z_NR[T]& a, const Z_NR[T]& b) nogil
+        void sub_ui(const Z_NR[T]& a, unsigned int b) nogil
+        void neg(const Z_NR[T]& a) nogil
+        void mul(const Z_NR[T]& a, const Z_NR[T]& b) nogil
+        void mul_si(const Z_NR[T]& a, long b) nogil
+        void mul_ui(const Z_NR[T]& a, unsigned long b) nogil
+        void mul_2si(const Z_NR[T]& a, long b) nogil
+        void div_2si(const Z_NR[T]& a, long b) nogil
+        void addmul(const Z_NR[T]& a, const Z_NR[T]& b) nogil
+        void addmul_ui(const Z_NR[T]& a, unsigned long b) nogil
+        void addmul_si(const Z_NR[T]& a, long b) nogil
+        void submul(const Z_NR[T]& a, const Z_NR[T]& b) nogil
+        void submul_ui(const Z_NR[T]& a, unsigned long b) nogil
+        void abs(const Z_NR[T]& a) nogil
+        void swap(Z_NR[T]& a) nogil
+        void randb(int bits) nogil
+        void randb_si(int bits) nogil
+        void randm(const Z_NR[T]& max) nogil
+        void randm_si(const Z_NR[T]& max) nogil
 
 
     cdef cppclass FP_NR[T]:
-        T& getData()
-        void set(T d)
-        double get_d()
-        inline void operator=(const FP_NR[T]& a)
-        inline void operator=(double a)
+        T& getData() nogil
+        void set(T d) nogil
+        double get_d() nogil
+        inline void operator=(const FP_NR[T]& a) nogil
+        inline void operator=(double a) nogil
 
         @staticmethod
-        unsigned int getprec()
+        unsigned int getprec() nogil
 
         @staticmethod
-        unsigned int setprec(unsigned int)
+        unsigned int setprec(unsigned int) nogil
 
 cdef extern from "fplll/nr.h":
     cdef struct dpe_struct:
@@ -176,8 +176,6 @@ cdef extern from "fplll/defs.h" namespace "fplll":
         SVPM_FAST
         SVPM_PROVED
 
-
-
     cdef double LLL_DEF_DELTA
     cdef double LLL_DEF_ETA
 
@@ -187,25 +185,25 @@ cdef extern from "fplll/defs.h" namespace "fplll":
 
 cdef extern from "fplll/matrix.h" namespace "fplll":
     cdef cppclass MatrixRow[T]:
-        T& operator[](int i)
-        int size()
-        int is_zero()
-        int is_zero(int frm)
-        int sizeNZ()
-        void fill(long value)
-        void add(const MatrixRow[T] v)
-        void add(const MatrixRow[T] v, int n)
-        void sub(const MatrixRow[T] v)
-        void sub(const MatrixRow[T] v, int n)
-        void addmul_2exp(const MatrixRow[T]& v, const T& x, long expo, T& tmp)
-        void addmul_2exp(const MatrixRow[T]& v, const T& x, long expo, int n, T& tmp)
-        void addmul_si(const MatrixRow[T]& v, long x)
-        void addmul_si(const MatrixRow[T]& v, long x, int n)
-        void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, T& tmp)
-        void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, int n, T& tmp)
+        T& operator[](int i) nogil
+        int size() nogil
+        int is_zero() nogil
+        int is_zero(int frm) nogil
+        int sizeNZ() nogil
+        void fill(long value) nogil
+        void add(const MatrixRow[T] v) nogil
+        void add(const MatrixRow[T] v, int n) nogil
+        void sub(const MatrixRow[T] v) nogil
+        void sub(const MatrixRow[T] v, int n) nogil
+        void addmul_2exp(const MatrixRow[T]& v, const T& x, long expo, T& tmp) nogil
+        void addmul_2exp(const MatrixRow[T]& v, const T& x, long expo, int n, T& tmp) nogil
+        void addmul_si(const MatrixRow[T]& v, long x) nogil
+        void addmul_si(const MatrixRow[T]& v, long x, int n) nogil
+        void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, T& tmp) nogil
+        void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, int n, T& tmp) nogil
 
-    void dotProduct[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2, int n)
-    void dotProduct[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2)
+    void dotProduct[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2, int n) nogil
+    void dotProduct[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2) nogil
 
     cdef cppclass Matrix[T]:
         Matrix()
@@ -219,40 +217,40 @@ cdef extern from "fplll/matrix.h" namespace "fplll":
 
         void clear()
         int empty()
-        void resize(int rows, int cols)
-        void setRows(int rows)
-        void setCols(int cols)
-        void swap(Matrix[T]& m)
+        void resize(int rows, int cols) nogil
+        void setRows(int rows) nogil
+        void setCols(int cols) nogil
+        void swap(Matrix[T]& m) nogil
 
-        void swapRows(int r1, int r2)
-        void rotateLeft(int first, int last)
-        void rotateRight(int first, int last)
-        void rotate(int first, int middle, int last)
-        void rotateGramLeft(int first, int last, int nValidRows)
-        void rotateGramRight(int first, int last, int nValidRows)
-        void transpose()
-        long getMaxExp()
+        void swapRows(int r1, int r2) nogil
+        void rotateLeft(int first, int last) nogil
+        void rotateRight(int first, int last) nogil
+        void rotate(int first, int middle, int last) nogil
+        void rotateGramLeft(int first, int last, int nValidRows) nogil
+        void rotateGramRight(int first, int last, int nValidRows) nogil
+        void transpose() nogil
+        long getMaxExp() nogil
 
     cdef cppclass ZZ_mat[T]:
 
         ZZ_mat()
         ZZ_mat(int r, int c)
 
-        int getRows()
-        int getCols()
-        void setRows(int rows)
-        void setCols(int cols)
+        int getRows() nogil
+        int getCols() nogil
+        void setRows(int rows) nogil
+        void setCols(int cols) nogil
 
-        Z_NR[T]& operator()(int i, int j)
-        MatrixRow[Z_NR[T]] operator[](int i)
+        Z_NR[T]& operator()(int i, int j) nogil
+        MatrixRow[Z_NR[T]] operator[](int i) nogil
 
-        void gen_identity(int nrows)
-        void gen_intrel(int bits)
-        void gen_simdioph(int bits, int bits2)
-        void gen_uniform(int bits)
-        void gen_ntrulike(int bits, int q)
-        void gen_ntrulike2(int bits, int q)
-        void gen_ajtai(double alpha)
+        void gen_identity(int nrows) nogil
+        void gen_intrel(int bits) nogil
+        void gen_simdioph(int bits, int bits2) nogil
+        void gen_uniform(int bits) nogil
+        void gen_ntrulike(int bits, int q) nogil
+        void gen_ntrulike2(int bits, int q) nogil
+        void gen_ajtai(double alpha) nogil
 
 
 
@@ -276,47 +274,47 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         void rowOpEnd(int first, int last)
         void getGram(FT& f, int i, int j)
 
-        const Matrix[FT]& getMuMatrix()
-        const FT& getMuExp(int i, int j, long& expo)
-        const FT& getMuExp(int i, int j)
-        void getMu(FT& f, int i, int j)
+        const Matrix[FT]& getMuMatrix() nogil
+        const FT& getMuExp(int i, int j, long& expo) nogil
+        const FT& getMuExp(int i, int j) nogil
+        void getMu(FT& f, int i, int j) nogil
 
-        const Matrix[FT]& getRMatrix()
-        const FT& getRExp(int i, int j, long& expo)
-        const FT& getRExp(int i, int j)
-        void getR(FT& f, int i, int j)
+        const Matrix[FT]& getRMatrix() nogil
+        const FT& getRExp(int i, int j, long& expo) nogil
+        const FT& getRExp(int i, int j) nogil
+        void getR(FT& f, int i, int j) nogil
 
-        long getMaxMuExp(int i, int nColumns)
+        long getMaxMuExp(int i, int nColumns) nogil
 
-        int updateGSORow(int i, int lastJ)
-        int updateGSORow(int i)
-        int updateGSO()
+        int updateGSORow(int i, int lastJ) nogil
+        int updateGSORow(int i) nogil
+        int updateGSO() nogil
 
-        void discoverAllRows()
-        void setR(int i, int j, FT& f)
-        void moveRow(int oldR, int newR)
+        void discoverAllRows() nogil
+        void setR(int i, int j, FT& f) nogil
+        void moveRow(int oldR, int newR) nogil
         void swapRows(int row1, int row2)
 
-        void row_addmul(int i, int j, const FT& x)
-        void row_addmul_we(int i, int j, const FT& x, long expoAdd)
+        void row_addmul(int i, int j, const FT& x) nogil
+        void row_addmul_we(int i, int j, const FT& x, long expoAdd) nogil
 
-        void lockCols()
-        void unlockCols()
+        void lockCols() nogil
+        void unlockCols() nogil
 
-        void createRow()
-        void createRows(int nNewRows)
+        void createRow() nogil
+        void createRows(int nNewRows) nogil
 
-        void removeLastRow()
-        void removeLastRows(int nRemovedRows)
+        void removeLastRow() nogil
+        void removeLastRows(int nRemovedRows) nogil
 
-        void applyTransform(const Matrix[FT]& transform, int srcBase, int targetBase)
-        void applyTransform(const Matrix[FT]& transform, int srcBase)
+        void applyTransform(const Matrix[FT]& transform, int srcBase, int targetBase) nogil
+        void applyTransform(const Matrix[FT]& transform, int srcBase) nogil
 
-        void dumpMu_d(double* mu, int offset, int blocksize)
-        void dumpMu_d(vector[double] mu, int offset, int blocksize)
+        void dumpMu_d(double* mu, int offset, int blocksize) nogil
+        void dumpMu_d(vector[double] mu, int offset, int blocksize) nogil
 
-        void dumpR_d(double* r, int offset, int blocksize)
-        void dumpR_d(vector[double] r, int offset, int blocksize)
+        void dumpR_d(double* r, int offset, int blocksize) nogil
+        void dumpR_d(vector[double] r, int offset, int blocksize) nogil
 
         const int enableIntGram
         const int enableRowExpo
@@ -334,13 +332,13 @@ cdef extern from "fplll/lll.h" namespace "fplll":
     cdef cppclass LLLReduction[ZT,FT]:
         LLLReduction(MatGSO[ZT, FT]& m, double delta, double eta, int flags)
 
-        int lll()
-        int lll(int kappaMin)
-        int lll(int kappaMin, int kappaStart)
-        int lll(int kappaMin, int kappaStart, int kappaEnd)
-        int sizeReduction()
-        int sizeReduction(int kappaMin)
-        int sizeReduction(int kappaMin, int kappaEnd)
+        int lll() nogil
+        int lll(int kappaMin) nogil
+        int lll(int kappaMin, int kappaStart) nogil
+        int lll(int kappaMin, int kappaStart, int kappaEnd) nogil
+        int sizeReduction() nogil
+        int sizeReduction(int kappaMin) nogil
+        int sizeReduction(int kappaMin, int kappaEnd) nogil
 
         int status
         int finalKappa
@@ -348,7 +346,7 @@ cdef extern from "fplll/lll.h" namespace "fplll":
         int zeros
         int nSwaps
 
-    int isLLLReduced[ZT, FT](MatGSO[ZT, FT]& m, double delta, double eta)
+    int isLLLReduced[ZT, FT](MatGSO[ZT, FT]& m, double delta, double eta) nogil
 
 
 # LLL Wrapper
@@ -358,7 +356,7 @@ cdef extern from "fplll/wrapper.h" namespace "fplll":
     cdef cppclass Wrapper:
         Wrapper(ZZ_mat[mpz_t]& b, ZZ_mat[mpz_t]& u, ZZ_mat[mpz_t]& uInv,
                 double delta, double eta, int flags)
-        int lll()
+        int lll() nogil
         int status
 
 
@@ -391,6 +389,7 @@ cdef extern from "fplll/evaluator.h" namespace "fplll":
 # Enumeration
 
 cdef extern from "fplll/enumerate.h" namespace "fplll":
+    # enumeration is not thread safe in fplll, so we don't tag it as nogil
     cdef cppclass Enumeration:
         @staticmethod
         void enumerateDouble(MatGSO[Z_NR[double], FP_NR[double]]& gso,
@@ -408,10 +407,10 @@ cdef extern from "fplll/enumerate.h" namespace "fplll":
 
 
 
-# Enumeration
+# SVP
 
 cdef extern from "fplll/svpcvp.h" namespace "fplll":
-
+    # enumeration is not thread safe in fplll, so we don't tag svp as nogil
     int shortestVector(ZZ_mat[mpz_t]& b,
                        vector[Z_NR[mpz_t]] &solCoord,
                        SVPMethod method, int flags)
@@ -488,17 +487,17 @@ cdef extern from "fplll/fplll.h" namespace "fplll":
 
     int lllReduction(ZZ_mat[mpz_t] b, double delta, double eta,
                      LLLMethod method, FloatType floatType,
-                     int precision, int flags)
+                     int precision, int flags) nogil
     int lllReduction(ZZ_mat[mpz_t] b, ZZ_mat[mpz_t] u,
                      double delta, double eta,
                      LLLMethod method, FloatType floatType,
-                     int precision, int flags)
+                     int precision, int flags) nogil
 
+    # enumeration is not thread safe in fplll, so we don't tag bkz with nogil
     int bkzReduction(ZZ_mat[mpz_t] *b, ZZ_mat[mpz_t] *u,
                      BKZParam &param, FloatType floatType, int precision)
     int bkzReduction(ZZ_mat[mpz_t] *b, int blockSize, int flags, FloatType floatType, int precision)
 
     int hkzReduction(ZZ_mat[mpz_t] b)
 
-    const char* getRedStatusStr (int status)
-
+    const char* getRedStatusStr (int status) nogil
