@@ -483,6 +483,12 @@ cdef class IntegerMatrix:
 
     def __reduce__(self):
         """Serialize this matrix
+
+        >>> import pickle
+        >>> A = IntegerMatrix.random(10, "uniform", bits=20)
+        >>> pickle.loads(pickle.dumps(A)) == A
+        True
+
         """
         cdef int i, j
         l = []
