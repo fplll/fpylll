@@ -25,6 +25,7 @@ from fplll cimport MatGSO as MatGSO_c
 from fplll cimport LLLReduction as LLLReduction_c
 from fplll cimport getRedStatusStr
 from fplll cimport isLLLReduced
+from fplll cimport FloatType
 
 from util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll import ReductionError
@@ -153,34 +154,40 @@ cdef class LLLReduction:
         cdef int r
         if self._type == mpz_double:
             sig_on()
-            self._core.mpz_double.lll(kappa_min, kappa_start, kappa_end)
+            with nogil:
+                self._core.mpz_double.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_double.status
             sig_off()
         elif self._type == mpz_ld:
             sig_on()
-            self._core.mpz_ld.lll(kappa_min, kappa_start, kappa_end)
+            with nogil:
+                self._core.mpz_ld.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_ld.status
             sig_off()
         elif self._type == mpz_dpe:
             sig_on()
-            self._core.mpz_dpe.lll(kappa_min, kappa_start, kappa_end)
+            with nogil:
+                self._core.mpz_dpe.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_dpe.status
             sig_off()
         elif self._type == mpz_mpfr:
             sig_on()
-            self._core.mpz_mpfr.lll(kappa_min, kappa_start, kappa_end)
+            with nogil:
+                self._core.mpz_mpfr.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_mpfr.status
             sig_off()
         else:
             IF HAVE_QD:
                 if self._type == mpz_dd:
                     sig_on()
-                    self._core.mpz_dd.lll(kappa_min, kappa_start, kappa_end)
+                    with nogil:
+                        self._core.mpz_dd.lll(kappa_min, kappa_start, kappa_end)
                     r = self._core.mpz_dd.status
                     sig_off()
                 elif self._type == mpz_qd:
                     sig_on()
-                    self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end)
+                    with nogil:
+                        self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end)
                     r = self._core.mpz_qd.status
                     sig_off()
                 else:
@@ -371,19 +378,21 @@ def lll_reduction(IntegerMatrix B, U=None,
                          "float_type == 'double', 'long double', 'dd' or 'qd'")
 
     cdef int r
+    cdef FloatType ft = check_float_type(float_type)
 
     if U is not None and isinstance(U, IntegerMatrix):
         sig_on()
-        r = lllReduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
-                           delta, eta, method_,
-                           check_float_type(float_type), precision, flags)
+        with nogil:
+            r = lllReduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
+                               delta, eta, method_, ft, precision, flags)
         sig_off()
 
     else:
         sig_on()
-        r = lllReduction_c(B._core[0],
-                           delta, eta, method_,
-                           check_float_type(float_type), precision, flags)
+        with nogil:
+            r = lllReduction_c(B._core[0],
+                               delta, eta, method_,
+                               ft, precision, flags)
         sig_off()
 
     if r:
