@@ -397,7 +397,7 @@ def lll_reduction(IntegerMatrix B, U=None,
 
     if r:
         raise ReductionError( str(getRedStatusStr(r)) )
-
+    return B
 
 def is_LLL_reduced(M, delta=LLL_DEF_DELTA, eta=LLL_DEF_ETA):
     """Test if ``M`` is LLL reduced.
@@ -418,7 +418,8 @@ def is_LLL_reduced(M, delta=LLL_DEF_DELTA, eta=LLL_DEF_ETA):
 
     LLL reduction should produce matrices which are LLL reduced::
 
-        >>> LLL.reduction(A)
+        >>> LLL.reduction(A) # doctest: +ELLIPSIS
+        <IntegerMatrix(40, 40) at 0x...>
         >>> LLL.is_reduced(A)
         True
 

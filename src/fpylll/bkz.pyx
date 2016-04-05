@@ -324,7 +324,7 @@ def unpickle_BKZParam(*args):
     kwds = dict(args)
     return BKZParam(**kwds)
 
-def bkz_reduction(IntegerMatrix A, BKZParam o, float_type=None, int precision=0):
+def bkz_reduction(IntegerMatrix B, BKZParam o, float_type=None, int precision=0):
     """
     Run BKZ reduction.
 
@@ -348,12 +348,13 @@ def bkz_reduction(IntegerMatrix A, BKZParam o, float_type=None, int precision=0)
     cdef FloatType floatType = check_float_type(float_type)
 
     sig_on()
-    cdef int r = bkzReduction(A._core, NULL, o.o[0], floatType, precision)
+    cdef int r = bkzReduction(B._core, NULL, o.o[0], floatType, precision)
     sig_off()
 
     if r and r not in (RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT):
         raise ReductionError( str(getRedStatusStr(r)) )
 
+    return B
 
 class BKZ:
     DEFAULT = BKZ_DEFAULT
