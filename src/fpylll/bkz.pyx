@@ -162,7 +162,7 @@ cdef class BKZParam:
         """
         Make sure attempts at pickling raise an error until proper pickling is implemented.
         """
-        return unpickle_BKZParam, tuple(self.dict().iteritems())
+        return unpickle_BKZParam, tuple(self.dict().items())
 
     def __str__(self):
         """FIXME! briefly describe function
