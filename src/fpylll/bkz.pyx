@@ -328,20 +328,12 @@ def bkz_reduction(IntegerMatrix B, BKZParam o, float_type=None, int precision=0)
     """
     Run BKZ reduction.
 
-    :param o: BKZ parameters
-    :param float_type: see list below for options
+    :param IntegerMatrix B: Integer matrix, modified in place.
+    :param BKZParam o: BKZ parameters
+    :param float_type: either ``None``: for automatic choice or an entry of `fpylll.float_types`
+    :param precision: bit precision to use if ``float_tpe`` is ``'mpfr'``
 
-        - ``None``: for automatic choice
-
-        - ``'double'``: double precision
-
-        - ``'long double'``: long double precision
-
-        - ``'dpe'``: double plus exponent
-
-        - ``'mpfr'``: arbitrary precision, use ``precision`` to set desired bit length
-
-    :param precision: bit precision to use if ``fp`` is ``'mpfr'``
+    :returns: modified matrix ``B``
     """
     check_precision(precision)
 

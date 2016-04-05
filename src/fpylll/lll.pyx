@@ -335,19 +335,18 @@ def lll_reduction(IntegerMatrix B, U=None,
                   double delta=LLL_DEF_DELTA, double eta=LLL_DEF_ETA,
                   method=None, float_type=None,
                   int precision=0, int flags=LLL_DEFAULT):
-    """FIXME! briefly describe function
+    u"""Run LLL reduction.
 
-    :param IntegerMatrix B:
-    :param U:
-    :param double delta:
-    :param double eta:
-    :param method:
-    :param float_type:
-    :param int precision:
-    :param int flags:
-    :returns:
-    :rtype:
+    :param IntegerMatrix B: Integer matrix, modified in place.
+    :param U: Transformation matrix or ``None``
+    :param double delta: LLL parameter `0.25 < δ ≤ 1`
+    :param double eta:  LLL parameter `0 ≤ η < √δ`
+    :param method: one of ``'wrapper'``, ``'proved'``, ``'heuristic'``, ``'fast'`` or ``None``.
+    :param float_type: an element of `fpylll.float_types` or ``None``
+    :param precision: bit precision to use if ``float_tpe`` is ``'mpfr'``
+    :param int flags: LLL flags.
 
+    :returns: modified matrix ``B``
     """
 
     check_delta(delta)
