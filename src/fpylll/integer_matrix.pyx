@@ -358,7 +358,7 @@ cdef class IntegerMatrix:
             A = IntegerMatrix(2*d, 2*d)
         elif algorithm == "ntrulike2":
             A = IntegerMatrix(2*d, 2*d)
-        elif algorithm == "atjai":
+        elif algorithm == "ajtai":
             A = IntegerMatrix(d, d)
         else:
             raise ValueError("Algorithm '%s' unknown."%algorithm)
@@ -623,7 +623,7 @@ cdef class IntegerMatrix:
               rotations of a vector ``h``.  Note that the constructed matrix will not come with a
               guarantee of unusually short vectors.
 
-            - ``"atjai"`` - assumes `d × d` matrix and float parameter ``alpha``
+            - ``"ajtai"`` - assumes `d × d` matrix and float parameter ``alpha``
         """
         if algorithm == "intrel":
             bits = int(kwds["bits"])
@@ -656,7 +656,7 @@ cdef class IntegerMatrix:
             self._core.gen_ntrulike2(bits, q)
             sig_off()
 
-        elif algorithm == "atjai":
+        elif algorithm == "ajtai":
             alpha = float(kwds["alpha"])
             sig_on()
             self._core.gen_ajtai(alpha)
