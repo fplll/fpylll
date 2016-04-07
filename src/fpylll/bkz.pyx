@@ -26,6 +26,8 @@ from fpylll cimport mpz_double, mpz_mpfr
 from integer_matrix cimport IntegerMatrix
 from util cimport check_delta, check_precision, check_float_type
 
+from shortest_vector import enum_lock
+
 include "cysignals/signals.pxi"
 
 cdef class BKZParam:
@@ -338,10 +340,13 @@ def bkz_reduction(IntegerMatrix B, BKZParam o, float_type=None, int precision=0)
     check_precision(precision)
 
     cdef FloatType floatType = check_float_type(float_type)
+    cdef int r = 0
 
-    sig_on()
-    cdef int r = bkzReduction(B._core, NULL, o.o[0], floatType, precision)
-    sig_off()
+    with enum_lock:
+        with nogil:
+            sig_on()
+            r = bkzReduction(B._core, NULL, o.o[0], floatType, precision)
+            sig_off()
 
     if r and r not in (RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT):
         raise ReductionError( str(getRedStatusStr(r)) )

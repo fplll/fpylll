@@ -8,7 +8,7 @@ Shortest and Closest Vectors.
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
 
-include "cysignals/signals.pxi"
+import threading
 
 from libcpp.vector cimport vector
 from gmp.mpz cimport mpz_t
@@ -67,13 +67,17 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, max_dis
         if max_dist:
             assign_Z_NR_mpz(max_dist_, max_dist)
 
-        sig_on()
-        r = shortestVectorPruning(B._core[0], solCoord, pruning_, max_dist_, flags)
-        sig_off()
+        with enum_lock:
+            with nogil:
+                sig_on()
+                r = shortestVectorPruning(B._core[0], solCoord, pruning_, max_dist_, flags)
+                sig_off()
     else:
-        sig_on()
-        r = shortestVector(B._core[0], solCoord, method_, flags)
-        sig_off()
+        with enum_lock:
+            with nogil:
+                sig_on()
+                r = shortestVector(B._core[0], solCoord, method_, flags)
+                sig_off()
 
 
     if r:
@@ -98,3 +102,5 @@ class SVP:
 #     closest_vector = closest_vector
 #     DEFAULT = CVP_DEFAULT
 #     VERBOSE = CVP_VERBOSE
+
+enum_lock = threading.Lock()
