@@ -389,39 +389,37 @@ cdef extern from "fplll/evaluator.h" namespace "fplll":
 # Enumeration
 
 cdef extern from "fplll/enumerate.h" namespace "fplll":
-    # enumeration is not thread safe in fplll, so we don't tag it as nogil
     cdef cppclass Enumeration:
         @staticmethod
         void enumerateDouble(MatGSO[Z_NR[double], FP_NR[double]]& gso,
                              FP_NR[double]& fMaxDist, Evaluator[FP_NR[double]]& evaluator,
                              int first, int last,
-                             const vector[double]& pruning)
+                             const vector[double]& pruning) nogil
 
         @staticmethod
         void enumerate[FT](MatGSO[Z_NR[mpz_t], FT]& gso, FT& fMaxDist, long maxDistExpo,
                            FastEvaluator[FT]& evaluator, const vector[FT]& targetCoord,
                            const vector[FT]& subTree, int first, int last,
-                           const vector[double]& pruning, int dual);
+                           const vector[double]& pruning, int dual) nogil
         @staticmethod
-        long getNodes();
+        long getNodes() nogil
 
 
 
 # SVP
 
 cdef extern from "fplll/svpcvp.h" namespace "fplll":
-    # enumeration is not thread safe in fplll, so we don't tag svp as nogil
     int shortestVector(ZZ_mat[mpz_t]& b,
                        vector[Z_NR[mpz_t]] &solCoord,
-                       SVPMethod method, int flags)
+                       SVPMethod method, int flags) nogil
 
     int shortestVectorPruning(ZZ_mat[mpz_t]& b, vector[Z_NR[mpz_t]]& solCoord,
                               const vector[double]& pruning, Z_NR[mpz_t]& argIntMaxDist,
-                              int flags)
+                              int flags) nogil
 
     # Experimental. Do not use.
     int closestVector(ZZ_mat[mpz_t] b, vector[Z_NR[mpz_t]] &intTarget,
-                      vector[Z_NR[mpz_t]]& solCoord, int flags)
+                      vector[Z_NR[mpz_t]]& solCoord, int flags) nogil
 
 
 
@@ -430,13 +428,13 @@ cdef extern from "fplll/svpcvp.h" namespace "fplll":
 cdef extern from "fplll/bkz.h" namespace "fplll":
 
     cdef cppclass BKZParam:
-         BKZParam()
-         BKZParam(int blockSize)
-         BKZParam(int blockSize, double delta)
+         BKZParam() nogil
+         BKZParam(int blockSize) nogil
+         BKZParam(int blockSize, double delta) nogil
          BKZParam(int blockSize, double delta, int flags, int maxLoops, int maxTime, int linearPruningLevel,
-                  double autoAbort_scale, int autoAbort_maxNoDec)
+                  double autoAbort_scale, int autoAbort_maxNoDec) nogil
          BKZParam(int blockSize, double delta, int flags, int maxLoops, int maxTime, int linearPruningLevel,
-                  double autoAbort_scale, int autoAbort_maxNoDec, double ghFactor)
+                  double autoAbort_scale, int autoAbort_maxNoDec, double ghFactor) nogil
          int blockSize
          double delta
          int flags
@@ -454,20 +452,20 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
 
          BKZParam *preprocessing
 
-         void enableLinearPruning(int level)
+         void enableLinearPruning(int level) nogil
 
     cdef cppclass BKZAutoAbort[FT]:
-        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int numRows)
-        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int numRows, int startRow)
+        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int numRows) nogil
+        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int numRows, int startRow) nogil
 
-        int testAbort()
-        int testAbort(double scale)
-        int testAbort(double scale, int maxNoDec)
+        int testAbort() nogil
+        int testAbort(double scale) nogil
+        int testAbort(double scale, int maxNoDec) nogil
 
     void computeGaussHeurDist[FT](MatGSO[Z_NR[mpz_t], FT]& m, FT& maxDist,
-                                  long maxDistExpo, int kappa, int blockSize, double ghFactor)
+                                  long maxDistExpo, int kappa, int blockSize, double ghFactor) nogil
 
-    double getCurrentSlope[FT](MatGSO[Z_NR[mpz_t], FT]& m, int startRow, int stopRow)
+    double getCurrentSlope[FT](MatGSO[Z_NR[mpz_t], FT]& m, int startRow, int stopRow) nogil
 
 
 # Utility
@@ -475,9 +473,9 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
 cdef extern from "fplll/util.h" namespace "fplll":
     void vectMatrixProduct(vector[Z_NR[mpz_t]] &result,
                            vector[Z_NR[mpz_t]] &x,
-                           const ZZ_mat[mpz_t] &m)
+                           const ZZ_mat[mpz_t] &m) nogil
 
-    void sqrNorm[T](T& result, const MatrixRow[T]& v, int n)
+    void sqrNorm[T](T& result, const MatrixRow[T]& v, int n) nogil
 
 
 
@@ -493,11 +491,10 @@ cdef extern from "fplll/fplll.h" namespace "fplll":
                      LLLMethod method, FloatType floatType,
                      int precision, int flags) nogil
 
-    # enumeration is not thread safe in fplll, so we don't tag bkz with nogil
     int bkzReduction(ZZ_mat[mpz_t] *b, ZZ_mat[mpz_t] *u,
-                     BKZParam &param, FloatType floatType, int precision)
-    int bkzReduction(ZZ_mat[mpz_t] *b, int blockSize, int flags, FloatType floatType, int precision)
+                     BKZParam &param, FloatType floatType, int precision) nogil
+    int bkzReduction(ZZ_mat[mpz_t] *b, int blockSize, int flags, FloatType floatType, int precision) nogil
 
-    int hkzReduction(ZZ_mat[mpz_t] b)
+    int hkzReduction(ZZ_mat[mpz_t] b) nogil
 
     const char* getRedStatusStr (int status) nogil
