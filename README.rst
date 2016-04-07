@@ -32,14 +32,14 @@ The basic BKZ algorithm can be implemented in about 60 pretty readable lines of 
 Requirements
 ------------
 
-fpylll relies on the following C/C++ libraries:
+**fpylll** relies on the following C/C++ libraries:
 
 - `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_ for arbitrary precision integer arithmetic.
 - `MPFR <http://www.mpfr.org>`_ for arbitrary precision floating point arithmetic.
 - `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_ for double double and quad double arithmetic (optional).
 - `fpLLL <https://github.com/dstehle/fplll>`_ for pretty much everything.
 
-fpylll also relies on
+**fpylll** also relies on
 
 - `Cython <http://cython.org>`_ for linking Python and C/C++.
 - `cysignals <https://github.com/sagemath/cysignals>`_ for signal handling such as interrupting C++ code.
@@ -98,7 +98,7 @@ to install suggested Python packages as well (optional).
      $ (fpylll) python setup.py build_ext
      $ (fpylll) python setup.py install
 
-7. To run fpylll, you will need to:
+7. To run **fpylll**, you will need to:
 
    .. code-block:: bash
 
@@ -156,10 +156,40 @@ towards the end and:
 
 in the ``deactivate`` function in the ``activate`` script.
 
+Multicore Support
+-----------------
+
+**fpylll** supports parallelisation on multiple cores. For all C++ support to drop the `GIL <https://wiki.python.org/moin/GlobalInterpreterLock>`_ is enabled, allowing the use of threads to parallelise. Note, however, that because fplll’s enumeration is not thread safe, we using `locks <https://docs.python.org/2/library/threading.html#lock-objects>`_ to enforce only one thread calls it at any one point. Also, **fpylll** does not actually drop the GIL in all calls to C++ functions yet. In many scenarios using `multiprocessing <https://docs.python.org/2/library/multiprocessing.html>`_, which sidesteps the GIL and thread safety issues by using processes instead of threads, will be the better choice.
+
+The example below calls ``LLL.reduction`` on 128 matrices of dimension 30 on four worker processes.
+
+.. code-block:: python
+
+    from fpylll import IntegerMatrix, LLL
+    from multiprocessing import Pool
+
+    d, workers, tasks = 30, 4, 128
+    
+    def run_it(p, f, A, prefix=""):
+        """Print status during parallel execution."""         
+        import sys
+        r = []
+        for i, retval in enumerate(p.imap_unordered(f, A, 1)):
+            r.append(retval)
+            sys.stderr.write('\r{0} done: {1:.2%}'.format(prefix, float(i)/len(A)))
+            sys.stderr.flush()
+        sys.stderr.write('\r{0} done {1:.2%}\n'.format(prefix, float(i+1)/len(A)))
+        return r
+        
+    A = [IntegerMatrix.random(d, "uniform", bits=30) for _ in range(tasks)]    
+    A = run_it(Pool(workers), LLL.reduction)
+
+To test threading simply replace the line ``from multiprocessing import Pool`` with ``from multiprocessing.pool import ThreadPool as Pool``. For calling ``BKZ.reduction`` this way, which expects a second parameter with options, using `functools.partial <https://docs.python.org/2/library/functools.html#functools.partial>`_ is a good choice. 
+    
 Contributing
 ------------
 
-To contribute to fpylll, clone this repository, commit your code on a separate branch and send a pull request. Please write tests for your code. You can run them by calling::
+**fpylll** welcomes contributions, cf. the list of `open issues <https://github.com/malb/fpylll/issues>`_. To contribute, clone this repository, commit your code on a separate branch and send a pull request. Please write tests for your code. You can run them by calling::
 
     $ (fpylll) py.test
 
@@ -167,11 +197,11 @@ from the top-level directory which runs all tests in ``tests/test_*.py``. We run
 
     $ (fpylll) flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src
 
-Note that fpylll supports Python 2 and 3. In particular, tests are run using Python 2.7 and 3.5. See `.travis.yml <https://github.com/malb/fpylll/blob/master/.travis.yml>`_ for details on automated testing.
+Note that **fpylll** supports Python 2 and 3. In particular, tests are run using Python 2.7 and 3.5. See `.travis.yml <https://github.com/malb/fpylll/blob/master/.travis.yml>`_ for details on automated testing.
 
 Attribution & License
 ---------------------
 
 We copied a decent bit of code over from Sage, mostly from it’s fpLLL interface.
 
-fpylll is licensed under the GPLv2+.  
+**fpylll** is licensed under the GPLv2+.  
