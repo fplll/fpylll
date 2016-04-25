@@ -68,7 +68,7 @@ class BKZStats:
                                        ("postproc time", 0.0),
                                        ("r_0", 0.0),
                                        ("slope", 0.0),
-                                       ("enum nodes", 0),
+                                       ("enum nodes", 1),
                                        ("max(kappa)", 0)]))
 
         if i > 0:
