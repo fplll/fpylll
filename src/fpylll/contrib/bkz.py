@@ -171,14 +171,12 @@ class BKZReduction:
         else:
             return solution
 
-    def svp_postprocessing(self, solution, kappa, params, block_size, stats=None):
+    def svp_postprocessing(self, solution, kappa, block_size):
         """Insert SVP solution into basis and LLL reduce.
 
         :param solution: coordinates of an SVP solution
         :param kappa: current index
-        :param params: BKZ parameters
         :param block_size: block size
-        :param stats: object for maintaining statistics
 
         :returns: ``True`` if no change was made and ``False`` otherwise
         """
@@ -235,7 +233,7 @@ class BKZReduction:
             solution = self.svp_call(kappa, params, block_size, stats)
 
         with stats.context("postproc"):
-            clean_post = self.svp_postprocessing(solution, kappa, params, block_size, stats)
+            clean_post = self.svp_postprocessing(solution, kappa, block_size)
         clean &= clean_post
 
         return clean
