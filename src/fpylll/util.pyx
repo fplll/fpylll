@@ -108,8 +108,6 @@ def get_precision(float_type="mpfr"):
         53
         >>> get_precision('dd')
         106
-        >>> get_precision('qd')
-        212
 
     For the MPFR type different precisions are supported::
 
@@ -135,8 +133,7 @@ def get_precision(float_type="mpfr"):
             return FP_NR[qd_real].getprec()
     if float_type_ == FT_MPFR:
         return FP_NR[mpfr_t].getprec()
-    else:
-        raise ValueError("Floating point type '%s' unknown."%float_type)
+    raise ValueError("Floating point type '%s' unknown."%float_type)
 
 def set_precision(unsigned int prec):
     """Set precision globally for MPFR
