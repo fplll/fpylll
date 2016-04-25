@@ -76,7 +76,7 @@ class BKZReduction:
         stats.finalize()
         self.stats = stats
 
-    def tour(self, params, min_row, max_row, stats=None):
+    def tour(self, params, min_row=0, max_row=-1, stats=None):
         """One BKZ loop over all indices.
 
         :param params: BKZ parameters
@@ -85,8 +85,10 @@ class BKZReduction:
 
         :returns: ``True`` if no change was made and ``False`` otherwise
         """
+        if max_row == -1:
+            max_row = self.A.nrows
         clean = True
-        for kappa in range(min_row, max_row-1):
+        for kappa in range(min_row, max_row-2):
             block_size = min(params.block_size, max_row - kappa)
             clean &= self.svp_reduction(kappa, params, block_size, stats)
             if stats:
