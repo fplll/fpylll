@@ -3,37 +3,40 @@ include "config.pxi"
 include "cysignals/signals.pxi"
 
 
-from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD, FT_DPE, FT_MPFR
+from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fplll cimport FP_NR, RandGen, dpe_t
-from qd.qd cimport dd_real, qd_real
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
+
+IF HAVE_QD:
+    from qd.qd cimport dd_real, qd_real
+    from fplll cimport FT_DD, FT_QD
+
 
 float_aliases = {'d': 'double',
                  'ld': 'long double'}
 
 cdef FloatType check_float_type(object float_type):
-    cdef FloatType float_type_
 
     float_type = float_aliases.get(float_type, float_type)
 
     if float_type == "default" or float_type is None:
-        float_type_= FT_DEFAULT
-    elif float_type == "double":
-        float_type_ = FT_DOUBLE
-    elif float_type == "long double":
-        float_type_ = FT_LONG_DOUBLE
-    elif float_type == "dd":
-        float_type_ = FT_DD
-    elif float_type == "qd":
-        float_type_ = FT_QD
-    elif float_type == "dpe":
-        float_type_ = FT_DPE
-    elif float_type == "mpfr":
-        float_type_ = FT_MPFR
-    else:
-        raise ValueError("Float type '%s' unknown." % float_type)
-    return float_type_
+        return FT_DEFAULT
+    if float_type == "double":
+        return FT_DOUBLE
+    if float_type == "long double":
+        return FT_LONG_DOUBLE
+    if float_type == "dpe":
+        return FT_DPE
+    IF HAVE_QD:
+        if float_type == "dd":
+            return FT_DD
+        if float_type == "qd":
+            return FT_QD
+    if float_type == "mpfr":
+        return FT_MPFR
+
+    raise ValueError("Float type '%s' unknown." % float_type)
 
 cdef int preprocess_indices(int &i, int &j, int m, int n) except -1:
     if i < 0:
@@ -121,15 +124,16 @@ def get_precision(float_type="mpfr"):
 
     if float_type_ == FT_DOUBLE:
         return FP_NR[double].getprec()
-    elif float_type_ == FT_LONG_DOUBLE:
+    if float_type_ == FT_LONG_DOUBLE:
         return FP_NR[longdouble].getprec()
-    elif float_type_ == FT_DPE:
+    if float_type_ == FT_DPE:
         return FP_NR[dpe_t].getprec()
-    elif float_type_ == FT_DD:
-        return FP_NR[dd_real].getprec()
-    elif float_type_ == FT_QD:
-        return FP_NR[qd_real].getprec()
-    elif float_type_ == FT_MPFR:
+    IF HAVE_QD:
+        if float_type_ == FT_DD:
+            return FP_NR[dd_real].getprec()
+        if float_type_ == FT_QD:
+            return FP_NR[qd_real].getprec()
+    if float_type_ == FT_MPFR:
         return FP_NR[mpfr_t].getprec()
     else:
         raise ValueError("Floating point type '%s' unknown."%float_type)

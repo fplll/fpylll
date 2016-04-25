@@ -10,7 +10,6 @@ Elementary basis operations, Gram matrix and Gram-Schmidt orthogonalization.
 
 
 from gmp.mpz cimport mpz_t
-from qd.qd cimport dd_real, qd_real
 from mpfr.mpfr cimport mpfr_t
 from integer_matrix cimport IntegerMatrix
 from fplll cimport dpe_t
@@ -25,6 +24,7 @@ from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
 IF HAVE_QD:
+    from qd.qd cimport dd_real, qd_real
     from fpylll cimport mpz_dd, mpz_qd
     from fplll cimport FT_DD, FT_QD
 

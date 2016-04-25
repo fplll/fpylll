@@ -3,7 +3,6 @@ include "config.pxi"
 include "cysignals/signals.pxi"
 
 
-from qd.qd cimport dd_real, qd_real
 from gmp.mpz cimport mpz_t
 from mpfr.mpfr cimport mpfr_t
 from integer_matrix cimport IntegerMatrix
@@ -32,6 +31,7 @@ from fpylll import ReductionError
 from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
 
 IF HAVE_QD:
+    from qd.qd cimport dd_real, qd_real
     from fpylll cimport mpz_dd, mpz_qd
 
 from wrapper import Wrapper
