@@ -8,6 +8,33 @@ from math import log
 from fpylll.enumeration import Enumeration
 
 
+class DummyStatsContext:
+    """
+    Dummy statistics context, doing nothing.
+    """
+    def __init__(self, stats, what):
+        """
+        """
+        pass
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        pass
+
+
+class DummyStats:
+    """
+    Dummy statistics, doing nothing.
+    """
+    def __init__(self, bkz, verbose=False):
+        pass
+
+    def context(self, what):
+        return DummyStatsContext(self, what)
+
+
 class BKZStatsContext:
     def __init__(self, stats, what):
         self.stats = stats
