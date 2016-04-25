@@ -106,8 +106,6 @@ def get_precision(float_type="mpfr"):
         64
         >>> get_precision('dpe')
         53
-        >>> get_precision('dd')
-        106
 
     For the MPFR type different precisions are supported::
 
