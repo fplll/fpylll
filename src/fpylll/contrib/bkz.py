@@ -25,10 +25,12 @@ class BKZReduction:
     implementation collects some additional statistics.  Hence, it should provide a good basis for
     implementing variants of this algorithm.
     """
-    def __init__(self, A):
+    def __init__(self, A, gso_flags=GSO.ROW_EXPO, lll_flags=LLL.DEFAULT):
         """Construct a new instance of the BKZ algorithm.
 
         :param A: an integer matrix
+        :param gso_flags: flags to pass to GSO object
+        :param lll_flags: flags to pass to LLL object
 
         """
         if not isinstance(A, IntegerMatrix):
@@ -39,8 +41,8 @@ class BKZReduction:
         wrapper()
 
         self.A = A
-        self.M = GSO.Mat(A, flags=GSO.ROW_EXPO)
-        self.lll_obj = LLL.Reduction(self.M)
+        self.M = GSO.Mat(A, flags=gso_flags)
+        self.lll_obj = LLL.Reduction(self.M, flags=lll_flags)
 
     def __call__(self, params):
         """Run the BKZ algorithm with parameters `param`.
