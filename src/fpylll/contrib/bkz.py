@@ -112,9 +112,10 @@ class BKZReduction:
         """
         clean = True
 
-        self.lll_obj(0, kappa, kappa + block_size)
-        if self.lll_obj.nswaps > 0:
-            clean = False
+        with stats.context("lll"):
+            self.lll_obj(0, kappa, kappa + block_size)
+            if self.lll_obj.nswaps > 0:
+                clean = False
 
         if params.preprocessing:
             preproc = params.preprocessing
@@ -173,12 +174,13 @@ class BKZReduction:
         else:
             return solution
 
-    def svp_postprocessing(self, solution, kappa, block_size):
+    def svp_postprocessing(self, solution, kappa, block_size, stats):
         """Insert SVP solution into basis and LLL reduce.
 
         :param solution: coordinates of an SVP solution
         :param kappa: current index
         :param block_size: block size
+        :param stats: object for maintaining statistics
 
         :returns: ``True`` if no change was made and ``False`` otherwise
         """
@@ -194,7 +196,8 @@ class BKZReduction:
                     break
 
             self.M.move_row(kappa + first_nonzero_vector, kappa)
-            self.lll_obj.size_reduction(kappa, kappa + 1)
+            with stats.context("lll"):
+                self.lll_obj.size_reduction(kappa, kappa + 1)
 
         else:
             d = self.M.d
@@ -205,7 +208,8 @@ class BKZReduction:
                     self.M.row_addmul(d, kappa + i, solution[i])
 
             self.M.move_row(d, kappa)
-            self.lll_obj(kappa, kappa, kappa + block_size + 1)
+            with stats.context("lll"):
+                self.lll_obj(kappa, kappa, kappa + block_size + 1)
             self.M.move_row(kappa + block_size, d)
 
             self.M.remove_last_row()
@@ -235,7 +239,7 @@ class BKZReduction:
             solution = self.svp_call(kappa, params, block_size, stats)
 
         with stats.context("postproc"):
-            clean_post = self.svp_postprocessing(solution, kappa, block_size)
+            clean_post = self.svp_postprocessing(solution, kappa, block_size, stats)
         clean &= clean_post
 
         return clean

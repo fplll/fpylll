@@ -49,6 +49,8 @@ class BKZStatsContext:
             self.stats.preproc_begin()
         elif self.what == "svp":
             self.stats.svp_begin()
+        elif self.what == "lll":
+            self.stats.lll_begin()
         elif self.what == "postproc":
             self.stats.postproc_begin()
         else:
@@ -62,6 +64,8 @@ class BKZStatsContext:
             self.stats.preproc_end(time_spent)
         elif self.what == "svp":
             self.stats.svp_end(time_spent)
+        elif self.what == "lll":
+            self.stats.lll_end(time_spent)
         elif self.what == "postproc":
             self.stats.postproc_end(time_spent)
         else:
@@ -92,6 +96,7 @@ class BKZStats:
                                        ("time", 0.0),
                                        ("preproc time", 0.0),
                                        ("svp time", 0.0),
+                                       ("lll time", 0.0),
                                        ("postproc time", 0.0),
                                        ("r_0", 0.0),
                                        ("slope", 0.0),
@@ -134,6 +139,15 @@ class BKZStats:
         self.tours[self.i]["svp time"] += time
         self.tours[self.i]["enum nodes"] += Enumeration.get_nodes()
 
+    def lll_begin(self):
+        self._check_mutable()
+        if self.i > len(self.tours):
+            self.tour_begin()
+
+    def lll_end(self, time):
+        self._check_mutable()
+        self.tours[self.i]["lll time"] += time
+
     def postproc_begin(self):
         self._check_mutable()
         if self.i > len(self.tours):
@@ -163,6 +177,8 @@ class BKZStats:
         s.append("\"time\": %8.2f"%(tour["time"]))
         s.append("\"preproc\": %8.2f"%(tour["preproc time"]))
         s.append("\"svp\": %8.2f"%(tour["svp time"]))
+        s.append("\"lll\": %8.2f"%(tour["lll time"]))
+        s.append("\"postproc\": %8.2f"%(tour["postproc time"]))
         s.append("\"r_0\": %.4e"%(tour["r_0"]))
         s.append("\"slope\": %7.4f"%(tour["slope"]))
         s.append("\"enum nodes\": %5.2f"%(log(tour["enum nodes"], 2)))
@@ -197,4 +213,14 @@ class BKZStats:
         time = 0
         for tour in self.tours:
             time += tour["svp time"]
+        return time
+
+    @property
+    def lll_time(self):
+        """
+        Total time spent in LLL.
+        """
+        time = 0
+        for tour in self.tours:
+            time += tour["lll time"]
         return time
