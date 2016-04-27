@@ -44,7 +44,7 @@ class BKZReduction:
         self.M = GSO.Mat(A, flags=gso_flags)
         self.lll_obj = LLL.Reduction(self.M, flags=lll_flags)
 
-    def __call__(self, params):
+    def __call__(self, params, min_row = 0, max_row = -1):
         """Run the BKZ algorithm with parameters `param`.
 
         :param params: BKZ parameters
@@ -62,7 +62,7 @@ class BKZReduction:
         i = 0
         while True:
             with stats.context("tour"):
-                clean = self.tour(params, 0, self.A.nrows, stats)
+                clean = self.tour(params, min_row, max_row, stats)
             if clean or params.block_size >= self.A.nrows:
                 break
             if (params.flags & BKZ.AUTO_ABORT) and auto_abort.test_abort():
@@ -75,6 +75,7 @@ class BKZReduction:
 
         stats.finalize()
         self.stats = stats
+        return clean
 
     def tour(self, params, min_row=0, max_row=-1, stats=None):
         """One BKZ loop over all indices.
