@@ -44,10 +44,12 @@ class BKZReduction:
         self.M = GSO.Mat(A, flags=gso_flags)
         self.lll_obj = LLL.Reduction(self.M, flags=lll_flags)
 
-    def __call__(self, params, min_row = 0, max_row = -1):
+    def __call__(self, params, min_row=0, max_row=-1):
         """Run the BKZ algorithm with parameters `param`.
 
         :param params: BKZ parameters
+        :param min_row: start processing in this row
+        :param max_row: stop processing in this row (exclusive)
 
         """
         stats = BKZStats(self, verbose=params.flags & BKZ.VERBOSE)
