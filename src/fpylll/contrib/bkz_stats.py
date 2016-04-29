@@ -13,8 +13,6 @@ class DummyStatsContext:
     Dummy statistics context, doing nothing.
     """
     def __init__(self, stats, what):
-        """
-        """
         pass
 
     def __enter__(self):
@@ -42,34 +40,11 @@ class BKZStatsContext:
 
     def __enter__(self):
         self.timestamp = time.clock()
-
-        if self.what == "tour":
-            self.stats.tour_begin()
-        elif self.what == "preproc":
-            self.stats.preproc_begin()
-        elif self.what == "svp":
-            self.stats.svp_begin()
-        elif self.what == "lll":
-            self.stats.lll_begin()
-        elif self.what == "postproc":
-            self.stats.postproc_begin()
-        else:
-            raise NotImplementedError
+        self.stats.begin(self.what)
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         time_spent = time.clock() - self.timestamp
-        if self.what == "tour":
-            self.stats.tour_end(time_spent)
-        elif self.what == "preproc":
-            self.stats.preproc_end(time_spent)
-        elif self.what == "svp":
-            self.stats.svp_end(time_spent)
-        elif self.what == "lll":
-            self.stats.lll_end(time_spent)
-        elif self.what == "postproc":
-            self.stats.postproc_end(time_spent)
-        else:
-            raise NotImplementedError
+        self.stats.end(self.what, time_spent)
 
 
 class BKZStats:
@@ -88,8 +63,7 @@ class BKZStats:
         self._check_mutable()
         return BKZStatsContext(self, what)
 
-    def tour_begin(self):
-        self._check_mutable()
+    def _tour_begin(self):
         i = self.i
         self.tours.append(OrderedDict([("i", i),
                                        ("total time", 0.0),
@@ -107,8 +81,7 @@ class BKZStats:
             self.tours[i]["total time"] = self.tours[i-1]["total time"]
             self.tours[i]["max(kappa)"] = self.tours[i-1]["max(kappa)"]
 
-    def tour_end(self, time):
-        self._check_mutable()
+    def _tour_end(self, time):
         i = self.i
         self.tours[i]["time"] = time
         r, exp = self.bkz.M.get_r_exp(0, 0)
@@ -120,43 +93,30 @@ class BKZStats:
             print(self)
         self.i += 1
 
-    def preproc_begin(self):
-        self._check_mutable()
-        if self.i > len(self.tours):
-            self.tour_begin()
-
-    def preproc_end(self, time):
-        self._check_mutable()
-        self.tours[self.i]["preproc time"] += time
-
-    def svp_begin(self):
-        self._check_mutable()
-        if self.i > len(self.tours):
-            self.tour_begin()
-
-    def svp_end(self, time):
-        self._check_mutable()
+    def _svp_end(self, time):
         self.tours[self.i]["svp time"] += time
         self.tours[self.i]["enum nodes"] += Enumeration.get_nodes()
 
-    def lll_begin(self):
+    def begin(self, what):
         self._check_mutable()
+
+        if what == "tour":
+            return self._tour_begin()
+
         if self.i > len(self.tours):
-            self.tour_begin()
+            self._tour_begin()
+        if "%s time"%what not in self.tours[self.i]:
+            self.tour["%s time"%what] = 0.0
 
-    def lll_end(self, time):
+    def end(self, what, time, *args, **kwds):
         self._check_mutable()
-        self.tours[self.i]["lll time"] += time
 
-    def postproc_begin(self):
-        self._check_mutable()
-        if self.i > len(self.tours):
-            self.tour_begin()
+        if what == "tour":
+            return self._tour_end(time, *args, **kwds)
+        elif what == "svp":
+            return self._svp_end(time, *args, **kwds)
 
-    def postproc_end(self, time):
-        self._check_mutable()
-        i = self.i
-        self.tours[i]["postproc time"] += time
+        self.tours[self.i]["%s time"%what] += time
 
     def log_clean_kappa(self, kappa, clean):
         self._check_mutable()
