@@ -118,6 +118,10 @@ class BKZStats:
 
         self.tours[self.i]["%s time"%what] += time
 
+    @property
+    def current_tour(self):
+        return self.tours[self.i]
+
     def log_clean_kappa(self, kappa, clean):
         self._check_mutable()
         if clean and self.tours[self.i]["max(kappa)"] < kappa:
