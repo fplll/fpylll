@@ -106,7 +106,7 @@ class BKZStats:
         if self.i > len(self.tours):
             self._tour_begin()
         if "%s time"%what not in self.tours[self.i]:
-            self.tour["%s time"%what] = 0.0
+            self.tours[self.i]["%s time"%what] = 0.0
 
     def end(self, what, time, *args, **kwds):
         self._check_mutable()
