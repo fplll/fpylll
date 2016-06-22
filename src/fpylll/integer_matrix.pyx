@@ -358,7 +358,7 @@ cdef class IntegerMatrix:
             A = IntegerMatrix(2*d, 2*d)
         elif algorithm == "ntrulike2":
             A = IntegerMatrix(2*d, 2*d)
-        elif algorithm == "ajtai":
+        elif algorithm == "trg":
             A = IntegerMatrix(d, d)
         else:
             raise ValueError("Algorithm '%s' unknown."%algorithm)
@@ -629,7 +629,7 @@ cdef class IntegerMatrix:
               rotations of a vector ``h``.  Note that the constructed matrix will not come with a
               guarantee of unusually short vectors.
 
-            - ``"ajtai"`` - assumes `d × d` matrix and float parameter ``alpha``
+            - ``"trg"`` - assumes `d × d` matrix and float parameter ``alpha``
         """
         if algorithm == "intrel":
             bits = int(kwds["bits"])
@@ -649,23 +649,37 @@ cdef class IntegerMatrix:
             sig_off()
 
         elif algorithm == "ntrulike":
-            bits = int(kwds["bits"])
-            q = int(kwds["q"])
-            sig_on()
-            self._core.gen_ntrulike(bits, q)
-            sig_off()
+            if "q" in kwds:
+                q = int(kwds["q"])
+                sig_on()
+                self._core.gen_ntrulike_withq(q)
+                sig_off()
+            elif "bits" in kwds:
+                bits = int(kwds["bits"])
+                sig_on()
+                self._core.gen_ntrulike(bits)
+                sig_off()
+            else:
+                raise ValueError("Either 'q' or 'bits' is required.")
 
         elif algorithm == "ntrulike2":
-            bits = int(kwds["bits"])
-            q = int(kwds["q"])
-            sig_on()
-            self._core.gen_ntrulike2(bits, q)
-            sig_off()
+            if "q" in kwds:
+                q = int(kwds["q"])
+                sig_on()
+                self._core.gen_ntrulike2_withq(q)
+                sig_off()
+            elif "bits" in kwds:
+                bits = int(kwds["bits"])
+                sig_on()
+                self._core.gen_ntrulike2(bits)
+                sig_off()
+            else:
+                raise ValueError("Either 'q' or 'bits' is required.")
 
-        elif algorithm == "ajtai":
+        elif algorithm == "trg":
             alpha = float(kwds["alpha"])
             sig_on()
-            self._core.gen_ajtai(alpha)
+            self._core.gen_trg(alpha)
             sig_off()
 
         else:

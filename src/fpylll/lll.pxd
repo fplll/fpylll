@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from gso cimport MatGSO
-from fpylll cimport lll_reduction_core, fplll_type_t
+from fpylll cimport lll_reduction_core_t, fplll_type_t
 
 cdef class LLLReduction:
 
     cdef fplll_type_t _type
-    cdef lll_reduction_core _core
+    cdef lll_reduction_core_t _core
 
     cdef readonly MatGSO M
     cdef double _delta

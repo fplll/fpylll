@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 from .simple_bkz import BKZReduction
-from fpylll import Enumeration as Enum
+from fpylll import Enumeration
 import math
 from functools import reduce
 
@@ -62,7 +62,7 @@ class DBKZReduction(BKZReduction):
         expo *= -1.0
         delta_max_dist = self.lll_obj.delta * max_dist
 
-        solution, max_dist = Enum.enumerate(self.m, max_dist, expo, kappa, kappa + block_size, None, dual=True)
+        solution, max_dist = Enumeration(self.m).enumerate(kappa, kappa + block_size, max_dist, expo, None, dual=True)
         if max_dist >= delta_max_dist:
             return clean
 

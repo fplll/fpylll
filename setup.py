@@ -17,7 +17,9 @@ cythonize_dir = "build"
 fplll = {"include_dirs": [],
          "library_dirs": [],
          "language": "c++",
-         "libraries": ["gmp", "mpfr", "fplll"]}
+         "libraries": ["gmp", "mpfr", "fplll"],
+         "extra_compile_args": ["-std=c++11"],
+         "extra_link_args": ["-std=c++11"]}
 
 other = {"include_dirs": [],
          "library_dirs": [],

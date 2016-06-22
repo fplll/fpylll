@@ -9,16 +9,16 @@ from fpylll.util import set_random_seed
 dimensions = (60, 70)
 
 
-def make_integer_matrix(m, n):
-    A = IntegerMatrix(m, n)
-    A.randomize(algorithm="ntrulike", bits=30, q=2147483647)
+def make_integer_matrix(n):
+    A = IntegerMatrix(n, n)
+    A.randomize(algorithm="ntrulike", bits=30)
     return A
 
 
 def test_simple_bkz_init():
     for n in dimensions:
         set_random_seed(2**10 + n)
-        A = make_integer_matrix(n, n)
+        A = make_integer_matrix(n)
         B = SimpleBKZ(copy(A))
         del B
 
@@ -26,7 +26,7 @@ def test_simple_bkz_init():
 def test_simple_bkz_reduction(block_size=10):
     for n in dimensions:
         set_random_seed(n)
-        A = make_integer_matrix(n, n)
+        A = make_integer_matrix(n)
         LLL.reduction(A)
         B = copy(A)
         BKZ.reduction(B, BKZ.Param(block_size=block_size))

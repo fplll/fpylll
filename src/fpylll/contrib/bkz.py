@@ -12,7 +12,7 @@ from __future__ import absolute_import
 import time
 from fpylll import IntegerMatrix, GSO, LLL
 from fpylll import BKZ
-from fpylll import Enumeration as Enum
+from fpylll import Enumeration
 from fpylll import EnumerationError
 from .bkz_stats import BKZStats
 
@@ -163,9 +163,10 @@ class BKZReduction:
             max_dist, expo = self.M.compute_gaussian_heuristic_distance(kappa, block_size,
                                                                         max_dist, expo, params.gh_factor)
         try:
-            solution, max_dist = Enum.enumerate(self.M, max_dist, expo,
-                                                kappa, kappa + block_size,
-                                                params.pruning)
+            E = Enumeration(self.M)
+            solution, max_dist = E.enumerate(kappa, kappa + block_size, max_dist, expo,
+                                             params.pruning)
+            stats.current_tour["enum nodes"] += E.get_nodes()
         except EnumerationError as msg:
             if params.flags & BKZ.GH_BND:
                 return None

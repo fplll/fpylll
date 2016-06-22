@@ -95,7 +95,6 @@ class BKZStats:
 
     def _svp_end(self, time):
         self.tours[self.i]["svp time"] += time
-        self.tours[self.i]["enum nodes"] += Enumeration.get_nodes()
 
     def begin(self, what):
         self._check_mutable()

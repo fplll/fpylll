@@ -11,7 +11,7 @@ from libcpp.string cimport string
 #
 # Numbers
 
-cdef extern from "fplll/nr.h" namespace "fplll":
+cdef extern from "fplll/nr/nr.h" namespace "fplll":
 
     ctypedef double enumf
 
@@ -76,7 +76,7 @@ cdef extern from "fplll/nr.h" namespace "fplll":
         @staticmethod
         unsigned int setprec(unsigned int) nogil
 
-cdef extern from "fplll/nr.h":
+cdef extern from "fplll/nr/nr.h":
     cdef struct dpe_struct:
         pass
     ctypedef dpe_struct *dpe_t
@@ -85,7 +85,7 @@ cdef extern from "fplll/nr.h":
 # Random Numbers
 
 
-cdef extern from "fplll/nr.h" namespace "fplll":
+cdef extern from "fplll/nr/nr.h" namespace "fplll":
 
     cdef cppclass RandGen:
         @staticmethod
@@ -183,7 +183,7 @@ cdef extern from "fplll/defs.h" namespace "fplll":
 
 # Matrices over the Integers
 
-cdef extern from "fplll/matrix.h" namespace "fplll":
+cdef extern from "fplll/nr/matrix.h" namespace "fplll":
     cdef cppclass MatrixRow[T]:
         T& operator[](int i) nogil
         int size() nogil
@@ -248,9 +248,11 @@ cdef extern from "fplll/matrix.h" namespace "fplll":
         void gen_intrel(int bits) nogil
         void gen_simdioph(int bits, int bits2) nogil
         void gen_uniform(int bits) nogil
-        void gen_ntrulike(int bits, int q) nogil
-        void gen_ntrulike2(int bits, int q) nogil
-        void gen_ajtai(double alpha) nogil
+        void gen_ntrulike(int bits) nogil
+        void gen_ntrulike_withq(int q) nogil
+        void gen_ntrulike2(int bits) nogil
+        void gen_ntrulike2_withq(int q) nogil
+        void gen_trg(double alpha) nogil
 
 
 
@@ -363,7 +365,7 @@ cdef extern from "fplll/wrapper.h" namespace "fplll":
 
 # Evaluator
 
-cdef extern from "fplll/evaluator.h" namespace "fplll":
+cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
     cdef cppclass Evaluator[FT]:
         Evaluator()
@@ -388,21 +390,17 @@ cdef extern from "fplll/evaluator.h" namespace "fplll":
 
 # Enumeration
 
-cdef extern from "fplll/enumerate.h" namespace "fplll":
-    cdef cppclass Enumeration:
-        @staticmethod
-        void enumerateDouble(MatGSO[Z_NR[double], FP_NR[double]]& gso,
-                             FP_NR[double]& fMaxDist, Evaluator[FP_NR[double]]& evaluator,
-                             int first, int last,
-                             const vector[double]& pruning) nogil
+cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
+    cdef cppclass Enumeration[FT]:
+        Enumeration(MatGSO[Z_NR[mpz_t], FT]& gso, FastEvaluator[FT]& evaluator)
 
-        @staticmethod
-        void enumerate[FT](MatGSO[Z_NR[mpz_t], FT]& gso, FT& fMaxDist, long maxDistExpo,
-                           FastEvaluator[FT]& evaluator, const vector[FT]& targetCoord,
-                           const vector[FT]& subTree, int first, int last,
-                           const vector[double]& pruning, int dual) nogil
-        @staticmethod
-        long getNodes() nogil
+        void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
+                       const vector[FT]& targetCoord,
+                       const vector[double]& subTree,
+                       const vector[double]& pruning,
+                       int dual)
+
+        long getNodes()
 
 
 

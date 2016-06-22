@@ -7,7 +7,7 @@ A minimal implementation of the Block Korkine Zolotarev algorithm in Python.
 
 from __future__ import absolute_import
 from fpylll import IntegerMatrix, GSO, LLL, BKZ
-from fpylll import Enumeration as Enum
+from fpylll import Enumeration
 from fpylll import gso
 
 
@@ -78,7 +78,7 @@ class BKZReduction:
         max_dist, expo = self.m.get_r_exp(kappa, kappa)
         delta_max_dist = self.lll_obj.delta * max_dist
 
-        solution, max_dist = Enum.enumerate(self.m, max_dist, expo, kappa, kappa + block_size, None)
+        solution, max_dist = Enumeration(self.m).enumerate(kappa, kappa + block_size, max_dist, expo, None)
 
         if max_dist >= delta_max_dist:
             return clean
