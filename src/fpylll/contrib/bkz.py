@@ -65,6 +65,7 @@ class BKZReduction:
         while True:
             with stats.context("tour"):
                 clean = self.tour(params, min_row, max_row, stats)
+            i += 1
             if clean or params.block_size >= self.A.nrows:
                 break
             if (params.flags & BKZ.AUTO_ABORT) and auto_abort.test_abort():
@@ -73,7 +74,6 @@ class BKZReduction:
                 break
             if (params.flags & BKZ.MAX_TIME) and time.clock() - cputime_start >= params.max_time:
                 break
-            i += 1
 
         stats.finalize()
         self.stats = stats
@@ -134,11 +134,11 @@ class BKZReduction:
                     clean = clean_inner
                 if auto_abort.test_abort():
                     break
+                i += 1
                 if (preproc.flags & BKZ.MAX_LOOPS) and i >= preproc.max_loops:
                     break
                 if (preproc.flags & BKZ.MAX_TIME) and time.clock() - cputime_start >= preproc.max_time:
                     break
-                i += 1
 
         return clean
 
