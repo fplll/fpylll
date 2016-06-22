@@ -1,10 +1,10 @@
 fpylll
 ======
 
-A Python (2 and 3) wrapper for `fplll <https://github.com/dstehle/fplll>`_.
+A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`_.
 
-.. image:: https://travis-ci.org/malb/fpylll.svg?branch=master
-    :target: https://travis-ci.org/malb/fpylll
+.. image:: https://travis-ci.org/fplll/fpylll.svg?branch=master
+    :target: https://travis-ci.org/fplll/fpylll
 
 .. code-block:: python
 
@@ -27,7 +27,7 @@ A Python (2 and 3) wrapper for `fplll <https://github.com/dstehle/fplll>`_.
     >>> A[0].norm()
     24.06241883103193
 
-The basic BKZ algorithm can be implemented in about 60 pretty readable lines of Python code (cf. `simple_bkz.py <https://github.com/malb/fpylll/blob/master/src/fpylll/contrib/simple_bkz.py>`_).
+The basic BKZ algorithm can be implemented in about 60 pretty readable lines of Python code (cf. `simple_bkz.py <https://github.com/fplll/fpylll/blob/master/src/fpylll/contrib/simple_bkz.py>`_).
              
 Requirements
 ------------
@@ -189,7 +189,7 @@ To test threading simply replace the line ``from multiprocessing import Pool`` w
 Contributing
 ------------
 
-**fpylll** welcomes contributions, cf. the list of `open issues <https://github.com/malb/fpylll/issues>`_. To contribute, clone this repository, commit your code on a separate branch and send a pull request. Please write tests for your code. You can run them by calling::
+**fpylll** welcomes contributions, cf. the list of `open issues <https://github.com/fplll/fpylll/issues>`_. To contribute, clone this repository, commit your code on a separate branch and send a pull request. Please write tests for your code. You can run them by calling::
 
     $ (fpylll) py.test
 
@@ -197,7 +197,7 @@ from the top-level directory which runs all tests in ``tests/test_*.py``. We run
 
     $ (fpylll) flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src
 
-Note that **fpylll** supports Python 2 and 3. In particular, tests are run using Python 2.7 and 3.5. See `.travis.yml <https://github.com/malb/fpylll/blob/master/.travis.yml>`_ for details on automated testing.
+Note that **fpylll** supports Python 2 and 3. In particular, tests are run using Python 2.7 and 3.5. See `.travis.yml <https://github.com/fplll/fpylll/blob/master/.travis.yml>`_ for details on automated testing.
 
 Attribution & License
 ---------------------
