@@ -1136,15 +1136,15 @@ cdef class IntegerMatrix:
         A = cls(0, 0)
         with open(filename, 'r') as fh:
             for i, line in enumerate(fh.readlines()):
-                line = re.match("\[+(.*) *\]+", line)
+                line = re.match("\[+([^\]]+) *\]", line)
                 if line is None:
                     continue
                 line = line.groups()[0]
                 line = line.strip()
                 line = [e for e in line.split(" ") if e != '']
                 values = map(int, line)
-                A._core.setRows(i+1)
-                A._core.setCols(len(values))
+                (<IntegerMatrix>A)._core.setRows(i+1)
+                (<IntegerMatrix>A)._core.setCols(len(values))
                 for j, v in enumerate(values):
                     A[i, j] = v
         return A
