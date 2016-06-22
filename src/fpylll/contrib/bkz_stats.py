@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 import time
 from collections import OrderedDict
 from math import log
-from fpylll.enumeration import Enumeration
 
 
 class DummyStatsContext:
