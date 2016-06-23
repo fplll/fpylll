@@ -12,12 +12,11 @@ from fpylll.contrib.bkz import BKZReduction as BKZ
 from fpylll import BKZ as fplll_bkz
 from fpylll.util import set_random_seed
 
-dimensions = (30, 40)
+dimensions = (31, 37)
 
 
 def make_integer_matrix(n):
-    A = IntegerMatrix(n, n)
-    A.randomize(algorithm="ntrulike", bits=30)
+    A = IntegerMatrix.random(n, "ntrulike", bits=30)
     return A
 
 

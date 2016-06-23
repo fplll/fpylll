@@ -6,12 +6,11 @@ from fpylll import BKZ, IntegerMatrix, LLL
 from fpylll.contrib.simple_bkz import BKZReduction as SimpleBKZ
 from fpylll.util import set_random_seed
 
-dimensions = (60, 70)
+dimensions = (61, 67)
 
 
 def make_integer_matrix(n):
-    A = IntegerMatrix(n, n)
-    A.randomize(algorithm="ntrulike", bits=30)
+    A = IntegerMatrix.random(n, "uniform", bits=30)
     return A
 
 
@@ -34,5 +33,5 @@ def test_simple_bkz_reduction(block_size=10):
         C = copy(A)
         SimpleBKZ(C)(block_size=block_size)
 
-        assert abs(C[0].norm() < A[0].norm())
         assert abs(C[0].norm() - B[0].norm()) < 0.1
+        assert abs(C[0].norm() < A[0].norm())
