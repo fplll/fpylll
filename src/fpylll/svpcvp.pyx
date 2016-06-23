@@ -26,13 +26,12 @@ from fpylll import ReductionError
 
 from integer_matrix cimport IntegerMatrix
 
-def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, max_dist=None, pruning=None, run_lll=True):
+def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning=None, run_lll=True):
     """Return a shortest vector.
 
     :param IntegerMatrix B:
     :param method:
     :param int flags:
-    :param max_dist:
     :param pruning:
     :returns:
     :rtype:
@@ -46,7 +45,7 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, max_dis
     else:
         raise ValueError("Method '{}' unknown".format(method))
 
-    cdef int r
+    cdef int r = 0
 
     if run_lll:
         lll_reduction(B)
@@ -54,7 +53,6 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, max_dis
     cdef vector[Z_NR[mpz_t]] solCoord
     cdef vector[Z_NR[mpz_t]] solution
     cdef vector[double] pruning_
-    cdef Z_NR[mpz_t] max_dist_
 
     if pruning:
         if len(pruning) != B.nrows:
@@ -64,13 +62,10 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, max_dis
         for i in range(len(pruning)):
             pruning_[i] = pruning[i]
 
-        if max_dist:
-            assign_Z_NR_mpz(max_dist_, max_dist)
-
         with enum_lock:
             with nogil:
                 sig_on()
-                r = shortestVectorPruning(B._core[0], solCoord, pruning_, max_dist_, flags)
+                r = shortestVectorPruning(B._core[0], solCoord, pruning_, flags)
                 sig_off()
     else:
         with enum_lock:
@@ -78,7 +73,6 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, max_dis
                 sig_on()
                 r = shortestVector(B._core[0], solCoord, method_, flags)
                 sig_off()
-
 
     if r:
         raise ReductionError("SVP solver returned an error ({:d})".format(r))
