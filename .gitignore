@@ -56,4 +56,4 @@ target/
 /.vagrant/
 /Vagrantfile
 /src/fpylll/config.pxi
-/.ipynb_checkpoints/Demo-checkpoint.ipynb
+/.ipynb_checkpoints/*.ipynb
