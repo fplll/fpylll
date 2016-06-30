@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 
-Test if contrib BKZ classes can be instantiated and run.
+Test if Python BKZ classes can be instantiated and run.
 """
 from copy import copy
 
 from fpylll import IntegerMatrix
-from fpylll.contrib.simple_bkz import BKZReduction as SimpleBKZ
-from fpylll.contrib.simple_dbkz import DBKZReduction as SimpleDualBKZ
-from fpylll.contrib.bkz import BKZReduction as BKZ
+from fpylll.algorithms.simple_bkz import BKZReduction as SimpleBKZ
+from fpylll.algorithms.simple_dbkz import DBKZReduction as SimpleDualBKZ
+from fpylll.algorithms.bkz import BKZReduction as BKZ
 from fpylll import BKZ as fplll_bkz
 from fpylll.util import set_random_seed
 

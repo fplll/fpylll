@@ -8,7 +8,6 @@ A minimal implementation of the Block Korkine Zolotarev algorithm in Python.
 from __future__ import absolute_import
 from fpylll import IntegerMatrix, GSO, LLL, BKZ
 from fpylll import Enumeration
-from fpylll import gso
 
 
 class BKZReduction:
@@ -26,7 +25,7 @@ class BKZReduction:
         wrapper()
 
         self.A = A
-        self.m = GSO.Mat(A, flags=gso.GSO.ROW_EXPO)
+        self.m = GSO.Mat(A, flags=GSO.ROW_EXPO)
         self.lll_obj = LLL.Reduction(self.m)
 
     def __call__(self, block_size):

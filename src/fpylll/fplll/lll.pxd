@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from gso cimport MatGSO
-from fpylll cimport lll_reduction_core_t, fplll_type_t
+from decl cimport lll_reduction_core_t, fplll_type_t
 
 cdef class LLLReduction:
 

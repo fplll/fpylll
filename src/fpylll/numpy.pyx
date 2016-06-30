@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 
-from fpylll.gso cimport MatGSO
-from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
+from fpylll.fplll.gso cimport MatGSO
+from fpylll.fplll.decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
+
 IF HAVE_QD:
     from fpylll cimport mpz_dd, mpz_qd
 

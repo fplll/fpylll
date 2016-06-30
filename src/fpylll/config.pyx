@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 
@@ -15,5 +15,3 @@ IF HAVE_SAGE:
 ELSE:
     have_sage = False
 
-class ReductionError(RuntimeError):
-    pass

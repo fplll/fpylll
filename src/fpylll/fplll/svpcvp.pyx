@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 """
@@ -11,7 +11,7 @@ Shortest and Closest Vectors.
 import threading
 
 from libcpp.vector cimport vector
-from gmp.mpz cimport mpz_t
+from fpylll.gmp.mpz cimport mpz_t
 from fplll cimport Z_NR
 from fplll cimport SVP_DEFAULT, CVP_DEFAULT
 from fplll cimport SVP_VERBOSE, CVP_VERBOSE
@@ -21,8 +21,8 @@ from fplll cimport SVPMethod
 from fplll cimport shortestVectorPruning, shortestVector
 from fplll cimport vectMatrixProduct
 from lll import lll_reduction
-from io cimport assign_Z_NR_mpz, mpz_get_python
-from fpylll import ReductionError
+from fpylll.io cimport assign_Z_NR_mpz, mpz_get_python
+from fpylll.util import ReductionError
 
 from integer_matrix cimport IntegerMatrix
 

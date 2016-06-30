@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 """
@@ -18,8 +18,8 @@ from fpylll.io cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
 import re
 from math import log10, ceil, sqrt, floor
 
-from gmp.pylong cimport mpz_get_pyintlong
-from gmp.mpz cimport mpz_init, mpz_mod, mpz_fdiv_q_ui, mpz_clear, mpz_cmp, mpz_sub, mpz_set
+from fpylll.gmp.pylong cimport mpz_get_pyintlong
+from fpylll.gmp.mpz cimport mpz_init, mpz_mod, mpz_fdiv_q_ui, mpz_clear, mpz_cmp, mpz_sub, mpz_set
 
 
 cdef class IntegerMatrixRow:
@@ -43,7 +43,7 @@ cdef class IntegerMatrixRow:
             >>> r[0] = 1
             Traceback (most recent call last):
             ...
-            TypeError: 'fpylll.integer_matrix.IntegerMatrixRow' object does not support item assignment
+            TypeError: 'fpylll.fplll.integer_matrix.IntegerMatrixRow' object does not support item assignment
 
         """
         preprocess_indices(row, row, M.nrows, M.nrows)
@@ -585,7 +585,7 @@ cdef class IntegerMatrix:
             >>> A[1][0] = 2
             Traceback (most recent call last):
             ...
-            TypeError: 'fpylll.integer_matrix.IntegerMatrixRow' object does not support item assignment
+            TypeError: 'fpylll.fplll.integer_matrix.IntegerMatrixRow' object does not support item assignment
 
         """
         cdef int i = 0
@@ -611,25 +611,44 @@ cdef class IntegerMatrix:
 
         :param algorithm: string, see below for choices.
 
-        Available algorithms:
+            Available algorithms:
 
-            - ``"intrel"`` - assumes `d × (d+1)` matrix and size parameter ``bits``
+                - ``"intrel"`` - generate a knapsack like matrix of dimension ``d x (d+1)`` and
+                  ``bits`` bits: the i-th vector starts with a random integer of bit-length <=b and
+                  the rest is the i-th canonical unit vector.
 
-            - ``"simdioph"`` - assumes `d × d` matrix and size parameter ``bits`` and ``bits``
+                - ``"simdioph"`` - generate a ``d x d`` matrix of a form similar to that is involved
+                  when trying to find rational approximations to reals with the same small
+                  denominator.  The first vector starts with a random integer of bit-length
+                  ``<=bits2`` and continues with ``d-1`` independent integers of bit-lengths
+                  ``<=bits``; the i-th vector for ``i>1`` is the i-th canonical unit vector scaled
+                  by a factor ``2^b``.
 
-            - ``"uniform"`` - assumes parameter ``bits``
+                - ``"uniform"`` - generate a ``d x d`` matrix whose entries are independent integers
+                  of bit-lengths ``<=bits``.
 
-            - ``"ntrulike"`` - assumes `2d × 2d` matrix, size parameter ``bits`` and modulus ``q``.
-              Constructs a matrix ``A = [[I,H],[0,qI]]`` where ``H`` is constructed from rotations
-              of a vector ``h``.  Note that the constructed matrix will not come with a guarantee of
-              unusually short vectors.
+                - ``"ntrulike"`` - generate an NTRU-like matrix.  If ``bits`` is given, then it
+                  first samples an integer ``q`` of bit-length ``<=bits``, whereas if ``q``, then it
+                  sets ``q`` to the provided value.  Then it samples a uniform ``h`` in the ring
+                  ``Z_q[x]/(x^n-1)``.  It finally returns the 2 x 2 block matrix ``[[I, Rot(h)], [0,
+                  q*I]]``, where each block is ``d x d``, the first row of ``Rot(h)`` is the
+                  coefficient vector of ``h``, and the i-th row of ``Rot(h)`` is the shift of the
+                  (i-1)-th (with last entry put back in first position), for all i>1.  Warning: this
+                  does not produce a genuine ntru lattice with h a genuine public key.
 
-            - ``"ntrulike2"`` - assumes `2d × 2d` matrix and size parameter ``bits`` and modulus
-              ``q``.  Constructs a matrix ``A = [[qI,0],[H,I]]`` where ``H`` is constructed from
-              rotations of a vector ``h``.  Note that the constructed matrix will not come with a
-              guarantee of unusually short vectors.
+                - ``ntrulike2"`` : as the previous option, except that the contructed matrix is
+                  ``[[q*I, 0], [Rot(h), I]]``.
 
-            - ``"trg"`` - assumes `d × d` matrix and float parameter ``alpha``
+                - ``"qary"`` : generate a q-ary matrix.  If ``bits`` is given, then it first samples
+                  an integer ``q`` of bit-length ``<=bits``; if ``q`` is provided, then set ``q`` to
+                  the provided value.  It returns a ``2 x 2`` block matrix ``[[q*I, 0], [H, I]]``,
+                  where ``H`` is ``k x (d-k)`` and uniformly random modulo q.  These bases
+                  correspond to the SIS/LWE q-ary lattices.  Goldstein-Mayer lattices correspond to
+                  ``k=1`` and ``q`` prime.
+
+                - ``"trg"`` - generate a ``d x d`` lower-triangular matrix ``B`` with ``B_ii =
+                  2^(d-i+1)^f`` for all ``i``, and ``B_ij`` is uniform between ``-B_jj/2`` and
+                  ``B_jj/2`` for all ``j<i``.
         """
         if algorithm == "intrel":
             bits = int(kwds["bits"])
@@ -672,6 +691,21 @@ cdef class IntegerMatrix:
                 bits = int(kwds["bits"])
                 sig_on()
                 self._core.gen_ntrulike2(bits)
+                sig_off()
+            else:
+                raise ValueError("Either 'q' or 'bits' is required.")
+
+        elif algorithm == "qary":
+            k = int(kwds["k"])
+            if "q" in kwds:
+                q = int(kwds["q"])
+                sig_on()
+                self._core.gen_qary_withq(k, q)
+                sig_off()
+            elif "bits" in kwds:
+                bits = int(kwds["bits"])
+                sig_on()
+                self._core.gen_qary_prime(k, bits)
                 sig_off()
             else:
                 raise ValueError("Either 'q' or 'bits' is required.")

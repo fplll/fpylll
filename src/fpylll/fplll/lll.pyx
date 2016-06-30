@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 
-from gmp.mpz cimport mpz_t
-from mpfr.mpfr cimport mpfr_t
+from fpylll.gmp.mpz cimport mpz_t
+from fpylll.mpfr.mpfr cimport mpfr_t
 from integer_matrix cimport IntegerMatrix
 
 from fplll cimport LLL_VERBOSE
@@ -26,9 +26,9 @@ from fplll cimport getRedStatusStr
 from fplll cimport isLLLReduced
 from fplll cimport FloatType
 
-from util cimport check_float_type, check_delta, check_eta, check_precision
-from fpylll import ReductionError
-from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
+from fpylll.util cimport check_float_type, check_delta, check_eta, check_precision
+from fpylll.util import ReductionError
+from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
 
 IF HAVE_QD:
     from qd.qd cimport dd_real, qd_real

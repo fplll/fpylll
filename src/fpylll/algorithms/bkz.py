@@ -164,8 +164,7 @@ class BKZReduction:
                                                                         max_dist, expo, params.gh_factor)
         try:
             E = Enumeration(self.M)
-            solution, max_dist = E.enumerate(kappa, kappa + block_size, max_dist, expo,
-                                             params.pruning)
+            solution, max_dist = E.enumerate(kappa, kappa + block_size, max_dist, expo)
             stats.current_tour["enum nodes"] += E.get_nodes()
         except EnumerationError as msg:
             if params.flags & BKZ.GH_BND:

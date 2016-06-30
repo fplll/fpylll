@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set

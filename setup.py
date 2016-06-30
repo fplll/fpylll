@@ -104,16 +104,17 @@ if cur_config_pxi != config_pxi:  # check if we need to write
 
 extensions = [
     Extension("gmp.pylong", ["src/fpylll/gmp/pylong.pyx"], **other),
+    Extension("fplll.integer_matrix", ["src/fpylll/fplll/integer_matrix.pyx"], **fplll),
+    Extension("fplll.gso", ["src/fpylll/fplll/gso.pyx"], **fplll),
+    Extension("fplll.lll", ["src/fpylll/fplll/lll.pyx"], **fplll),
+    Extension("fplll.wrapper", ["src/fpylll/fplll/wrapper.pyx"], **fplll),
+    Extension("fplll.bkz_params", ["src/fpylll/fplll/bkz_params.pyx"], **fplll),
+    Extension("fplll.bkz", ["src/fpylll/fplll/bkz.pyx"], **fplll),
+    Extension("fplll.enumeration", ["src/fpylll/fplll/enumeration.pyx"], **fplll),
+    Extension("fplll.svpcvp", ["src/fpylll/fplll/svpcvp.pyx"], **fplll),
     Extension("util", ["src/fpylll/util.pyx"], **fplll),
     Extension("io", ["src/fpylll/io.pyx"], **fplll),
-    Extension("integer_matrix", ["src/fpylll/integer_matrix.pyx"], **fplll),
-    Extension("gso", ["src/fpylll/gso.pyx"], **fplll),
-    Extension("lll", ["src/fpylll/lll.pyx"], **fplll),
-    Extension("wrapper", ["src/fpylll/wrapper.pyx"], **fplll),
-    Extension("bkz", ["src/fpylll/bkz.pyx"], **fplll),
-    Extension("enumeration", ["src/fpylll/enumeration.pyx"], **fplll),
-    Extension("svpcvp", ["src/fpylll/svpcvp.pyx"], **fplll),
-    Extension("fpylll", ["src/fpylll/fpylll.pyx"], **fplll),
+    Extension("config", ["src/fpylll/config.pyx"], **fplll),
 ]
 
 if have_numpy:
@@ -128,7 +129,7 @@ setup(
                           build_dir=cythonize_dir,
                           compiler_directives={'embedsignature': True}),
     package_dir={"": "src"},
-    packages=["fpylll", "fpylll.gmp", "fpylll.contrib"],
+    packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms"],
     license='GNU General Public License, version 2 or later',
     long_description=open('README.rst').read(),
 )

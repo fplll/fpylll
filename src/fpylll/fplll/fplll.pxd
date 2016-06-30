@@ -3,8 +3,8 @@
 #
 # General Includes
 
-from gmp.mpz cimport mpz_t
-from gmp.random cimport gmp_randstate_t
+from fpylll.gmp.mpz cimport mpz_t
+from fpylll.gmp.random cimport gmp_randstate_t
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 
@@ -252,6 +252,8 @@ cdef extern from "fplll/nr/matrix.h" namespace "fplll":
         void gen_ntrulike_withq(int q) nogil
         void gen_ntrulike2(int bits) nogil
         void gen_ntrulike2_withq(int q) nogil
+        void gen_qary_withq(int k, int q) nogil
+        void gen_qary_prime(int k, int bits) nogil
         void gen_trg(double alpha) nogil
 
 
@@ -422,47 +424,66 @@ cdef extern from "fplll/svpcvp.h" namespace "fplll":
 
 # BKZ
 
-cdef extern from "fplll/bkz.h" namespace "fplll":
+cdef extern from "fplll/bkz_params.h" namespace "fplll":
+
+    cdef cppclass Pruning:
+        double radius_factor
+        vector[double] coefficients
+        double probability
+
+        Pruning()
+
+        @staticmethod
+        Pruning LinearPruning(int block_size, int level)
+
+    cdef cppclass Strategy:
+        vector[Pruning] pruning_parameters
+        vector[int] preprocessing_blocksizes
+
+        @staticmethod
+        Strategy EmptyStrategy()
+
+        Pruning get_pruning(double radius, double gh)
 
     cdef cppclass BKZParam:
          BKZParam() nogil
-         BKZParam(int blockSize) nogil
-         BKZParam(int blockSize, double delta) nogil
-         BKZParam(int blockSize, double delta, int flags, int maxLoops, int maxTime, int linearPruningLevel,
-                  double autoAbort_scale, int autoAbort_maxNoDec) nogil
-         BKZParam(int blockSize, double delta, int flags, int maxLoops, int maxTime, int linearPruningLevel,
-                  double autoAbort_scale, int autoAbort_maxNoDec, double ghFactor) nogil
-         int blockSize
+         BKZParam(int block_size) nogil
+         BKZParam(int block_size, vector[Strategy] strategies, double delta) nogil
+         BKZParam(int block_size, vector[Strategy] strategies, double delta, int flags, int max_loops, int max_time,
+                  double auto_abort_scale, int auto_abort_max_no_dec) nogil
+         BKZParam(int block_size, vector[Strategy] strategies, double delta, int flags, int max_loops, int max_time,
+                  double auto_abort_scale, int auto_abort_max_no_dec, double gh_factor) nogil
+         int block_size
          double delta
          int flags
-         int maxLoops
-         double maxTime
+         int max_loops
+         double max_time
 
-         double autoAbort_scale
-         int autoAbort_maxNoDec
+         double auto_abort_scale
+         int auto_abort_max_no_dec
 
-         vector[double] pruning
+         vector[Strategy] strategies
 
-         double ghFactor
+         double gh_factor
 
-         string dumpGSOFilename
+         string dump_gso_filename
 
-         BKZParam *preprocessing
+    vector[Strategy] load_strategies_json(const char *filename)
 
-         void enableLinearPruning(int level) nogil
+cdef extern from "fplll/bkz.h" namespace "fplll":
 
     cdef cppclass BKZAutoAbort[FT]:
-        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int numRows) nogil
-        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int numRows, int startRow) nogil
+        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int num_rows) nogil
+        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int num_rows, int start_row) nogil
 
-        int testAbort() nogil
-        int testAbort(double scale) nogil
-        int testAbort(double scale, int maxNoDec) nogil
+        int test_abort() nogil
+        int test_abort(double scale) nogil
+        int test_abort(double scale, int max_no_dec) nogil
 
-    void computeGaussHeurDist[FT](MatGSO[Z_NR[mpz_t], FT]& m, FT& maxDist,
-                                  long maxDistExpo, int kappa, int blockSize, double ghFactor) nogil
+    void compute_gaussian_heuristic[FT](FT& max_dist, long max_dist_expo,
+                                        int block_size, FT& root_det_mpfr, double gh_factor) nogil
 
-    double getCurrentSlope[FT](MatGSO[Z_NR[mpz_t], FT]& m, int startRow, int stopRow) nogil
+    double get_current_slope[FT](MatGSO[Z_NR[mpz_t], FT]& m, int startRow, int stopRow) nogil
 
 
 # Utility

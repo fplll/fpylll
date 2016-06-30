@@ -3,7 +3,7 @@
 from copy import copy
 
 from fpylll import BKZ, IntegerMatrix, LLL
-from fpylll.contrib.simple_bkz import BKZReduction as SimpleBKZ
+from fpylll.algorithms.simple_bkz import BKZReduction as SimpleBKZ
 from fpylll.util import set_random_seed
 
 dimensions = (61, 67)

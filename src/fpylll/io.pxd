@@ -1,7 +1,7 @@
-include "config.pxi"
+include "fpylll/config.pxi"
 
 from cpython.int cimport PyInt_AS_LONG
-from fplll cimport Z_NR
+from fplll.fplll cimport Z_NR
 from gmp.mpz cimport mpz_t, mpz_set_si, mpz_set
 from gmp.types cimport mpz_srcptr
 from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong

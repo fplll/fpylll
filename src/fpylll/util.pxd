@@ -1,6 +1,6 @@
 from gmp.mpz cimport mpz_t
-from fplll cimport FloatType, Z_NR
-from fplll cimport BKZParam as BKZParam_c
+from fplll.fplll cimport FloatType, Z_NR
+from fplll.fplll cimport BKZParam as BKZParam_c
 
 cdef FloatType check_float_type(object float_type)
 cdef int preprocess_indices(int &i, int &j, int m, int n) except -1

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 
@@ -11,8 +11,8 @@ from fplll cimport MatGSO as MatGSO_c
 from fplll cimport Z_NR, FP_NR, mpz_t
 
 from fplll cimport dpe_t
-from mpfr.mpfr cimport mpfr_t
-from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
+from fpylll.mpfr.mpfr cimport mpfr_t
+from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
 IF HAVE_QD:
@@ -100,14 +100,14 @@ cdef class Enumeration:
             del self._fe_core.mpfr
             del self._core.mpfr
 
-    def enumerate(self, int first, int last, max_dist, max_dist_expo, pruning, dual=False):
+    def enumerate(self, int first, int last, max_dist, max_dist_expo, pruning=None, dual=False):
         """Run enumeration on `M`
 
         :param MatGSO M:       GSO matrix to run enumeration on
         :param max_dist:       length bound
         :param max_dist_expo:  exponent of length bound
-        :param first:          first index
-        :param last:           last index
+        :param first:          first index (inclusive)
+        :param last:           last index (exclusive)
         :param pruning:        pruning parameters
         :param dual:           run enumeration in the primal or dual lattice.
         :returns: solution, length

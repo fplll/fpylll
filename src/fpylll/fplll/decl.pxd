@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 
-from gmp.mpz cimport mpz_t
-from mpfr.mpfr cimport mpfr_t
+from fpylll.gmp.mpz cimport mpz_t
+from fpylll.mpfr.mpfr cimport mpfr_t
 
 IF HAVE_QD:
     from qd.qd cimport dd_real, qd_real

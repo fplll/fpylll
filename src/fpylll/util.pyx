@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 
-from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
-from fplll cimport FP_NR, RandGen, dpe_t
+from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
+from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
+from fpylll.fplll.fplll cimport compute_gaussian_heuristic as compute_gaussian_heuristic_c
 
 IF HAVE_QD:
     from qd.qd cimport dd_real, qd_real
@@ -143,3 +144,25 @@ def set_precision(unsigned int prec):
     if prec < 53:
         raise ValueError("Precision (%d) too small."%prec)
     return FP_NR[mpfr_t].setprec(prec)
+
+def compute_gaussian_heuristic(int block_size, double root_det, double gh_factor):
+    """
+    Use Gaussian Heuristic to compute a bound on the length of the shortest vector.
+
+    :param int block_size: block size
+    :param root_det: root of the determinant
+    :param double gh_factor: Gaussian heuristic factor to use
+
+    :returns: (max_dist, max_dist_expo)
+
+    ..  note:: we call ``compute_gaussian_heuristic`` which is declared in bkz.h
+    """
+
+    cdef FP_NR[double] gh_dist = 0.0
+    cdef FP_NR[double] root_det_ = root_det
+    cdef int gh_dist_expo = 0
+    compute_gaussian_heuristic_c[FP_NR[double]](gh_dist, gh_dist_expo, block_size, root_det_, gh_factor)
+    return gh_dist.get_d(), gh_dist_expo
+
+class ReductionError(RuntimeError):
+    pass

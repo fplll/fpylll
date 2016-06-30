@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 """
@@ -9,8 +9,8 @@ Elementary basis operations, Gram matrix and Gram-Schmidt orthogonalization.
 """
 
 
-from gmp.mpz cimport mpz_t
-from mpfr.mpfr cimport mpfr_t
+from fpylll.gmp.mpz cimport mpz_t
+from fpylll.mpfr.mpfr cimport mpfr_t
 from integer_matrix cimport IntegerMatrix
 from fplll cimport dpe_t
 from fplll cimport MatGSO as MatGSO_c, Z_NR, FP_NR, Matrix
@@ -18,9 +18,9 @@ from fplll cimport GSO_DEFAULT
 from fplll cimport GSO_INT_GRAM
 from fplll cimport GSO_ROW_EXPO
 from fplll cimport GSO_OP_FORCE_LONG
-from fplll cimport getCurrentSlope, computeGaussHeurDist
-from util cimport preprocess_indices, check_float_type
-from fpylll cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
+from fplll cimport get_current_slope
+from fpylll.util cimport preprocess_indices, check_float_type
+from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
 IF HAVE_QD:
@@ -907,91 +907,25 @@ cdef class MatGSO:
         :param int start_row: start row index
         :param int stop_row: stop row index (exclusive)
 
-        ..  note:: we call ``getCurrentSlope`` which is declared in bkz.h
+        ..  note:: we call ``get_current_slope`` which is declared in bkz.h
         """
         if self._type == mpz_double:
-            return getCurrentSlope[FP_NR[double]](self._core.mpz_double[0], start_row, stop_row)
+            return get_current_slope[FP_NR[double]](self._core.mpz_double[0], start_row, stop_row)
         if self._type == mpz_ld:
-            return getCurrentSlope[FP_NR[longdouble]](self._core.mpz_ld[0], start_row, stop_row)
+            return get_current_slope[FP_NR[longdouble]](self._core.mpz_ld[0], start_row, stop_row)
         if self._type == mpz_dpe:
-            return getCurrentSlope[FP_NR[dpe_t]](self._core.mpz_dpe[0], start_row, stop_row)
+            return get_current_slope[FP_NR[dpe_t]](self._core.mpz_dpe[0], start_row, stop_row)
         IF HAVE_QD:
             if self._type == mpz_dd:
-                return getCurrentSlope[FP_NR[dd_real]](self._core.mpz_dd[0], start_row, stop_row)
+                return get_current_slope[FP_NR[dd_real]](self._core.mpz_dd[0], start_row, stop_row)
             if self._type == mpz_qd:
-                return getCurrentSlope[FP_NR[qd_real]](self._core.mpz_qd[0], start_row, stop_row)
+                return get_current_slope[FP_NR[qd_real]](self._core.mpz_qd[0], start_row, stop_row)
         if self._type == mpz_mpfr:
-            return getCurrentSlope[FP_NR[mpfr_t]](self._core.mpz_mpfr[0], start_row, stop_row)
+            return get_current_slope[FP_NR[mpfr_t]](self._core.mpz_mpfr[0], start_row, stop_row)
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 
-    def compute_gaussian_heuristic_distance(self, int kappa, int block_size,
-                                            double max_dist, int max_dist_expo,
-                                            double gh_factor):
-        """
-        Use Gaussian Heuristic Distance to compute a bound on the length of the shortest vector.
-
-        :param int kappa: row index
-        :param int block_size: block size
-        :param double max_dist: current maximal distance
-        :param int max_dist_expo: exponent of current maximal distance
-        :param double gh_factor: Gaussian heuristic factor to use
-
-        :returns: (max_dist, max_dist_expo)
-
-        ..  note:: we call ``computeGaussianHeurDist`` which is declared in bkz.h
-        """
-
-        cdef FP_NR[double] max_dist_double
-        cdef FP_NR[longdouble] max_dist_ld
-        cdef FP_NR[dpe_t] max_dist_dpe
-        IF HAVE_QD:
-            cdef FP_NR[dd_real] max_dist_dd
-            cdef FP_NR[qd_real] max_dist_qd
-        cdef FP_NR[mpfr_t] max_dist_mpfr
-
-        if self._type == mpz_double:
-            max_dist_double = max_dist
-            computeGaussHeurDist[FP_NR[double]](self._core.mpz_double[0],
-                                                max_dist_double, max_dist_expo, kappa, block_size, gh_factor)
-            max_dist = max_dist_double.get_d()
-            return max_dist, max_dist_expo
-        if self._type == mpz_ld:
-            max_dist_ld = max_dist
-            computeGaussHeurDist[FP_NR[longdouble]](self._core.mpz_ld[0],
-                                                    max_dist_ld, max_dist_expo, kappa, block_size, gh_factor)
-            max_dist = max_dist_ld.get_d()
-            return max_dist, max_dist_expo
-        if self._type == mpz_dpe:
-            max_dist_dpe = max_dist
-            computeGaussHeurDist[FP_NR[dpe_t]](self._core.mpz_dpe[0],
-                                               max_dist_dpe, max_dist_expo, kappa, block_size, gh_factor)
-            max_dist = max_dist_dpe.get_d()
-            return max_dist, max_dist_expo
-
-        IF HAVE_QD:
-            if self._type == mpz_dd:
-                max_dist_dd = max_dist
-                computeGaussHeurDist[FP_NR[dd_real]](self._core.mpz_dd[0],
-                                                     max_dist_dd, max_dist_expo, kappa, block_size, gh_factor)
-                max_dist = max_dist_dd.get_d()
-                return max_dist, max_dist_expo
-            if self._type == mpz_qd:
-                max_dist_qd = max_dist
-                computeGaussHeurDist[FP_NR[qd_real]](self._core.mpz_qd[0],
-                                                     max_dist_qd, max_dist_expo, kappa, block_size, gh_factor)
-                max_dist = max_dist_qd.get_d()
-                return max_dist, max_dist_expo
-
-        if self._type == mpz_mpfr:
-            max_dist_mpfr = max_dist
-            computeGaussHeurDist[FP_NR[mpfr_t]](self._core.mpz_mpfr[0],
-                                                max_dist_mpfr, max_dist_expo, kappa, block_size, gh_factor)
-            max_dist = max_dist_mpfr.get_d()
-            return max_dist, max_dist_expo
-
-        raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 
 class GSO:

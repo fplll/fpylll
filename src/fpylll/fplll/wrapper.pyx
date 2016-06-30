@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-include "config.pxi"
+include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
 
 from fplll cimport Matrix, Z_NR, mpz_t
 from fplll cimport LLL_DEF_ETA, LLL_DEF_DELTA, LLL_DEFAULT
 from fplll cimport getRedStatusStr
-from fpylll import ReductionError
+from fpylll.util import ReductionError
 
 
 cdef class Wrapper:

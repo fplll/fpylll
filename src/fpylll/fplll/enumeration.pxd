@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from fpylll cimport enumeration_core_t, fast_evaluator_core_t, fplll_type_t
+from decl cimport enumeration_core_t, fast_evaluator_core_t, fplll_type_t
 from gso cimport MatGSO
 
 cdef class Enumeration:

@@ -6,7 +6,7 @@ The modules in this category in some way represent classes or functions from fpl
 Integer Matrices
 ----------------
 
-.. automodule:: fpylll.integer_matrix
+.. automodule:: fpylll.fplll.integer_matrix
    :members:
    :undoc-members:
    :special-members: __init__, __call__, __copy__, __getitem__, __setitem__,
@@ -14,7 +14,7 @@ Integer Matrices
 Gram Schmidt Orthogonalization
 ------------------------------
 
-.. automodule:: fpylll.gso
+.. automodule:: fpylll.fplll.gso
    :members:
    :undoc-members:
    :special-members: __init__, __call__
@@ -22,7 +22,7 @@ Gram Schmidt Orthogonalization
 LLL Wrapper
 -----------
 
-.. automodule:: fpylll.wrapper
+.. automodule:: fpylll.fplll.wrapper
    :members:
    :undoc-members:
    :special-members: __init__, __call__
@@ -30,7 +30,7 @@ LLL Wrapper
 LLL
 ---
 
-.. automodule:: fpylll.lll
+.. automodule:: fpylll.fplll.lll
    :members:
    :undoc-members:
    :special-members: __init__, __call__
@@ -38,7 +38,7 @@ LLL
 BKZ
 ---
 
-.. automodule:: fpylll.bkz
+.. automodule:: fpylll.fplll.bkz
    :members:
    :undoc-members:
    :special-members: __init__, __call__
@@ -46,7 +46,7 @@ BKZ
 SVP and CVP
 -----------
 
-.. automodule:: fpylll.svpcvp
+.. automodule:: fpylll.fplll.svpcvp
    :members:
    :undoc-members:
    :special-members: __init__, __call__
@@ -54,7 +54,7 @@ SVP and CVP
 Enumeration
 -----------
 
-.. automodule:: fpylll.enumeration
+.. automodule:: fpylll.fplll.enumeration
    :members:
    :undoc-members:
    :special-members: __init__, __call__
@@ -67,15 +67,15 @@ Utilities
    :undoc-members:
    :special-members: __init__, __call__
 
-Contributed Modules
-===================
+Python Algorithms
+=================
 
-The modules in this category extend the functionality of fplll in some way. They are typically implemented in Python.
+The modules in this category extend the functionality of fplll in some way by implementing algorithms in Python.
 
 Simple BKZ
 ----------
 
-.. automodule:: fpylll.contrib.simple_bkz
+.. automodule:: fpylll.algorithms.simple_bkz
    :special-members: __init__, __call__
    :members:
    :undoc-members:
@@ -83,7 +83,7 @@ Simple BKZ
 Simple Dual BKZ
 ---------------
 
-.. automodule:: fpylll.contrib.simple_dbkz
+.. automodule:: fpylll.algorithms.simple_dbkz
    :special-members: __init__, __call__
    :members:
    :undoc-members:
@@ -91,7 +91,7 @@ Simple Dual BKZ
 BKZ
 ---
 
-.. automodule:: fpylll.contrib.bkz
+.. automodule:: fpylll.algorithms.bkz
    :special-members: __init__, __call__
    :members:
    :undoc-members:
