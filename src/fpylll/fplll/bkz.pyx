@@ -33,15 +33,15 @@ from integer_matrix cimport IntegerMatrix
 
 cdef class BKZAutoAbort:
     """
+    Utility class for aborting BKZ when slope does not improve any longer.
     """
     def __init__(self, MatGSO M, int num_rows, int start_row=0):
         """
+        Create new auto abort object.
 
-        :param MatGSO M:
-        :param int num_rows:
-        :param int start_row:
-        :returns:
-        :rtype:
+        :param M: GSO matrix
+        :param num_rows: number of rows
+        :param start_row: start at this row
 
         """
         if M._type == mpz_double:
@@ -84,13 +84,12 @@ cdef class BKZAutoAbort:
         self.M = M
 
     def test_abort(self, scale=1.0, int max_no_dec=5):
-        """FIXME! briefly describe function
+        """
+        Test if new slope fails to be smaller than `scale * old_slope`
+        for `max_no_dec` iterations.
 
-        :param scale:
-        :param int max_no_dec:
-        :returns:
-        :rtype:
-
+        :param scale: target decrease
+        :param int max_no_dec: number of rounds we allow to be stuck
         """
         if self._type == mpz_double:
             return self._core.mpz_double.test_abort(scale, max_no_dec)
@@ -111,14 +110,12 @@ cdef class BKZAutoAbort:
 
 
 cdef class BKZReduction:
-    def __init__(self, MatGSO M,
-                 LLLReduction lll_obj,
-                 BKZParam param):
+    def __init__(self, MatGSO M, LLLReduction lll_obj, BKZParam param):
         """Construct new BKZ object.
 
-        :param MatGSO M: GSO object
-        :param LLLReduction lll_obj: LLL object called as a subroutine
-        :param BKZParam param: parameters
+        :param M: GSO object
+        :param lll_obj: LLL object called as a subroutine
+        :param param: parameters
 
         """
         self.M = M
@@ -185,6 +182,9 @@ cdef class BKZReduction:
         raise NotImplementedError
 
     def __call__(self):
+        """
+        Call BKZ, SD-BKZ or slide reduction.
+        """
         if self._type == mpz_double:
             sig_on()
             r = self._core.mpz_double.bkz()
@@ -218,11 +218,9 @@ cdef class BKZReduction:
     def svp_preprocessing(self, int kappa, int block_size, BKZParam param):
         """Preprocess before calling (Dual-)SVP oracle.
 
-        :param kappa:
-        :param block_size:
-        :param BKZParam param:
-        :returns:
-        :rtype:
+        :param kappa: index
+        :param block_size: block size
+        :param param: reduction parameters
 
         """
         if kappa < 0 or kappa >= self.M.dim:
@@ -266,9 +264,9 @@ cdef class BKZReduction:
     def svp_postprocessing(self, int kappa, int block_size, tuple solution):
         """Insert solution into basis after SVP oracle call
 
-        :param kappa:
-        :param block_size:
-        :param tuple solution:
+        :param kappa: index
+        :param block_size: block size
+        :param solution: solution to insert
 
         """
         cdef vector_fp_nr_t solution_
@@ -333,9 +331,9 @@ cdef class BKZReduction:
     def dsvp_postprocessing(self, int kappa, int block_size, tuple solution):
         """Insert solution into basis after Dual-SVP oracle call
 
-        :param kappa:
-        :param block_size:
-        :param tuple solution:
+        :param kappa: index
+        :param block_size: block size
+        :param solution: solution to insert
 
         """
         cdef vector_fp_nr_t solution_
@@ -400,10 +398,10 @@ cdef class BKZReduction:
     def svp_reduction(self, int kappa, int block_size, BKZParam param, dual=False):
         """Run (Dual-)SVP reduction (incl. pre and postprocessing)
 
-        :param int kappa:
-        :param int block_size:
-        :param BKZParam param:
-        :param dual:
+        :param kappa: index
+        :param block_size: block size
+        :param param: reduction parameters
+        :param dual: dual or primal reduction
 
         """
         if kappa < 0 or kappa >= self.M.dim:
@@ -446,11 +444,13 @@ cdef class BKZReduction:
     def tour(self, int loop, BKZParam param, int min_row, int max_row):
         """One BKZ tour.
 
-        :param loop:
-        :param param:
-        :param min_row:
-        :param max_row:
-
+        :param loop: loop index
+        :param param: reduction parameters
+        :param min_row: start row
+        :param max_row: maximum row to consider (exclusive)
+        :returns: tuple ``(clean, max_kappa)`` where ``clean == True``
+                  if no changes were made, and ``max_kappa`` is the
+                  maximum index for which no changes were made.
         """
         if min_row < 0 or min_row >= self.M.dim:
             raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.dim))
@@ -492,11 +492,12 @@ cdef class BKZReduction:
     def sd_tour(self, int loop, BKZParam param, int min_row, int max_row):
         """One Dual-BKZ tour.
 
-        :param loop:
-        :param param:
-        :param min_row:
-        :param max_row:
+        :param loop: loop index
+        :param param: reduction parameters
+        :param min_row: start row
+        :param max_row: maximum row to consider (exclusive)
 
+        :returns: ``True`` if no changes were made, ``False`` otherwise.
         """
         if min_row < 0 or min_row >= self.M.dim:
             raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.dim))
@@ -539,10 +540,12 @@ cdef class BKZReduction:
     def slide_tour(self, int loop, BKZParam param, int min_row, int max_row):
         """One slide reduction tour.
 
-        :param loop:
-        :param param:
-        :param min_row:
-        :param max_row:
+        :param loop: loop index
+        :param param: reduction parameters
+        :param min_row: start row
+        :param max_row: maximum row to consider (exclusive)
+
+        :returns: ``True`` if no changes were made, ``False`` otherwise.
 
         """
         if min_row < 0 or min_row >= self.M.dim:
@@ -584,11 +587,13 @@ cdef class BKZReduction:
         return bool(r)
 
     def hkz(self, BKZParam param, int min_row, int max_row):
-        """HKZ reduction between `min_row` and `max_row`.
+        """HKZ reduction between ``min_row`` and ``max_row``.
 
-        :param param:
-        :param min_row:
-        :param max_row:
+        :param param: reduction parameters
+        :param min_row: start row
+        :param max_row: maximum row to consider (exclusive)
+
+        :returns: ``True`` if no changes were made, ``False`` otherwise.
 
         """
 
@@ -631,11 +636,11 @@ cdef class BKZReduction:
         return bool(r), kappa_max
 
     def rerandomize_block(self, int min_row, int max_row, int density):
-        """Rerandomize block between `min_row` and `max_row` with a transform of `density`
+        """Rerandomize block between ``min_row`` and ``max_row`` with a transform of ``density``
 
-        :param int min_row:
-        :param int max_row:
-        :param int density:
+        :param min_row:
+        :param max_row:
+        :param density:
 
         """
         if self._type == mpz_double:
@@ -669,6 +674,9 @@ cdef class BKZReduction:
 
     @property
     def status(self):
+        """
+        Status of this reduction.
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.status
         elif self._type == mpz_ld:
@@ -688,6 +696,9 @@ cdef class BKZReduction:
 
     @property
     def nodes(self):
+        """
+        Total number of enumeration nodes visited during this reduction.
+        """
         if self._type == mpz_double:
             return self._core.mpz_double.nodes
         elif self._type == mpz_ld:
