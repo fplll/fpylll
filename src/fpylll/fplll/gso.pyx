@@ -9,19 +9,19 @@ Elementary basis operations, Gram matrix and Gram-Schmidt orthogonalization.
 """
 
 
-from fpylll.gmp.mpz cimport mpz_t
-from fpylll.mpfr.mpfr cimport mpfr_t
-from integer_matrix cimport IntegerMatrix
-from fplll cimport dpe_t
-from fplll cimport MatGSO as MatGSO_c, Z_NR, FP_NR, Matrix
+from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
+from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 from fplll cimport GSO_DEFAULT
 from fplll cimport GSO_INT_GRAM
-from fplll cimport GSO_ROW_EXPO
 from fplll cimport GSO_OP_FORCE_LONG
+from fplll cimport GSO_ROW_EXPO
+from fplll cimport MatGSO as MatGSO_c, Z_NR, FP_NR, Matrix
+from fplll cimport dpe_t
 from fplll cimport get_current_slope
+from fpylll.gmp.mpz cimport mpz_t
+from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.util cimport preprocess_indices, check_float_type
-from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
-from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
+from integer_matrix cimport IntegerMatrix
 
 IF HAVE_QD:
     from qd.qd cimport dd_real, qd_real
@@ -471,34 +471,22 @@ cdef class MatGSO:
         """
         preprocess_indices(i, j, self.d, self.d)
 
-        cdef FP_NR[double] t_double
-        cdef FP_NR[longdouble] t_ld
-        cdef FP_NR[dpe_t] t_dpe
-        IF HAVE_QD:
-            cdef FP_NR[dd_real] t_dd
-            cdef FP_NR[qd_real] t_qd
-        cdef FP_NR[mpfr_t] t_mpfr
+        cdef fp_nr_t t
 
         # TODO: don't just return doubles
         if self._type == mpz_double:
-            self._core.mpz_double.getGram(t_double, i, j)
-            return t_double.getData()
+            return self._core.mpz_double.getGram(t.double, i, j).get_d()
         if self._type == mpz_ld:
-            self._core.mpz_ld.getGram(t_ld, i, j)
-            return t_ld.getData()
+            return self._core.mpz_ld.getGram(t.ld, i, j).get_d()
         if self._type == mpz_dpe:
-            self._core.mpz_dpe.getGram(t_dpe, i, j)
-            return t_dpe.get_d()
+            return self._core.mpz_dpe.getGram(t.dpe, i, j).get_d()
         IF HAVE_QD:
             if self._type == mpz_dd:
-                self._core.mpz_dd.getGram(t_dd, i, j)
-                return t_dd.get_d()
+                return self._core.mpz_dd.getGram(t.dd, i, j).get_d()
             if self._type == mpz_qd:
-                self._core.mpz_qd.getGram(t_qd, i, j)
-                return t_qd.get_d()
+                return self._core.mpz_qd.getGram(t.qd, i, j).get_d()
         if self._type == mpz_mpfr:
-            self._core.mpz_mpfr.getGram(t_mpfr, i, j)
-            return t_mpfr.get_d()
+            return self._core.mpz_mpfr.getGram(t.mpfr, i, j).get_d()
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
@@ -509,36 +497,32 @@ cdef class MatGSO:
         :param i:
         :param j:
 
+        >>> from fpylll import *
+        >>> A = IntegerMatrix.random(5, "uniform", bits=5)
+        >>> M = GSO.Mat(A)
+        >>> M.update_gso()
+        True
+        >>> M.get_r(1, 0)
+        1021.0
+
         """
         preprocess_indices(i, j, self.d, self.d)
-        cdef FP_NR[double] t_double
-        cdef FP_NR[longdouble] t_ld
-        cdef FP_NR[dpe_t] t_dpe
-        IF HAVE_QD:
-            cdef FP_NR[dd_real] t_dd
-            cdef FP_NR[qd_real] t_qd
-        cdef FP_NR[mpfr_t] t_mpfr
+        cdef fp_nr_t t
 
         # TODO: don't just return doubles
         if self._type == mpz_double:
-            self._core.mpz_double.getR(t_double, i, j)
-            return t_double.getData()
+            return self._core.mpz_double.getR(t.double, i, j).get_d()
         if self._type == mpz_ld:
-            self._core.mpz_ld.getR(t_ld, i, j)
-            return t_ld.get_d()
+            return self._core.mpz_ld.getR(t.ld, i, j).get_d()
         if self._type == mpz_dpe:
-            self._core.mpz_dpe.getR(t_dpe, i, j)
-            return t_dpe.get_d()
+            return self._core.mpz_dpe.getR(t.dpe, i, j).get_d()
         IF HAVE_QD:
             if self._type == mpz_dd:
-                self._core.mpz_dd.getR(t_dd, i, j)
-                return t_dd.get_d()
+                return self._core.mpz_dd.getR(t.dd, i, j).get_d()
             if self._type == mpz_qd:
-                self._core.mpz_qd.getR(t_qd, i, j)
-                return t_qd.get_d()
+                return self._core.mpz_qd.getR(t.qd, i, j).get_d()
         if self._type == mpz_mpfr:
-            self._core.mpz_mpfr.getR(t_mpfr, i, j)
-            return t_mpfr.get_d()
+            return self._core.mpz_mpfr.getR(t.mpfr, i, j).get_d()
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
@@ -591,34 +575,22 @@ cdef class MatGSO:
 
         """
         preprocess_indices(i, j, self.d, self.d)
-        cdef FP_NR[double] t_double
-        cdef FP_NR[longdouble] t_ld
-        cdef FP_NR[dpe_t] t_dpe
-        IF HAVE_QD:
-            cdef FP_NR[dd_real] t_dd
-            cdef FP_NR[qd_real] t_qd
-        cdef FP_NR[mpfr_t] t_mpfr
+        cdef fp_nr_t t
 
         # TODO: don't just return doubles
         if self._type == mpz_double:
-            self._core.mpz_double.getMu(t_double, i, j)
-            return t_double.getData()
+            return self._core.mpz_double.getMu(t.double, i, j).get_d()
         if self._type == mpz_ld:
-            self._core.mpz_ld.getMu(t_ld, i, j)
-            return t_ld.get_d()
+            return self._core.mpz_ld.getMu(t.ld, i, j).get_d()
         if self._type == mpz_dpe:
-            self._core.mpz_dpe.getMu(t_dpe, i, j)
-            return t_dpe.get_d()
+            return self._core.mpz_dpe.getMu(t.dpe, i, j).get_d()
         IF HAVE_QD:
             if self._type == mpz_dd:
-                self._core.mpz_dd.getMu(t_dd, i, j)
-                return t_dd.get_d()
+                return self._core.mpz_dd.getMu(t.dd, i, j).get_d()
             if self._type == mpz_qd:
-                self._core.mpz_qd.getMu(t_qd, i, j)
-                return t_qd.get_d()
+                return self._core.mpz_qd.getMu(t.qd, i, j).get_d()
         if self._type == mpz_mpfr:
-            self._core.mpz_mpfr.getMu(t_mpfr, i, j)
-            return t_mpfr.get_d()
+            return self._core.mpz_mpfr.getMu(t.mpfr, i, j).get_d()
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
@@ -819,34 +791,27 @@ cdef class MatGSO:
 
         """
         preprocess_indices(i, j, self.d, self.d)
-        cdef double x_ = x
-        cdef FP_NR[double] x_double
-        cdef FP_NR[longdouble] x_ld
-        cdef FP_NR[dpe_t] x_dpe
-        IF HAVE_QD:
-            cdef FP_NR[dd_real] x_dd
-            cdef FP_NR[qd_real] x_qd
-        cdef FP_NR[mpfr_t] x_mpfr
+        cdef fp_nr_t x_
 
         if self._type == mpz_double:
-            x_double = x_
-            return self._core.mpz_double.row_addmul(i, j, x_double)
+            x_.double = float(x)
+            return self._core.mpz_double.row_addmul(i, j, x_.double)
         if self._type == mpz_ld:
-            x_ld = x_
-            return self._core.mpz_ld.row_addmul(i, j, x_ld)
+            x_.ld = float(x)
+            return self._core.mpz_ld.row_addmul(i, j, x_.ld)
         if self._type == mpz_dpe:
-            x_dpe = x_
-            return self._core.mpz_dpe.row_addmul(i, j, x_dpe)
+            x_.dpe = float(x)
+            return self._core.mpz_dpe.row_addmul(i, j, x_.dpe)
         IF HAVE_QD:
             if self._type == mpz_dd:
-                x_dd = x_
-                return self._core.mpz_dd.row_addmul(i, j, x_dd)
+                x_.dd = float(x)
+                return self._core.mpz_dd.row_addmul(i, j, x_.dd)
             if self._type == mpz_qd:
-                x_qd = x_
-                return self._core.mpz_qd.row_addmul(i, j, x_qd)
+                x_.qd = float(x)
+                return self._core.mpz_qd.row_addmul(i, j, x_.qd)
         if self._type == mpz_mpfr:
-            x_mpfr = x_
-            return self._core.mpz_mpfr.row_addmul(i, j, x_mpfr)
+            x_.mpfr = float(x)
+            return self._core.mpz_mpfr.row_addmul(i, j, x_.mpfr)
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
@@ -924,8 +889,6 @@ cdef class MatGSO:
             return get_current_slope[FP_NR[mpfr_t]](self._core.mpz_mpfr[0], start_row, stop_row)
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
-
-
 
 
 class GSO:

@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
 
+"""
+Fpylll datatypes
+
+These are mainly for internal consumption
+"""
 from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 
@@ -25,9 +30,23 @@ ELSE:
         mpz_double =  1
         mpz_ld     =  2
         mpz_dpe    =  4
-
-
         mpz_mpfr   = 32
+
+IF HAVE_QD:
+    # we cannot use a union because of non-trivial constructors
+    ctypedef struct fp_nr_t:
+        FP_NR[double] double
+        FP_NR[longdouble] ld
+        FP_NR[dpe_t] dpe
+        FP_NR[dd_real] dd
+        FP_NR[qd_real] qd
+        FP_NR[mpfr_t] mpfr
+ELSE:
+    ctypedef struct fp_nr_t:
+        FP_NR[double] double
+        FP_NR[longdouble] ld
+        FP_NR[dpe_t] dpe
+        FP_NR[mpfr_t] mpfr
 
 IF HAVE_QD:
     ctypedef union mat_gso_core_t:

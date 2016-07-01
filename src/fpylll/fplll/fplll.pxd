@@ -276,17 +276,17 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         vector[long] rowExpo
         void rowOpBegin(int first, int last)
         void rowOpEnd(int first, int last)
-        void getGram(FT& f, int i, int j)
+        FT& getGram(FT& f, int i, int j)
 
         const Matrix[FT]& getMuMatrix() nogil
         const FT& getMuExp(int i, int j, long& expo) nogil
         const FT& getMuExp(int i, int j) nogil
-        void getMu(FT& f, int i, int j) nogil
+        FT& getMu(FT& f, int i, int j) nogil
 
         const Matrix[FT]& getRMatrix() nogil
         const FT& getRExp(int i, int j, long& expo) nogil
         const FT& getRExp(int i, int j) nogil
-        void getR(FT& f, int i, int j) nogil
+        FT& getR(FT& f, int i, int j) nogil
 
         long getMaxMuExp(int i, int nColumns) nogil
 
