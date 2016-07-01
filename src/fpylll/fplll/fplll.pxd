@@ -469,6 +469,10 @@ cdef extern from "fplll/bkz_params.h" namespace "fplll":
          string dump_gso_filename
 
     vector[Strategy] load_strategies_json(const char *filename)
+    const char *default_strategy_path()
+    const char *default_strategy()
+    const string strategy_full_path(const char *strategy_path)
+
 
 cdef extern from "fplll/bkz.h" namespace "fplll":
 
