@@ -34,9 +34,3 @@ cdef class Strategy:
 cdef class BKZParam:
     cdef BKZParam_c *o
     cdef BKZParam _preprocessing
-
-cdef class BKZAutoAbort:
-    cdef fplll_type_t _type
-    cdef bkz_auto_abort_core_t _core
-
-    cdef MatGSO M
