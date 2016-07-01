@@ -108,7 +108,7 @@ extensions = [
     Extension("fplll.gso", ["src/fpylll/fplll/gso.pyx"], **fplll),
     Extension("fplll.lll", ["src/fpylll/fplll/lll.pyx"], **fplll),
     Extension("fplll.wrapper", ["src/fpylll/fplll/wrapper.pyx"], **fplll),
-    Extension("fplll.bkz_params", ["src/fpylll/fplll/bkz_params.pyx"], **fplll),
+    Extension("fplll.bkz_param", ["src/fpylll/fplll/bkz_param.pyx"], **fplll),
     Extension("fplll.bkz", ["src/fpylll/fplll/bkz.pyx"], **fplll),
     Extension("fplll.enumeration", ["src/fpylll/fplll/enumeration.pyx"], **fplll),
     Extension("fplll.svpcvp", ["src/fpylll/fplll/svpcvp.pyx"], **fplll),

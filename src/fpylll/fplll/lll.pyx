@@ -18,11 +18,11 @@ from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD
 
 from fplll cimport dpe_t
 from fplll cimport Z_NR, FP_NR
-from fplll cimport lllReduction as lllReduction_c
+from fplll cimport lll_reduction as lll_reduction_c
 from fplll cimport RED_SUCCESS
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport LLLReduction as LLLReduction_c
-from fplll cimport getRedStatusStr
+from fplll cimport get_red_status_str
 from fplll cimport isLLLReduced
 from fplll cimport FloatType
 
@@ -196,7 +196,7 @@ cdef class LLLReduction:
                 raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
         if r:
-            raise ReductionError( str(getRedStatusStr(r)) )
+            raise ReductionError( str(get_red_status_str(r)) )
 
     def size_reduction(self, int kappa_min=0, int kappa_end=-1):
         """FIXME! briefly describe function
@@ -224,7 +224,7 @@ cdef class LLLReduction:
             ELSE:
                 raise RuntimeError("LLLReduction object '%s' has no core."%self)
         if not r:
-            raise ReductionError( str(getRedStatusStr(r)) )
+            raise ReductionError( str(get_red_status_str(r)) )
 
     @property
     def final_kappa(self):
@@ -382,20 +382,20 @@ def lll_reduction(IntegerMatrix B, U=None,
     if U is not None and isinstance(U, IntegerMatrix):
         sig_on()
         with nogil:
-            r = lllReduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
-                               delta, eta, method_, ft, precision, flags)
+            r = lll_reduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
+                                delta, eta, method_, ft, precision, flags)
         sig_off()
 
     else:
         sig_on()
         with nogil:
-            r = lllReduction_c(B._core[0],
-                               delta, eta, method_,
-                               ft, precision, flags)
+            r = lll_reduction_c(B._core[0],
+                                delta, eta, method_,
+                                ft, precision, flags)
         sig_off()
 
     if r:
-        raise ReductionError( str(getRedStatusStr(r)) )
+        raise ReductionError( str(get_red_status_str(r)) )
     return B
 
 def is_LLL_reduced(M, delta=LLL_DEF_DELTA, eta=LLL_DEF_ETA):

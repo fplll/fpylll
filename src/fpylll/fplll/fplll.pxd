@@ -424,7 +424,7 @@ cdef extern from "fplll/svpcvp.h" namespace "fplll":
 
 # BKZ
 
-cdef extern from "fplll/bkz_params.h" namespace "fplll":
+cdef extern from "fplll/bkz_param.h" namespace "fplll":
 
     cdef cppclass Pruning:
         double radius_factor
@@ -468,13 +468,40 @@ cdef extern from "fplll/bkz_params.h" namespace "fplll":
 
          string dump_gso_filename
 
-    vector[Strategy] load_strategies_json(const char *filename)
-    const char *default_strategy_path()
-    const char *default_strategy()
-    const string strategy_full_path(const char *strategy_path)
+    vector[Strategy] load_strategies_json(const char *filename) nogil
+    const char *default_strategy_path() nogil
+    const char *default_strategy() nogil
+    const string strategy_full_path(const char *strategy_path) nogil
 
 
 cdef extern from "fplll/bkz.h" namespace "fplll":
+
+    cdef cppclass BKZReduction[FT]:
+
+        BKZReduction(MatGSO[Z_NR[mpz_t], FT] &m, LLLReduction[Z_NR[mpz_t], FT] &lll_obj, const BKZParam &param) nogil
+
+        int svp_preprocessing(int kappa, int block_size, const BKZParam &param) nogil
+        int svp_postprocessing(int kappa, int block_size, const vector[FT] &solution) nogil
+        int dsvp_postprocessing(int kappa, int block_size, const vector[FT] &solution) nogil
+
+        int svp_reduction(int kappa, int block_size, const BKZParam &param, int dual) nogil except +
+
+        int tour(const int loop, int &kappa_max, const BKZParam &param, int min_row, int max_row) nogil except +
+        int sd_tour(const int loop, const BKZParam &param, int min_row, int max_row) nogil except +
+        int slide_tour(const int loop, const BKZParam &param, int min_row, int max_row) nogil except +
+
+        int hkz(int &kappaMax, const BKZParam &param, int min_row, int max_row) nogil except +
+
+        int bkz()
+
+        void rerandomize_block(int min_row, int max_row, int density) nogil except +
+
+        void dump_gso(const string filename, const string prefix, int append) nogil except +
+
+        int status
+
+        long nodes
+
 
     cdef cppclass BKZAutoAbort[FT]:
         BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int num_rows) nogil
@@ -505,18 +532,18 @@ cdef extern from "fplll/util.h" namespace "fplll":
 
 cdef extern from "fplll/fplll.h" namespace "fplll":
 
-    int lllReduction(ZZ_mat[mpz_t] b, double delta, double eta,
-                     LLLMethod method, FloatType floatType,
-                     int precision, int flags) nogil
-    int lllReduction(ZZ_mat[mpz_t] b, ZZ_mat[mpz_t] u,
-                     double delta, double eta,
-                     LLLMethod method, FloatType floatType,
-                     int precision, int flags) nogil
+    int lll_reduction(ZZ_mat[mpz_t] b, double delta, double eta,
+                      LLLMethod method, FloatType float_type,
+                      int precision, int flags) nogil
+    int lll_reduction(ZZ_mat[mpz_t] b, ZZ_mat[mpz_t] u,
+                      double delta, double eta,
+                      LLLMethod method, FloatType float_type,
+                      int precision, int flags) nogil
 
-    int bkzReduction(ZZ_mat[mpz_t] *b, ZZ_mat[mpz_t] *u,
-                     BKZParam &param, FloatType floatType, int precision) nogil
-    int bkzReduction(ZZ_mat[mpz_t] *b, int blockSize, int flags, FloatType floatType, int precision) nogil
+    int bkz_reduction(ZZ_mat[mpz_t] *b, ZZ_mat[mpz_t] *u,
+                      BKZParam &param, FloatType float_type, int precision) nogil
+    int bkz_reduction(ZZ_mat[mpz_t] *b, int block_size, int flags, FloatType float_type, int precision) nogil
 
-    int hkzReduction(ZZ_mat[mpz_t] b) nogil
+    int hkz_reduction(ZZ_mat[mpz_t] b) nogil
 
-    const char* getRedStatusStr (int status) nogil
+    const char* get_red_status_str(int status) nogil

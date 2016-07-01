@@ -5,7 +5,7 @@ include "cysignals/signals.pxi"
 
 from fplll cimport Matrix, Z_NR, mpz_t
 from fplll cimport LLL_DEF_ETA, LLL_DEF_DELTA, LLL_DEFAULT
-from fplll cimport getRedStatusStr
+from fplll cimport get_red_status_str
 from fpylll.util import ReductionError
 
 

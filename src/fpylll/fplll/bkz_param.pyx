@@ -14,6 +14,7 @@ from fplll cimport LLL_DEF_DELTA
 from fplll cimport Pruning as Pruning_c
 from fplll cimport Strategy as Strategy_c
 from fplll cimport load_strategies_json as load_strategies_json_c
+from fplll cimport strategy_full_path
 
 from fpylll.util cimport check_delta
 from libcpp.vector cimport vector
@@ -222,7 +223,7 @@ cdef class BKZParam:
         if strategies:
             if isinstance(strategies, str):
                 sig_on()
-                strategies_c[0] = load_strategies_json_c(strategies)
+                strategies_c[0] = load_strategies_json_c(strategy_full_path(strategies).c_str())
                 sig_off()
             else:
                 load_strategies_python(strategies_c[0], strategies)

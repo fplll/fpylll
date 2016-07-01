@@ -14,8 +14,9 @@ IF HAVE_QD:
 
 from fplll cimport dpe_t
 from fplll cimport Z_NR, FP_NR
-from fplll cimport MatGSO, LLLReduction, BKZAutoAbort, Enumeration, FastEvaluator
+from fplll cimport MatGSO, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration, FastEvaluator
 
+from libcpp.vector cimport vector
 
 IF HAVE_QD:
     ctypedef enum fplll_type_t:
@@ -94,6 +95,21 @@ ELSE:
         BKZAutoAbort[FP_NR[mpfr_t]] *mpz_mpfr
 
 IF HAVE_QD:
+    ctypedef union bkz_reduction_core_t:
+        BKZReduction[FP_NR[double]] *mpz_double
+        BKZReduction[FP_NR[longdouble]] *mpz_ld
+        BKZReduction[FP_NR[dpe_t]] *mpz_dpe
+        BKZReduction[FP_NR[dd_real]] *mpz_dd
+        BKZReduction[FP_NR[qd_real]] *mpz_qd
+        BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
+ELSE:
+    ctypedef union bkz_reduction_core_t:
+        BKZReduction[FP_NR[double]] *mpz_double
+        BKZReduction[FP_NR[longdouble]] *mpz_ld
+        BKZReduction[FP_NR[dpe_t]] *mpz_dpe
+        BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
+
+IF HAVE_QD:
     ctypedef union fast_evaluator_core_t:
         FastEvaluator[FP_NR[double]] *double
         FastEvaluator[FP_NR[longdouble]] *ld
@@ -122,3 +138,19 @@ ELSE:
         Enumeration[FP_NR[longdouble]] *ld
         Enumeration[FP_NR[dpe_t]] *dpe
         Enumeration[FP_NR[mpfr_t]] *mpfr
+
+IF HAVE_QD:
+    # we cannot use a union because of non-trivial constructors
+    ctypedef struct vector_fp_nr_t:
+        vector[FP_NR[double]] double
+        vector[FP_NR[longdouble]] ld
+        vector[FP_NR[dpe_t]] dpe
+        vector[FP_NR[dd_real]] dd
+        vector[FP_NR[qd_real]] qd
+        vector[FP_NR[mpfr_t]] mpfr
+ELSE:
+    ctypedef struct vector_fp_nr_t:
+        vector[FP_NR[double]] double
+        vector[FP_NR[longdouble]] ld
+        vector[FP_NR[dpe_t]] dpe
+        vector[FP_NR[mpfr_t]] mpfr

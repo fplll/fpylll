@@ -5,7 +5,7 @@ from .fplll.gso import GSO
 from .fplll.lll import LLL
 from .fplll.enumeration import Enumeration, EnumerationError
 from .fplll.bkz import BKZ
-from .fplll.bkz_params import load_strategies_json
+from .fplll.bkz_param import load_strategies_json
 from .fplll.svpcvp import SVP
 from .util import ReductionError
 from .util import set_random_seed, set_precision, get_precision
