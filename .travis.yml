@@ -5,14 +5,24 @@ python:
   - "2.7"
   - "3.5"
 
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq -y build-essential libtool autoconf
-  - sudo apt-get install -qq -y libgmp-dev libmpfr-dev libqd-dev
-  - sudo apt-get install -qq -y python-pip python-dev
-  - sudo apt-get install -qq -y python-flake8
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.9
+      - libgmp-dev
+      - libmpfr-dev
+      - libqd-dev
+      - build-essential
+      - libtool
+      - autoconf
+      - python-pip
+      - python-dev
+      - python-flake8
 
 install:
+  - export CXX="g++4.9"
   - ./install-dependencies.sh $VIRTUAL_ENV
   - pip install Cython
   - pip install -r requirements.txt
