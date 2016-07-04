@@ -22,7 +22,7 @@ addons:
       - python-flake8
 
 install:
-  - export CXX="g++4.9"
+  - export CXX="g++-4.9"
   - ./install-dependencies.sh $VIRTUAL_ENV
   - pip install Cython
   - pip install -r requirements.txt
