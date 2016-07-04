@@ -28,22 +28,23 @@ class DummyStats:
     def __init__(self, bkz, verbose=False):
         pass
 
-    def context(self, what):
+    def context(self, what, **kwds):
         return DummyStatsContext(self, what)
 
 
 class BKZStatsContext:
-    def __init__(self, stats, what):
+    def __init__(self, stats, what, **kwds):
         self.stats = stats
         self.what = what
+        self.kwds = kwds
 
     def __enter__(self):
         self.timestamp = time.clock()
-        self.stats.begin(self.what)
+        self.stats.begin(self.what, **self.kwds)
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         time_spent = time.clock() - self.timestamp
-        self.stats.end(self.what, time_spent)
+        self.stats.end(self.what, time_spent, **self.kwds)
 
 
 class BKZStats:
@@ -58,9 +59,9 @@ class BKZStats:
         if not self.mutable:
             raise ValueError("This stats object is immutable.")
 
-    def context(self, what):
+    def context(self, what, **kwds):
         self._check_mutable()
-        return BKZStatsContext(self, what)
+        return BKZStatsContext(self, what, **kwds)
 
     def _tour_begin(self):
         i = self.i
@@ -92,10 +93,12 @@ class BKZStats:
             print(self)
         self.i += 1
 
-    def _svp_end(self, time):
+    def _svp_end(self, time, E=None):
         self.tours[self.i]["svp time"] += time
+        if E:
+            self.tours[self.i]["enum nodes"] += E.get_nodes()
 
-    def begin(self, what):
+    def begin(self, what, **kwds):
         self._check_mutable()
 
         if what == "tour":

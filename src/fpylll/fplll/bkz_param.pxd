@@ -33,4 +33,4 @@ cdef class Strategy:
 
 cdef class BKZParam:
     cdef BKZParam_c *o
-    cdef BKZParam _preprocessing
+    cdef readonly tuple strategies

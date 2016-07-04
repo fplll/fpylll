@@ -446,27 +446,31 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
         Pruning get_pruning(double radius, double gh)
 
     cdef cppclass BKZParam:
-         BKZParam() nogil
-         BKZParam(int block_size) nogil
-         BKZParam(int block_size, vector[Strategy] strategies, double delta) nogil
-         BKZParam(int block_size, vector[Strategy] strategies, double delta, int flags, int max_loops, int max_time,
-                  double auto_abort_scale, int auto_abort_max_no_dec) nogil
-         BKZParam(int block_size, vector[Strategy] strategies, double delta, int flags, int max_loops, int max_time,
-                  double auto_abort_scale, int auto_abort_max_no_dec, double gh_factor) nogil
-         int block_size
-         double delta
-         int flags
-         int max_loops
-         double max_time
+        BKZParam() nogil
+        BKZParam(int block_size) nogil
+        BKZParam(int block_size, vector[Strategy] strategies, double delta) nogil
+        BKZParam(int block_size, vector[Strategy] strategies, double delta, int flags, int max_loops, int max_time,
+                 double auto_abort_scale, int auto_abort_max_no_dec) nogil
+        BKZParam(int block_size, vector[Strategy] strategies, double delta, int flags, int max_loops, int max_time,
+                 double auto_abort_scale, int auto_abort_max_no_dec, double gh_factor) nogil
+        int block_size
+        double delta
+        int flags
+        int max_loops
+        double max_time
 
-         double auto_abort_scale
-         int auto_abort_max_no_dec
+        double auto_abort_scale
+        int auto_abort_max_no_dec
 
-         vector[Strategy] strategies
+        vector[Strategy] strategies
 
-         double gh_factor
+        double gh_factor
 
-         string dump_gso_filename
+        double min_success_probability
+
+        int rerandomization_density
+
+        string dump_gso_filename
 
     vector[Strategy] load_strategies_json(const char *filename) nogil
     const char *default_strategy_path() nogil
@@ -513,6 +517,10 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
 
     void compute_gaussian_heuristic[FT](FT& max_dist, long max_dist_expo,
                                         int block_size, FT& root_det_mpfr, double gh_factor) nogil
+
+    FT get_root_det[FT](MatGSO[Z_NR[mpz_t], FT]& m, int start, int end)
+    FT get_log_det[FT](MatGSO[Z_NR[mpz_t], FT]& m, int start, int end)
+    FT get_sld_potential[FT](MatGSO[Z_NR[mpz_t], FT]& m, int start, int end, int block_size)
 
     double get_current_slope[FT](MatGSO[Z_NR[mpz_t], FT]& m, int startRow, int stopRow) nogil
 

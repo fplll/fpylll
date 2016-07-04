@@ -38,7 +38,7 @@ def test_simple_bkz_call(block_size=10):
 
 
 def test_bkz_call(block_size=10):
-    params = fplll_bkz.Param(block_size=block_size, flags=fplll_bkz.VERBOSE)
+    params = fplll_bkz.Param(block_size=block_size, flags=fplll_bkz.VERBOSE|fplll_bkz.GH_BND)
     for cls in (BKZ, ):
         for n in dimensions:
             set_random_seed(n)

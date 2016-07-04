@@ -14,6 +14,7 @@ from fpylll import IntegerMatrix, GSO, LLL
 from fpylll import BKZ
 from fpylll import Enumeration
 from fpylll import EnumerationError
+from fpylll.util import compute_gaussian_heuristic, get_root_det
 from .bkz_stats import BKZStats
 
 
@@ -93,12 +94,12 @@ class BKZReduction:
         clean = True
         for kappa in range(min_row, max_row-2):
             block_size = min(params.block_size, max_row - kappa)
-            clean &= self.svp_reduction(kappa, params, block_size, stats)
+            clean &= self.svp_reduction(kappa, block_size, params, stats)
             if stats:
                 stats.log_clean_kappa(kappa, clean)
         return clean
 
-    def svp_preprocessing(self, kappa, params, block_size, stats):
+    def svp_preprocessing(self, kappa, block_size, params, stats):
         """Perform preprocessing for calling the SVP oracle
 
         :param kappa: current index
@@ -120,29 +121,9 @@ class BKZReduction:
             if self.lll_obj.nswaps > 0:
                 clean = False
 
-        if params.preprocessing:
-            preproc = params.preprocessing
-            auto_abort = BKZ.AutoAbort(self.M, kappa + block_size, kappa)
-            cputime_start = time.clock()
-
-            i = 0
-            while True:
-                clean_inner = self.tour(preproc, kappa, kappa + block_size)
-                if clean_inner:
-                    break
-                else:
-                    clean = clean_inner
-                if auto_abort.test_abort():
-                    break
-                i += 1
-                if (preproc.flags & BKZ.MAX_LOOPS) and i >= preproc.max_loops:
-                    break
-                if (preproc.flags & BKZ.MAX_TIME) and time.clock() - cputime_start >= preproc.max_time:
-                    break
-
         return clean
 
-    def svp_call(self, kappa, params, block_size, stats=None):
+    def svp_call(self, kappa, block_size, params, stats=None):
         """Call SVP oracle
 
         :param kappa: current index
@@ -160,8 +141,9 @@ class BKZReduction:
         delta_max_dist = self.lll_obj.delta * max_dist
 
         if params.flags & BKZ.GH_BND:
-            max_dist, expo = self.M.compute_gaussian_heuristic_distance(kappa, block_size,
-                                                                        max_dist, expo, params.gh_factor)
+            root_det = get_root_det(self.M, kappa, kappa+block_size)
+            max_dist, expo = compute_gaussian_heuristic(block_size, root_det, params.gh_factor)
+
         try:
             E = Enumeration(self.M)
             solution, max_dist = E.enumerate(kappa, kappa + block_size, max_dist, expo)
@@ -177,7 +159,7 @@ class BKZReduction:
         else:
             return solution
 
-    def svp_postprocessing(self, solution, kappa, block_size, stats):
+    def svp_postprocessing(self, kappa, block_size, solution, stats):
         """Insert SVP solution into basis and LLL reduce.
 
         :param solution: coordinates of an SVP solution
@@ -219,7 +201,7 @@ class BKZReduction:
 
         return False
 
-    def svp_reduction(self, kappa, params, block_size, stats=None):
+    def svp_reduction(self, kappa, block_size, params, stats=None):
         """Find shortest vector in projected lattice of dimension ``block_size`` and insert into
         current basis.
 
@@ -235,14 +217,14 @@ class BKZReduction:
 
         clean = True
         with stats.context("preproc"):
-            clean_pre = self.svp_preprocessing(kappa, params, block_size, stats)
+            clean_pre = self.svp_preprocessing(kappa, block_size, params, stats)
         clean &= clean_pre
 
         with stats.context("svp"):
-            solution = self.svp_call(kappa, params, block_size, stats)
+            solution = self.svp_call(kappa, block_size, params, stats)
 
         with stats.context("postproc"):
-            clean_post = self.svp_postprocessing(solution, kappa, block_size, stats)
+            clean_post = self.svp_postprocessing(kappa, block_size, solution, stats)
         clean &= clean_post
 
         return clean

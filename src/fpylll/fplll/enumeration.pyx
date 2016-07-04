@@ -119,7 +119,7 @@ cdef class Enumeration:
 
         cdef int block_size = last-first
 
-        if pruning is None:
+        if not pruning:
             for i in range(block_size):
                 pruning_.push_back(1)
         else:
@@ -170,6 +170,7 @@ cdef class Enumeration:
                 solution.append(self._fe_core.ld.solCoord[i].get_d())
 
             max_dist = max_dist_ld.get_d()
+
         if self.M._type == mpz_dpe:
             sig_on()
             self._core.dpe.enumerate(first, last, max_dist_dpe, max_dist_expo,
@@ -182,6 +183,7 @@ cdef class Enumeration:
                 solution.append(self._fe_core.dpe.solCoord[i].get_d())
 
             max_dist = max_dist_dpe.get_d()
+
         IF HAVE_QD:
             if self.M._type == mpz_dd:
                 sig_on()
@@ -194,7 +196,8 @@ cdef class Enumeration:
                 for i in range(self._fe_core.dd.solCoord.size()):
                     solution.append(self._fe_core.dd.solCoord[i].get_d())
 
-            max_dist = max_dist_dd.get_d()
+                max_dist = max_dist_dd.get_d()
+
             if self.M._type == mpz_qd:
                 sig_on()
                 self._core.qd.enumerate(first, last, max_dist_qd, max_dist_expo,
@@ -206,7 +209,8 @@ cdef class Enumeration:
                 for i in range(self._fe_core.qd.solCoord.size()):
                     solution.append(self._fe_core.qd.solCoord[i].get_d())
 
-            max_dist = max_dist_qd.get_d()
+                max_dist = max_dist_qd.get_d()
+
         if self.M._type == mpz_mpfr:
             sig_on()
             self._core.mpfr.enumerate(first, last, max_dist_mpfr, max_dist_expo,

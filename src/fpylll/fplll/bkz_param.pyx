@@ -137,6 +137,15 @@ cdef class Strategy:
         for p in s.preprocessing_blocksizes:
             self.preprocessing_blocksizes.push_back(p)
 
+    def get_pruning(self, radius, gh):
+        gh_factor = radius/gh
+        closest_dist = 2**80
+        best = None
+        for pruning in self.pruning_parameters:
+            if abs(pruning.radius_factor - gh_factor) < closest_dist:
+                best = pruning
+        return best
+
 
 cdef strategies_c_to_strategies(vector[Strategy_c]& strategies):
     """
@@ -186,6 +195,8 @@ cdef class BKZParam:
                  float delta=LLL_DEF_DELTA, int flags=BKZ_DEFAULT,
                  int max_loops=0, int max_time=0,
                  auto_abort=None, float gh_factor=1.1,
+                 float min_success_probability=0.5,
+                 int rerandomization_density=3,
                  dump_gso_filename=None):
         """
         Create BKZ parameters object.
@@ -193,6 +204,7 @@ cdef class BKZParam:
         :param block_size: an integer from 1 to ``nrows``
         :param strategies: a filename or a list of Strategies
         :param delta: LLL parameter `0.25 < δ < 1.0`
+        :param flags: flags
         :param max_loops: maximum number of full loops
         :param max_time: stop after time seconds (up to loop completion)
         :param auto_abort: heuristic, stop when the average slope of `\log(||b_i^*||)` does not
@@ -201,11 +213,14 @@ cdef class BKZParam:
             than ``scale * old_slope`` where ``old_slope`` was the old minimum.  If ``True`` is
             given, this is equivalent to providing ``(1.0,5)`` which is fpLLL's default.
         :param gh_factor: heuristic, if ``True`` then the enumeration bound will be set to
-            ``gh_factor`` times the Gaussian Heuristic.  If ``True`` then ``gh_factor`` is set to 1.1,
-            which is fpLLL's default.
+            ``gh_factor`` times the Gaussian Heuristic.  If ``True`` then ``gh_factor`` is set to
+            1.1, which is fpLLL's default.
+        :param min_success_probability: minimum success probability in an SVP reduction (when using
+            pruning)
+        :param reranomization_density: density of rerandomization operation when using extreme
+            pruning
         :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
-
         """
 
         if block_size <= 0:
@@ -220,11 +235,10 @@ cdef class BKZParam:
         check_delta(delta)
         cdef vector[Strategy_c] *strategies_c = new vector[Strategy_c]()
 
+
         if strategies:
             if isinstance(strategies, str):
-                sig_on()
                 strategies_c[0] = load_strategies_json_c(strategy_full_path(strategies).c_str())
-                sig_off()
             else:
                 load_strategies_python(strategies_c[0], strategies)
 
@@ -263,7 +277,11 @@ cdef class BKZParam:
         if o.flags & BKZ_DUMP_GSO:
             o.dump_gso_filename = dump_gso_filename
 
+        o.min_success_probability = min_success_probability
+        o.rerandomization_density = rerandomization_density
+
         self.o = o
+        self.strategies = strategies_c_to_strategies(self.o.strategies)
 
     def __dealloc__(self):
         del self.o
@@ -322,12 +340,16 @@ cdef class BKZParam:
         return self.o.gh_factor
 
     @property
-    def preprocessing(self):
-        return self._preprocessing
-
-    @property
     def dump_gso_filename(self):
         return self.o.dump_gso_filename
+
+    @property
+    def min_success_probability(self):
+        return self.o.min_success_probability
+
+    @property
+    def rerandomization_density(self):
+        return self.o.rerandomization_density
 
     def __getitem__(self, key):
         try:
