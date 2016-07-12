@@ -202,6 +202,15 @@ Note that **fpylll** supports Python 2 and 3. In particular, tests are run using
 Attribution & License
 ---------------------
 
+**fpylll** is maintained by Martin Albrecht.
+
+The following people have contributed to **fpylll**
+
+- Martin Albrecht
+- Guillaume Bonnoron
+- Leo Ducas
+- Omer Katz
+
 We copied a decent bit of code over from Sage, mostly from it’s fpLLL interface.
 
 **fpylll** is licensed under the GPLv2+.  
