@@ -503,7 +503,7 @@ cdef class MatGSO:
         >>> M.update_gso()
         True
         >>> M.get_r(1, 0)
-        1519.0
+        833.0
 
         """
         preprocess_indices(i, j, self.d, self.d)

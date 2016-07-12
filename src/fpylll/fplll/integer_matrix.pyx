@@ -907,7 +907,7 @@ cdef class IntegerMatrix:
         :returns: m × k integer matrix C = A × B
 
         >>> from fpylll import set_random_seed
-        >>> set_random_seed(1337)b
+        >>> set_random_seed(1337)
         >>> A = IntegerMatrix(2, 2)
         >>> A.randomize("uniform", bits=2)
         >>> print(A)
