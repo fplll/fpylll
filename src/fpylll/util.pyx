@@ -6,7 +6,7 @@ include "cysignals/signals.pxi"
 from fpylll.fplll.decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
 from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
-from fpylll.fplll.fplll cimport compute_gaussian_heuristic as compute_gaussian_heuristic_c
+from fpylll.fplll.fplll cimport gaussian_heuristic as gaussian_heuristic_c
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
 from fpylll.fplll.gso cimport MatGSO
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
@@ -165,25 +165,25 @@ def compute_gaussian_heuristic(int block_size, double root_det, double gh_factor
     cdef FP_NR[double] gh_dist = 0.0
     cdef FP_NR[double] root_det_ = root_det
     cdef int gh_dist_expo = 0
-    compute_gaussian_heuristic_c[FP_NR[double]](gh_dist, gh_dist_expo, block_size, root_det_, gh_factor)
+    gaussian_heuristic_c[FP_NR[double]](gh_dist, gh_dist_expo, block_size, root_det_, gh_factor)
     return gh_dist.get_d(), gh_dist_expo
 
 
 def get_root_det(MatGSO M, int start, int end):
     if M._type == mpz_double:
-        return get_root_det_c[FP_NR[double]](M._core.mpz_double[0], start, end).get_d()
+        return M.core.mpz_double.get_root_det_c(start, end).get_d()
     elif M._type == mpz_ld:
-        return get_root_det_c[FP_NR[longdouble]](M._core.mpz_ld[0], start, end).get_d()
+        return M.core.mpz_ld.get_root_det_c(start, end).get_d()
     elif M._type == mpz_dpe:
-        return get_root_det_c[FP_NR[dpe_t]](M._core.mpz_dpe[0], start, end).get_d()
-    elif M._type == mpz_ld:
-        return get_root_det_c[FP_NR[mpfr_t]](M._core.mpz_mpfr[0], start, end).get_d()
+        return M.core.mpz_dpe.get_root_det_c(start, end).get_d()
+    elif M._type == mpz_mpfr:
+        return M.core.mpz_mpfr.get_root_det_c(start, end).get_d()
     else:
         IF HAVE_QD:
             if M._type == mpz_dd:
-                return get_root_det_c[FP_NR[dd_real]](M._core.mpz_dd[0], start, end).get_d()
+                return M.core.mpz_dd.get_root_det_c(start, end).get_d()
             elif M._type == mpz_qd:
-                return get_root_det_c[FP_NR[qd_real]](M._core.mpz_qd[0], start, end).get_d()
+                return M.core.mpz_qd.get_root_det_c(start, end).get_d()
     raise RuntimeError("MatGSO object '%s' has no core."%M)
 
 class ReductionError(RuntimeError):
