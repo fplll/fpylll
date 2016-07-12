@@ -503,7 +503,7 @@ cdef class MatGSO:
         >>> M.update_gso()
         True
         >>> M.get_r(1, 0)
-        1021.0
+        1519.0
 
         """
         preprocess_indices(i, j, self.d, self.d)
@@ -874,20 +874,99 @@ cdef class MatGSO:
 
         ..  note:: we call ``get_current_slope`` which is declared in bkz.h
         """
+
+        preprocess_indices(start_row, stop_row, self.d, self.d+1)
+
         if self._type == mpz_double:
-            return get_current_slope[FP_NR[double]](self._core.mpz_double[0], start_row, stop_row)
+            return self._core.mpz_double.get_current_slope(start_row, stop_row)
         if self._type == mpz_ld:
-            return get_current_slope[FP_NR[longdouble]](self._core.mpz_ld[0], start_row, stop_row)
+            return self._core.mpz_ld.get_current_slope(start_row, stop_row)
         if self._type == mpz_dpe:
-            return get_current_slope[FP_NR[dpe_t]](self._core.mpz_dpe[0], start_row, stop_row)
+            return self._core.mpz_dpe.get_current_slope(start_row, stop_row)
         IF HAVE_QD:
             if self._type == mpz_dd:
-                return get_current_slope[FP_NR[dd_real]](self._core.mpz_dd[0], start_row, stop_row)
+                return self._core.mpz_dd.get_current_slope(start_row, stop_row)
             if self._type == mpz_qd:
-                return get_current_slope[FP_NR[qd_real]](self._core.mpz_qd[0], start_row, stop_row)
+                return self._core.mpz_qd.get_current_slope(start_row, stop_row)
         if self._type == mpz_mpfr:
-            return get_current_slope[FP_NR[mpfr_t]](self._core.mpz_mpfr[0], start_row, stop_row)
+            return self._core.mpz_mpfr.get_current_slope(start_row, stop_row)
 
+        raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+    def get_root_det(self, int start_row, int stop_row):
+        """ Return (squared) root determinant of the basis.
+
+        :param int start_row: start row (inclusive)
+        :param int stop_row: stop row (exclusive)
+
+        """
+        preprocess_indices(start_row, stop_row, self.d, self.d+1)
+
+        if self._type == mpz_double:
+            return self._core.mpz_double.get_root_det(start_row, stop_row).get_d()
+        elif self._type == mpz_ld:
+            return self._core.mpz_ld.get_root_det(start_row, stop_row).get_d()
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.get_root_det(start_row, stop_row).get_d()
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.get_root_det(start_row, stop_row).get_d()
+        else:
+            IF HAVE_QD:
+                if self._type == mpz_dd:
+                    return self._core.mpz_dd.get_root_det(start_row, stop_row).get_d()
+                elif self._type == mpz_qd:
+                    return self._core.mpz_qd.get_root_det(start_row, stop_row).get_d()
+        raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+    def get_log_det(self, int start_row, int stop_row):
+        """ Return log of the (squared) determinant of the basis.
+
+        :param int start_row: start row (inclusive)
+        :param int stop_row: stop row (exclusive)
+
+        """
+        preprocess_indices(start_row, stop_row, self.d, self.d+1)
+
+        if self._type == mpz_double:
+            return self._core.mpz_double.get_log_det(start_row, stop_row).get_d()
+        elif self._type == mpz_ld:
+            return self._core.mpz_ld.get_log_det(start_row, stop_row).get_d()
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.get_log_det(start_row, stop_row).get_d()
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.get_log_det(start_row, stop_row).get_d()
+        else:
+            IF HAVE_QD:
+                if self._type == mpz_dd:
+                    return self._core.mpz_dd.get_log_det(start_row, stop_row).get_d()
+                elif self._type == mpz_qd:
+                    return self._core.mpz_qd.get_log_det(start_row, stop_row).get_d()
+        raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+    def get_slide_potential(self, int start_row, int stop_row, int block_size):
+        """ Return slide potential of the basis
+
+        :param int start_row: start row (inclusive)
+        :param int stop_row: stop row (exclusive)
+        :param int block_size: block size
+
+        """
+        preprocess_indices(start_row, stop_row, self.d, self.d+1)
+
+        if self._type == mpz_double:
+            return self._core.mpz_double.get_slide_potential(start_row, stop_row, block_size).get_d()
+        elif self._type == mpz_ld:
+            return self._core.mpz_ld.get_slide_potential(start_row, stop_row, block_size).get_d()
+        elif self._type == mpz_dpe:
+            return self._core.mpz_dpe.get_slide_potential(start_row, stop_row, block_size).get_d()
+        elif self._type == mpz_mpfr:
+            return self._core.mpz_mpfr.get_slide_potential(start_row, stop_row, block_size).get_d()
+        else:
+            IF HAVE_QD:
+                if self._type == mpz_dd:
+                    return self._core.mpz_dd.get_slide_potential(start_row, stop_row, block_size).get_d()
+                elif self._type == mpz_qd:
+                    return self._core.mpz_qd.get_slide_potential(start_row, stop_row, block_size).get_d()
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 

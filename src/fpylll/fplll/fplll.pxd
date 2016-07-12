@@ -320,6 +320,11 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         void dumpR_d(double* r, int offset, int blocksize) nogil
         void dumpR_d(vector[double] r, int offset, int blocksize) nogil
 
+        double get_current_slope(int start_row, int stop_row) nogil
+        FT get_root_det(int start_row, int stop_row) nogil
+        FT get_log_det(int start_row, int stop_row) nogil
+        FT get_slide_potential(int start_row, int stop_row, int block_size) nogil
+
         const int enableIntGram
         const int enableRowExpo
         const int enableTransform
@@ -515,7 +520,7 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
         int test_abort(double scale) nogil
         int test_abort(double scale, int max_no_dec) nogil
 
-    void compute_gaussian_heuristic[FT](FT& max_dist, long max_dist_expo,
+    void gaussian_heuristic[FT](FT& max_dist, long max_dist_expo,
                                         int block_size, FT& root_det_mpfr, double gh_factor) nogil
 
     FT get_root_det[FT](MatGSO[Z_NR[mpz_t], FT]& m, int start, int end)

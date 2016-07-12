@@ -14,7 +14,7 @@ from fpylll import IntegerMatrix, GSO, LLL
 from fpylll import BKZ
 from fpylll import Enumeration
 from fpylll import EnumerationError
-from fpylll.util import compute_gaussian_heuristic, get_root_det
+from fpylll.util import gaussian_heuristic
 from .bkz_stats import BKZStats
 
 
@@ -141,8 +141,8 @@ class BKZReduction:
         delta_max_dist = self.lll_obj.delta * max_dist
 
         if params.flags & BKZ.GH_BND:
-            root_det = get_root_det(self.M, kappa, kappa+block_size)
-            max_dist, expo = compute_gaussian_heuristic(block_size, root_det, params.gh_factor)
+            root_det = self.M.get_root_det(kappa, kappa+block_size)
+            max_dist, expo = gaussian_heuristic(max_dist, expo, block_size, root_det, params.gh_factor)
 
         try:
             E = Enumeration(self.M)

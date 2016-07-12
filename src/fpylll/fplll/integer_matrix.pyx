@@ -358,6 +358,8 @@ cdef class IntegerMatrix:
             A = IntegerMatrix(2*d, 2*d)
         elif algorithm == "ntrulike2":
             A = IntegerMatrix(2*d, 2*d)
+        elif algorithm == "qary":
+            A = IntegerMatrix(2*d, 2*d)
         elif algorithm == "trg":
             A = IntegerMatrix(d, d)
         else:
@@ -905,7 +907,7 @@ cdef class IntegerMatrix:
         :returns: m × k integer matrix C = A × B
 
         >>> from fpylll import set_random_seed
-        >>> set_random_seed(1337)
+        >>> set_random_seed(1337)b
         >>> A = IntegerMatrix(2, 2)
         >>> A.randomize("uniform", bits=2)
         >>> print(A)
