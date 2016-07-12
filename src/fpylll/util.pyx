@@ -118,6 +118,7 @@ def get_precision(float_type="mpfr"):
         212
         >>> get_precision()
         212
+        >>> _ = set_precision(53)
 
     """
     cdef FloatType float_type_ = check_float_type(float_type)
