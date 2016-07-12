@@ -320,6 +320,9 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         void dumpR_d(double* r, int offset, int blocksize) nogil
         void dumpR_d(vector[double] r, int offset, int blocksize) nogil
 
+        double get_current_slope(int start_row, int stop_row) nogil
+        FT get_root_det(int start_row, int stop_row) nogil
+
         const int enableIntGram
         const int enableRowExpo
         const int enableTransform

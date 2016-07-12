@@ -171,19 +171,25 @@ def compute_gaussian_heuristic(int block_size, double root_det, double gh_factor
 
 def get_root_det(MatGSO M, int start, int end):
     if M._type == mpz_double:
-        return M.core.mpz_double.get_root_det_c(start, end).get_d()
+        #return M._core.mpz_double.get_root_det(start, end).get_d()
+        return M.get_root_det(start, end).get_d()
     elif M._type == mpz_ld:
-        return M.core.mpz_ld.get_root_det_c(start, end).get_d()
+        #return M._core.mpz_ld.get_root_det_c(start, end).get_d()
+        return M.get_root_det(start, end).get_d()
     elif M._type == mpz_dpe:
-        return M.core.mpz_dpe.get_root_det_c(start, end).get_d()
+        #return M._core.mpz_dpe.get_root_det_c(start, end).get_d()
+        return M.get_root_det(start, end).get_d()
     elif M._type == mpz_mpfr:
-        return M.core.mpz_mpfr.get_root_det_c(start, end).get_d()
+        #return M._core.mpz_mpfr.get_root_det_c(start, end).get_d()
+        return M.get_root_det(start, end).get_d()
     else:
         IF HAVE_QD:
             if M._type == mpz_dd:
-                return M.core.mpz_dd.get_root_det_c(start, end).get_d()
+                #return M._core.mpz_dd.get_root_det_c(start, end).get_d()
+                return M.get_root_det(start, end).get_d()
             elif M._type == mpz_qd:
-                return M.core.mpz_qd.get_root_det_c(start, end).get_d()
+                #return M._core.mpz_qd.get_root_det_c(start, end).get_d()
+                return M.get_root_det(start, end).get_d()
     raise RuntimeError("MatGSO object '%s' has no core."%M)
 
 class ReductionError(RuntimeError):

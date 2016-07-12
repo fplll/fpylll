@@ -875,18 +875,18 @@ cdef class MatGSO:
         ..  note:: we call ``get_current_slope`` which is declared in bkz.h
         """
         if self._type == mpz_double:
-            return self.core.mpz_double.get_current_slope(start_row, stop_row)
+            return self._core.mpz_double.get_current_slope(start_row, stop_row)
         if self._type == mpz_ld:
-            return self.core.mpz_ld.get_current_slope(start_row, stop_row)
+            return self._core.mpz_ld.get_current_slope(start_row, stop_row)
         if self._type == mpz_dpe:
-            return self.core.mpz_dpe.get_current_slope(start_row, stop_row)
+            return self._core.mpz_dpe.get_current_slope(start_row, stop_row)
         IF HAVE_QD:
             if self._type == mpz_dd:
-                return self.core.mpz_dd.get_current_slope(start_row, stop_row)
+                return self._core.mpz_dd.get_current_slope(start_row, stop_row)
             if self._type == mpz_qd:
-                return self.core.mpz_qd.get_current_slope(start_row, stop_row)
+                return self._core.mpz_qd.get_current_slope(start_row, stop_row)
         if self._type == mpz_mpfr:
-            return self.core.mpz_mpfr.get_current_slope(start_row, stop_row)
+            return self._core.mpz_mpfr.get_current_slope(start_row, stop_row)
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
