@@ -238,6 +238,7 @@ cdef class BKZParam:
 
         if strategies:
             if isinstance(strategies, str):
+                strategies = strategies.encode('UTF-8')
                 strategies_c[0] = load_strategies_json_c(strategy_full_path(strategies).c_str())
             else:
                 load_strategies_python(strategies_c[0], strategies)
