@@ -322,6 +322,8 @@ cdef extern from "fplll/gso.h" namespace "fplll":
 
         double get_current_slope(int start_row, int stop_row) nogil
         FT get_root_det(int start_row, int stop_row) nogil
+        FT get_log_det(int start_row, int stop_row) nogil
+        FT get_slide_potential(int start_row, int stop_row, int block_size) nogil
 
         const int enableIntGram
         const int enableRowExpo

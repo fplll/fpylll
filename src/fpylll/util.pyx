@@ -148,43 +148,24 @@ def set_precision(unsigned int prec):
         raise ValueError("Precision (%d) too small."%prec)
     return FP_NR[mpfr_t].setprec(prec)
 
-# TODO fix the interface
-def compute_gaussian_heuristic(int block_size, double root_det, double gh_factor):
-    """
-    Use Gaussian Heuristic to compute a bound on the length of the shortest vector.
 
+def gaussian_heuristic(double dist, int dist_expo, int block_size, double root_det, double gh_factor):
+    """
+    Use Gaussian Heuristic to reduce bound on the length of the shortest vector.
+
+    :param double dist: norm of shortest vector
+    :param int dist_expo: exponent of norm (for dpe representation)
     :param int block_size: block size
-    :param root_det: root of the determinant
-    :param double gh_factor: Gaussian heuristic factor to use
+    :param double root_det: root determinant
+    :param double gh_factor: factor to multiply with
 
-    :returns: (max_dist, max_dist_expo)
+    :returns: (dist, expo)
 
-    ..  note:: we call ``compute_gaussian_heuristic`` which is declared in bkz.h
     """
-
-    cdef FP_NR[double] gh_dist = 0.0
+    cdef FP_NR[double] gh_dist = dist
     cdef FP_NR[double] root_det_ = root_det
-    cdef int gh_dist_expo = 0
-    gaussian_heuristic_c[FP_NR[double]](gh_dist, gh_dist_expo, block_size, root_det_, gh_factor)
-    return gh_dist.get_d(), gh_dist_expo
-
-
-def get_root_det(MatGSO M, int start, int end):
-    if M._type == mpz_double:
-        return M.get_root_det(start, end).get_d()
-    elif M._type == mpz_ld:
-        return M.get_root_det(start, end).get_d()
-    elif M._type == mpz_dpe:
-        return M.get_root_det(start, end).get_d()
-    elif M._type == mpz_mpfr:
-        return M.get_root_det(start, end).get_d()
-    else:
-        IF HAVE_QD:
-            if M._type == mpz_dd:
-                return M.get_root_det(start, end).get_d()
-            elif M._type == mpz_qd:
-                return M.get_root_det(start, end).get_d()
-    raise RuntimeError("MatGSO object '%s' has no core."%M)
+    gaussian_heuristic_c[FP_NR[double]](gh_dist, dist_expo, block_size, root_det_, gh_factor)
+    return gh_dist.get_d(), dist_expo
 
 class ReductionError(RuntimeError):
     pass
