@@ -22,7 +22,7 @@ cdef class Pruning:
 cdef class Strategy:
     cdef Strategy_c _core
     cdef readonly tuple pruning_parameters
-    cdef readonly tuple preprocessing_blocksizes
+    cdef readonly tuple preprocessing_block_sizes
 
     @staticmethod
     cdef Strategy from_cxx(Strategy_c & s)

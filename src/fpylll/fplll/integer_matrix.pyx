@@ -11,7 +11,7 @@ Integer matrices.
 include "cysignals/signals.pxi"
 
 from cpython cimport PyIndex_Check
-from fplll cimport Matrix, MatrixRow, sqrNorm, Z_NR
+from fplll cimport Matrix, MatrixRow, sqr_norm, Z_NR
 from fpylll.util cimport preprocess_indices
 from fpylll.io cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
 
@@ -56,8 +56,8 @@ cdef class IntegerMatrixRow:
         :param int column: integer offset
 
         """
-        preprocess_indices(column, column, self.m._core.getCols(), self.m._core.getCols())
-        r = mpz_get_python(self.m._core[0][self.row][column].getData())
+        preprocess_indices(column, column, self.m._core.get_cols(), self.m._core.get_cols())
+        r = mpz_get_python(self.m._core[0][self.row][column].get_data())
         return r
 
     def __str__(self):
@@ -65,8 +65,8 @@ cdef class IntegerMatrixRow:
         """
         cdef int i
         r = []
-        for i in range(self.m._core.getCols()):
-            t = mpz_get_python(self.m._core[0][self.row][i].getData())
+        for i in range(self.m._core.get_cols()):
+            t = mpz_get_python(self.m._core[0][self.row][i].get_data())
             r.append(str(t))
         return "(" + ", ".join(r) + ")"
 
@@ -93,7 +93,7 @@ cdef class IntegerMatrixRow:
 
         """
         cdef Z_NR[mpz_t] t
-        sqrNorm[Z_NR[mpz_t]](t, self.m._core[0][self.row], self.m._core.getCols())
+        sqr_norm[Z_NR[mpz_t]](t, self.m._core[0][self.row], self.m._core.get_cols())
         # TODO: don't just use doubles
         return sqrt(t.get_d())
 
@@ -133,7 +133,7 @@ cdef class IntegerMatrixRow:
 
         """
 
-        return self.m._core[0][self.row].sizeNZ()
+        return self.m._core[0][self.row].size_nz()
 
     def __iadd__(self, IntegerMatrixRow v):
         """
@@ -440,8 +440,8 @@ cdef class IntegerMatrix:
 
         """
         return "<IntegerMatrix(%d, %d) at %s>" % (
-            self._core.getRows(),
-            self._core.getCols(),
+            self._core.get_rows(),
+            self._core.get_cols(),
             hex(id(self)))
 
     def __str__(self):
@@ -450,9 +450,9 @@ cdef class IntegerMatrix:
         """
         cdef int i, j
         max_length = []
-        for j in range(self._core.getCols()):
+        for j in range(self._core.get_cols()):
             max_length.append(1)
-            for i in range(self._core.getRows()):
+            for i in range(self._core.get_rows()):
                 value = self[i, j]
                 if not value:
                     continue
@@ -464,9 +464,9 @@ cdef class IntegerMatrix:
                     max_length[j] = int(length)
 
         r = []
-        for i in range(self._core.getRows()):
+        for i in range(self._core.get_rows()):
             r.append(["["])
-            for j in range(self._core.getCols()):
+            for j in range(self._core.get_cols()):
                 r[-1].append(("%%%dd"%max_length[j])%self[i,j])
             r[-1].append("]")
             r[-1] = " ".join(r[-1])
@@ -494,10 +494,10 @@ cdef class IntegerMatrix:
         """
         cdef int i, j
         l = []
-        for i in range(self._core.getRows()):
-            for j in range(self._core.getCols()):
+        for i in range(self._core.get_rows()):
+            for j in range(self._core.get_cols()):
                 # mpz_get_pyintlong ensure pickles work between Sage & not-Sage
-                l.append(int(mpz_get_pyintlong(self._core[0][i][j].getData())))
+                l.append(int(mpz_get_pyintlong(self._core[0][i][j].get_data())))
         return unpickle_IntegerMatrix, (self.nrows, self.ncols, l)
 
     @property
@@ -511,7 +511,7 @@ cdef class IntegerMatrix:
         10
 
         """
-        return self._core.getRows()
+        return self._core.get_rows()
 
     @property
     def ncols(self):
@@ -524,7 +524,7 @@ cdef class IntegerMatrix:
         10
 
         """
-        return self._core.getCols()
+        return self._core.get_cols()
 
     def __getitem__(self, key):
         """Select a row or entry.
@@ -551,15 +551,15 @@ cdef class IntegerMatrix:
 
         if isinstance(key, tuple):
             i, j = key
-            preprocess_indices(i, j, self._core.getRows(), self._core.getCols())
-            r = mpz_get_python(self._core[0][i][j].getData())
+            preprocess_indices(i, j, self._core.get_rows(), self._core.get_cols())
+            r = mpz_get_python(self._core[0][i][j].get_data())
             return r
         elif isinstance(key, slice):
             key = range(*key.indices(self.nrows))
             return self.submatrix(key, range(self.ncols))
         elif PyIndex_Check(key):
             i = key
-            preprocess_indices(i, i, self._core.getRows(), self._core.getRows())
+            preprocess_indices(i, i, self._core.get_rows(), self._core.get_rows())
             return IntegerMatrixRow(self, i)
         else:
             raise ValueError("Parameter '%s' not understood."%key)
@@ -595,12 +595,12 @@ cdef class IntegerMatrix:
 
         if isinstance(key, tuple):
             i, j = key
-            preprocess_indices(i, j, self._core.getRows(), self._core.getCols())
+            preprocess_indices(i, j, self._core.get_rows(), self._core.get_cols())
             assign_Z_NR_mpz(self._core[0][i][j], value)
 
         elif isinstance(key, int):
             i = key
-            preprocess_indices(i, i, self._core.getRows(), self._core.getRows())
+            preprocess_indices(i, i, self._core.get_rows(), self._core.get_rows())
             if isinstance(value, IntegerMatrixRow) and (<IntegerMatrixRow>value).row == i and (<IntegerMatrixRow>value).m == self:
                 pass
             else:
@@ -759,7 +759,7 @@ cdef class IntegerMatrix:
         :param int rows:
 
         """
-        (<Matrix[Z_NR[mpz_t]]*>self._core).setRows(rows)
+        (<Matrix[Z_NR[mpz_t]]*>self._core).set_rows(rows)
 
     def set_cols(self, int cols):
         """
@@ -767,7 +767,7 @@ cdef class IntegerMatrix:
         :param int cols:
 
         """
-        (<Matrix[Z_NR[mpz_t]]*>self._core).setCols(cols)
+        (<Matrix[Z_NR[mpz_t]]*>self._core).set_cols(cols)
 
     def swap_rows(self, int r1, int r2):
         """
@@ -783,7 +783,7 @@ cdef class IntegerMatrix:
 
 
         """
-        return (<Matrix[Z_NR[mpz_t]]*>self._core).swapRows(r1, r2)
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).swap_rows(r1, r2)
 
     def rotate_left(self, int first, int last):
         """Row permutation.
@@ -796,7 +796,7 @@ cdef class IntegerMatrix:
         >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
 
         """
-        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotateLeft(first, last)
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotate_left(first, last)
 
     def rotate_right(self, int first, int last):
         """Row permutation.
@@ -809,7 +809,7 @@ cdef class IntegerMatrix:
         >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
 
         """
-        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotateRight(first, last)
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotate_right(first, last)
 
     def rotate(self, int first, int middle, int last):
         """
@@ -852,7 +852,7 @@ cdef class IntegerMatrix:
         >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
 
         """
-        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotateGramLeft(first, last, n_valid_rows)
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotate_gram_left(first, last, n_valid_rows)
 
     def rotate_gram_right(self, int first, int last, int n_valid_rows):
         """
@@ -866,7 +866,7 @@ cdef class IntegerMatrix:
         >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
 
         """
-        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotateGramRight(first, last, n_valid_rows)
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).rotate_gram_right(first, last, n_valid_rows)
 
     def transpose(self):
         """
@@ -893,7 +893,7 @@ cdef class IntegerMatrix:
         4
 
         """
-        return (<Matrix[Z_NR[mpz_t]]*>self._core).getMaxExp()
+        return (<Matrix[Z_NR[mpz_t]]*>self._core).get_max_exp()
 
 
 
@@ -1013,7 +1013,7 @@ cdef class IntegerMatrix:
         cdef int i, j
         for i in range(self.nrows):
             for j in range(self.ncols):
-                mpz_set(t1, self._core[0][i][j].getData())
+                mpz_set(t1, self._core[0][i][j].get_data())
 
                 if start_row <= i < stop_row and start_col <= i < stop_col:
                     mpz_mod(t2, t1, q_)
@@ -1066,7 +1066,7 @@ cdef class IntegerMatrix:
         cdef IntegerMatrix B = U*S
         for i in range(B.nrows):
             for j in range(B.ncols):
-                tmp = B._core[0][i][j].getData()
+                tmp = B._core[0][i][j].get_data()
                 self._core[0][start_row+i][j].set(tmp)
 
 
@@ -1146,19 +1146,19 @@ cdef class IntegerMatrix:
             for row in iter(rows):
                 j = 0
                 for col in iter(cols):
-                    preprocess_indices(row, col, self._core.getRows(), self._core.getCols())
-                    A._core[0][i][j].set(self._core[0][row][col].getData())
+                    preprocess_indices(row, col, self._core.get_rows(), self._core.get_cols())
+                    A._core[0][i][j].set(self._core[0][row][col].get_data())
                     j += 1
                 i += 1
             return A
         else:
             if c < 0:
-                c %= self._core.getRows()
+                c %= self._core.get_rows()
             if d < 0:
-                d %= self._core.getCols()
+                d %= self._core.get_cols()
 
-            preprocess_indices(a, b, self._core.getRows(), self._core.getCols())
-            preprocess_indices(c, d, self._core.getRows()+1, self._core.getCols()+1)
+            preprocess_indices(a, b, self._core.get_rows(), self._core.get_cols())
+            preprocess_indices(c, d, self._core.get_rows()+1, self._core.get_cols()+1)
 
             if c < a:
                 raise ValueError("Last row (%d) < first row (%d)"%(c, a))
@@ -1171,7 +1171,7 @@ cdef class IntegerMatrix:
             for row in range(a, c):
                 j = 0
                 for col in range(b, d):
-                    A._core[0][i][j].set(self._core[0][row][col].getData())
+                    A._core[0][i][j].set(self._core[0][row][col].get_data())
                     j += 1
                 i += 1
             return A
@@ -1193,8 +1193,8 @@ cdef class IntegerMatrix:
                 line = line.strip()
                 line = [e for e in line.split(" ") if e != '']
                 values = map(int, line)
-                (<IntegerMatrix>A)._core.setRows(i+1)
-                (<IntegerMatrix>A)._core.setCols(len(values))
+                (<IntegerMatrix>A)._core.set_rows(i+1)
+                (<IntegerMatrix>A)._core.set_cols(len(values))
                 for j, v in enumerate(values):
                     A[i, j] = v
         return A

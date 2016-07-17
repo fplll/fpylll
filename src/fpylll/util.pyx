@@ -92,7 +92,7 @@ def set_random_seed(unsigned long seed):
     :param seed: a new seed.
 
     """
-    cdef gmp_randstate_t state = RandGen.getGMPState()
+    cdef gmp_randstate_t state = RandGen.get_gmp_state()
     gmp_randseed_ui(state, seed)
 
 def get_precision(float_type="mpfr"):
@@ -124,18 +124,18 @@ def get_precision(float_type="mpfr"):
     cdef FloatType float_type_ = check_float_type(float_type)
 
     if float_type_ == FT_DOUBLE:
-        return FP_NR[double].getprec()
+        return FP_NR[double].get_prec()
     if float_type_ == FT_LONG_DOUBLE:
-        return FP_NR[longdouble].getprec()
+        return FP_NR[longdouble].get_prec()
     if float_type_ == FT_DPE:
-        return FP_NR[dpe_t].getprec()
+        return FP_NR[dpe_t].get_prec()
     IF HAVE_QD:
         if float_type_ == FT_DD:
-            return FP_NR[dd_real].getprec()
+            return FP_NR[dd_real].get_prec()
         if float_type_ == FT_QD:
-            return FP_NR[qd_real].getprec()
+            return FP_NR[qd_real].get_prec()
     if float_type_ == FT_MPFR:
-        return FP_NR[mpfr_t].getprec()
+        return FP_NR[mpfr_t].get_prec()
     raise ValueError("Floating point type '%s' unknown."%float_type)
 
 def set_precision(unsigned int prec):
@@ -147,7 +147,7 @@ def set_precision(unsigned int prec):
     """
     if prec < 53:
         raise ValueError("Precision (%d) too small."%prec)
-    return FP_NR[mpfr_t].setprec(prec)
+    return FP_NR[mpfr_t].set_prec(prec)
 
 
 def gaussian_heuristic(double dist, int dist_expo, int block_size, double root_det, double gh_factor):

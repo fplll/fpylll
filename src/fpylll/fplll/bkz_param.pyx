@@ -86,11 +86,11 @@ cdef class Strategy:
     A strategy is a collection of pruning coefficients for a variety
     of radii and preprocessing block sizes.
     """
-    def __init__(self, pruning_parameters, preprocessing_blocksizes):
+    def __init__(self, pruning_parameters, preprocessing_block_sizes):
         """
 
         :param pruning_parameters: a list of pruning parameters
-        :param preprocessing_blocksizes: preprocessing block sizes
+        :param preprocessing_block_sizes: preprocessing block sizes
 
         """
         pruning_parameters_ = []
@@ -100,12 +100,12 @@ cdef class Strategy:
             pruning_parameters_.append(p)
         self.pruning_parameters = tuple(pruning_parameters_)
 
-        preprocessing_blocksizes_ = []
-        for p in preprocessing_blocksizes:
+        preprocessing_block_sizes_ = []
+        for p in preprocessing_block_sizes:
             if p<=2:
-                raise ValueError("Preprocessing blocksize must be > 2, got %s", p)
-            preprocessing_blocksizes_.append(int(p))
-        self.preprocessing_blocksizes = tuple(preprocessing_blocksizes_)
+                raise ValueError("Preprocessing block_size must be > 2, got %s", p)
+            preprocessing_block_sizes_.append(int(p))
+        self.preprocessing_block_sizes = tuple(preprocessing_block_sizes_)
         Strategy.to_cxx(self._core, self)
 
 
@@ -118,13 +118,13 @@ cdef class Strategy:
             pruning_parameters.append(Pruning.from_cxx(deref(pit)))
             inc(pit)
 
-        preprocessing_blocksizes = []
-        cdef vector[int].iterator bit = s.preprocessing_blocksizes.begin()
-        while bit != s.preprocessing_blocksizes.end():
-            preprocessing_blocksizes.append(deref(bit))
+        preprocessing_block_sizes = []
+        cdef vector[int].iterator bit = s.preprocessing_block_sizes.begin()
+        while bit != s.preprocessing_block_sizes.end():
+            preprocessing_block_sizes.append(deref(bit))
             inc(bit)
 
-        cdef Strategy self = Strategy(tuple(pruning_parameters), tuple(preprocessing_blocksizes))
+        cdef Strategy self = Strategy(tuple(pruning_parameters), tuple(preprocessing_block_sizes))
         self._core = s
         return self
 
@@ -134,8 +134,8 @@ cdef class Strategy:
         for p in s.pruning_parameters:
             self.pruning_parameters.push_back((<Pruning>p)._core)
 
-        for p in s.preprocessing_blocksizes:
-            self.preprocessing_blocksizes.push_back(p)
+        for p in s.preprocessing_block_sizes:
+            self.preprocessing_block_sizes.push_back(p)
 
     def get_pruning(self, radius, gh):
         gh_factor = radius/gh
@@ -166,7 +166,7 @@ def load_strategies_json(filename):
     >>> import fpylll.config
     >>> from fpylll import load_strategies_json
     >>> strategies = load_strategies_json(fpylll.config.default_strategy)
-    >>> strategies[80].preprocessing_blocksizes
+    >>> strategies[80].preprocessing_block_sizes
     (52,)
 
     >>> strategies[80].pruning_parameters[0].probability
@@ -239,7 +239,7 @@ cdef class BKZParam:
         if strategies:
             if isinstance(strategies, str):
                 strategies = strategies.encode('UTF-8')
-                strategies_c[0] = load_strategies_json_c(strategy_full_path(strategies).c_str())
+                strategies_c[0] = load_strategies_json_c(strategy_full_path(strategies))
             else:
                 load_strategies_python(strategies_c[0], strategies)
 

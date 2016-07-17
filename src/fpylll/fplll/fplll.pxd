@@ -16,8 +16,8 @@ cdef extern from "fplll/nr/nr.h" namespace "fplll":
     ctypedef double enumf
 
     cdef cppclass Z_NR[T]:
-        T& getData() nogil
-        void set(T d) nogil
+        T& get_data() nogil
+        void set "operator=" (T d) nogil
         double get_d() nogil
         long exponent() nogil
         void set_str(const char* s) nogil
@@ -64,17 +64,16 @@ cdef extern from "fplll/nr/nr.h" namespace "fplll":
 
 
     cdef cppclass FP_NR[T]:
-        T& getData() nogil
-        void set(T d) nogil
+        T& get_data() nogil
         double get_d() nogil
         inline void operator=(const FP_NR[T]& a) nogil
         inline void operator=(double a) nogil
 
         @staticmethod
-        unsigned int getprec() nogil
+        unsigned int get_prec() nogil
 
         @staticmethod
-        unsigned int setprec(unsigned int) nogil
+        unsigned int set_prec(unsigned int) nogil
 
 cdef extern from "fplll/nr/nr.h":
     cdef struct dpe_struct:
@@ -92,19 +91,19 @@ cdef extern from "fplll/nr/nr.h" namespace "fplll":
         void init()
 
         @staticmethod
-        void initWithSeed(unsigned long seed)
+        void init_with_seed(unsigned long seed)
 
         @staticmethod
-        void initWithTime()
+        void init_with_time()
 
         @staticmethod
-        void initWithTime2()
+        void init_with_time2()
 
         @staticmethod
-        int getInitialized()
+        int get_initialized()
 
         @staticmethod
-        gmp_randstate_t& getGMPState()
+        gmp_randstate_t& get_gmp_state()
 
 
 # Definitions & Enums
@@ -189,7 +188,7 @@ cdef extern from "fplll/nr/matrix.h" namespace "fplll":
         int size() nogil
         int is_zero() nogil
         int is_zero(int frm) nogil
-        int sizeNZ() nogil
+        int size_nz() nogil
         void fill(long value) nogil
         void add(const MatrixRow[T] v) nogil
         void add(const MatrixRow[T] v, int n) nogil
@@ -202,15 +201,15 @@ cdef extern from "fplll/nr/matrix.h" namespace "fplll":
         void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, T& tmp) nogil
         void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, int n, T& tmp) nogil
 
-    void dotProduct[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2, int n) nogil
-    void dotProduct[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2) nogil
+    void dot_product[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2, int n) nogil
+    void dot_product[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2) nogil
 
     cdef cppclass Matrix[T]:
         Matrix()
         Matrix(int r, int c)
 
-        int getRows()
-        int getCols()
+        int get_rows()
+        int get_cols()
 
         T& operator()(int i, int j)
         MatrixRow[T] operator[](int i)
@@ -218,28 +217,28 @@ cdef extern from "fplll/nr/matrix.h" namespace "fplll":
         void clear()
         int empty()
         void resize(int rows, int cols) nogil
-        void setRows(int rows) nogil
-        void setCols(int cols) nogil
+        void set_rows(int rows) nogil
+        void set_cols(int cols) nogil
         void swap(Matrix[T]& m) nogil
 
-        void swapRows(int r1, int r2) nogil
-        void rotateLeft(int first, int last) nogil
-        void rotateRight(int first, int last) nogil
+        void swap_rows(int r1, int r2) nogil
+        void rotate_left(int first, int last) nogil
+        void rotate_right(int first, int last) nogil
         void rotate(int first, int middle, int last) nogil
-        void rotateGramLeft(int first, int last, int nValidRows) nogil
-        void rotateGramRight(int first, int last, int nValidRows) nogil
+        void rotate_gram_left(int first, int last, int nValidRows) nogil
+        void rotate_gram_right(int first, int last, int nValidRows) nogil
         void transpose() nogil
-        long getMaxExp() nogil
+        long get_max_exp() nogil
 
     cdef cppclass ZZ_mat[T]:
 
         ZZ_mat()
         ZZ_mat(int r, int c)
 
-        int getRows() nogil
-        int getCols() nogil
-        void setRows(int rows) nogil
-        void setCols(int cols) nogil
+        int get_rows() nogil
+        int get_cols() nogil
+        void set_rows(int rows) nogil
+        void set_cols(int cols) nogil
 
         Z_NR[T]& operator()(int i, int j) nogil
         MatrixRow[Z_NR[T]] operator[](int i) nogil
@@ -273,64 +272,64 @@ cdef extern from "fplll/gso.h" namespace "fplll":
 
         int d
         Matrix[ZT]& b
-        vector[long] rowExpo
-        void rowOpBegin(int first, int last)
-        void rowOpEnd(int first, int last)
-        FT& getGram(FT& f, int i, int j)
+        vector[long] row_expo
+        void row_op_begin(int first, int last)
+        void row_op_end(int first, int last)
+        FT& get_gram(FT& f, int i, int j)
 
-        const Matrix[FT]& getMuMatrix() nogil
-        const FT& getMuExp(int i, int j, long& expo) nogil
-        const FT& getMuExp(int i, int j) nogil
-        FT& getMu(FT& f, int i, int j) nogil
+        const Matrix[FT]& get_mu_matrix() nogil
+        const FT& get_mu_exp(int i, int j, long& expo) nogil
+        const FT& get_mu_exp(int i, int j) nogil
+        FT& get_mu(FT& f, int i, int j) nogil
 
-        const Matrix[FT]& getRMatrix() nogil
-        const FT& getRExp(int i, int j, long& expo) nogil
-        const FT& getRExp(int i, int j) nogil
-        FT& getR(FT& f, int i, int j) nogil
+        const Matrix[FT]& get_rmatrix() nogil
+        const FT& get_r_exp(int i, int j, long& expo) nogil
+        const FT& get_r_exp(int i, int j) nogil
+        FT& get_r(FT& f, int i, int j) nogil
 
-        long getMaxMuExp(int i, int nColumns) nogil
+        long get_max_mu_exp(int i, int nColumns) nogil
 
-        int updateGSORow(int i, int lastJ) nogil
-        int updateGSORow(int i) nogil
-        int updateGSO() nogil
+        int update_gso_row(int i, int lastJ) nogil
+        int update_gso_row(int i) nogil
+        int update_gso() nogil
 
-        void discoverAllRows() nogil
-        void setR(int i, int j, FT& f) nogil
-        void moveRow(int oldR, int newR) nogil
-        void swapRows(int row1, int row2)
+        void discover_all_rows() nogil
+        void set_r(int i, int j, FT& f) nogil
+        void move_row(int oldR, int newR) nogil
+        void swap_rows(int row1, int row2)
 
         void row_addmul(int i, int j, const FT& x) nogil
         void row_addmul_we(int i, int j, const FT& x, long expoAdd) nogil
 
-        void lockCols() nogil
-        void unlockCols() nogil
+        void lock_cols() nogil
+        void unlock_cols() nogil
 
-        void createRow() nogil
-        void createRows(int nNewRows) nogil
+        void create_row() nogil
+        void create_rows(int nNewRows) nogil
 
-        void removeLastRow() nogil
-        void removeLastRows(int nRemovedRows) nogil
+        void remove_last_row() nogil
+        void remove_last_rows(int nRemovedRows) nogil
 
-        void applyTransform(const Matrix[FT]& transform, int srcBase, int targetBase) nogil
-        void applyTransform(const Matrix[FT]& transform, int srcBase) nogil
+        void apply_transform(const Matrix[FT]& transform, int srcBase, int targetBase) nogil
+        void apply_transform(const Matrix[FT]& transform, int srcBase) nogil
 
-        void dumpMu_d(double* mu, int offset, int blocksize) nogil
-        void dumpMu_d(vector[double] mu, int offset, int blocksize) nogil
+        void dump_mu_d(double* mu, int offset, int block_size) nogil
+        void dump_mu_d(vector[double] mu, int offset, int block_size) nogil
 
-        void dumpR_d(double* r, int offset, int blocksize) nogil
-        void dumpR_d(vector[double] r, int offset, int blocksize) nogil
+        void dump_r_d(double* r, int offset, int block_size) nogil
+        void dump_r_d(vector[double] r, int offset, int block_size) nogil
 
         double get_current_slope(int start_row, int stop_row) nogil
         FT get_root_det(int start_row, int stop_row) nogil
         FT get_log_det(int start_row, int stop_row) nogil
         FT get_slide_potential(int start_row, int stop_row, int block_size) nogil
 
-        const int enableIntGram
-        const int enableRowExpo
-        const int enableTransform
+        const int enable_int_gram
+        const int enable_row_expo
+        const int enable_transform
 
-        const int enableInvTransform
-        const int rowOpForceLong
+        const int enable_inverse_transform
+        const int row_op_force_long
 
 
 
@@ -345,17 +344,17 @@ cdef extern from "fplll/lll.h" namespace "fplll":
         int lll(int kappaMin) nogil
         int lll(int kappaMin, int kappaStart) nogil
         int lll(int kappaMin, int kappaStart, int kappaEnd) nogil
-        int sizeReduction() nogil
-        int sizeReduction(int kappaMin) nogil
-        int sizeReduction(int kappaMin, int kappaEnd) nogil
+        int size_reduction() nogil
+        int size_reduction(int kappaMin) nogil
+        int size_reduction(int kappaMin, int kappaEnd) nogil
 
         int status
-        int finalKappa
-        int lastEarlyRed
+        int final_kappa
+        int last_early_red
         int zeros
-        int nSwaps
+        int n_swaps
 
-    int isLLLReduced[ZT, FT](MatGSO[ZT, FT]& m, double delta, double eta) nogil
+    int is_lll_reduced[ZT, FT](MatGSO[ZT, FT]& m, double delta, double eta) nogil
 
 
 # LLL Wrapper
@@ -377,21 +376,21 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
     cdef cppclass Evaluator[FT]:
         Evaluator()
 
-        void evalSol(const vector[FT]& newSolCoord,
-                     const enumf& newPartialDist, enumf& maxDist, long normExp)
+        void eval_sol(const vector[FT]& newSolCoord,
+                      const enumf& newPartialDist, enumf& maxDist, long normExp)
 
-        vector[FT] solCoord
-        int newSolFlag
+        vector[FT] sol_coord
+        int new_sol_flag
 
 
     cdef cppclass FastEvaluator[FT]:
         FastEvaluator()
 
-        void evalSol(const vector[FT]& newSolCoord,
-                     const enumf& newPartialDist, enumf& maxDist, long normExp)
+        void eval_sol(const vector[FT]& newSolCoord,
+                      const enumf& newPartialDist, enumf& maxDist, long normExp)
 
-        vector[FT] solCoord
-        int newSolFlag
+        vector[FT] sol_coord
+        int new_sol_flag
 
 
 
@@ -407,23 +406,23 @@ cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
                        const vector[double]& pruning,
                        int dual)
 
-        long getNodes()
+        long get_nodes()
 
 
 
 # SVP
 
 cdef extern from "fplll/svpcvp.h" namespace "fplll":
-    int shortestVector(ZZ_mat[mpz_t]& b,
-                       vector[Z_NR[mpz_t]] &solCoord,
-                       SVPMethod method, int flags) nogil
+    int shortest_vector(ZZ_mat[mpz_t]& b,
+                        vector[Z_NR[mpz_t]] &sol_coord,
+                        SVPMethod method, int flags) nogil
 
-    int shortestVectorPruning(ZZ_mat[mpz_t]& b, vector[Z_NR[mpz_t]]& solCoord,
-                              const vector[double]& pruning, int flags) nogil
+    int shortest_vector_pruning(ZZ_mat[mpz_t]& b, vector[Z_NR[mpz_t]]& sol_coord,
+                                const vector[double]& pruning, int flags) nogil
 
     # Experimental. Do not use.
-    int closestVector(ZZ_mat[mpz_t] b, vector[Z_NR[mpz_t]] &intTarget,
-                      vector[Z_NR[mpz_t]]& solCoord, int flags) nogil
+    int closest_vector(ZZ_mat[mpz_t] b, vector[Z_NR[mpz_t]] &intTarget,
+                       vector[Z_NR[mpz_t]]& sol_coord, int flags) nogil
 
 
 
@@ -443,7 +442,7 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
 
     cdef cppclass Strategy:
         vector[Pruning] pruning_parameters
-        vector[int] preprocessing_blocksizes
+        vector[int] preprocessing_block_sizes
 
         @staticmethod
         Strategy EmptyStrategy()
@@ -477,10 +476,10 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
 
         string dump_gso_filename
 
-    vector[Strategy] load_strategies_json(const char *filename) nogil
-    const char *default_strategy_path() nogil
-    const char *default_strategy() nogil
-    const string strategy_full_path(const char *strategy_path) nogil
+    vector[Strategy] load_strategies_json(const string &filename) nogil
+    const string default_strategy_path() nogil
+    const string default_strategy() nogil
+    const string strategy_full_path(const string &strategy_path) nogil
 
 
 cdef extern from "fplll/bkz.h" namespace "fplll":
@@ -533,11 +532,11 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
 # Utility
 
 cdef extern from "fplll/util.h" namespace "fplll":
-    void vectMatrixProduct(vector[Z_NR[mpz_t]] &result,
-                           vector[Z_NR[mpz_t]] &x,
-                           const ZZ_mat[mpz_t] &m) nogil
+    void vector_matrix_product(vector[Z_NR[mpz_t]] &result,
+                               vector[Z_NR[mpz_t]] &x,
+                               const ZZ_mat[mpz_t] &m) nogil
 
-    void sqrNorm[T](T& result, const MatrixRow[T]& v, int n) nogil
+    void sqr_norm[T](T& result, const MatrixRow[T]& v, int n) nogil
 
 
 

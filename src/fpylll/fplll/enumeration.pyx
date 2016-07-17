@@ -150,11 +150,11 @@ cdef class Enumeration:
             self._core.double.enumerate(first, last, max_dist_d, max_dist_expo,
                                         target_coord_d, sub_tree_, pruning_, dual)
             sig_off()
-            if not self._fe_core.double.solCoord.size():
+            if not self._fe_core.double.sol_coord.size():
                 raise EnumerationError("No vector found.")
 
-            for i in range(self._fe_core.double.solCoord.size()):
-                solution.append(self._fe_core.double.solCoord[i].get_d())
+            for i in range(self._fe_core.double.sol_coord.size()):
+                solution.append(self._fe_core.double.sol_coord[i].get_d())
 
             max_dist = max_dist_d.get_d()
 
@@ -163,11 +163,11 @@ cdef class Enumeration:
             self._core.ld.enumerate(first, last, max_dist_ld, max_dist_expo,
                                     target_coord_ld, sub_tree_, pruning_, dual)
             sig_off()
-            if not self._fe_core.ld.solCoord.size():
+            if not self._fe_core.ld.sol_coord.size():
                 raise EnumerationError("No vector found.")
 
-            for i in range(self._fe_core.ld.solCoord.size()):
-                solution.append(self._fe_core.ld.solCoord[i].get_d())
+            for i in range(self._fe_core.ld.sol_coord.size()):
+                solution.append(self._fe_core.ld.sol_coord[i].get_d())
 
             max_dist = max_dist_ld.get_d()
 
@@ -176,11 +176,11 @@ cdef class Enumeration:
             self._core.dpe.enumerate(first, last, max_dist_dpe, max_dist_expo,
                                      target_coord_dpe, sub_tree_, pruning_, dual)
             sig_off()
-            if not self._fe_core.dpe.solCoord.size():
+            if not self._fe_core.dpe.sol_coord.size():
                 raise EnumerationError("No vector found.")
 
-            for i in range(self._fe_core.dpe.solCoord.size()):
-                solution.append(self._fe_core.dpe.solCoord[i].get_d())
+            for i in range(self._fe_core.dpe.sol_coord.size()):
+                solution.append(self._fe_core.dpe.sol_coord[i].get_d())
 
             max_dist = max_dist_dpe.get_d()
 
@@ -190,11 +190,11 @@ cdef class Enumeration:
                 self._core.dd.enumerate(first, last, max_dist_dd, max_dist_expo,
                                         target_coord_dd, sub_tree_, pruning_, dual)
                 sig_off()
-                if not self._fe_core.dd.solCoord.size():
+                if not self._fe_core.dd.sol_coord.size():
                     raise EnumerationError("No vector found.")
 
-                for i in range(self._fe_core.dd.solCoord.size()):
-                    solution.append(self._fe_core.dd.solCoord[i].get_d())
+                for i in range(self._fe_core.dd.sol_coord.size()):
+                    solution.append(self._fe_core.dd.sol_coord[i].get_d())
 
                 max_dist = max_dist_dd.get_d()
 
@@ -203,11 +203,11 @@ cdef class Enumeration:
                 self._core.qd.enumerate(first, last, max_dist_qd, max_dist_expo,
                                         target_coord_qd, sub_tree_, pruning_, dual)
                 sig_off()
-                if not self._fe_core.qd.solCoord.size():
+                if not self._fe_core.qd.sol_coord.size():
                     raise EnumerationError("No vector found.")
 
-                for i in range(self._fe_core.qd.solCoord.size()):
-                    solution.append(self._fe_core.qd.solCoord[i].get_d())
+                for i in range(self._fe_core.qd.sol_coord.size()):
+                    solution.append(self._fe_core.qd.sol_coord[i].get_d())
 
                 max_dist = max_dist_qd.get_d()
 
@@ -216,11 +216,11 @@ cdef class Enumeration:
             self._core.mpfr.enumerate(first, last, max_dist_mpfr, max_dist_expo,
                                       target_coord_mpfr, sub_tree_, pruning_, dual)
             sig_off()
-            if not self._fe_core.mpfr.solCoord.size():
+            if not self._fe_core.mpfr.sol_coord.size():
                 raise EnumerationError("No vector found.")
 
-            for i in range(self._fe_core.mpfr.solCoord.size()):
-                solution.append(self._fe_core.mpfr.solCoord[i].get_d())
+            for i in range(self._fe_core.mpfr.sol_coord.size()):
+                solution.append(self._fe_core.mpfr.sol_coord[i].get_d())
 
             max_dist = max_dist_mpfr.get_d()
 
@@ -230,15 +230,15 @@ cdef class Enumeration:
         """Return number of visited nodes in last enumeration call.
         """
         if self.M._type == mpz_double:
-            return self._core.double.getNodes()
+            return self._core.double.get_nodes()
         if self.M._type == mpz_ld:
-            return self._core.ld.getNodes()
+            return self._core.ld.get_nodes()
         if self.M._type == mpz_dpe:
-            return self._core.dpe.getNodes()
+            return self._core.dpe.get_nodes()
         IF HAVE_QD:
             if self.M._type == mpz_dd:
-                return self._core.dd.getNodes()
+                return self._core.dd.get_nodes()
             if self.M._type == mpz_qd:
-                return self._core.qd.getNodes()
+                return self._core.qd.get_nodes()
         if self.M._type == mpz_mpfr:
-            return self._core.mpfr.getNodes()
+            return self._core.mpfr.get_nodes()

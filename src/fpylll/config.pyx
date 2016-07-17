@@ -18,5 +18,5 @@ IF HAVE_SAGE:
 ELSE:
     have_sage = False
 
-default_strategy = default_strategy_c()
-default_strategy_path = default_strategy_path_c()
+default_strategy = default_strategy_c().c_str()
+default_strategy_path = default_strategy_path_c().c_str()

@@ -18,8 +18,9 @@ from fplll cimport SVP_VERBOSE, CVP_VERBOSE
 from fplll cimport SVP_OVERRIDE_BND
 from fplll cimport SVPM_PROVED, SVPM_FAST
 from fplll cimport SVPMethod
-from fplll cimport shortestVectorPruning, shortestVector
-from fplll cimport vectMatrixProduct
+from fplll cimport shortest_vector_pruning
+from fplll cimport shortest_vector as shortest_vector_c
+from fplll cimport vector_matrix_product
 from lll import lll_reduction
 from fpylll.io cimport assign_Z_NR_mpz, mpz_get_python
 from fpylll.util import ReductionError
@@ -50,7 +51,7 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
     if run_lll:
         lll_reduction(B)
 
-    cdef vector[Z_NR[mpz_t]] solCoord
+    cdef vector[Z_NR[mpz_t]] sol_coord
     cdef vector[Z_NR[mpz_t]] solution
     cdef vector[double] pruning_
 
@@ -62,27 +63,25 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
         for i in range(len(pruning)):
             pruning_[i] = pruning[i]
 
-        with enum_lock:
-            with nogil:
-                sig_on()
-                r = shortestVectorPruning(B._core[0], solCoord, pruning_, flags)
-                sig_off()
+        with nogil:
+            sig_on()
+            r = shortest_vector_pruning(B._core[0], sol_coord, pruning_, flags)
+            sig_off()
     else:
-        with enum_lock:
-            with nogil:
-                sig_on()
-                r = shortestVector(B._core[0], solCoord, method_, flags)
-                sig_off()
+        with nogil:
+            sig_on()
+            r = shortest_vector_c(B._core[0], sol_coord, method_, flags)
+            sig_off()
 
     if r:
         raise ReductionError("SVP solver returned an error ({:d})".format(r))
 
-    vectMatrixProduct(solution, solCoord, B._core[0])
+    vector_matrix_product(solution, sol_coord, B._core[0])
 
     cdef list v = []
 
     for i in range(solution.size()):
-        v.append(mpz_get_python(solution[i].getData()))
+        v.append(mpz_get_python(solution[i].get_data()))
 
     return tuple(v)
 
@@ -96,5 +95,3 @@ class SVP:
 #     closest_vector = closest_vector
 #     DEFAULT = CVP_DEFAULT
 #     VERBOSE = CVP_VERBOSE
-
-enum_lock = threading.Lock()
