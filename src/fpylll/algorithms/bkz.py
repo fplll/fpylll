@@ -186,8 +186,7 @@ class BKZReduction:
 
             self.M.move_row(kappa + first_nonzero_vector, kappa)
             with stats.context("lll"):
-                self.lll_obj.size_reduction(kappa, kappa + 1)
-                self.M.update_gso()  # BUG this shouldn't be needed
+                self.lll_obj.size_reduction(kappa, kappa + first_nonzero_vector + 1)
 
         else:
             d = self.M.d

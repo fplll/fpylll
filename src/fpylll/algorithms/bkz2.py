@@ -87,7 +87,7 @@ class BKZReduction(BKZBase):
         if stats is None:
             stats = DummyStats(self)
 
-        self.lll_obj.size_reduction(0, kappa + 1)
+        self.lll_obj.size_reduction(0, kappa+1)
         old_first, old_first_expo = self.M.get_r_exp(kappa, kappa)
 
         remaining_probability, rerandomize = 1.0, False
