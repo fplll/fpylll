@@ -151,43 +151,40 @@ cdef class LLLReduction:
         if self.M.d == 0:
             return
 
+        if kappa_end == -1:
+            kappa_end = self.M.d
+
         cdef int r
         if self._type == mpz_double:
             sig_on()
-            with nogil:
-                self._core.mpz_double.lll(kappa_min, kappa_start, kappa_end)
+            self._core.mpz_double.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_double.status
             sig_off()
         elif self._type == mpz_ld:
             sig_on()
-            with nogil:
-                self._core.mpz_ld.lll(kappa_min, kappa_start, kappa_end)
+            self._core.mpz_ld.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_ld.status
             sig_off()
         elif self._type == mpz_dpe:
             sig_on()
-            with nogil:
-                self._core.mpz_dpe.lll(kappa_min, kappa_start, kappa_end)
+            self._core.mpz_dpe.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_dpe.status
             sig_off()
         elif self._type == mpz_mpfr:
             sig_on()
-            with nogil:
-                self._core.mpz_mpfr.lll(kappa_min, kappa_start, kappa_end)
+            self._core.mpz_mpfr.lll(kappa_min, kappa_start, kappa_end)
             r = self._core.mpz_mpfr.status
             sig_off()
         else:
             IF HAVE_QD:
                 if self._type == mpz_dd:
                     sig_on()
-                    with nogil:
-                        self._core.mpz_dd.lll(kappa_min, kappa_start, kappa_end)
+                    self._core.mpz_dd.lll(kappa_min, kappa_start, kappa_end)
                     r = self._core.mpz_dd.status
                     sig_off()
                 elif self._type == mpz_qd:
                     sig_on()
-                    with nogil:
-                        self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end)
+                    self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end)
                     r = self._core.mpz_qd.status
                     sig_off()
                 else:
@@ -205,6 +202,9 @@ cdef class LLLReduction:
         :param int kappa_end:
 
         """
+        if kappa_end == -1:
+            kappa_end = self.M.d
+
         if self._type == mpz_double:
             r = self._core.mpz_double.size_reduction(kappa_min, kappa_end)
         elif self._type == mpz_ld:
@@ -381,17 +381,15 @@ def lll_reduction(IntegerMatrix B, U=None,
 
     if U is not None and isinstance(U, IntegerMatrix):
         sig_on()
-        with nogil:
-            r = lll_reduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
-                                delta, eta, method_, ft, precision, flags)
+        r = lll_reduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
+                            delta, eta, method_, ft, precision, flags)
         sig_off()
 
     else:
         sig_on()
-        with nogil:
-            r = lll_reduction_c(B._core[0],
-                                delta, eta, method_,
-                                ft, precision, flags)
+        r = lll_reduction_c(B._core[0],
+                            delta, eta, method_,
+                            ft, precision, flags)
         sig_off()
 
     if r:

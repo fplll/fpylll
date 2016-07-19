@@ -63,15 +63,13 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
         for i in range(len(pruning)):
             pruning_[i] = pruning[i]
 
-        with nogil:
-            sig_on()
-            r = shortest_vector_pruning(B._core[0], sol_coord, pruning_, flags)
-            sig_off()
+        sig_on()
+        r = shortest_vector_pruning(B._core[0], sol_coord, pruning_, flags)
+        sig_off()
     else:
-        with nogil:
-            sig_on()
-            r = shortest_vector_c(B._core[0], sol_coord, method_, flags)
-            sig_off()
+        sig_on()
+        r = shortest_vector_c(B._core[0], sol_coord, method_, flags)
+        sig_off()
 
     if r:
         raise ReductionError("SVP solver returned an error ({:d})".format(r))

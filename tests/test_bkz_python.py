@@ -9,6 +9,7 @@ from fpylll import IntegerMatrix
 from fpylll.algorithms.simple_bkz import BKZReduction as SimpleBKZ
 from fpylll.algorithms.simple_dbkz import DBKZReduction as SimpleDualBKZ
 from fpylll.algorithms.bkz import BKZReduction as BKZ
+from fpylll.algorithms.bkz2 import BKZReduction as BKZ2
 from fpylll import BKZ as fplll_bkz
 from fpylll.util import set_random_seed
 
@@ -21,7 +22,7 @@ def make_integer_matrix(n):
 
 
 def test_bkz_init():
-    for cls in (SimpleBKZ, SimpleDualBKZ, BKZ):
+    for cls in (SimpleBKZ, SimpleDualBKZ, BKZ, BKZ2):
         for n in dimensions:
             set_random_seed(2**10 + n)
             A = make_integer_matrix(n)
@@ -39,7 +40,7 @@ def test_simple_bkz_call(block_size=10):
 
 def test_bkz_call(block_size=10):
     params = fplll_bkz.Param(block_size=block_size, flags=fplll_bkz.VERBOSE|fplll_bkz.GH_BND)
-    for cls in (BKZ, ):
+    for cls in (BKZ, BKZ2):
         for n in dimensions:
             set_random_seed(n)
             A = make_integer_matrix(n)
