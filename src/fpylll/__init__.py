@@ -9,3 +9,4 @@ from .fplll.bkz_param import load_strategies_json
 from .fplll.svpcvp import SVP
 from .util import ReductionError
 from .util import set_random_seed, set_precision, get_precision
+from .config import default_strategy

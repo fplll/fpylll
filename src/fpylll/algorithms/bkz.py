@@ -91,12 +91,15 @@ class BKZReduction:
         """
         if max_row == -1:
             max_row = self.A.nrows
+
         clean = True
+
         for kappa in range(min_row, max_row-2):
             block_size = min(params.block_size, max_row - kappa)
             clean &= self.svp_reduction(kappa, block_size, params, stats)
             if stats:
                 stats.log_clean_kappa(kappa, clean)
+
         return clean
 
     def svp_preprocessing(self, kappa, block_size, params, stats):
@@ -183,6 +186,7 @@ class BKZReduction:
             self.M.move_row(kappa + first_nonzero_vector, kappa)
             with stats.context("lll"):
                 self.lll_obj.size_reduction(kappa, kappa + 1)
+                self.M.update_gso()  # BUG this shouldn't be needed
 
         else:
             d = self.M.d
@@ -196,7 +200,6 @@ class BKZReduction:
             with stats.context("lll"):
                 self.lll_obj(kappa, kappa, kappa + block_size + 1)
             self.M.move_row(kappa + block_size, d)
-
             self.M.remove_last_row()
 
         return False

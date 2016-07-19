@@ -4,7 +4,7 @@ from random import randint
 from fpylll import LLL, GSO, BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZBase
 from fpylll.algorithms.bkz_stats import DummyStats
-from fpylll.util import get_root_det, compute_gaussian_heuristic
+from fpylll.util import gaussian_heuristic
 
 
 class BKZReduction(BKZBase):
@@ -23,12 +23,9 @@ class BKZReduction(BKZBase):
     def get_pruning(self, kappa, block_size, param):
         strategy = param.strategies[block_size]
 
-        root_det = get_root_det(self.M, kappa, kappa + block_size)
         radius, re = self.M.get_r_exp(kappa, kappa)
-        gh_radius, ge = compute_gaussian_heuristic(block_size, root_det, 1.0)
-        if gh_radius == 0.0:
-            gh_radius, ge = radius, re
-
+        root_det = self.M.get_root_det(kappa, kappa + block_size)
+        gh_radius, ge = gaussian_heuristic(radius, re, block_size, root_det, 1.0)
         return strategy.get_pruning(radius  * 2**re, gh_radius * 2**ge)
 
     def randomize_block(self, min_row, max_row, stats, density=0):
@@ -49,7 +46,7 @@ class BKZReduction(BKZBase):
             return  # there is nothing to do
 
         # 1. permute rows
-        niter = 3 * (max_row-min_row) + (max_row-min_row)**2 / 4  # some guestimate
+        niter = 4 * (max_row-min_row)  # some guestimate
         with self.M.row_ops(min_row, max_row):
             for i in xrange(niter):
                 b = a = randint(min_row, max_row-1)
@@ -65,16 +62,15 @@ class BKZReduction(BKZBase):
                     s = randint(0, 1)
                     self.M.row_addmul(a, b, 2*s-1)
 
-        # 3. LLL reduce
-        with stats.context("lll"):
-            self.lll_obj(0, min_row, max_row)
         return
 
-    def svp_preprocessing(self, kappa, block_size, param):
+    def svp_preprocessing(self, kappa, block_size, param, stats):
         clean = True
 
+        clean &= BKZBase.svp_preprocessing(self, kappa, block_size, param, stats)
+
         for preproc in param.strategies[block_size].preprocessing_block_sizes:
-            prepar = BKZ.Param(block_size=preproc, strategies=param.strategies)
+            prepar = BKZ.Param(block_size=preproc, strategies=param.strategies, flags=BKZ.GH_BND)
             clean &= self.tour(prepar, kappa, kappa + block_size)
 
         return clean
@@ -91,13 +87,8 @@ class BKZReduction(BKZBase):
         if stats is None:
             stats = DummyStats(self)
 
-        clean = True
-
-        with stats.context("preproc"):
-            with stats.context("lll"):
-                self.lll_obj(kappa, kappa, kappa+block_size)
-                if self.lll_obj.nswaps > 0:
-                    clean = False
+        self.lll_obj.size_reduction(0, kappa + 1)
+        old_first, old_first_expo = self.M.get_r_exp(kappa, kappa)
 
         remaining_probability, rerandomize = 1.0, False
 
@@ -106,29 +97,32 @@ class BKZReduction(BKZBase):
                 if rerandomize:
                     self.randomize_block(kappa+1, kappa+block_size,
                                          density=param.rerandomization_density, stats=stats)
-
-                clean &= self.svp_preprocessing(kappa, block_size, param)
+                self.svp_preprocessing(kappa, block_size, param, stats)
 
             radius, expo = self.M.get_r_exp(kappa, kappa)
             radius *= self.lll_obj.delta
 
             if param.flags & BKZ.GH_BND and block_size > 30:
-                root_det = get_root_det(self.M, kappa, kappa + block_size)
-                radius, expo = compute_gaussian_heuristic(block_size, root_det, param.gh_factor)
+                root_det = self.M.get_root_det(kappa, kappa + block_size)
+                radius, expo = gaussian_heuristic(radius, expo, block_size, root_det, param.gh_factor)
 
             pruning = self.get_pruning(kappa, block_size, param)
 
             try:
-                E = Enumeration(self.M)
-                with stats.context("svp", E=E):
-                    solution, max_dist = E.enumerate(kappa, kappa + block_size, radius, expo, pruning.coefficients)
-                clean &= self.svp_postprocessing(kappa, block_size, solution, stats)
+                enum_obj = Enumeration(self.M)
+                with stats.context("svp", E=enum_obj):
+                    solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
+                                                            pruning.coefficients)
+                self.svp_postprocessing(kappa, block_size, solution, stats)
                 rerandomize = False
 
             except EnumerationError:
                 rerandomize = True
 
-            self.M.update_gso() # HACK
             remaining_probability *= (1 - pruning.probability)
 
+        self.lll_obj.size_reduction(0, kappa+1)
+        new_first, new_first_expo = self.M.get_r_exp(kappa, kappa)
+
+        clean = old_first <= new_first * 2**(new_first_expo - old_first_expo)
         return clean
