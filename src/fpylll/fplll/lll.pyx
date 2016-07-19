@@ -381,17 +381,15 @@ def lll_reduction(IntegerMatrix B, U=None,
 
     if U is not None and isinstance(U, IntegerMatrix):
         sig_on()
-        with nogil:
-            r = lll_reduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
-                                delta, eta, method_, ft, precision, flags)
+        r = lll_reduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
+                            delta, eta, method_, ft, precision, flags)
         sig_off()
 
     else:
         sig_on()
-        with nogil:
-            r = lll_reduction_c(B._core[0],
-                                delta, eta, method_,
-                                ft, precision, flags)
+        r = lll_reduction_c(B._core[0],
+                            delta, eta, method_,
+                            ft, precision, flags)
         sig_off()
 
     if r:
