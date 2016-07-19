@@ -151,6 +151,9 @@ cdef class LLLReduction:
         if self.M.d == 0:
             return
 
+        if kappa_end == -1:
+            kappa_end = self.M.d
+
         cdef int r
         if self._type == mpz_double:
             sig_on()
@@ -199,6 +202,9 @@ cdef class LLLReduction:
         :param int kappa_end:
 
         """
+        if kappa_end == -1:
+            kappa_end = self.M.d
+
         if self._type == mpz_double:
             r = self._core.mpz_double.size_reduction(kappa_min, kappa_end)
         elif self._type == mpz_ld:
