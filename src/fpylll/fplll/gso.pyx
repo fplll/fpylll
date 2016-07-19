@@ -52,6 +52,7 @@ class MatGSORowOpContext(object):
 
         """
         self.M.row_op_begin(self.i, self.j)
+        return self
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         """
@@ -63,6 +64,7 @@ class MatGSORowOpContext(object):
 
         """
         self.M.row_op_end(self.i, self.j)
+        return False
 
 
 cdef class MatGSO:
