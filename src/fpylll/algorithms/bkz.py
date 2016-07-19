@@ -119,8 +119,9 @@ class BKZReduction:
         """
         clean = True
 
+        lll_start = kappa if params.flags & BKZ.BOUNDED_LLL else 0
         with stats.context("lll"):
-            self.lll_obj(0, kappa, kappa + block_size)
+            self.lll_obj(lll_start, lll_start, kappa + block_size)
             if self.lll_obj.nswaps > 0:
                 clean = False
 
