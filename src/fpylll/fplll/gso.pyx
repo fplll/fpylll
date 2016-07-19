@@ -718,7 +718,7 @@ cdef class MatGSO:
     def move_row(self, int old_r, int new_r):
         """
         Row ``old_r`` becomes row ``new_r`` and intermediate rows are shifted.
-        If ``new_r < old_r``, then ``old_r`` must be ``< nKnownRows``.
+        If ``new_r < old_r``, then ``old_r`` must be ``< n_known_rows``.
 
         :param int old_r: row index
         :param int new_r: row index
@@ -880,18 +880,36 @@ cdef class MatGSO:
         preprocess_indices(start_row, stop_row, self.d, self.d+1)
 
         if self._type == mpz_double:
-            return self._core.mpz_double.get_current_slope(start_row, stop_row)
+            sig_on()
+            r = self._core.mpz_double.get_current_slope(start_row, stop_row)
+            sig_off()
+            return r
         if self._type == mpz_ld:
-            return self._core.mpz_ld.get_current_slope(start_row, stop_row)
+            sig_on()
+            r = self._core.mpz_ld.get_current_slope(start_row, stop_row)
+            sig_off()
+            return r
         if self._type == mpz_dpe:
-            return self._core.mpz_dpe.get_current_slope(start_row, stop_row)
+            sig_on()
+            r = self._core.mpz_dpe.get_current_slope(start_row, stop_row)
+            sig_off()
+            return r
         IF HAVE_QD:
             if self._type == mpz_dd:
-                return self._core.mpz_dd.get_current_slope(start_row, stop_row)
+                sig_on()
+                r = self._core.mpz_dd.get_current_slope(start_row, stop_row)
+                sig_off()
+                return r
             if self._type == mpz_qd:
-                return self._core.mpz_qd.get_current_slope(start_row, stop_row)
+                sig_on()
+                r = self._core.mpz_qd.get_current_slope(start_row, stop_row)
+                sig_off()
+                return r
         if self._type == mpz_mpfr:
-            return self._core.mpz_mpfr.get_current_slope(start_row, stop_row)
+            sig_on()
+            r = self._core.mpz_mpfr.get_current_slope(start_row, stop_row)
+            sig_off()
+            return r
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
@@ -905,19 +923,37 @@ cdef class MatGSO:
         preprocess_indices(start_row, stop_row, self.d, self.d+1)
 
         if self._type == mpz_double:
-            return self._core.mpz_double.get_root_det(start_row, stop_row).get_d()
+            sig_on()
+            r = self._core.mpz_double.get_root_det(start_row, stop_row).get_d()
+            sig_off()
+            return r
         elif self._type == mpz_ld:
-            return self._core.mpz_ld.get_root_det(start_row, stop_row).get_d()
+            sig_on()
+            r = self._core.mpz_ld.get_root_det(start_row, stop_row).get_d()
+            sig_off()
+            return r
         elif self._type == mpz_dpe:
-            return self._core.mpz_dpe.get_root_det(start_row, stop_row).get_d()
+            sig_on()
+            r = self._core.mpz_dpe.get_root_det(start_row, stop_row).get_d()
+            sig_off()
+            return r
         elif self._type == mpz_mpfr:
-            return self._core.mpz_mpfr.get_root_det(start_row, stop_row).get_d()
+            sig_on()
+            r = self._core.mpz_mpfr.get_root_det(start_row, stop_row).get_d()
+            sig_off()
+            return r
         else:
             IF HAVE_QD:
                 if self._type == mpz_dd:
-                    return self._core.mpz_dd.get_root_det(start_row, stop_row).get_d()
+                    sig_on()
+                    r = self._core.mpz_dd.get_root_det(start_row, stop_row).get_d()
+                    sig_off()
+                    return r
                 elif self._type == mpz_qd:
-                    return self._core.mpz_qd.get_root_det(start_row, stop_row).get_d()
+                    sig_on()
+                    r = self._core.mpz_qd.get_root_det(start_row, stop_row).get_d()
+                    sig_off()
+                    return r
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def get_log_det(self, int start_row, int stop_row):
@@ -930,19 +966,37 @@ cdef class MatGSO:
         preprocess_indices(start_row, stop_row, self.d, self.d+1)
 
         if self._type == mpz_double:
-            return self._core.mpz_double.get_log_det(start_row, stop_row).get_d()
+            sig_on()
+            r = self._core.mpz_double.get_log_det(start_row, stop_row).get_d()
+            sig_off()
+            return r
         elif self._type == mpz_ld:
-            return self._core.mpz_ld.get_log_det(start_row, stop_row).get_d()
+            sig_on()
+            r = self._core.mpz_ld.get_log_det(start_row, stop_row).get_d()
+            sig_off()
+            return r
         elif self._type == mpz_dpe:
-            return self._core.mpz_dpe.get_log_det(start_row, stop_row).get_d()
+            sig_on()
+            r = self._core.mpz_dpe.get_log_det(start_row, stop_row).get_d()
+            sig_off()
+            return r
         elif self._type == mpz_mpfr:
-            return self._core.mpz_mpfr.get_log_det(start_row, stop_row).get_d()
+            sig_on()
+            r = self._core.mpz_mpfr.get_log_det(start_row, stop_row).get_d()
+            sig_off()
+            return r
         else:
             IF HAVE_QD:
                 if self._type == mpz_dd:
-                    return self._core.mpz_dd.get_log_det(start_row, stop_row).get_d()
+                    sig_on()
+                    r = self._core.mpz_dd.get_log_det(start_row, stop_row).get_d()
+                    sig_off()
+                    return r
                 elif self._type == mpz_qd:
-                    return self._core.mpz_qd.get_log_det(start_row, stop_row).get_d()
+                    sig_on()
+                    r = self._core.mpz_qd.get_log_det(start_row, stop_row).get_d()
+                    sig_off()
+                    return r
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def get_slide_potential(self, int start_row, int stop_row, int block_size):
@@ -956,19 +1010,37 @@ cdef class MatGSO:
         preprocess_indices(start_row, stop_row, self.d, self.d+1)
 
         if self._type == mpz_double:
-            return self._core.mpz_double.get_slide_potential(start_row, stop_row, block_size).get_d()
+            sig_on()
+            r = self._core.mpz_double.get_slide_potential(start_row, stop_row, block_size).get_d()
+            sig_off()
+            return r
         elif self._type == mpz_ld:
-            return self._core.mpz_ld.get_slide_potential(start_row, stop_row, block_size).get_d()
+            sig_on()
+            r = self._core.mpz_ld.get_slide_potential(start_row, stop_row, block_size).get_d()
+            sig_off()
+            return r
         elif self._type == mpz_dpe:
-            return self._core.mpz_dpe.get_slide_potential(start_row, stop_row, block_size).get_d()
+            sig_on()
+            r = self._core.mpz_dpe.get_slide_potential(start_row, stop_row, block_size).get_d()
+            sig_off()
+            return r
         elif self._type == mpz_mpfr:
-            return self._core.mpz_mpfr.get_slide_potential(start_row, stop_row, block_size).get_d()
+            sig_on()
+            r = self._core.mpz_mpfr.get_slide_potential(start_row, stop_row, block_size).get_d()
+            sig_off()
+            return r
         else:
             IF HAVE_QD:
                 if self._type == mpz_dd:
-                    return self._core.mpz_dd.get_slide_potential(start_row, stop_row, block_size).get_d()
+                    sig_on()
+                    r = self._core.mpz_dd.get_slide_potential(start_row, stop_row, block_size).get_d()
+                    sig_off()
+                    return r
                 elif self._type == mpz_qd:
-                    return self._core.mpz_qd.get_slide_potential(start_row, stop_row, block_size).get_d()
+                    sig_on()
+                    r = self._core.mpz_qd.get_slide_potential(start_row, stop_row, block_size).get_d()
+                    sig_off()
+                    return r
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 
