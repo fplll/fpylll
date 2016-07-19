@@ -48,7 +48,7 @@ class BKZReduction(BKZBase):
         # 1. permute rows
         niter = 4 * (max_row-min_row)  # some guestimate
         with self.M.row_ops(min_row, max_row):
-            for i in xrange(niter):
+            for i in range(niter):
                 b = a = randint(min_row, max_row-1)
                 while b == a:
                     b = randint(min_row, max_row-1)
