@@ -100,7 +100,7 @@ cdef class Strategy:
     A strategy is a collection of pruning coefficients for a variety
     of radii and preprocessing block sizes.
     """
-    def __init__(self, block_size, pruning_parameters, preprocessing_block_sizes):
+    def __init__(self, block_size, pruning_parameters=tuple(), preprocessing_block_sizes=tuple()):
         """
 
         :param block_size: block size of this strategy
@@ -113,8 +113,11 @@ cdef class Strategy:
         pruning_parameters_ = []
         for p in pruning_parameters:
             if not isinstance(p, Pruning):
-                p = Pruning(p)
+                p = Pruning(*p)
             pruning_parameters_.append(p)
+
+        if len(pruning_parameters_) == 0:
+            pruning_parameters_.append(Pruning(1.0, [1.0 for _ in range(self.block_size)], 1.0))
         self.pruning_parameters = tuple(pruning_parameters_)
 
         preprocessing_block_sizes_ = []
@@ -139,6 +142,7 @@ cdef class Strategy:
         for pruning in self.pruning_parameters:
             if abs(pruning.radius_factor - gh_factor) < closest_dist:
                 best = pruning
+        assert(best is not None)
         return best
 
     def dict(self):
