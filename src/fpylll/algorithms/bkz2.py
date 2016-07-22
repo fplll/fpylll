@@ -70,7 +70,7 @@ class BKZReduction(BKZBase):
         clean &= BKZBase.svp_preprocessing(self, kappa, block_size, param, stats)
 
         for preproc in param.strategies[block_size].preprocessing_block_sizes:
-            prepar = BKZ.Param(block_size=preproc, strategies=param.strategies, flags=BKZ.GH_BND)
+            prepar = param.__class__(block_size=preproc, strategies=param.strategies, flags=BKZ.GH_BND)
             clean &= self.tour(prepar, kappa, kappa + block_size)
 
         return clean
