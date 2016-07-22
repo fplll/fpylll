@@ -359,7 +359,7 @@ cdef class IntegerMatrix:
         elif algorithm == "ntrulike2":
             A = IntegerMatrix(2*d, 2*d)
         elif algorithm == "qary":
-            A = IntegerMatrix(2*d, 2*d)
+            A = IntegerMatrix(d, d)
         elif algorithm == "trg":
             A = IntegerMatrix(d, d)
         else:
