@@ -19,13 +19,16 @@ Pruner
     Pruning<4.981824, (1.00,...,0.23), 0.8998>
 
 """
+from libcpp.vector cimport vector
+from math import log, exp
 
 from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t, mpz_t, dpe_t, mpfr_t
 from fplll cimport FP_NR, Z_NR
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport prune as prune_c
 from fplll cimport Pruning as Pruning_c
-from libcpp.vector cimport vector
+from fplll cimport Pruner
+from fpylll.util import gaussian_heuristic
 
 
 IF HAVE_QD:
@@ -35,8 +38,59 @@ IF HAVE_QD:
 from bkz_param cimport Pruning
 from gso cimport MatGSO
 
-def prune(double enumeration_radius, double preproc_cost, double target_probability, M,
-          int start_row = 0, int stop_row=0):
+def _prune_vec(double enumeration_radius, double preproc_cost, double target_probability, M,
+               int start_row = 0, int stop_row=0):
+    """Return optimal pruning parameters.
+
+    :param enumeration_radius: target squared enumeration radius
+    :param preproc_cost:       cost of preprocessing
+    :param target_probability: overall targeted success probability
+    :param M:                  GSO object or list of GSO objects
+    :param int start_row:      start enumeration in this row
+    :param int stop_row:       stop enumeration at this row
+
+    """
+
+    try:
+        M[0][0]
+    except AttributeError:
+        M = [M]
+
+    cdef vector[vector[double]] vec
+
+    n = len(M)
+    d = len(M[0])
+
+    avg = [0.0 for _ in range(d)]
+
+    for i,m in enumerate(M):
+        vec.push_back(vector[double]())
+        if len(m) != d:
+            raise ValueError("Lengths of all vectors must match.")
+        for j,e in enumerate(m):
+            avg[j] += e
+            vec[i].push_back(e)
+
+    avg = [e/n for e in avg]
+
+    cdef Pruner[FP_NR[double]] pruner = Pruner[FP_NR[double]](enumeration_radius, preproc_cost, target_probability);
+    pruner.load_basis_shapes(vec);
+
+    cdef Pruning_c pruning;
+
+    root_det = exp(sum([log(e) for e in avg])/d)
+    gh, expo = gaussian_heuristic(enumeration_radius, 0, d, root_det, 1.0);
+
+    sig_on()
+    pruner.optimize_coefficients(pruning.coefficients, True)
+    sig_off()
+    pruning.probability = pruner.svp_probability(pruning.coefficients)
+    pruning.radius_factor = enumeration_radius/(gh * 2**expo)
+    return Pruning.from_cxx(pruning)
+
+
+def _prune_gso(double enumeration_radius, double preproc_cost, double target_probability, M,
+               int start_row = 0, int stop_row=0):
     """Return optimal pruning parameters.
 
     :param enumeration_radius: target squared enumeration radius
@@ -58,11 +112,11 @@ def prune(double enumeration_radius, double preproc_cost, double target_probabil
 
     for m in M:
         if not isinstance(m, MatGSO):
-            raise ValueError("Parameters must be list of GSO objects.")
+            raise TypeError("Parameters must be list of GSO objects.")
         if type == 0:
             type = (<MatGSO>m)._type
         elif (<MatGSO>m)._type != type:
-            raise ValueError("Inconsistent core types in parameter list.")
+            raise ValueError("Inconsistent cores in parameter list.")
 
     cdef vector[MatGSO_c[Z_NR[mpz_t], FP_NR[double]]] v_double
     cdef vector[MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]]] v_ld
@@ -126,5 +180,21 @@ def prune(double enumeration_radius, double preproc_cost, double target_probabil
         ELSE:
             RuntimeError("Unknown type %d."%type)
 
-
     return Pruning.from_cxx(pruning_c)
+
+def prune(double enumeration_radius, double preproc_cost, double target_probability, M,
+          int start_row = 0, int stop_row=0):
+    """Return optimal pruning parameters.
+
+    :param enumeration_radius: target squared enumeration radius
+    :param preproc_cost:       cost of preprocessing
+    :param target_probability: overall targeted success probability
+    :param M:                  GSO object, list of GSO objects or list of lists with r coefficients
+    :param int start_row:      start enumeration in this row
+    :param int stop_row:       stop enumeration at this row
+
+    """
+    try:
+        return _prune_gso(enumeration_radius, preproc_cost, target_probability, M, start_row, stop_row)
+    except TypeError:
+        return _prune_vec(enumeration_radius, preproc_cost, target_probability, M, start_row, stop_row)
