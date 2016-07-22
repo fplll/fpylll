@@ -3,7 +3,6 @@
 from fpylll import IntegerMatrix, GSO
 
 try:
-    import numpy
     from fpylll.numpy import dump_mu, dump_r
     have_numpy = True
 except ImportError:
@@ -17,10 +16,8 @@ def test_dump_mu(nrows=10):
     if not have_numpy:
         return
 
-    mu = numpy.ndarray(dtype='double', shape=(nrows, nrows))
-
     M.update_gso()
-    dump_mu(mu, M, 0, nrows)
+    mu = dump_mu(M, 0, nrows)
 
     for i in range(nrows):
         for j in range(nrows):
@@ -34,10 +31,8 @@ def test_dump_r(nrows=10):
     if not have_numpy:
         return
 
-    r = numpy.ndarray(dtype='double', shape=nrows)
-
     M.update_gso()
-    dump_r(r, M, 0, nrows)
+    r = dump_r(M, 0, nrows)
 
     for i in range(nrows):
         assert abs(M.get_r(i, i) - r[i]) < 0.001
