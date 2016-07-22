@@ -175,6 +175,8 @@ cdef class Strategy:
             pruning = 1.0, 1.0
         return "Strategy<%3d, (%s), %4.2f-%4.2f>"%(self.block_size, preproc, pruning[0], pruning[1])
 
+    def __reduce__(self):
+        return unpickle_Strategy, (self.__class__, tuple(self.dict().items()))
 
     @staticmethod
     cdef Strategy from_cxx(Strategy_c& s):
@@ -460,3 +462,10 @@ def unpickle_BKZParam(*args):
     """
     kwds = dict(args)
     return BKZParam(**kwds)
+
+def unpickle_Strategy(*args):
+    """
+    """
+    cls, args = args
+    kwds = dict(args)
+    return cls(**kwds)
