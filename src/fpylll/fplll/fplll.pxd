@@ -179,6 +179,12 @@ cdef extern from "fplll/defs.h" namespace "fplll":
     cdef double LLL_DEF_ETA
 
 
+    const double BKZ_DEF_AUTO_ABORT_SCALE
+    const int BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+    const double BKZ_DEF_GH_FACTOR
+    const double BKZ_DEF_MIN_SUCCESS_PROBABILITY
+    const int BKZ_DEF_RERANDOMIZATION_DENSITY
+
 
 # Matrices over the Integers
 
@@ -552,6 +558,7 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
         FT enumeration_radius;
 
         Pruner()
+        Pruner(double enumeration_radius, double preproc_cost, double target_probability)
         Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability)
         Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability, size_t n, size_t d)
 

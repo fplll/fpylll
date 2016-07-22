@@ -18,6 +18,10 @@ from fplll cimport BKZAutoAbort as BKZAutoAbort_c
 from fplll cimport BKZReduction as BKZReduction_c
 from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
 from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
+from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
+from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
+
 from fplll cimport FP_NR, Z_NR
 from fplll cimport FloatType
 from fplll cimport RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT
@@ -760,3 +764,9 @@ class BKZ:
     AutoAbort = BKZAutoAbort
     reduction = bkz_reduction
     Reduction = BKZReduction
+
+    DEFAULT_AUTO_ABORT_SCALE        = BKZ_DEF_AUTO_ABORT_SCALE
+    DEFAULT_AUTO_ABORT_MAX_NO_DEC   = BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+    DEFAULT_GH_FACTOR               = BKZ_DEF_GH_FACTOR
+    DEFAULT_MIN_SUCCESS_PROBABILITY = BKZ_DEF_MIN_SUCCESS_PROBABILITY
+    DEFAULT_RERANDOMIZATION_DENSITY = BKZ_DEF_RERANDOMIZATION_DENSITY

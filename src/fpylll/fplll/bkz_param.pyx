@@ -10,6 +10,9 @@ Parameters for Block Korkine Zolotarev algorithm.
 from fplll cimport BKZParam as BKZParam_c
 from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
 from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
+from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
+from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
 from fplll cimport LLL_DEF_DELTA
 from fplll cimport Pruning as Pruning_c
 from fplll cimport Strategy as Strategy_c
@@ -21,6 +24,7 @@ from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref, preincrement as inc
 
 from collections import OrderedDict
+import json
 
 cdef class Pruning:
     """
@@ -233,6 +237,10 @@ def load_strategies_json(filename):
     return strategies_c_to_strategies(strategies)
 
 
+def dump_strategies_json(filename, strategies):
+    with open(filename, "w") as fh:
+        json.dump([strategy.dict() for strategy in strategies], fh, indent=4, sort_keys=True)
+
 cdef load_strategies_python(vector[Strategy_c]& out, inp):
     for strategy in inp:
         if not isinstance(strategy, Strategy):
@@ -247,9 +255,10 @@ cdef class BKZParam:
     def __init__(self, int block_size, strategies=None,
                  float delta=LLL_DEF_DELTA, int flags=BKZ_DEFAULT,
                  int max_loops=0, int max_time=0,
-                 auto_abort=None, float gh_factor=1.1,
-                 float min_success_probability=0.5,
-                 int rerandomization_density=3,
+                 auto_abort=None,
+                 float gh_factor=BKZ_DEF_GH_FACTOR,
+                 float min_success_probability=BKZ_DEF_MIN_SUCCESS_PROBABILITY,
+                 int rerandomization_density=BKZ_DEF_RERANDOMIZATION_DENSITY,
                  dump_gso_filename=None):
         """
         Create BKZ parameters object.

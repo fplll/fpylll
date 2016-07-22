@@ -456,6 +456,10 @@ class LLL:
     VERBOSE = LLL_VERBOSE
     EARLY_RED = LLL_EARLY_RED
     SIEGEL = LLL_SIEGEL
+
+    DEFAULT_DELTA = LLL_DEF_DELTA
+    DEFAULT_ETA = LLL_DEF_ETA
+
     Reduction = LLLReduction
     reduction = lll_reduction
     is_reduced = is_LLL_reduced
