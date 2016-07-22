@@ -329,9 +329,7 @@ cdef class BKZParam:
         cdef BKZParam_c *o = new BKZParam_c(block_size, strategies_c[0], delta)
 
         o.flags = flags
-
-        if o.flags & BKZ_GH_BND:
-            o.gh_factor = float(gh_factor)
+        o.gh_factor = float(gh_factor)
 
         if auto_abort is True:
             o.flags |= BKZ_AUTO_ABORT
@@ -447,19 +445,26 @@ cdef class BKZParam:
         """
         d = {}
         d["block_size"] = self.block_size
-        if all or self.delta == LLL_DEF_DELTA:
+        if all or abs(self.delta - LLL_DEF_DELTA) > 0.001:
             d["delta"] = self.delta
         d["flags"] = self.flags
         if all or self.max_loops != 0:
             d["max_loops"] = self.max_loops
         if all or self.max_time != 0:
             d["max_time"] = self.max_time
-        if all or self.auto_abort != (1.0, 5):
+        if self.o.flags & BKZ_AUTO_ABORT:
             d["auto_abort"] = self.auto_abort
-        if all or self.gh_factor != 1.1:
+        if self.o.flags & BKZ_GH_BND:
             d["gh_factor"] = self.gh_factor
-        if all or self.dump_gso_filename != "gso.log":
+        if self.o.flags & BKZ_DUMP_GSO:
             d["dump_gso_filename"] =  self.dump_gso_filename
+        if all or self.min_success_probability != BKZ_DEF_MIN_SUCCESS_PROBABILITY:
+            d["min_success_probability"] = self.min_success_probability
+        if all or self.rerandomization_density != BKZ_DEF_RERANDOMIZATION_DENSITY:
+            d["reranomization_density"]  = self.rerandomization_density
+        if all:
+            d["strategies"] = [strategy.dict() for strategy in self.strategies[:self.block_size+1]]
+
         return d
 
     def new(self, **kwds):
