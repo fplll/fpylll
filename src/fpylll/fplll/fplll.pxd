@@ -540,6 +540,37 @@ cdef extern from "fplll/util.h" namespace "fplll":
 
 
 
+# Pruner
+
+cdef extern from "fplll/pruner.h" namespace "fplll":
+
+    cdef cppclass Pruner[FT]:
+
+        FT preproc_cost
+        FT target_probability
+        FT enumeration_radius;
+
+        Pruner()
+        Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability)
+        Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability, size_t n, size_t d)
+
+        void load_basis_shape[GSO_ZT, GSO_FT](MatGSO[GSO_ZT, GSO_FT] &gso, int start_row, int end_row, int reset_renorm)
+        void load_basis_shape(const vector[double] &gso_sq_norms, int reset_renorm)
+
+        void load_basis_shapes[GSO_ZT, GSO_FT](vector[MatGSO[GSO_ZT, GSO_FT]] &gsos, int start_row, int end_row)
+        void load_basis_shapes(const vector[vector[double]] &gso_sq_norms_vec)
+
+        void optimize_coefficients(vector[double] &pr, const int reset)
+
+        double single_enum_cost(const vector[double] &pr)
+        double repeated_enum_cost(const vector[double] &pr)
+        double svp_probability(const vector[double] &pr)
+
+    Pruning prune[FT, GSO_ZT, GSO_FT](const double enumeration_radius, const double preproc_cost,
+                                      const double target_probability, vector[MatGSO[GSO_ZT, GSO_FT]] &m,
+                                      int start_row, int end_row)
+
+
 # Highlevel Functions
 
 cdef extern from "fplll/fplll.h" namespace "fplll":

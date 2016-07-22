@@ -112,6 +112,7 @@ extensions = [
     Extension("fplll.bkz", ["src/fpylll/fplll/bkz.pyx"], **fplll),
     Extension("fplll.enumeration", ["src/fpylll/fplll/enumeration.pyx"], **fplll),
     Extension("fplll.svpcvp", ["src/fpylll/fplll/svpcvp.pyx"], **fplll),
+    Extension("fplll.pruner", ["src/fpylll/fplll/pruner.pyx"], **fplll),
     Extension("util", ["src/fpylll/util.pyx"], **fplll),
     Extension("io", ["src/fpylll/io.pyx"], **fplll),
     Extension("config", ["src/fpylll/config.pyx"], **fplll),
