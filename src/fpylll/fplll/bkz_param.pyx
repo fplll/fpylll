@@ -20,6 +20,8 @@ from fpylll.util cimport check_delta
 from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref, preincrement as inc
 
+from collections import OrderedDict
+
 cdef class Pruning:
     """
     Pruning parameters.
@@ -81,18 +83,29 @@ cdef class Pruning:
         sig_off()
         return Pruning.from_cxx(p)
 
+    @classmethod
+    def from_dict(cls, d):
+        pruning = cls(**d)
+        return pruning
+
+    def __str__(self):
+        return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.radius_factor, self.coefficients[0], self.coefficients[-1], self.probability)
+
 cdef class Strategy:
     """
     A strategy is a collection of pruning coefficients for a variety
     of radii and preprocessing block sizes.
     """
-    def __init__(self, pruning_parameters, preprocessing_block_sizes):
+    def __init__(self, block_size, pruning_parameters, preprocessing_block_sizes):
         """
 
+        :param block_size: block size of this strategy
         :param pruning_parameters: a list of pruning parameters
         :param preprocessing_block_sizes: preprocessing block sizes
 
         """
+        self.block_size = block_size
+
         pruning_parameters_ = []
         for p in pruning_parameters:
             if not isinstance(p, Pruning):
@@ -108,10 +121,58 @@ cdef class Strategy:
         self.preprocessing_block_sizes = tuple(preprocessing_block_sizes_)
         Strategy.to_cxx(self._core, self)
 
+    def get_pruning(self, radius, gh):
+        """
+
+        :param radius:
+        :param gh:
+        :param preproc_cost:
+
+        """
+        gh_factor = radius/gh
+        closest_dist = 2**80
+        best = None
+        for pruning in self.pruning_parameters:
+            if abs(pruning.radius_factor - gh_factor) < closest_dist:
+                best = pruning
+        return best
+
+    def dict(self):
+        """
+
+            >>> from fpylll import load_strategies_json, default_strategy
+            >>> print load_strategies_json(default_strategy)[50].dict() # doctest: +ELLIPSIS
+            OrderedDict([('block_size', 50), ('preprocessing_block_sizes', (24,)), ('pruning_parameters', ...)])
+            >>> print load_strategies_json(default_strategy)[50]
+            Strategy< 50, (24), 0.50-0.51>
+
+        """
+        d = OrderedDict()
+        d["block_size"] = self.block_size
+        d["preprocessing_block_sizes"] = tuple(self.preprocessing_block_sizes)
+        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.probability) for p in self.pruning_parameters])
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        strategy = cls(**d)
+        return strategy
+
+    def __str__(self):
+        preproc = ",".join([str(p) for p in self.preprocessing_block_sizes])
+        pruning = [p.probability for p in self.pruning_parameters]
+        if pruning:
+            pruning = min(pruning), max(pruning)
+        else:
+            pruning = 1.0, 1.0
+        return "Strategy<%3d, (%s), %4.2f-%4.2f>"%(self.block_size, preproc, pruning[0], pruning[1])
+
 
     @staticmethod
     cdef Strategy from_cxx(Strategy_c& s):
         pruning_parameters = []
+
+        block_size = s.block_size
 
         cdef vector[Pruning_c].iterator pit = s.pruning_parameters.begin()
         while pit != s.pruning_parameters.end():
@@ -119,12 +180,12 @@ cdef class Strategy:
             inc(pit)
 
         preprocessing_block_sizes = []
-        cdef vector[int].iterator bit = s.preprocessing_block_sizes.begin()
+        cdef vector[size_t].iterator bit = s.preprocessing_block_sizes.begin()
         while bit != s.preprocessing_block_sizes.end():
             preprocessing_block_sizes.append(deref(bit))
             inc(bit)
 
-        cdef Strategy self = Strategy(tuple(pruning_parameters), tuple(preprocessing_block_sizes))
+        cdef Strategy self = Strategy(block_size, tuple(pruning_parameters), tuple(preprocessing_block_sizes))
         self._core = s
         return self
 
@@ -137,15 +198,7 @@ cdef class Strategy:
         for p in s.preprocessing_block_sizes:
             self.preprocessing_block_sizes.push_back(p)
 
-    def get_pruning(self, radius, gh):
-        gh_factor = radius/gh
-        closest_dist = 2**80
-        best = None
-        for pruning in self.pruning_parameters:
-            if abs(pruning.radius_factor - gh_factor) < closest_dist:
-                best = pruning
-        return best
-
+        self.block_size = s.block_size
 
 cdef strategies_c_to_strategies(vector[Strategy_c]& strategies):
     """

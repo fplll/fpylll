@@ -13,10 +13,10 @@ Pruner
     >>> L = [LLL.Reduction(m) for m in M]
     >>> _ = [l() for l in L]
     >>> print prune(M[0].get_r(0,0), 0, 0.9, M)
-    Pruning(2.455952, (1.00,...,0.38), 0.8998)
+    Pruning<2.455952, (1.00,...,0.38), 0.8998>
 
     >>> print prune(M[0].get_r(0,0), 0, 0.9, M[1])
-    Pruning(4.981824, (1.00,...,0.23), 0.8998)
+    Pruning<4.981824, (1.00,...,0.23), 0.8998>
 
 """
 

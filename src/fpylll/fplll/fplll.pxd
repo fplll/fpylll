@@ -441,8 +441,9 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
         Pruning LinearPruning(int block_size, int level)
 
     cdef cppclass Strategy:
+        size_t block_size
         vector[Pruning] pruning_parameters
-        vector[int] preprocessing_block_sizes
+        vector[size_t] preprocessing_block_sizes
 
         @staticmethod
         Strategy EmptyStrategy()

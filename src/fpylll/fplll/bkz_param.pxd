@@ -21,6 +21,7 @@ cdef class Pruning:
 
 cdef class Strategy:
     cdef Strategy_c _core
+    cdef readonly int block_size
     cdef readonly tuple pruning_parameters
     cdef readonly tuple preprocessing_block_sizes
 
