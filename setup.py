@@ -130,7 +130,7 @@ setup(
                           build_dir=cythonize_dir,
                           compiler_directives={'embedsignature': True}),
     package_dir={"": "src"},
-    packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms"],
+    packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms", "fpylll.tools"],
     license='GNU General Public License, version 2 or later',
     long_description=open('README.rst').read(),
 )
