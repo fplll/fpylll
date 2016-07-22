@@ -52,6 +52,10 @@ cdef class Pruning:
     cdef Pruning from_cxx(Pruning_c& p):
         """
         Load Pruning object from C++ Pruning object.
+
+        .. note::
+
+           All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
         coefficients = []
 
@@ -67,6 +71,10 @@ cdef class Pruning:
     cdef to_cxx(Pruning_c& self, Pruning p):
         """
         Store pruning object in C++ pruning object.
+
+        .. note::
+
+           All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
         self.radius_factor = p.radius_factor
         self.probability = p.probability
@@ -87,10 +95,15 @@ cdef class Pruning:
         sig_off()
         return Pruning.from_cxx(p)
 
-    @classmethod
-    def from_dict(cls, d):
-        pruning = cls(**d)
-        return pruning
+    def __reduce__(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> import pickle
+            >>> print pickle.loads(pickle.dumps(Pruning(1.0, [1.0, 0.6, 0.3], 1.0)))
+            Pruning<1.000000, (1.00,...,0.30), 1.0000>
+
+        """
+        return Pruning, (self.radius_factor, self.coefficients, self.probability)
 
     def __str__(self):
         return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.radius_factor, self.coefficients[0], self.coefficients[-1], self.probability)
