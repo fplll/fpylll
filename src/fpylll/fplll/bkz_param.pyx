@@ -113,12 +113,12 @@ cdef class Strategy:
     A strategy is a collection of pruning coefficients for a variety
     of radii and preprocessing block sizes.
     """
-    def __init__(self, block_size, pruning_parameters=tuple(), preprocessing_block_sizes=tuple()):
+    def __init__(self, block_size, preprocessing_block_sizes=tuple(), pruning_parameters=tuple()):
         """
 
         :param block_size: block size of this strategy
-        :param pruning_parameters: a list of pruning parameters
         :param preprocessing_block_sizes: preprocessing block sizes
+        :param pruning_parameters: a list of pruning parameters
 
         """
         self.block_size = block_size
@@ -144,9 +144,8 @@ cdef class Strategy:
     def get_pruning(self, radius, gh):
         """
 
-        :param radius:
-        :param gh:
-        :param preproc_cost:
+        :param radius: target radius
+        :param gh:     gaussian heuristic radius
 
         """
         gh_factor = radius/gh
@@ -174,11 +173,6 @@ cdef class Strategy:
         d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.probability) for p in self.pruning_parameters])
         return d
 
-    @classmethod
-    def from_dict(cls, d):
-        strategy = cls(**d)
-        return strategy
-
     def __str__(self):
         preproc = ",".join([str(p) for p in self.preprocessing_block_sizes])
         pruning = [p.probability for p in self.pruning_parameters]
@@ -189,6 +183,13 @@ cdef class Strategy:
         return "Strategy<%3d, (%s), %4.2f-%4.2f>"%(self.block_size, preproc, pruning[0], pruning[1])
 
     def __reduce__(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Strategy
+            >>> import pickle
+            >>> print pickle.loads(pickle.dumps(Strategy(20, [10], [])))
+            Strategy< 20, (10), 1.00-1.00>
+
+        """
         return unpickle_Strategy, (self.__class__, tuple(self.dict().items()))
 
     @staticmethod
@@ -208,7 +209,7 @@ cdef class Strategy:
             preprocessing_block_sizes.append(deref(bit))
             inc(bit)
 
-        cdef Strategy self = Strategy(block_size, tuple(pruning_parameters), tuple(preprocessing_block_sizes))
+        cdef Strategy self = Strategy(block_size, tuple(preprocessing_block_sizes), tuple(pruning_parameters))
         self._core = s
         return self
 
