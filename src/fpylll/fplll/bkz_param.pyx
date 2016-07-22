@@ -303,12 +303,13 @@ cdef class BKZParam:
         check_delta(delta)
         cdef vector[Strategy_c] *strategies_c = new vector[Strategy_c]()
 
-
+        keep_strategies = False
         if strategies:
             if isinstance(strategies, str):
                 strategies = strategies.encode('UTF-8')
                 strategies_c[0] = load_strategies_json_c(strategy_full_path(strategies))
             else:
+                keep_strategies = True
                 load_strategies_python(strategies_c[0], strategies)
 
         cdef BKZParam_c *o = new BKZParam_c(block_size, strategies_c[0], delta)
@@ -350,7 +351,10 @@ cdef class BKZParam:
         o.rerandomization_density = rerandomization_density
 
         self.o = o
-        self.strategies = strategies_c_to_strategies(self.o.strategies)
+        if not keep_strategies:
+            self.strategies = strategies_c_to_strategies(self.o.strategies)
+        else:
+            self.strategies = tuple(strategies)
 
     def __dealloc__(self):
         del self.o
