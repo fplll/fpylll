@@ -10,13 +10,13 @@ Pruner
     >>> from fpylll import *
     >>> A = [IntegerMatrix.random(10, "qary", bits=10, k=10) for _ in range(20)]
     >>> M = [GSO.Mat(a) for a in A]
-    >>> L = [LLL.Reduction(m) for m in M]
-    >>> _ = [l() for l in L]
-    >>> print prune(M[0].get_r(0,0), 0, 0.9, M)
-    Pruning<2.455952, (1.00,...,0.38), 0.8998>
+    >>> _ = [LLL.Reduction(m)() for m in M]
+    >>> radius = sum([m.get_r(0, 0) for m in M])/len(M)
+    >>> print prune(radius, 0, 0.9, M)
+    Pruning<1.205907, (1.00,...,0.44), 0.8998>
 
-    >>> print prune(M[0].get_r(0,0), 0, 0.9, M[1])
-    Pruning<4.981824, (1.00,...,0.23), 0.8998>
+    >>> print prune(M[0].get_r(0,0), 0, 0.9, M[0])
+    Pruning<1.205907, (1.00,...,0.46), 0.9002>
 
 """
 from libcpp.vector cimport vector
