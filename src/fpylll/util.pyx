@@ -13,8 +13,8 @@ from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
 
 IF HAVE_QD:
-    from qd.qd cimport dd_real, qd_real
-    from fplll cimport FT_DD, FT_QD
+    from fpylll.qd.qd cimport dd_real, qd_real
+    from fpylll.fplll.fplll cimport FT_DD, FT_QD
 
 
 float_aliases = {'d': 'double',

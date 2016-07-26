@@ -7,7 +7,7 @@ from fpylll.fplll.gso cimport MatGSO
 from fpylll.fplll.decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
 
 IF HAVE_QD:
-    from fpylll cimport mpz_dd, mpz_qd
+    from fpylll.fplll.decl cimport mpz_dd, mpz_qd
 
 IF not HAVE_NUMPY:
     raise ImportError("NumPy is not installed, but this module relies on it.")

@@ -10,7 +10,7 @@ Block Korkine Zolotarev algorithm.
 
 IF HAVE_QD:
     from decl cimport mpz_dd, mpz_qd
-    from qd.qd cimport dd_real, qd_real
+    from fpylll.qd.qd cimport dd_real, qd_real
 
 from bkz_param cimport BKZParam
 from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, vector_fp_nr_t, fp_nr_t

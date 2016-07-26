@@ -16,8 +16,8 @@ from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
 IF HAVE_QD:
-    from qd.qd cimport dd_real, qd_real
-    from fpylll cimport mpz_dd, mpz_qd
+    from fpylll.qd.qd cimport dd_real, qd_real
+    from decl cimport mpz_dd, mpz_qd
     from fplll cimport FT_DD, FT_QD
 
 class EnumerationError(Exception):

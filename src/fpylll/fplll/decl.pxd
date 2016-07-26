@@ -10,7 +10,7 @@ from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 
 IF HAVE_QD:
-    from qd.qd cimport dd_real, qd_real
+    from fpylll.qd.qd cimport dd_real, qd_real
 
 from fplll cimport dpe_t
 from fplll cimport Z_NR, FP_NR
