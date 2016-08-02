@@ -12,10 +12,10 @@ Pruner
     >>> M = [GSO.Mat(a) for a in A]
     >>> _ = [LLL.Reduction(m)() for m in M]
     >>> radius = sum([m.get_r(0, 0) for m in M])/len(M)
-    >>> print prune(radius, 0, 0.9, M)
+    >>> print(prune(radius, 0, 0.9, M))
     Pruning<1.205907, (1.00,...,0.44), 0.8998>
 
-    >>> print prune(M[0].get_r(0,0), 0, 0.9, M[0])
+    >>> print(prune(M[0].get_r(0,0), 0, 0.9, M[0]))
     Pruning<1.205907, (1.00,...,0.46), 0.9002>
 
 """
