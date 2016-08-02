@@ -32,8 +32,8 @@ from fpylll.util import gaussian_heuristic
 
 
 IF HAVE_QD:
-    from qd.qd cimport dd_real, qd_real
-    from fpylll cimport mpz_dd, mpz_qd
+    from fpylll.qd.qd cimport dd_real, qd_real
+    from decl cimport mpz_dd, mpz_qd
 
 from bkz_param cimport Pruning
 from gso cimport MatGSO
