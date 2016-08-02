@@ -99,7 +99,7 @@ cdef class Pruning:
         """
             >>> from fpylll.fplll.bkz_param import Pruning
             >>> import pickle
-            >>> print pickle.loads(pickle.dumps(Pruning(1.0, [1.0, 0.6, 0.3], 1.0)))
+            >>> print(pickle.loads(pickle.dumps(Pruning(1.0, [1.0, 0.6, 0.3], 1.0))))
             Pruning<1.000000, (1.00,...,0.30), 1.0000>
 
         """
@@ -161,9 +161,9 @@ cdef class Strategy:
         """
 
             >>> from fpylll import load_strategies_json, default_strategy
-            >>> print load_strategies_json(default_strategy)[50].dict() # doctest: +ELLIPSIS
+            >>> print(load_strategies_json(default_strategy)[50].dict()) # doctest: +ELLIPSIS
             OrderedDict([('block_size', 50), ('preprocessing_block_sizes', (24,)), ('pruning_parameters', ...)])
-            >>> print load_strategies_json(default_strategy)[50]
+            >>> print(load_strategies_json(default_strategy)[50])
             Strategy< 50, (24), 0.50-0.51>
 
         """
@@ -186,7 +186,7 @@ cdef class Strategy:
         """
             >>> from fpylll.fplll.bkz_param import Strategy
             >>> import pickle
-            >>> print pickle.loads(pickle.dumps(Strategy(20, [10], [])))
+            >>> print(pickle.loads(pickle.dumps(Strategy(20, [10], []))))
             Strategy< 20, (10), 1.00-1.00>
 
         """
