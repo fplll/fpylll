@@ -263,6 +263,8 @@ def dump_strategies_json(filename, strategies):
 
 cdef load_strategies_python(vector[Strategy_c]& out, inp):
     for strategy in inp:
+        if isinstance(strategy, OrderedDict):
+            strategy = Strategy(**strategy)
         if not isinstance(strategy, Strategy):
             raise TypeError("Type '%s' of '%s' not supported."%(type(strategy), strategy))
         out.push_back((<Strategy>strategy)._core)
@@ -299,7 +301,7 @@ cdef class BKZParam:
             1.1, which is fpLLL's default.
         :param min_success_probability: minimum success probability in an SVP reduction (when using
             pruning)
-        :param reranomization_density: density of rerandomization operation when using extreme
+        :param rerandomization_density: density of rerandomization operation when using extreme
             pruning
         :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
@@ -461,7 +463,7 @@ cdef class BKZParam:
         if all or self.min_success_probability != BKZ_DEF_MIN_SUCCESS_PROBABILITY:
             d["min_success_probability"] = self.min_success_probability
         if all or self.rerandomization_density != BKZ_DEF_RERANDOMIZATION_DENSITY:
-            d["reranomization_density"]  = self.rerandomization_density
+            d["rerandomization_density"]  = self.rerandomization_density
         if all:
             d["strategies"] = [strategy.dict() for strategy in self.strategies[:self.block_size+1]]
 
@@ -479,8 +481,8 @@ def unpickle_BKZParam(*args):
 
     >>> from fpylll import BKZ
     >>> import pickle
-    >>> pickle.loads(pickle.dumps(BKZ.Param(10, ))) # doctest: +ELLIPSIS
-    <BKZParam(10, flags=0x0040) at 0x...>
+    >>> pickle.loads(pickle.dumps(BKZ.Param(10, flags=BKZ.VERBOSE))) # doctest: +ELLIPSIS
+    <BKZParam(10, flags=0x0001) at 0x...>
 
     """
     kwds = dict(args)
