@@ -62,16 +62,19 @@ def _prune_vec(double enumeration_radius, double preproc_cost, double target_pro
     d = len(M[0])
 
     avg = [0.0 for _ in range(d)]
+    gh = 0.0
 
     for i,m in enumerate(M):
         vec.push_back(vector[double]())
         if len(m) != d:
             raise ValueError("Lengths of all vectors must match.")
+        gh += m[0]
         for j,e in enumerate(m):
             avg[j] += e
             vec[i].push_back(e)
 
     avg = [e/n for e in avg]
+    gh /= n
 
     cdef Pruner[FP_NR[double]] pruner = Pruner[FP_NR[double]](enumeration_radius, preproc_cost, target_probability);
     pruner.load_basis_shapes(vec);
@@ -79,7 +82,7 @@ def _prune_vec(double enumeration_radius, double preproc_cost, double target_pro
     cdef Pruning_c pruning;
 
     root_det = exp(sum([log(e) for e in avg])/d)
-    gh, expo = gaussian_heuristic(enumeration_radius, 0, d, root_det, 1.0);
+    gh, expo = gaussian_heuristic(gh, 0, d, root_det, 1.0);
 
     sig_on()
     pruner.optimize_coefficients(pruning.coefficients, True)
