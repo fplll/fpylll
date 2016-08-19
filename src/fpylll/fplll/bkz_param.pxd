@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from libcpp.vector cimport vector
 from decl cimport bkz_auto_abort_core_t, fplll_type_t
 from gso cimport MatGSO
 from fplll cimport BKZParam as BKZParam_c
@@ -33,5 +34,7 @@ cdef class Strategy:
 
 
 cdef class BKZParam:
+    # BKZParam_c doesn't actually store strategies, store them here
+    cdef vector[Strategy_c] strategies_c
     cdef BKZParam_c *o
     cdef readonly tuple strategies

@@ -20,7 +20,6 @@ from fplll cimport load_strategies_json as load_strategies_json_c
 from fplll cimport strategy_full_path
 
 from fpylll.util cimport check_delta
-from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref, preincrement as inc
 
 from collections import OrderedDict
@@ -317,18 +316,19 @@ cdef class BKZParam:
             raise ValueError("GH factor must be > 0")
 
         check_delta(delta)
-        cdef vector[Strategy_c] *strategies_c = new vector[Strategy_c]()
-
-        keep_strategies = False
         if strategies:
             if isinstance(strategies, str):
                 strategies = strategies.encode('UTF-8')
-                strategies_c[0] = load_strategies_json_c(strategy_full_path(strategies))
+                self.strategies_c = load_strategies_json_c(strategy_full_path(strategies))
+                self.strategies = strategies_c_to_strategies(self.strategies_c)
             else:
-                keep_strategies = True
-                load_strategies_python(strategies_c[0], strategies)
+                load_strategies_python(self.strategies_c, strategies)
+                self.strategies = tuple(strategies)
 
-        cdef BKZParam_c *o = new BKZParam_c(block_size, strategies_c[0], delta)
+        cdef BKZParam_c *o = new BKZParam_c(block_size, self.strategies_c, delta)
+
+        if not strategies:
+            self.strategies = strategies_c_to_strategies(o.strategies)
 
         o.flags = flags
         o.gh_factor = float(gh_factor)
@@ -346,7 +346,6 @@ cdef class BKZParam:
                     o.auto_abort_max_no_dec = a_max
                 except TypeError:
                     del o
-                    del strategies_c
                     raise ValueError("Parameter auto_abort (%s) not understood."%auto_abort)
 
         if o.flags & BKZ_MAX_LOOPS:
@@ -365,10 +364,6 @@ cdef class BKZParam:
         o.rerandomization_density = rerandomization_density
 
         self.o = o
-        if not keep_strategies:
-            self.strategies = strategies_c_to_strategies(self.o.strategies)
-        else:
-            self.strategies = tuple(strategies)
 
     def __dealloc__(self):
         del self.o
