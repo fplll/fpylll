@@ -159,10 +159,10 @@ cdef class Strategy:
     def dict(self):
         """
 
-            >>> from fpylll import load_strategies_json, default_strategy
-            >>> print(load_strategies_json(default_strategy)[50].dict()) # doctest: +ELLIPSIS
+            >>> from fpylll import load_strategies_json, BKZ
+            >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50].dict()) # doctest: +ELLIPSIS
             OrderedDict([('block_size', 50), ('preprocessing_block_sizes', (24,)), ('pruning_parameters', ...)])
-            >>> print(load_strategies_json(default_strategy)[50])
+            >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50])
             Strategy< 50, (24), 0.50-0.51>
 
         """
@@ -240,8 +240,8 @@ def load_strategies_json(filename):
     Load strategies from `filename`.
 
     >>> import fpylll.config
-    >>> from fpylll import load_strategies_json
-    >>> strategies = load_strategies_json(fpylll.config.default_strategy)
+    >>> from fpylll import load_strategies_json, BKZ
+    >>> strategies = load_strategies_json(BKZ.DEFAULT_STRATEGY)
     >>> strategies[80].preprocessing_block_sizes
     (52,)
 

@@ -33,7 +33,7 @@ from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.util cimport check_delta, check_precision, check_float_type
 from fpylll.util import ReductionError
 from integer_matrix cimport IntegerMatrix
-
+from fpylll.config import default_strategy, default_strategy_path
 
 cdef class BKZAutoAbort:
     """
@@ -770,3 +770,5 @@ class BKZ:
     DEFAULT_GH_FACTOR               = BKZ_DEF_GH_FACTOR
     DEFAULT_MIN_SUCCESS_PROBABILITY = BKZ_DEF_MIN_SUCCESS_PROBABILITY
     DEFAULT_RERANDOMIZATION_DENSITY = BKZ_DEF_RERANDOMIZATION_DENSITY
+    DEFAULT_STRATEGY = default_strategy
+    DEFAULT_STRATEGY_PATH = default_strategy_path
