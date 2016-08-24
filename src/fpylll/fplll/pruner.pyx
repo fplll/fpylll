@@ -23,17 +23,20 @@ from libcpp.vector cimport vector
 from math import log, exp
 
 from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t, mpz_t, dpe_t, mpfr_t
+from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 from fplll cimport FP_NR, Z_NR
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport prune as prune_c
 from fplll cimport Pruning as Pruning_c
 from fplll cimport Pruner
+from fplll cimport svp_probability as svp_probability_c
 from fpylll.util import gaussian_heuristic
-
+from fpylll.util cimport check_float_type
 
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
     from decl cimport mpz_dd, mpz_qd
+    from fplll cimport FT_DD, FT_QD
 
 from bkz_param cimport Pruning
 from gso cimport MatGSO
@@ -201,3 +204,25 @@ def prune(double enumeration_radius, double preproc_cost, double target_probabil
         return _prune_gso(enumeration_radius, preproc_cost, target_probability, M, start_row, stop_row)
     except TypeError:
         return _prune_vec(enumeration_radius, preproc_cost, target_probability, M, start_row, stop_row)
+
+def svp_probability(pr, float_type="double"):
+    cdef FloatType ft = check_float_type(float_type)
+
+    if not isinstance(pr, Pruning):
+        pr = Pruning(1.0, pr, 1.0)
+
+    if ft == FT_DOUBLE:
+        return svp_probability_c[FP_NR[double]]((<Pruning>pr)._core.coefficients)
+    if ft == FT_LONG_DOUBLE:
+        return svp_probability_c[FP_NR[longdouble]]((<Pruning>pr)._core.coefficients)
+    if ft == FT_DPE:
+        return svp_probability_c[FP_NR[dpe_t]]((<Pruning>pr)._core.coefficients)
+    if ft == FT_MPFR:
+        return svp_probability_c[FP_NR[mpfr_t]]((<Pruning>pr)._core.coefficients)
+    IF HAVE_QD:
+        if ft == FT_DD:
+            return svp_probability_c[FP_NR[dd_real]]((<Pruning>pr)._core.coefficients)
+        if ft == FT_QD:
+            return svp_probability_c[FP_NR[qd_real]]((<Pruning>pr)._core.coefficients)
+
+    raise ValueError("Float type '%s' not understood."%float_type)

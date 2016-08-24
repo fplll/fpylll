@@ -574,6 +574,8 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
         double repeated_enum_cost(const vector[double] &pr)
         double svp_probability(const vector[double] &pr)
 
+    double svp_probability[FT](const vector[double] &pr)
+
     Pruning prune[FT, GSO_ZT, GSO_FT](const double enumeration_radius, const double preproc_cost,
                                       const double target_probability, vector[MatGSO[GSO_ZT, GSO_FT]] &m,
                                       int start_row, int end_row)
