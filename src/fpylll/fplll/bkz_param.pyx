@@ -161,9 +161,9 @@ cdef class Strategy:
 
             >>> from fpylll import load_strategies_json, BKZ
             >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50].dict()) # doctest: +ELLIPSIS
-            OrderedDict([('block_size', 50), ('preprocessing_block_sizes', (24,)), ('pruning_parameters', ...)])
+            OrderedDict([('block_size', 50), ('preprocessing_block_sizes', (26,)), ('pruning_parameters', ...)])
             >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50])
-            Strategy< 50, (24), 0.50-0.51>
+            Strategy< 50, (26), 0.50-0.50>
 
         """
         d = OrderedDict()
@@ -243,10 +243,10 @@ def load_strategies_json(filename):
     >>> from fpylll import load_strategies_json, BKZ
     >>> strategies = load_strategies_json(BKZ.DEFAULT_STRATEGY)
     >>> strategies[80].preprocessing_block_sizes
-    (52,)
+    (58,)
 
     >>> strategies[80].pruning_parameters[0].probability
-    0.21438060700893402
+    0.25250527262687683
 
     """
     cdef vector[Strategy_c] strategies
