@@ -558,7 +558,7 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
         FT enumeration_radius;
 
         Pruner()
-        Pruner(double enumeration_radius, double preproc_cost, double target_probability)
+        Pruner(double enumeration_radius, double preproc_cost, double target_probability, int descent_method)
         Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability)
         Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability, size_t n, size_t d)
 
@@ -578,7 +578,11 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
 
     Pruning prune[FT, GSO_ZT, GSO_FT](const double enumeration_radius, const double preproc_cost,
                                       const double target_probability, vector[MatGSO[GSO_ZT, GSO_FT]] &m,
-                                      int start_row, int end_row)
+                                      const int descent_method, int start_row, int end_row)
+
+    cdef const int PRUNER_METHOD_GRADIENT "PRUNER_METHOD_GRADIENT"
+    cdef const int PRUNER_METHOD_NM "PRUNER_METHOD_NM"
+    cdef const int PRUNER_METHOD_HYBRID "PRUNER_METHOD_HYBRID"
 
 
 # Highlevel Functions
