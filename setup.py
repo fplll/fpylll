@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from distutils.core import setup
 from distutils.extension import Extension
-from Cython.Build import cythonize
+import Cython.Build
 
 import os
 import subprocess
@@ -121,14 +121,21 @@ extensions = [
 if have_numpy:
     extensions.append(Extension("numpy", ["src/fpylll/numpy.pyx"], **numpy_args))
 
+
 setup(
-    name="fpyLLL",
-    version='0.1dev',
+    setup_requires=[
+        'cython>=0.x',
+    ],
+    name="fpylll",
+    author=u"Martin R. Albrecht",
+    author_email="fplll-devel@googlegroups.com",
+    url="https://github.com/fplll/fpylll",
+    version='0.2dev',
     ext_package='fpylll',
-    ext_modules=cythonize(extensions,
-                          include_path=["src"] + sys.path,
-                          build_dir=cythonize_dir,
-                          compiler_directives={'embedsignature': True}),
+    ext_modules=Cython.Build.cythonize(extensions,
+                                       include_path=["src"] + sys.path,
+                                       build_dir=cythonize_dir,
+                                       compiler_directives={'embedsignature': True}),
     package_dir={"": "src"},
     packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms", "fpylll.tools"],
     license='GNU General Public License, version 2 or later',
