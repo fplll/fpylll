@@ -277,7 +277,7 @@ cdef class BKZParam:
                  float delta=LLL_DEF_DELTA, int flags=BKZ_DEFAULT,
                  int max_loops=0, int max_time=0,
                  auto_abort=None,
-                 float gh_factor=BKZ_DEF_GH_FACTOR,
+                 gh_factor=None,
                  float min_success_probability=BKZ_DEF_MIN_SUCCESS_PROBABILITY,
                  int rerandomization_density=BKZ_DEF_RERANDOMIZATION_DENSITY,
                  dump_gso_filename=None):
@@ -295,7 +295,7 @@ cdef class BKZParam:
             that the algorithm will terminate if for ``max_iter`` loops the slope is not smaller
             than ``scale * old_slope`` where ``old_slope`` was the old minimum.  If ``True`` is
             given, this is equivalent to providing ``(1.0,5)`` which is fpLLL's default.
-        :param gh_factor: heuristic, if ``True`` then the enumeration bound will be set to
+        :param gh_factor: heuristic, if set then the enumeration bound will be set to
             ``gh_factor`` times the Gaussian Heuristic.  If ``True`` then ``gh_factor`` is set to
             1.1, which is fpLLL's default.
         :param min_success_probability: minimum success probability in an SVP reduction (when using
@@ -305,6 +305,16 @@ cdef class BKZParam:
         :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
         """
+
+        # if the user sets these, they want the appropriate flags to be set
+        if max_loops > 0:
+            flags |= BKZ_MAX_LOOPS
+        if max_time > 0:
+            flags |= BKZ_MAX_TIME
+        if gh_factor is not None:
+            flags |= BKZ_GH_BND
+        if gh_factor in (True, False, None):
+            gh_factor = BKZ_DEF_GH_FACTOR
 
         if block_size <= 0:
             raise ValueError("block size must be > 0")
