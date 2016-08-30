@@ -1,0 +1,5 @@
+global-include README.rst requirements.txt suggestions.txt
+global-include setup.py *.pyx
+graft src
+prune build
+prune dist

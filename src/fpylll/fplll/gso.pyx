@@ -24,8 +24,8 @@ from fpylll.util cimport preprocess_indices, check_float_type
 from integer_matrix cimport IntegerMatrix
 
 IF HAVE_QD:
-    from qd.qd cimport dd_real, qd_real
-    from fpylll cimport mpz_dd, mpz_qd
+    from fpylll.qd.qd cimport dd_real, qd_real
+    from decl cimport mpz_dd, mpz_qd
     from fplll cimport FT_DD, FT_QD
 
 

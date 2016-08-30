@@ -10,7 +10,7 @@ Block Korkine Zolotarev algorithm.
 
 IF HAVE_QD:
     from decl cimport mpz_dd, mpz_qd
-    from qd.qd cimport dd_real, qd_real
+    from fpylll.qd.qd cimport dd_real, qd_real
 
 from bkz_param cimport BKZParam
 from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, vector_fp_nr_t, fp_nr_t
@@ -18,6 +18,10 @@ from fplll cimport BKZAutoAbort as BKZAutoAbort_c
 from fplll cimport BKZReduction as BKZReduction_c
 from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
 from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
+from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
+from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
+
 from fplll cimport FP_NR, Z_NR
 from fplll cimport FloatType
 from fplll cimport RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT
@@ -29,7 +33,7 @@ from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.util cimport check_delta, check_precision, check_float_type
 from fpylll.util import ReductionError
 from integer_matrix cimport IntegerMatrix
-
+from fpylll.config import default_strategy, default_strategy_path
 
 cdef class BKZAutoAbort:
     """
@@ -760,3 +764,11 @@ class BKZ:
     AutoAbort = BKZAutoAbort
     reduction = bkz_reduction
     Reduction = BKZReduction
+
+    DEFAULT_AUTO_ABORT_SCALE        = BKZ_DEF_AUTO_ABORT_SCALE
+    DEFAULT_AUTO_ABORT_MAX_NO_DEC   = BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+    DEFAULT_GH_FACTOR               = BKZ_DEF_GH_FACTOR
+    DEFAULT_MIN_SUCCESS_PROBABILITY = BKZ_DEF_MIN_SUCCESS_PROBABILITY
+    DEFAULT_RERANDOMIZATION_DENSITY = BKZ_DEF_RERANDOMIZATION_DENSITY
+    DEFAULT_STRATEGY = default_strategy
+    DEFAULT_STRATEGY_PATH = default_strategy_path

@@ -1,7 +1,7 @@
 fpylll
 ======
 
-A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`_.
+A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`__.
 
 .. image:: https://travis-ci.org/fplll/fpylll.svg?branch=master
     :target: https://travis-ci.org/fplll/fpylll
@@ -27,34 +27,34 @@ A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`_.
     >>> A[0].norm()
     24.06241883103193
 
-The basic BKZ algorithm can be implemented in about 60 pretty readable lines of Python code (cf. `simple_bkz.py <https://github.com/fplll/fpylll/blob/master/src/fpylll/contrib/simple_bkz.py>`_).
+The basic BKZ algorithm can be implemented in about 60 pretty readable lines of Python code (cf. `simple_bkz.py <https://github.com/fplll/fpylll/blob/master/src/fpylll/contrib/simple_bkz.py>`__).
              
 Requirements
 ------------
 
 **fpylll** relies on the following C/C++ libraries:
 
-- `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_ for arbitrary precision integer arithmetic.
-- `MPFR <http://www.mpfr.org>`_ for arbitrary precision floating point arithmetic.
-- `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_ for double double and quad double arithmetic (optional).
-- `fpLLL <https://github.com/dstehle/fplll>`_ for pretty much everything.
+- `GMP <https://gmplib.org>`__ or `MPIR <http://mpir.org>`__ for arbitrary precision integer arithmetic.
+- `MPFR <http://www.mpfr.org>`__ for arbitrary precision floating point arithmetic.
+- `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`__ for double double and quad double arithmetic (optional).
+- `fplll <https://github.com/fplll/fplll>`__ for pretty much everything.
 
 **fpylll** also relies on
 
-- `Cython <http://cython.org>`_ for linking Python and C/C++.
-- `cysignals <https://github.com/sagemath/cysignals>`_ for signal handling such as interrupting C++ code.
-- `py.test <http://pytest.org/latest/>`_ for testing Python.
-- `flake8 <https://flake8.readthedocs.org/en/latest/>`_ for linting.
+- `Cython <http://cython.org>`__ for linking Python and C/C++.
+- `cysignals <https://github.com/sagemath/cysignals>`__ for signal handling such as interrupting C++ code.
+- `py.test <http://pytest.org/latest/>`__ for testing Python.
+- `flake8 <https://flake8.readthedocs.org/en/latest/>`__ for linting.
 
 We also suggest
 
-- `IPython  <https://ipython.org>`_ for interacting with Python
-- `Numpy <http://www.numpy.org>`_ for numerical computations (e.g. with Gram-Schmidt values)
+- `IPython  <https://ipython.org>`__ for interacting with Python
+- `Numpy <http://www.numpy.org>`__ for numerical computations (e.g. with Gram-Schmidt values)
 
 Getting Started
 ---------------
 
-We recommend `virtualenv <https://virtualenv.readthedocs.org/>`_ for isolating Python build environments and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`_ to manage virtual environments.
+We recommend `virtualenv <https://virtualenv.readthedocs.org/>`__ for isolating Python build environments and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`__ to manage virtual environments.
 
 1. Create a new virtualenv and activate it:
 
@@ -63,9 +63,9 @@ We recommend `virtualenv <https://virtualenv.readthedocs.org/>`_ for isolating P
      $ virtualenv env
      $ source ./env/bin/activate
 
-We indicate active virtualenvs by the prefix ``(fpylll)``.
+   We indicate active virtualenvs by the prefix ``(fpylll)``.
 
-2. Install the required libraries – `GMP <https://gmplib.org>`_ or `MPIR <http://mpir.org>`_ and `MPFR <http://www.mpfr.org>`_  – if not available already. You may also want to install `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`_.
+2. Install the required libraries – `GMP <https://gmplib.org>`__ or `MPIR <http://mpir.org>`__ and `MPFR <http://www.mpfr.org>`__  – if not available already. You may also want to install `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`__.
 
 3. Install fplll:
 
@@ -80,7 +80,7 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
      $ (fpylll) pip install Cython
      $ (fpylll) pip install -r requirements.txt
 
-to install the required Python packages (see above).
+   to install the required Python packages (see above).
 
 5. If you are so inclined, run:
 
@@ -88,7 +88,7 @@ to install the required Python packages (see above).
 
      $ (fpylll) pip install -r suggestions.txt
 
-to install suggested Python packages as well (optional).
+   to install suggested Python packages as well (optional).
 
 6. Build the Python extension:
 
@@ -104,7 +104,7 @@ to install suggested Python packages as well (optional).
 
      $ (fpylll) export LD_LIBRARY_PATH="$VIRTUAL_ENV/lib"
 
-so that Python can find fplll and friends.
+   so that Python can find fplll and friends.
 
 8. Start Python:
 

@@ -20,7 +20,7 @@ class BKZReduction(BKZBase):
         BKZBase.__init__(self, A, gso_flags=gso_flags, lll_flags=lll_flags)
         self.M.discover_all_rows()  # TODO: this belongs in __call__ (?)
 
-    def get_pruning(self, kappa, block_size, param):
+    def get_pruning(self, kappa, block_size, param, stats=None):
         strategy = param.strategies[block_size]
 
         radius, re = self.M.get_r_exp(kappa, kappa)
@@ -70,7 +70,7 @@ class BKZReduction(BKZBase):
         clean &= BKZBase.svp_preprocessing(self, kappa, block_size, param, stats)
 
         for preproc in param.strategies[block_size].preprocessing_block_sizes:
-            prepar = BKZ.Param(block_size=preproc, strategies=param.strategies, flags=BKZ.GH_BND)
+            prepar = param.__class__(block_size=preproc, strategies=param.strategies, flags=BKZ.GH_BND)
             clean &= self.tour(prepar, kappa, kappa + block_size)
 
         return clean
@@ -106,7 +106,7 @@ class BKZReduction(BKZBase):
                 root_det = self.M.get_root_det(kappa, kappa + block_size)
                 radius, expo = gaussian_heuristic(radius, expo, block_size, root_det, param.gh_factor)
 
-            pruning = self.get_pruning(kappa, block_size, param)
+            pruning = self.get_pruning(kappa, block_size, param, stats)
 
             try:
                 enum_obj = Enumeration(self.M)

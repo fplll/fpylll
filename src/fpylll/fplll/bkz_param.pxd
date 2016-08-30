@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from libcpp.vector cimport vector
 from decl cimport bkz_auto_abort_core_t, fplll_type_t
 from gso cimport MatGSO
 from fplll cimport BKZParam as BKZParam_c
@@ -21,6 +22,7 @@ cdef class Pruning:
 
 cdef class Strategy:
     cdef Strategy_c _core
+    cdef readonly int block_size
     cdef readonly tuple pruning_parameters
     cdef readonly tuple preprocessing_block_sizes
 
@@ -32,5 +34,7 @@ cdef class Strategy:
 
 
 cdef class BKZParam:
+    # BKZParam_c doesn't actually store strategies, store them here
+    cdef vector[Strategy_c] strategies_c
     cdef BKZParam_c *o
     cdef readonly tuple strategies

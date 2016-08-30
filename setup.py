@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from distutils.core import setup
 from distutils.extension import Extension
-from Cython.Build import cythonize
+import Cython.Build
 
 import os
 import subprocess
@@ -112,6 +112,7 @@ extensions = [
     Extension("fplll.bkz", ["src/fpylll/fplll/bkz.pyx"], **fplll),
     Extension("fplll.enumeration", ["src/fpylll/fplll/enumeration.pyx"], **fplll),
     Extension("fplll.svpcvp", ["src/fpylll/fplll/svpcvp.pyx"], **fplll),
+    Extension("fplll.pruner", ["src/fpylll/fplll/pruner.pyx"], **fplll),
     Extension("util", ["src/fpylll/util.pyx"], **fplll),
     Extension("io", ["src/fpylll/io.pyx"], **fplll),
     Extension("config", ["src/fpylll/config.pyx"], **fplll),
@@ -120,16 +121,23 @@ extensions = [
 if have_numpy:
     extensions.append(Extension("numpy", ["src/fpylll/numpy.pyx"], **numpy_args))
 
+
 setup(
-    name="fpyLLL",
-    version='0.1dev',
+    setup_requires=[
+        'cython>=0.x',
+    ],
+    name="fpylll",
+    author=u"Martin R. Albrecht",
+    author_email="fplll-devel@googlegroups.com",
+    url="https://github.com/fplll/fpylll",
+    version='0.2dev',
     ext_package='fpylll',
-    ext_modules=cythonize(extensions,
-                          include_path=["src"] + sys.path,
-                          build_dir=cythonize_dir,
-                          compiler_directives={'embedsignature': True}),
+    ext_modules=Cython.Build.cythonize(extensions,
+                                       include_path=["src"] + sys.path,
+                                       build_dir=cythonize_dir,
+                                       compiler_directives={'embedsignature': True}),
     package_dir={"": "src"},
-    packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms"],
+    packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms", "fpylll.tools"],
     license='GNU General Public License, version 2 or later',
     long_description=open('README.rst').read(),
 )

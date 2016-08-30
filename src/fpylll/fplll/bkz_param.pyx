@@ -10,6 +10,9 @@ Parameters for Block Korkine Zolotarev algorithm.
 from fplll cimport BKZParam as BKZParam_c
 from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
 from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
+from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
+from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
 from fplll cimport LLL_DEF_DELTA
 from fplll cimport Pruning as Pruning_c
 from fplll cimport Strategy as Strategy_c
@@ -17,8 +20,10 @@ from fplll cimport load_strategies_json as load_strategies_json_c
 from fplll cimport strategy_full_path
 
 from fpylll.util cimport check_delta
-from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref, preincrement as inc
+
+from collections import OrderedDict
+import json
 
 cdef class Pruning:
     """
@@ -46,6 +51,10 @@ cdef class Pruning:
     cdef Pruning from_cxx(Pruning_c& p):
         """
         Load Pruning object from C++ Pruning object.
+
+        .. note::
+
+           All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
         coefficients = []
 
@@ -61,6 +70,10 @@ cdef class Pruning:
     cdef to_cxx(Pruning_c& self, Pruning p):
         """
         Store pruning object in C++ pruning object.
+
+        .. note::
+
+           All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
         self.radius_factor = p.radius_factor
         self.probability = p.probability
@@ -81,23 +94,42 @@ cdef class Pruning:
         sig_off()
         return Pruning.from_cxx(p)
 
+    def __reduce__(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> import pickle
+            >>> print(pickle.loads(pickle.dumps(Pruning(1.0, [1.0, 0.6, 0.3], 1.0))))
+            Pruning<1.000000, (1.00,...,0.30), 1.0000>
+
+        """
+        return Pruning, (self.radius_factor, self.coefficients, self.probability)
+
+    def __str__(self):
+        return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.radius_factor, self.coefficients[0], self.coefficients[-1], self.probability)
+
 cdef class Strategy:
     """
     A strategy is a collection of pruning coefficients for a variety
     of radii and preprocessing block sizes.
     """
-    def __init__(self, pruning_parameters, preprocessing_block_sizes):
+    def __init__(self, block_size, preprocessing_block_sizes=tuple(), pruning_parameters=tuple()):
         """
 
-        :param pruning_parameters: a list of pruning parameters
+        :param block_size: block size of this strategy
         :param preprocessing_block_sizes: preprocessing block sizes
+        :param pruning_parameters: a list of pruning parameters
 
         """
+        self.block_size = block_size
+
         pruning_parameters_ = []
         for p in pruning_parameters:
             if not isinstance(p, Pruning):
-                p = Pruning(p)
+                p = Pruning(*p)
             pruning_parameters_.append(p)
+
+        if len(pruning_parameters_) == 0:
+            pruning_parameters_.append(Pruning(1.0, [1.0 for _ in range(self.block_size)], 1.0))
         self.pruning_parameters = tuple(pruning_parameters_)
 
         preprocessing_block_sizes_ = []
@@ -108,10 +140,62 @@ cdef class Strategy:
         self.preprocessing_block_sizes = tuple(preprocessing_block_sizes_)
         Strategy.to_cxx(self._core, self)
 
+    def get_pruning(self, radius, gh):
+        """
+
+        :param radius: target radius
+        :param gh:     gaussian heuristic radius
+
+        """
+        gh_factor = radius/gh
+        closest_dist = 2**80
+        best = None
+        for pruning in self.pruning_parameters:
+            if abs(pruning.radius_factor - gh_factor) < closest_dist:
+                best = pruning
+        assert(best is not None)
+        return best
+
+    def dict(self):
+        """
+
+            >>> from fpylll import load_strategies_json, BKZ
+            >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50].dict()) # doctest: +ELLIPSIS
+            OrderedDict([('block_size', 50), ('preprocessing_block_sizes', (26,)), ('pruning_parameters', ...)])
+            >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50])
+            Strategy< 50, (26), 0.50-0.50>
+
+        """
+        d = OrderedDict()
+        d["block_size"] = self.block_size
+        d["preprocessing_block_sizes"] = tuple(self.preprocessing_block_sizes)
+        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.probability) for p in self.pruning_parameters])
+        return d
+
+    def __str__(self):
+        preproc = ",".join([str(p) for p in self.preprocessing_block_sizes])
+        pruning = [p.probability for p in self.pruning_parameters]
+        if pruning:
+            pruning = min(pruning), max(pruning)
+        else:
+            pruning = 1.0, 1.0
+        return "Strategy<%3d, (%s), %4.2f-%4.2f>"%(self.block_size, preproc, pruning[0], pruning[1])
+
+    def __reduce__(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Strategy
+            >>> import pickle
+            >>> print(pickle.loads(pickle.dumps(Strategy(20, [10], []))))
+            Strategy< 20, (10), 1.00-1.00>
+
+        """
+        return unpickle_Strategy, (self.__class__, tuple(self.dict().items()))
 
     @staticmethod
     cdef Strategy from_cxx(Strategy_c& s):
         pruning_parameters = []
+
+        block_size = s.block_size
 
         cdef vector[Pruning_c].iterator pit = s.pruning_parameters.begin()
         while pit != s.pruning_parameters.end():
@@ -119,12 +203,12 @@ cdef class Strategy:
             inc(pit)
 
         preprocessing_block_sizes = []
-        cdef vector[int].iterator bit = s.preprocessing_block_sizes.begin()
+        cdef vector[size_t].iterator bit = s.preprocessing_block_sizes.begin()
         while bit != s.preprocessing_block_sizes.end():
             preprocessing_block_sizes.append(deref(bit))
             inc(bit)
 
-        cdef Strategy self = Strategy(tuple(pruning_parameters), tuple(preprocessing_block_sizes))
+        cdef Strategy self = Strategy(block_size, tuple(preprocessing_block_sizes), tuple(pruning_parameters))
         self._core = s
         return self
 
@@ -137,15 +221,7 @@ cdef class Strategy:
         for p in s.preprocessing_block_sizes:
             self.preprocessing_block_sizes.push_back(p)
 
-    def get_pruning(self, radius, gh):
-        gh_factor = radius/gh
-        closest_dist = 2**80
-        best = None
-        for pruning in self.pruning_parameters:
-            if abs(pruning.radius_factor - gh_factor) < closest_dist:
-                best = pruning
-        return best
-
+        self.block_size = s.block_size
 
 cdef strategies_c_to_strategies(vector[Strategy_c]& strategies):
     """
@@ -164,13 +240,13 @@ def load_strategies_json(filename):
     Load strategies from `filename`.
 
     >>> import fpylll.config
-    >>> from fpylll import load_strategies_json
-    >>> strategies = load_strategies_json(fpylll.config.default_strategy)
+    >>> from fpylll import load_strategies_json, BKZ
+    >>> strategies = load_strategies_json(BKZ.DEFAULT_STRATEGY)
     >>> strategies[80].preprocessing_block_sizes
-    (52,)
+    (58,)
 
     >>> strategies[80].pruning_parameters[0].probability
-    0.21438060700893402
+    0.25250527262687683
 
     """
     cdef vector[Strategy_c] strategies
@@ -180,8 +256,14 @@ def load_strategies_json(filename):
     return strategies_c_to_strategies(strategies)
 
 
+def dump_strategies_json(filename, strategies):
+    with open(filename, "w") as fh:
+        json.dump([strategy.dict() for strategy in strategies], fh, indent=4, sort_keys=True)
+
 cdef load_strategies_python(vector[Strategy_c]& out, inp):
     for strategy in inp:
+        if isinstance(strategy, OrderedDict):
+            strategy = Strategy(**strategy)
         if not isinstance(strategy, Strategy):
             raise TypeError("Type '%s' of '%s' not supported."%(type(strategy), strategy))
         out.push_back((<Strategy>strategy)._core)
@@ -194,9 +276,10 @@ cdef class BKZParam:
     def __init__(self, int block_size, strategies=None,
                  float delta=LLL_DEF_DELTA, int flags=BKZ_DEFAULT,
                  int max_loops=0, int max_time=0,
-                 auto_abort=None, float gh_factor=1.1,
-                 float min_success_probability=0.5,
-                 int rerandomization_density=3,
+                 auto_abort=None,
+                 gh_factor=None,
+                 float min_success_probability=BKZ_DEF_MIN_SUCCESS_PROBABILITY,
+                 int rerandomization_density=BKZ_DEF_RERANDOMIZATION_DENSITY,
                  dump_gso_filename=None):
         """
         Create BKZ parameters object.
@@ -212,16 +295,26 @@ cdef class BKZParam:
             that the algorithm will terminate if for ``max_iter`` loops the slope is not smaller
             than ``scale * old_slope`` where ``old_slope`` was the old minimum.  If ``True`` is
             given, this is equivalent to providing ``(1.0,5)`` which is fpLLL's default.
-        :param gh_factor: heuristic, if ``True`` then the enumeration bound will be set to
+        :param gh_factor: heuristic, if set then the enumeration bound will be set to
             ``gh_factor`` times the Gaussian Heuristic.  If ``True`` then ``gh_factor`` is set to
             1.1, which is fpLLL's default.
         :param min_success_probability: minimum success probability in an SVP reduction (when using
             pruning)
-        :param reranomization_density: density of rerandomization operation when using extreme
+        :param rerandomization_density: density of rerandomization operation when using extreme
             pruning
         :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
         """
+
+        # if the user sets these, they want the appropriate flags to be set
+        if max_loops > 0:
+            flags |= BKZ_MAX_LOOPS
+        if max_time > 0:
+            flags |= BKZ_MAX_TIME
+        if gh_factor is not None:
+            flags |= BKZ_GH_BND
+        if gh_factor in (True, False, None):
+            gh_factor = BKZ_DEF_GH_FACTOR
 
         if block_size <= 0:
             raise ValueError("block size must be > 0")
@@ -233,22 +326,22 @@ cdef class BKZParam:
             raise ValueError("GH factor must be > 0")
 
         check_delta(delta)
-        cdef vector[Strategy_c] *strategies_c = new vector[Strategy_c]()
-
-
         if strategies:
             if isinstance(strategies, str):
                 strategies = strategies.encode('UTF-8')
-                strategies_c[0] = load_strategies_json_c(strategy_full_path(strategies))
+                self.strategies_c = load_strategies_json_c(strategy_full_path(strategies))
+                self.strategies = strategies_c_to_strategies(self.strategies_c)
             else:
-                load_strategies_python(strategies_c[0], strategies)
+                load_strategies_python(self.strategies_c, strategies)
+                self.strategies = tuple(strategies)
 
-        cdef BKZParam_c *o = new BKZParam_c(block_size, strategies_c[0], delta)
+        cdef BKZParam_c *o = new BKZParam_c(block_size, self.strategies_c, delta)
+
+        if not strategies:
+            self.strategies = strategies_c_to_strategies(o.strategies)
 
         o.flags = flags
-
-        if o.flags & BKZ_GH_BND:
-            o.gh_factor = float(gh_factor)
+        o.gh_factor = float(gh_factor)
 
         if auto_abort is True:
             o.flags |= BKZ_AUTO_ABORT
@@ -263,7 +356,6 @@ cdef class BKZParam:
                     o.auto_abort_max_no_dec = a_max
                 except TypeError:
                     del o
-                    del strategies_c
                     raise ValueError("Parameter auto_abort (%s) not understood."%auto_abort)
 
         if o.flags & BKZ_MAX_LOOPS:
@@ -282,7 +374,6 @@ cdef class BKZParam:
         o.rerandomization_density = rerandomization_density
 
         self.o = o
-        self.strategies = strategies_c_to_strategies(self.o.strategies)
 
     def __dealloc__(self):
         del self.o
@@ -294,9 +385,6 @@ cdef class BKZParam:
             hex(id(self)))
 
     def __reduce__(self):
-        """
-        Make sure attempts at pickling raise an error until proper pickling is implemented.
-        """
         return unpickle_BKZParam, tuple(self.dict().items())
 
     def __str__(self):
@@ -364,19 +452,26 @@ cdef class BKZParam:
         """
         d = {}
         d["block_size"] = self.block_size
-        if all or self.delta == LLL_DEF_DELTA:
+        if all or abs(self.delta - LLL_DEF_DELTA) > 0.001:
             d["delta"] = self.delta
         d["flags"] = self.flags
         if all or self.max_loops != 0:
             d["max_loops"] = self.max_loops
         if all or self.max_time != 0:
             d["max_time"] = self.max_time
-        if all or self.auto_abort != (1.0, 5):
+        if self.o.flags & BKZ_AUTO_ABORT:
             d["auto_abort"] = self.auto_abort
-        if all or self.gh_factor != 1.1:
+        if self.o.flags & BKZ_GH_BND:
             d["gh_factor"] = self.gh_factor
-        if all or self.dump_gso_filename != "gso.log":
+        if self.o.flags & BKZ_DUMP_GSO:
             d["dump_gso_filename"] =  self.dump_gso_filename
+        if all or self.min_success_probability != BKZ_DEF_MIN_SUCCESS_PROBABILITY:
+            d["min_success_probability"] = self.min_success_probability
+        if all or self.rerandomization_density != BKZ_DEF_RERANDOMIZATION_DENSITY:
+            d["rerandomization_density"]  = self.rerandomization_density
+        if all:
+            d["strategies"] = [strategy.dict() for strategy in self.strategies[:self.block_size+1]]
+
         return d
 
     def new(self, **kwds):
@@ -391,9 +486,16 @@ def unpickle_BKZParam(*args):
 
     >>> from fpylll import BKZ
     >>> import pickle
-    >>> pickle.loads(pickle.dumps(BKZ.Param(10, ))) # doctest: +ELLIPSIS
-    <BKZParam(10, flags=0x0040) at 0x...>
+    >>> pickle.loads(pickle.dumps(BKZ.Param(10, flags=BKZ.VERBOSE))) # doctest: +ELLIPSIS
+    <BKZParam(10, flags=0x0001) at 0x...>
 
     """
     kwds = dict(args)
     return BKZParam(**kwds)
+
+def unpickle_Strategy(*args):
+    """
+    """
+    cls, args = args
+    kwds = dict(args)
+    return cls(**kwds)

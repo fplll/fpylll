@@ -8,13 +8,14 @@ from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fpylll.fplll.fplll cimport gaussian_heuristic as gaussian_heuristic_c
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
+from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID
 from fpylll.fplll.gso cimport MatGSO
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
 
 IF HAVE_QD:
-    from qd.qd cimport dd_real, qd_real
-    from fplll cimport FT_DD, FT_QD
+    from fpylll.qd.qd cimport dd_real, qd_real
+    from fpylll.fplll.fplll cimport FT_DD, FT_QD
 
 
 float_aliases = {'d': 'double',
@@ -42,6 +43,16 @@ cdef FloatType check_float_type(object float_type):
 
     raise ValueError("Float type '%s' unknown." % float_type)
 
+cdef int check_descent_method(object descent_method) except -1:
+    if descent_method == "gradient":
+        return PRUNER_METHOD_GRADIENT
+    if descent_method == "nm":
+        return PRUNER_METHOD_NM
+    if descent_method == "hybrid":
+        return PRUNER_METHOD_HYBRID
+    else:
+        raise ValueError("Descent method '%s' not supported."%descent_method)
+
 cdef int preprocess_indices(int &i, int &j, int m, int n) except -1:
     if i < 0:
         (&i)[0] %= m
@@ -61,8 +72,8 @@ cdef int check_precision(int precision) except -1:
 
      :param precision: an integer
     """
-    if precision < 0:
-        raise TypeError("precision must be >= 0")
+    if precision < 53 and precision != 0:
+        raise TypeError("precision must be >= 53 or equal to 0")
 
 cdef int check_eta(float eta) except -1:
     """
@@ -145,9 +156,34 @@ def set_precision(unsigned int prec):
     :returns: current precision
 
     """
+    if prec == 0:
+        prec = 53
     if prec < 53:
         raise ValueError("Precision (%d) too small."%prec)
     return FP_NR[mpfr_t].set_prec(prec)
+
+class PrecisionContext:
+    def __init__(self, prec):
+        """Create new precision context.
+
+        :param prec: internal precision
+
+        """
+        self.prec = prec
+
+    def __enter__(self):
+        self.prec = set_precision(self.prec)
+
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        self.prec = set_precision(self.prec)
+
+def precision(prec):
+    """Create new precision context.
+
+    :param prec: internal precision
+
+    """
+    return PrecisionContext(prec)
 
 
 def gaussian_heuristic(double dist, int dist_expo, int block_size, double root_det, double gh_factor):

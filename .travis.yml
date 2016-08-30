@@ -35,8 +35,21 @@ before_script:
 script:
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" py.test
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/*.pyx src/fpylll/fplll/*.pyx
+  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python setup.py sdist
 
 notifications:
   on_success: change
   on_failure: always
+
+deploy:
+  provider: releases
+  file_glob: true
+  skip_cleanup: true
+  api_key:
+    secure: HR9khqoEXt+VQwXHe+vKdl1fjtmB7lyw7W/JxB9rffKFrRwmfqjB9tlNsx7xFDkuXbyzy57/RY6uxkPZQWTXtLhmRtgv7Qw2EMwr+OX2oVceW+1WvnjVINENozWK74ISQvZH0PKAej2fxcEGm76aMAdDqylghsUrqcQBg3K7856hIfNXJTR6q/uTVJvQ0Q72h8i2E0f308evFIWfR/E4HY2NmGUoHQhqG/DocS192YWXwU2ehuAknhYl4or+9f3NaTgFSO7E6Iga82WKlldpUye77iF/9rev1nDStydcB9DWfznhBkdUV82kVvdV+DweUoXkUj7m3TKESs9N8pj2dvu7S07VeH4SHZO50OrxlDo/s+lpoqu5mDVCecS+qsd9uOPI/cF2MeiVo4YJtv/hyj1ShKdCcF6K3gVUGEf17erpWeGQL37x1JbiaPBQ0qEsc8XEOPUht5w6jkh0QW4c4anI6UWXJJ69WozQvvLE3t8KGJXyUl7Km0d4yipfIH9+WRgJDE+80l4MaS2eutA2j/G8bDcJ//EqOOqLOIyB38oFAQqWBJlFZUsbqvYXgZ3hY7vB3QO8/p0F0aeuo/fs/sUduJanuFIwilx38BB9wSF+p7qhb9GyqHglwN19aC8cywQ6vKvzP8xXu6UdmCi+Rl44U43+G4BoHHx7N+5cLH4=
+  file: dist/fpylll-*.tar.gz
+  on:
+    repo: fplll/fpylll
+    tags: true
+    all_branches: true
 

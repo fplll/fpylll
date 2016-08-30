@@ -179,6 +179,12 @@ cdef extern from "fplll/defs.h" namespace "fplll":
     cdef double LLL_DEF_ETA
 
 
+    const double BKZ_DEF_AUTO_ABORT_SCALE
+    const int BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+    const double BKZ_DEF_GH_FACTOR
+    const double BKZ_DEF_MIN_SUCCESS_PROBABILITY
+    const int BKZ_DEF_RERANDOMIZATION_DENSITY
+
 
 # Matrices over the Integers
 
@@ -441,8 +447,9 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
         Pruning LinearPruning(int block_size, int level)
 
     cdef cppclass Strategy:
+        size_t block_size
         vector[Pruning] pruning_parameters
-        vector[int] preprocessing_block_sizes
+        vector[size_t] preprocessing_block_sizes
 
         @staticmethod
         Strategy EmptyStrategy()
@@ -538,6 +545,44 @@ cdef extern from "fplll/util.h" namespace "fplll":
 
     void sqr_norm[T](T& result, const MatrixRow[T]& v, int n) nogil
 
+
+
+# Pruner
+
+cdef extern from "fplll/pruner.h" namespace "fplll":
+
+    cdef cppclass Pruner[FT]:
+
+        FT preproc_cost
+        FT target_probability
+        FT enumeration_radius;
+
+        Pruner()
+        Pruner(double enumeration_radius, double preproc_cost, double target_probability, int descent_method)
+        Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability)
+        Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability, size_t n, size_t d)
+
+        void load_basis_shape[GSO_ZT, GSO_FT](MatGSO[GSO_ZT, GSO_FT] &gso, int start_row, int end_row, int reset_renorm)
+        void load_basis_shape(const vector[double] &gso_sq_norms, int reset_renorm)
+
+        void load_basis_shapes[GSO_ZT, GSO_FT](vector[MatGSO[GSO_ZT, GSO_FT]] &gsos, int start_row, int end_row)
+        void load_basis_shapes(const vector[vector[double]] &gso_sq_norms_vec)
+
+        void optimize_coefficients(vector[double] &pr, const int reset)
+
+        double single_enum_cost(const vector[double] &pr)
+        double repeated_enum_cost(const vector[double] &pr)
+        double svp_probability(const vector[double] &pr)
+
+    double svp_probability[FT](const vector[double] &pr)
+
+    Pruning prune[FT, GSO_ZT, GSO_FT](const double enumeration_radius, const double preproc_cost,
+                                      const double target_probability, vector[MatGSO[GSO_ZT, GSO_FT]] &m,
+                                      const int descent_method, int start_row, int end_row)
+
+    cdef const int PRUNER_METHOD_GRADIENT "PRUNER_METHOD_GRADIENT"
+    cdef const int PRUNER_METHOD_NM "PRUNER_METHOD_NM"
+    cdef const int PRUNER_METHOD_HYBRID "PRUNER_METHOD_HYBRID"
 
 
 # Highlevel Functions
