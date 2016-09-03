@@ -580,9 +580,10 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
                                       const double target_probability, vector[MatGSO[GSO_ZT, GSO_FT]] &m,
                                       const int descent_method, int start_row, int end_row)
 
-    cdef const int PRUNER_METHOD_GRADIENT "PRUNER_METHOD_GRADIENT"
-    cdef const int PRUNER_METHOD_NM "PRUNER_METHOD_NM"
-    cdef const int PRUNER_METHOD_HYBRID "PRUNER_METHOD_HYBRID"
+    cdef enum PRUNER_METHOD:
+        PRUNER_METHOD_GRADIENT
+        PRUNER_METHOD_NM
+        PRUNER_METHOD_HYBRID
 
 
 # Highlevel Functions
