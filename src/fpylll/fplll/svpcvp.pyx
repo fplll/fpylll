@@ -99,6 +99,7 @@ def closest_vector(IntegerMatrix B, target, int flags=CVP_DEFAULT):
     :returns coordinates of the solution vector:
     :rtype tuple:
 
+    >>> from fpylll import *
     >>> set_random_seed(42)
     >>> A = IntegerMatrix.random(5, 'uniform', bits=10)
     >>> lll = LLL.reduction(A)
