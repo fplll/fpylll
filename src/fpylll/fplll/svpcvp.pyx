@@ -20,6 +20,7 @@ from fplll cimport SVPM_PROVED, SVPM_FAST
 from fplll cimport SVPMethod
 from fplll cimport shortest_vector_pruning
 from fplll cimport shortest_vector as shortest_vector_c
+from fplll cimport closest_vector as closest_vector_c
 from fplll cimport vector_matrix_product
 from lll import lll_reduction
 from fpylll.io cimport assign_Z_NR_mpz, mpz_get_python
@@ -89,7 +90,54 @@ class SVP:
     VERBOSE = SVP_VERBOSE
     OVERRIDE_BND = SVP_OVERRIDE_BND
 
-# class CVP:
-#     closest_vector = closest_vector
-#     DEFAULT = CVP_DEFAULT
-#     VERBOSE = CVP_VERBOSE
+def closest_vector(IntegerMatrix B, target, int flags=CVP_DEFAULT):
+    """Return a closest vector.
+
+    :param IntegerMatrix B:
+    :param vector[Z_NR[mpz_t]] target:
+    :param int flags:
+    :returns coordinates of the solution vector:
+    :rtype tuple:
+
+    >>> from fpylll import *
+    >>> set_random_seed(42)
+    >>> A = IntegerMatrix.random(5, 'uniform', bits=10)
+    >>> lll = LLL.reduction(A)
+    >>> t = (94, -42, 123, 512, -1337)
+    >>> print (CVP.closest_vector(A, t))
+    (-34, 109, 204, 360, -1548)
+
+    """
+
+    cdef int r = 0
+
+    cdef vector[Z_NR[mpz_t]] int_target
+    cdef vector[Z_NR[mpz_t]] sol_coord
+    cdef vector[Z_NR[mpz_t]] solution
+
+    int_target.resize(len(target))
+    cdef Z_NR[mpz_t] t
+
+    for i in range(len(target)):
+        assign_Z_NR_mpz(int_target[i], target[i])
+
+    sig_on()
+    r = closest_vector_c(B._core[0], int_target, sol_coord, flags)
+    sig_off()
+
+    if r:
+        raise ReductionError("CVP solver returned an error ({:d})".format(r))
+
+    vector_matrix_product(solution, sol_coord, B._core[0])
+
+    cdef list v = []
+
+    for i in range(solution.size()):
+        v.append(mpz_get_python(solution[i].get_data()))
+
+    return tuple(v)
+
+class CVP:
+    closest_vector = closest_vector
+    DEFAULT = CVP_DEFAULT
+    VERBOSE = CVP_VERBOSE
