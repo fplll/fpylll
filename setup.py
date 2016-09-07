@@ -123,14 +123,11 @@ if have_numpy:
 
 
 setup(
-    setup_requires=[
-        'cython>=0.x',
-    ],
     name="fpylll",
     author=u"Martin R. Albrecht",
     author_email="fplll-devel@googlegroups.com",
     url="https://github.com/fplll/fpylll",
-    version='0.2dev',
+    version='0.2.1dev',
     ext_package='fpylll',
     ext_modules=Cython.Build.cythonize(extensions,
                                        include_path=["src"] + sys.path,
