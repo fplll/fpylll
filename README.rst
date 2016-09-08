@@ -27,7 +27,7 @@ A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`__.
     >>> A[0].norm()
     24.06241883103193
 
-The basic BKZ algorithm can be implemented in about 60 pretty readable lines of Python code (cf. `simple_bkz.py <https://github.com/fplll/fpylll/blob/master/src/fpylll/contrib/simple_bkz.py>`__).
+The basic BKZ algorithm can be implemented in about 60 pretty readable lines of Python code (cf. `simple_bkz.py <https://github.com/fplll/fpylll/blob/master/src/fpylll/algorithms/simple_bkz.py>`__).
              
 Requirements
 ------------
