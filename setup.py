@@ -124,6 +124,7 @@ if have_numpy:
 
 setup(
     name="fpylll",
+    description="A Python interface for https://github.com/fplll/fplll",
     author=u"Martin R. Albrecht",
     author_email="fplll-devel@googlegroups.com",
     url="https://github.com/fplll/fpylll",
