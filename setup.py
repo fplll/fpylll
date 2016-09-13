@@ -129,7 +129,7 @@ setup(
     author=u"Martin R. Albrecht",
     author_email="fplll-devel@googlegroups.com",
     url="https://github.com/fplll/fpylll",
-    version='0.2.1dev',
+    version='0.2.2dev',
     ext_package='fpylll',
     ext_modules=Cython.Build.cythonize(extensions,
                                        include_path=["src"] + sys.path,
