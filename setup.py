@@ -65,7 +65,8 @@ except ImportError:
     pass
 
 if have_sage:
-    fplll["include_dirs"].append(os.getenv("SAGE_SRC"))
+    from sage.env import SAGE_SRC
+    fplll["include_dirs"].append(SAGE_SRC)
     config_pxi.append("DEF HAVE_SAGE=True")
 else:
     config_pxi.append("DEF HAVE_SAGE=False")
