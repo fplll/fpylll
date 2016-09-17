@@ -26,15 +26,25 @@ class BKZReduction:
     implementation collects some additional statistics.  Hence, it should provide a good basis for
     implementing variants of this algorithm.
     """
-    def __init__(self, A, gso_flags=GSO.ROW_EXPO, lll_flags=LLL.DEFAULT):
+    def __init__(self, A):
         """Construct a new instance of the BKZ algorithm.
 
-        :param A: an integer matrix
-        :param gso_flags: flags to pass to GSO object
-        :param lll_flags: flags to pass to LLL object
+        :param A: an integer matrix, a GSO object or an LLL object
 
         """
-        if not isinstance(A, IntegerMatrix):
+        if isinstance(A, GSO.Mat):
+            L = None
+            M = A
+            A = M.B
+        elif isinstance(A, LLL.Reduction):
+            L = A
+            M = L.M
+            A = M.B
+        elif isinstance(A, IntegerMatrix):
+            L = None
+            M = None
+            A = A
+        else:
             raise TypeError("Matrix must be IntegerMatrix but got type '%s'"%type(A))
 
         # run LLL first
@@ -42,8 +52,14 @@ class BKZReduction:
         wrapper()
 
         self.A = A
-        self.M = GSO.Mat(A, flags=gso_flags)
-        self.lll_obj = LLL.Reduction(self.M, flags=lll_flags)
+        if M is None:
+            self.M = GSO.Mat(A, flags=GSO.ROW_EXPO)
+        else:
+            self.M = M
+        if L is None:
+            self.lll_obj = LLL.Reduction(self.M, flags=LLL.DEFAULT)
+        else:
+            self.lll_obj = L
 
     def __call__(self, params, min_row=0, max_row=-1):
         """Run the BKZ algorithm with parameters `param`.

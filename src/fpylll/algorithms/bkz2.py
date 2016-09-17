@@ -9,15 +9,13 @@ from fpylll.util import gaussian_heuristic
 
 class BKZReduction(BKZBase):
 
-    def __init__(self, A, gso_flags=GSO.ROW_EXPO, lll_flags=LLL.DEFAULT):
+    def __init__(self, A):
         """Create new BKZ object.
 
-        :param A: matrix to work on
-        :param gso_flags: flags to pass to GSO object
-        :param lll_flags: flags to pass to LLL object
+        :param A: an integer matrix, a GSO object or an LLL object
 
         """
-        BKZBase.__init__(self, A, gso_flags=gso_flags, lll_flags=lll_flags)
+        BKZBase.__init__(self, A)
         self.M.discover_all_rows()  # TODO: this belongs in __call__ (?)
 
     def get_pruning(self, kappa, block_size, param, stats=None):
