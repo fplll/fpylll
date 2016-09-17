@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from random import randint
-from fpylll import LLL, GSO, BKZ, Enumeration, EnumerationError
+from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZBase
 from fpylll.algorithms.bkz_stats import DummyStats
 from fpylll.util import gaussian_heuristic
