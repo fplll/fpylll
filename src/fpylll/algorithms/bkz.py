@@ -64,7 +64,6 @@ class BKZReduction:
 
         self.lll_obj()
 
-
     def __call__(self, params, min_row=0, max_row=-1):
         """Run the BKZ algorithm with parameters `param`.
 
