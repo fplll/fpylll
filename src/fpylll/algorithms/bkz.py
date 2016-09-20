@@ -47,9 +47,10 @@ class BKZReduction:
         else:
             raise TypeError("Matrix must be IntegerMatrix but got type '%s'"%type(A))
 
-        # run LLL first
-        wrapper = LLL.Wrapper(A)
-        wrapper()
+        if M is None and L is None:
+            # run LLL first, but only if a matrix was passed
+            wrapper = LLL.Wrapper(A)
+            wrapper()
 
         self.A = A
         if M is None:
@@ -60,6 +61,9 @@ class BKZReduction:
             self.lll_obj = LLL.Reduction(self.M, flags=LLL.DEFAULT)
         else:
             self.lll_obj = L
+
+        self.lll_obj()
+
 
     def __call__(self, params, min_row=0, max_row=-1):
         """Run the BKZ algorithm with parameters `param`.
