@@ -172,7 +172,8 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
             raise ValueError("Inconsistent cores in parameter list.")
 
     cdef vector[MatGSO_c[Z_NR[mpz_t], FP_NR[double]]] v_double
-    cdef vector[MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]]] v_ld
+    IF HAVE_LONG_DOUBLE:
+        cdef vector[MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]]] v_ld
     cdef vector[MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]]] v_dpe
     IF HAVE_QD:
         cdef vector[MatGSO_c[Z_NR[mpz_t], FP_NR[dd_real]]] v_dd
@@ -188,12 +189,15 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
         sig_off()
 
     elif type == mpz_ld:
-        for m in M:
-            v_ld.push_back((<MatGSO>m)._core.mpz_ld[0])
+        IF HAVE_LONG_DOUBLE:
+            for m in M:
+                v_ld.push_back((<MatGSO>m)._core.mpz_ld[0])
 
-        sig_on()
-        pruning_c = prune_c[FP_NR[longdouble], Z_NR[mpz_t], FP_NR[longdouble]](enumeration_radius, preproc_cost, target_probability, v_ld, descent_method, start_row, stop_row)
-        sig_off()
+            sig_on()
+            pruning_c = prune_c[FP_NR[longdouble], Z_NR[mpz_t], FP_NR[longdouble]](enumeration_radius, preproc_cost, target_probability, v_ld, descent_method, start_row, stop_row)
+            sig_off()
+        ELSE:
+            RuntimeError("Unknown type %d."%type)
 
     elif type == mpz_dpe:
         for m in M:
@@ -269,8 +273,9 @@ def svp_probability(pr, float_type="double"):
 
     if ft == FT_DOUBLE:
         return svp_probability_c[FP_NR[double]]((<Pruning>pr)._core.coefficients)
-    if ft == FT_LONG_DOUBLE:
-        return svp_probability_c[FP_NR[longdouble]]((<Pruning>pr)._core.coefficients)
+    IF HAVE_LONG_DOUBLE:
+        if ft == FT_LONG_DOUBLE:
+            return svp_probability_c[FP_NR[longdouble]]((<Pruning>pr)._core.coefficients)
     if ft == FT_DPE:
         return svp_probability_c[FP_NR[dpe_t]]((<Pruning>pr)._core.coefficients)
     if ft == FT_MPFR:

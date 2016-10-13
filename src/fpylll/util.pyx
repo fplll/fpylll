@@ -136,8 +136,9 @@ def get_precision(float_type="mpfr"):
 
     if float_type_ == FT_DOUBLE:
         return FP_NR[double].get_prec()
-    if float_type_ == FT_LONG_DOUBLE:
-        return FP_NR[longdouble].get_prec()
+    IF HAVE_LONG_DOUBLE:
+        if float_type_ == FT_LONG_DOUBLE:
+            return FP_NR[longdouble].get_prec()
     if float_type_ == FT_DPE:
         return FP_NR[dpe_t].get_prec()
     IF HAVE_QD:

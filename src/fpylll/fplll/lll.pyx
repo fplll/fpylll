@@ -78,11 +78,14 @@ cdef class LLLReduction:
                                                                                    delta,
                                                                                    eta, flags)
         elif M._type == mpz_ld:
-            m_ld = M._core.mpz_ld
-            self._type = mpz_ld
-            self._core.mpz_ld = new LLLReduction_c[Z_NR[mpz_t], FP_NR[longdouble]](m_ld[0],
-                                                                                   delta,
-                                                                                   eta, flags)
+            IF HAVE_LONG_DOUBLE:
+                m_ld = M._core.mpz_ld
+                self._type = mpz_ld
+                self._core.mpz_ld = new LLLReduction_c[Z_NR[mpz_t], FP_NR[longdouble]](m_ld[0],
+                                                                                       delta,
+                                                                                       eta, flags)
+            ELSE:
+                raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mpz_dpe:
             m_dpe = M._core.mpz_dpe
             self._type = mpz_dpe
@@ -120,8 +123,9 @@ cdef class LLLReduction:
     def __dealloc__(self):
         if self._type == mpz_double:
             del self._core.mpz_double
-        if self._type == mpz_ld:
-            del self._core.mpz_ld
+        IF HAVE_LONG_DOUBLE:
+            if self._type == mpz_ld:
+                del self._core.mpz_ld
         if self._type == mpz_dpe:
             del self._core.mpz_dpe
         IF HAVE_QD:
@@ -161,10 +165,13 @@ cdef class LLLReduction:
             r = self._core.mpz_double.status
             sig_off()
         elif self._type == mpz_ld:
-            sig_on()
-            self._core.mpz_ld.lll(kappa_min, kappa_start, kappa_end)
-            r = self._core.mpz_ld.status
-            sig_off()
+            IF HAVE_LONG_DOUBLE:
+                sig_on()
+                self._core.mpz_ld.lll(kappa_min, kappa_start, kappa_end)
+                r = self._core.mpz_ld.status
+                sig_off()
+            ELSE:
+                raise RuntimeError("LLLReduction object '%s' has no core."%self)
         elif self._type == mpz_dpe:
             sig_on()
             self._core.mpz_dpe.lll(kappa_min, kappa_start, kappa_end)
@@ -208,7 +215,10 @@ cdef class LLLReduction:
         if self._type == mpz_double:
             r = self._core.mpz_double.size_reduction(kappa_min, kappa_end)
         elif self._type == mpz_ld:
-            r = self._core.mpz_ld.size_reduction(kappa_min, kappa_end)
+            IF HAVE_LONG_DOUBLE:
+                r = self._core.mpz_ld.size_reduction(kappa_min, kappa_end)
+            ELSE:
+                raise RuntimeError("LLLReduction object '%s' has no core."%self)
         elif self._type == mpz_dpe:
             r = self._core.mpz_dpe.size_reduction(kappa_min, kappa_end)
         elif self._type == mpz_mpfr:
@@ -236,8 +246,9 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.final_kappa
-        if self._type == mpz_ld:
-            return self._core.mpz_ld.final_kappa
+        IF HAVE_LONG_DOUBLE:
+            if self._type == mpz_ld:
+                return self._core.mpz_ld.final_kappa
         if self._type == mpz_dpe:
             return self._core.mpz_dpe.final_kappa
         IF HAVE_QD:
@@ -260,8 +271,9 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.last_early_red
-        if self._type == mpz_ld:
-            return self._core.mpz_ld.last_early_red
+        IF HAVE_LONG_DOUBLE:
+            if self._type == mpz_ld:
+                return self._core.mpz_ld.last_early_red
         if self._type == mpz_dpe:
             return self._core.mpz_dpe.last_early_red
         IF HAVE_QD:
@@ -284,8 +296,9 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.zeros
-        if self._type == mpz_ld:
-            return self._core.mpz_ld.zeros
+        IF HAVE_LONG_DOUBLE:
+            if self._type == mpz_ld:
+                return self._core.mpz_ld.zeros
         if self._type == mpz_dpe:
             return self._core.mpz_dpe.zeros
         IF HAVE_QD:
@@ -308,8 +321,9 @@ cdef class LLLReduction:
         """
         if self._type == mpz_double:
             return self._core.mpz_double.n_swaps
-        if self._type == mpz_ld:
-            return self._core.mpz_ld.n_swaps
+        IF HAVE_LONG_DOUBLE:
+            if self._type == mpz_ld:
+                return self._core.mpz_ld.n_swaps
         if self._type == mpz_dpe:
             return self._core.mpz_dpe.n_swaps
         IF HAVE_QD:
@@ -438,8 +452,10 @@ def is_LLL_reduced(M, delta=LLL_DEF_DELTA, eta=LLL_DEF_ETA):
 
     if M_._type == mpz_double:
         return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[double]](M_._core.mpz_double[0], delta, eta))
-    if M_._type == mpz_ld:
-        return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[longdouble]](M_._core.mpz_ld[0], delta, eta))
+
+    IF HAVE_LONG_DOUBLE:
+        if M_._type == mpz_ld:
+            return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[longdouble]](M_._core.mpz_ld[0], delta, eta))
     IF HAVE_QD:
         if M_._type == mpz_dd:
             return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[dd_real]](M_._core.mpz_dd[0], delta, eta))

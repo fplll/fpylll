@@ -31,7 +31,8 @@ cdef class Enumeration:
         """
 
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]]  *m_double
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]] *m_ld
+        IF HAVE_LONG_DOUBLE:
+            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]] *m_ld
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]] *m_dpe
         IF HAVE_QD:
             cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_real]] *m_dd
@@ -39,7 +40,8 @@ cdef class Enumeration:
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpfr
 
         cdef FastEvaluator_c[FP_NR[double]]  *fe_double
-        cdef FastEvaluator_c[FP_NR[longdouble]] *fe_ld
+        IF HAVE_LONG_DOUBLE:
+            cdef FastEvaluator_c[FP_NR[longdouble]] *fe_ld
         cdef FastEvaluator_c[FP_NR[dpe_t]] *fe_dpe
         IF HAVE_QD:
             cdef FastEvaluator_c[FP_NR[dd_real]] *fe_dd
@@ -53,9 +55,12 @@ cdef class Enumeration:
             self._fe_core.double = new FastEvaluator_c[FP_NR[double]]()
             self._core.double = new Enumeration_c[FP_NR[double]](m_double[0], self._fe_core.double[0])
         elif M._type == mpz_ld:
-            m_ld = M._core.mpz_ld
-            self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]]()
-            self._core.ld = new Enumeration_c[FP_NR[longdouble]](m_ld[0], self._fe_core.ld[0])
+            IF HAVE_LONG_DOUBLE:
+                m_ld = M._core.mpz_ld
+                self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]]()
+                self._core.ld = new Enumeration_c[FP_NR[longdouble]](m_ld[0], self._fe_core.ld[0])
+            ELSE:
+                raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mpz_dpe:
             m_dpe = M._core.mpz_dpe
             self._fe_core.dpe = new FastEvaluator_c[FP_NR[dpe_t]]()
@@ -83,9 +88,10 @@ cdef class Enumeration:
         if self.M._type == mpz_double:
             del self._fe_core.double
             del self._core.double
-        if self.M._type == mpz_ld:
-            del self._fe_core.ld
-            del self._core.ld
+        IF HAVE_LONG_DOUBLE:
+            if self.M._type == mpz_ld:
+                del self._fe_core.ld
+                del self._core.ld
         if self.M._type == mpz_dpe:
             del self._fe_core.dpe
             del self._core.dpe
@@ -128,7 +134,8 @@ cdef class Enumeration:
 
         cdef double max_dist__ = max_dist
         cdef FP_NR[double] max_dist_d = max_dist__
-        cdef FP_NR[longdouble] max_dist_ld = max_dist__
+        IF HAVE_LONG_DOUBLE:
+            cdef FP_NR[longdouble] max_dist_ld = max_dist__
         cdef FP_NR[dpe_t] max_dist_dpe = max_dist__
         IF HAVE_QD:
             cdef FP_NR[dd_real] max_dist_dd = max_dist__
@@ -136,7 +143,8 @@ cdef class Enumeration:
         cdef FP_NR[mpfr_t] max_dist_mpfr = max_dist__
 
         cdef vector[FP_NR[double]] target_coord_d
-        cdef vector[FP_NR[longdouble]] target_coord_ld
+        IF HAVE_LONG_DOUBLE:
+            cdef vector[FP_NR[longdouble]] target_coord_ld
         cdef vector[FP_NR[dpe_t]] target_coord_dpe
         IF HAVE_QD:
             cdef vector[FP_NR[dd_real]] target_coord_dd
@@ -158,18 +166,19 @@ cdef class Enumeration:
 
             max_dist = max_dist_d.get_d()
 
-        if self.M._type == mpz_ld:
-            sig_on()
-            self._core.ld.enumerate(first, last, max_dist_ld, max_dist_expo,
-                                    target_coord_ld, sub_tree_, pruning_, dual)
-            sig_off()
-            if not self._fe_core.ld.sol_coord.size():
-                raise EnumerationError("No vector found.")
+        IF HAVE_LONG_DOUBLE:
+            if self.M._type == mpz_ld:
+                sig_on()
+                self._core.ld.enumerate(first, last, max_dist_ld, max_dist_expo,
+                                        target_coord_ld, sub_tree_, pruning_, dual)
+                sig_off()
+                if not self._fe_core.ld.sol_coord.size():
+                    raise EnumerationError("No vector found.")
 
-            for i in range(self._fe_core.ld.sol_coord.size()):
-                solution.append(self._fe_core.ld.sol_coord[i].get_d())
+                for i in range(self._fe_core.ld.sol_coord.size()):
+                    solution.append(self._fe_core.ld.sol_coord[i].get_d())
 
-            max_dist = max_dist_ld.get_d()
+                max_dist = max_dist_ld.get_d()
 
         if self.M._type == mpz_dpe:
             sig_on()
@@ -231,8 +240,9 @@ cdef class Enumeration:
         """
         if self.M._type == mpz_double:
             return self._core.double.get_nodes()
-        if self.M._type == mpz_ld:
-            return self._core.ld.get_nodes()
+        IF HAVE_LONG_DOUBLE:
+            if self.M._type == mpz_ld:
+                return self._core.ld.get_nodes()
         if self.M._type == mpz_dpe:
             return self._core.dpe.get_nodes()
         IF HAVE_QD:

@@ -28,8 +28,9 @@ def _dump_mu(ndarray[double, ndim=2, mode="c"] mu not None, MatGSO M, int kappa,
      """
     if M._type == mpz_double:
         return M._core.mpz_double.dump_mu_d(&mu[0,0], kappa, block_size)
-    if M._type == mpz_ld:
-        return M._core.mpz_ld.dump_mu_d(&mu[0,0], kappa, block_size)
+    IF HAVE_LONG_DOUBLE:
+        if M._type == mpz_ld:
+            return M._core.mpz_ld.dump_mu_d(&mu[0,0], kappa, block_size)
     if M._type == mpz_dpe:
         return M._core.mpz_dpe.dump_mu_d(&mu[0,0], kappa, block_size)
     IF HAVE_QD:
@@ -70,8 +71,9 @@ def _dump_r(ndarray[double, ndim=1, mode="c"] r not None, MatGSO M, int kappa, i
 
     if M._type == mpz_double:
         return M._core.mpz_double.dump_r_d(&r[0], kappa, block_size)
-    if M._type == mpz_ld:
-        return M._core.mpz_ld.dump_r_d(&r[0], kappa, block_size)
+    IF HAVE_LONG_DOUBLE:
+        if M._type == mpz_ld:
+            return M._core.mpz_ld.dump_r_d(&r[0], kappa, block_size)
     if M._type == mpz_dpe:
         return M._core.mpz_dpe.dump_r_d(&r[0], kappa, block_size)
     IF HAVE_QD:

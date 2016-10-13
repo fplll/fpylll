@@ -86,6 +86,12 @@ if have_numpy:
 else:
     config_pxi.append("DEF HAVE_NUMPY=False")
 
+# Ideally this would check the fplll headers explicitly for the
+# the FPLLL_WITH_LONG_DOUBLE define, but for now it suffices to
+# say that long double support is disabled on Cygwin
+have_long_double = not sys.platform.startswith('cygwin')
+config_pxi.append("DEF HAVE_LONG_DOUBLE={0}".format(have_long_double))
+
 
 # CONFIG.PXI
 config_pxi_path = os.path.join(".", "src", "fpylll", "config.pxi")
