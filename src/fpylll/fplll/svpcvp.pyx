@@ -28,13 +28,15 @@ from fpylll.util import ReductionError
 
 from integer_matrix cimport IntegerMatrix
 
-def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning=None, run_lll=True):
+def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning=None, run_lll=True, max_aux_sols=0):
     """Return a shortest vector.
 
     :param IntegerMatrix B:
     :param method:
     :param int flags:
     :param pruning:
+    :param run_lll:
+    :param max_aux_sols
     :returns:
     :rtype:
 
@@ -56,6 +58,9 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
     cdef vector[Z_NR[mpz_t]] solution
     cdef vector[double] pruning_
 
+    cdef vector[vector[Z_NR[mpz_t]]] auxsol_coord
+    cdef vector[double] auxsol_dist
+
     if pruning:
         if len(pruning) != B.nrows:
             raise ValueError("Pruning vector must have length %d but got %d."%(B.nrows, len(pruning)))
@@ -64,9 +69,14 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
         for i in range(len(pruning)):
             pruning_[i] = pruning[i]
 
-        sig_on()
-        r = shortest_vector_pruning(B._core[0], sol_coord, pruning_, flags)
-        sig_off()
+        if max_aux_sols == 0:
+            sig_on()
+            r = shortest_vector_pruning(B._core[0], sol_coord, pruning_, flags)
+            sig_off()
+        else:
+            sig_on()
+            r = shortest_vector_pruning(B._core[0], sol_coord, auxsol_coord, auxsol_dist, max_aux_sols, pruning_, flags)
+            sig_off()
     else:
         sig_on()
         r = shortest_vector_c(B._core[0], sol_coord, method_, flags)
@@ -82,7 +92,17 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
     for i in range(solution.size()):
         v.append(mpz_get_python(solution[i].get_data()))
 
-    return tuple(v)
+    cdef list aux = []
+    if max_aux_sols > 0:
+        for j in range(auxsol_dist.size()):
+            vector_matrix_product(solution, auxsol_coord[j], B._core[0])
+            aux_sol = []
+            for i in range(solution.size()):
+                aux_sol.append(mpz_get_python(solution[i].get_data()))
+            aux.append(tuple(aux_sol))
+        return tuple(v), tuple(aux)
+    else:
+        return tuple(v)
 
 class SVP:
     shortest_vector = shortest_vector
