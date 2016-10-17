@@ -440,6 +440,11 @@ cdef extern from "fplll/svpcvp.h" namespace "fplll":
     int shortest_vector_pruning(ZZ_mat[mpz_t]& b, vector[Z_NR[mpz_t]]& sol_coord,
                                 const vector[double]& pruning, int flags) nogil
 
+    int shortest_vector_pruning(ZZ_mat[mpz_t]& b, vector[Z_NR[mpz_t]]& sol_coord,
+                                vector[vector[Z_NR[mpz_t]]]& auxsol_coord,
+                                vector[double]& auxsol_dist, const int max_aux_sols,
+                                const vector[double]& pruning, int flags) nogil
+
     # Experimental. Do not use.
     int closest_vector(ZZ_mat[mpz_t] b, vector[Z_NR[mpz_t]] &intTarget,
                        vector[Z_NR[mpz_t]]& sol_coord, int flags) nogil
