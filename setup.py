@@ -55,22 +55,6 @@ else:
     config_pxi.append("DEF HAVE_QD=False")
 
 
-# SAGE
-have_sage = False
-
-try:
-    import sage
-    have_sage = True
-except ImportError:
-    pass
-
-if have_sage:
-    from sage.env import SAGE_SRC
-    fplll["include_dirs"].append(SAGE_SRC)
-    config_pxi.append("DEF HAVE_SAGE=True")
-else:
-    config_pxi.append("DEF HAVE_SAGE=False")
-
 # NUMPY
 
 try:

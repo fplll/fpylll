@@ -20,10 +20,5 @@ ELSE:
     have_qd = False
     float_types = float_types + ("dpe", "mpfr")
 
-IF HAVE_SAGE:
-    have_sage = True
-ELSE:
-    have_sage = False
-
 default_strategy = default_strategy_c().c_str()
 default_strategy_path = default_strategy_path_c().c_str()

@@ -2,10 +2,17 @@
 include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
 
-from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set
 
-IF HAVE_SAGE:
-    from sage.ext.stdsage cimport PY_NEW
+from cpython.int cimport PyInt_AS_LONG
+from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set
+from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
+from gmp.mpz cimport mpz_t, mpz_set_si, mpz_set
+
+try:
+    from sage.all import ZZ
+    have_sage = True
+except ImportError:
+    have_sage = False
 
 cdef int assign_Z_NR_mpz(Z_NR[mpz_t]& t, value) except -1:
     """
@@ -19,9 +26,29 @@ cdef int assign_Z_NR_mpz(Z_NR[mpz_t]& t, value) except -1:
     finally:
         mpz_clear(tmp)
 
+cdef int assign_mpz(mpz_t& t, value) except -1:
+    """
+    Assign Python integer to Z_NR[mpz_t]
+    """
+    if isinstance(value, int):
+        mpz_set_si(t, PyInt_AS_LONG(value))
+        return 0
+    if isinstance(value, long):
+        mpz_set_pylong(t, value)
+        return 0
+    if have_sage:
+        from sage.rings.integer import Integer
+        if isinstance(value, Integer):
+            value = long(value)
+            mpz_set_pylong(t, value)
+            return 0
 
-IF HAVE_SAGE:
-    cdef Integer mpz_get_python(mpz_srcptr z):
-        cdef Integer x = PY_NEW(Integer)
-        mpz_set(x.value, z)
-        return x
+    raise NotImplementedError("Type '%s' not supported"%type(value))
+
+cdef object mpz_get_python(mpz_srcptr z):
+    r = mpz_get_pyintlong(z)
+    if have_sage:
+        from sage.rings.integer import Integer
+        return Integer(r)
+    else:
+        return r
