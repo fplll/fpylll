@@ -96,7 +96,7 @@ cdef class BKZAutoAbort:
         for `max_no_dec` iterations.
 
         :param scale: target decrease
-        :param int max_no_dec: number of rounds we allow to be stuck
+        :param int max_no_dec: number of rounds allowed to be stuck
         """
         if self._type == mpz_double:
             return self._core.mpz_double.test_abort(scale, max_no_dec)
