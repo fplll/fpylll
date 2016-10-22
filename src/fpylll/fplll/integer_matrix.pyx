@@ -638,7 +638,7 @@ cdef class IntegerMatrix:
                   (i-1)-th (with last entry put back in first position), for all i>1.  Warning: this
                   does not produce a genuine ntru lattice with h a genuine public key.
 
-                - ``ntrulike2"`` : as the previous option, except that the contructed matrix is
+                - ``ntrulike2"`` : as the previous option, except that the constructed matrix is
                   ``[[q*I, 0], [Rot(h), I]]``.
 
                 - ``"qary"`` : generate a q-ary matrix.  If ``bits`` is given, then it first samples
