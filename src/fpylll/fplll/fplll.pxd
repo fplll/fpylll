@@ -409,8 +409,20 @@ cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
         void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
                        const vector[FT]& targetCoord,
                        const vector[double]& subTree,
+                       const vector[double]& pruning)
+
+        void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
+                       const vector[FT]& targetCoord,
+                       const vector[double]& subTree,
                        const vector[double]& pruning,
                        int dual)
+
+        void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
+                       const vector[FT]& targetCoord,
+                       const vector[double]& subTree,
+                       const vector[double]& pruning,
+                       int dual,
+                       int subtree_reset)
 
         long get_nodes()
 

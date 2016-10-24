@@ -12,7 +12,7 @@ from fplll cimport Z_NR, FP_NR, mpz_t
 
 from fplll cimport dpe_t
 from fpylll.mpfr.mpfr cimport mpfr_t
-from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
+from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
 IF HAVE_QD:
@@ -25,9 +25,9 @@ class EnumerationError(Exception):
 
 cdef class Enumeration:
     def __init__(self, MatGSO M):
-        """FIXME!  briefly describe function
+        """Create new enumeration object
 
-        :param MatGSO M:
+        :param MatGSO M: GSO matrix
         """
 
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]]  *m_double
@@ -38,15 +38,6 @@ cdef class Enumeration:
             cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_real]] *m_dd
             cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_real]] *m_qd
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpfr
-
-        cdef FastEvaluator_c[FP_NR[double]]  *fe_double
-        IF HAVE_LONG_DOUBLE:
-            cdef FastEvaluator_c[FP_NR[longdouble]] *fe_ld
-        cdef FastEvaluator_c[FP_NR[dpe_t]] *fe_dpe
-        IF HAVE_QD:
-            cdef FastEvaluator_c[FP_NR[dd_real]] *fe_dd
-            cdef FastEvaluator_c[FP_NR[qd_real]] *fe_qd
-        cdef FastEvaluator_c[FP_NR[mpfr_t]]  *fe_mpfr
 
         self.M = M
 
@@ -106,24 +97,41 @@ cdef class Enumeration:
             del self._fe_core.mpfr
             del self._core.mpfr
 
-    def enumerate(self, int first, int last, max_dist, max_dist_expo, pruning=None, dual=False):
+    def enumerate(self, int first, int last, max_dist, max_dist_expo,
+                  target=None, subtree=None, pruning=None, dual=False, subtree_reset=False):
         """Run enumeration on `M`
 
-        :param MatGSO M:       GSO matrix to run enumeration on
+        :param int first:      first row
+        :param int last:       last row (exclusive)
         :param max_dist:       length bound
         :param max_dist_expo:  exponent of length bound
-        :param first:          first index (inclusive)
-        :param last:           last index (exclusive)
+        :param target:         target coordinates for CVP/BDD or ``None`` for SVP
+        :param subtree:
         :param pruning:        pruning parameters
         :param dual:           run enumeration in the primal or dual lattice.
+        :param subtree_reset:
         :returns: solution, length
 
         """
+        cdef int block_size = last-first
+        cdef fp_nr_t tmp
+
+        cdef vector[FP_NR[double]] target_coord_d
+        IF HAVE_LONG_DOUBLE:
+            cdef vector[FP_NR[longdouble]] target_coord_ld
+        cdef vector[FP_NR[dpe_t]] target_coord_dpe
+        IF HAVE_QD:
+            cdef vector[FP_NR[dd_real]] target_coord_dd
+            cdef vector[FP_NR[qd_real]] target_coord_qd
+        cdef vector[FP_NR[mpfr_t]] target_coord_mpfr
 
         cdef vector[double] sub_tree_
-        cdef vector[double] pruning_
 
-        cdef int block_size = last-first
+        if subtree is not None:
+            for it in target:
+                sub_tree_.push_back(float(it))
+
+        cdef vector[double] pruning_
 
         if not pruning:
             for i in range(block_size):
@@ -142,18 +150,13 @@ cdef class Enumeration:
             cdef FP_NR[qd_real] max_dist_qd = max_dist__
         cdef FP_NR[mpfr_t] max_dist_mpfr = max_dist__
 
-        cdef vector[FP_NR[double]] target_coord_d
-        IF HAVE_LONG_DOUBLE:
-            cdef vector[FP_NR[longdouble]] target_coord_ld
-        cdef vector[FP_NR[dpe_t]] target_coord_dpe
-        IF HAVE_QD:
-            cdef vector[FP_NR[dd_real]] target_coord_dd
-            cdef vector[FP_NR[qd_real]] target_coord_qd
-        cdef vector[FP_NR[mpfr_t]] target_coord_mpfr
-
         solution = []
 
         if self.M._type == mpz_double:
+            if target is not None:
+                for it in target:
+                    tmp.double = float(it)
+                    target_coord_d.push_back(tmp.double)
             sig_on()
             self._core.double.enumerate(first, last, max_dist_d, max_dist_expo,
                                         target_coord_d, sub_tree_, pruning_, dual)
@@ -168,6 +171,10 @@ cdef class Enumeration:
 
         IF HAVE_LONG_DOUBLE:
             if self.M._type == mpz_ld:
+                if target is not None:
+                    for it in target:
+                        tmp.ld = float(it)
+                        target_coord_ld.push_back(tmp.ld)
                 sig_on()
                 self._core.ld.enumerate(first, last, max_dist_ld, max_dist_expo,
                                         target_coord_ld, sub_tree_, pruning_, dual)
@@ -181,6 +188,10 @@ cdef class Enumeration:
                 max_dist = max_dist_ld.get_d()
 
         if self.M._type == mpz_dpe:
+            if target is not None:
+                for it in target:
+                    tmp.dpe = float(it)
+                    target_coord_dpe.push_back(tmp.dpe)
             sig_on()
             self._core.dpe.enumerate(first, last, max_dist_dpe, max_dist_expo,
                                      target_coord_dpe, sub_tree_, pruning_, dual)
@@ -195,6 +206,10 @@ cdef class Enumeration:
 
         IF HAVE_QD:
             if self.M._type == mpz_dd:
+                if target is not None:
+                    for it in target:
+                        tmp.dd = float(it)
+                        target_coord_dd.push_back(tmp.dd)
                 sig_on()
                 self._core.dd.enumerate(first, last, max_dist_dd, max_dist_expo,
                                         target_coord_dd, sub_tree_, pruning_, dual)
@@ -208,6 +223,10 @@ cdef class Enumeration:
                 max_dist = max_dist_dd.get_d()
 
             if self.M._type == mpz_qd:
+                if target is not None:
+                    for it in target:
+                        tmp.qd = float(it)
+                        target_coord_qd.push_back(tmp.qd)
                 sig_on()
                 self._core.qd.enumerate(first, last, max_dist_qd, max_dist_expo,
                                         target_coord_qd, sub_tree_, pruning_, dual)
@@ -221,6 +240,10 @@ cdef class Enumeration:
                 max_dist = max_dist_qd.get_d()
 
         if self.M._type == mpz_mpfr:
+            if target is not None:
+                for it in target:
+                    tmp.mpfr = float(it)
+                    target_coord_mpfr.push_back(tmp.mpfr)
             sig_on()
             self._core.mpfr.enumerate(first, last, max_dist_mpfr, max_dist_expo,
                                       target_coord_mpfr, sub_tree_, pruning_, dual)

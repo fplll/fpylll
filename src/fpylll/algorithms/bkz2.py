@@ -110,7 +110,7 @@ class BKZReduction(BKZBase):
                 enum_obj = Enumeration(self.M)
                 with stats.context("svp", E=enum_obj):
                     solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
-                                                            pruning.coefficients)
+                                                            pruning=pruning.coefficients)
                 self.svp_postprocessing(kappa, block_size, solution, stats)
                 rerandomize = False
 

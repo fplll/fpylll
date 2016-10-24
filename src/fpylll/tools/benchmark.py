@@ -26,7 +26,7 @@ def bench_enumeration(n):
 
     enum = Enumeration(M)
     t = time()
-    enum.enumerate(0, n, radius, 0, pruning.coefficients)
+    enum.enumerate(0, n, radius, 0, pruning=pruning.coefficients)
     t = time() - t
     cost = enum.get_nodes()
 
