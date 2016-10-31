@@ -873,13 +873,14 @@ cdef class IntegerMatrix:
         Transpose.
 
         >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
-        >>> A.transpose()
+        >>> _ = A.transpose()
         >>> print(A)
         [ 0 3 ]
         [ 2 4 ]
 
         """
-        return (<Matrix[Z_NR[mpz_t]]*>self._core).transpose()
+        (<Matrix[Z_NR[mpz_t]]*>self._core).transpose()
+        return self
 
     def get_max_exp(self):
         """
