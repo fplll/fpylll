@@ -6,6 +6,17 @@ include "cysignals/signals.pxi"
 Elementary basis operations, Gram matrix and Gram-Schmidt orthogonalization.
 
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
+
+A ``MatGSO`` object stores the following information:
+
+    - The integral basis `B`,
+
+    - the Gram-Schmidt coefficients `μ_{i,j} = `⟨b_i, b^*_j⟩ / ||b^*_j||^2` for `i>j`, and
+
+    - the coefficients `r_{i,j} = ⟨b_i, b^*_j⟩` for `i>j`
+
+It holds that: `B = R × Q = (μ × D) × (D^{-1} × B^*)` where `Q` is orthonormal and `R` is lower
+triangular.
 """
 
 
@@ -1071,6 +1082,68 @@ cdef class MatGSO:
                     sig_off()
                     return r
         raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+
+    def slurp(self, v):
+        """Given a vector `v` wrt to the canonical basis `\mathbb{Z}^n` return a vector wrt the
+        Gram-Schmidt basis `B^*`
+
+        :param v: a tuple-like object of dimension `M.B.ncols`
+
+        :returns: a tuple of dimension `M.d`
+
+        This operation is the inverse of ``barf``::
+
+            >>> import random
+            >>> A = IntegerMatrix.random(5, "uniform", bits=6)
+            >>> M = GSO.Mat(A)
+            >>> _ = M.update_gso()
+            >>> v = tuple(IntegerMatrix.random(5, "uniform", bits=6)[0]); v
+            (35, 24, 55, 40, 23)
+            >>> w = M.slurp(v); w # doctest: +ELLIPSIS
+            (0.98294..., 0.5636..., -3.4594479..., 0.9768..., 0.261316...)
+            >>> v_ = tuple([int(round(wi)) for wi in M.barf(w)]); v_
+            (35, 24, 55, 40, 23)
+            >>> v == v_
+            True
+
+        """
+        ret = [0 for _ in range(self.B.nrows)]
+        for i in range(self.B.nrows):
+            for j in range(self.B.ncols):
+                ret[i] += self.B[i,j] * v[j]
+
+            for j in range(i):
+                ret[i] -= self.get_mu(i, j) * ret[j]
+
+        for i in range(self.B.nrows):
+            ret[i] /= self.get_r(i,i)
+
+        return tuple(ret)
+
+
+    def barf(self, v):
+        """
+        Given a vector `v` wrt to to the Gram-Schmidt basis `B^*` return a vector wrt the canonical
+        basis `\mathbb{Z}^n`
+
+        :param v: a tuple-like object of dimension `M.d`
+
+        :returns: a tuple of dimension `M.B.ncols`
+
+        """
+
+        v = list(v)
+        for i in range(self.d)[::-1]:
+            for j in range(i+1,self.d):
+                v[i] -= self.get_mu(j,i) * v[j]
+
+        ret = [0 for _ in range(self.B.ncols)]
+        for i in range(self.B.nrows):
+            for j in range(self.B.ncols):
+                ret[j] += v[i] * self.B[i,j]
+
+        return tuple(ret)
 
 
 class GSO:
