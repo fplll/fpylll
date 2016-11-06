@@ -1108,7 +1108,7 @@ cdef class MatGSO:
             True
 
         """
-        ret = [0 for _ in range(self.B.nrows)]
+        ret = self.B.nrows*[0]
         for i in range(self.B.nrows):
             for j in range(self.B.ncols):
                 ret[i] += self.B[i,j] * v[j]
@@ -1138,7 +1138,7 @@ cdef class MatGSO:
             for j in range(i+1,self.d):
                 v[i] -= self.get_mu(j,i) * v[j]
 
-        ret = [0 for _ in range(self.B.ncols)]
+        ret = self.B.ncols*[0]
         for i in range(self.B.nrows):
             for j in range(self.B.ncols):
                 ret[j] += v[i] * self.B[i,j]
