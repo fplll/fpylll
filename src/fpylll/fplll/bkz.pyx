@@ -21,6 +21,7 @@ from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUT
 from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
 from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
 from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
+from fplll cimport BKZ_SD_VARIANT, BKZ_SLD_RED
 
 from fplll cimport FP_NR, Z_NR
 from fplll cimport FloatType
@@ -198,6 +199,12 @@ cdef class BKZReduction:
     def __call__(self):
         """
         Call BKZ, SD-BKZ or slide reduction.
+
+        ..  note ::
+
+            To enable the latter, set flags ``BKZ.SLD_RED`` or ``BKZ.SD_VARIANT`` when calling
+            the constructor of this class.
+
         """
         if self._type == mpz_double:
             sig_on()
@@ -805,6 +812,8 @@ class BKZ:
     MAX_LOOPS = BKZ_MAX_LOOPS
     MAX_TIME = BKZ_MAX_TIME
     DUMP_GSO = BKZ_DUMP_GSO
+    SD_VARIANT = BKZ_SD_VARIANT
+    SLD_RED = BKZ_SLD_RED
 
     Param = BKZParam
     AutoAbort = BKZAutoAbort

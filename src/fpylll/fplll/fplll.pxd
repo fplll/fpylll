@@ -137,6 +137,8 @@ cdef extern from "fplll/defs.h" namespace "fplll":
         BKZ_AUTO_ABORT
         BKZ_DUMP_GSO
         BKZ_GH_BND
+        BKZ_SD_VARIANT
+        BKZ_SLD_RED
 
     cdef enum LLLMethod:
         LM_WRAPPER
