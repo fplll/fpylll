@@ -1084,7 +1084,7 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 
-    def slurp(self, v):
+    def from_canonical(self, v):
         """Given a vector `v` wrt to the canonical basis `\mathbb{Z}^n` return a vector wrt the
         Gram-Schmidt basis `B^*`
 
@@ -1092,7 +1092,7 @@ cdef class MatGSO:
 
         :returns: a tuple of dimension `M.d`
 
-        This operation is the inverse of ``barf``::
+        This operation is the inverse of ``to_canonical``::
 
             >>> import random
             >>> A = IntegerMatrix.random(5, "uniform", bits=6)
@@ -1100,9 +1100,9 @@ cdef class MatGSO:
             >>> _ = M.update_gso()
             >>> v = tuple(IntegerMatrix.random(5, "uniform", bits=6)[0]); v
             (35, 24, 55, 40, 23)
-            >>> w = M.slurp(v); w # doctest: +ELLIPSIS
+            >>> w = M.from_canonical(v); w # doctest: +ELLIPSIS
             (0.98294..., 0.5636..., -3.4594479..., 0.9768..., 0.261316...)
-            >>> v_ = tuple([int(round(wi)) for wi in M.barf(w)]); v_
+            >>> v_ = tuple([int(round(wi)) for wi in M.to_canonical(w)]); v_
             (35, 24, 55, 40, 23)
             >>> v == v_
             True
@@ -1122,7 +1122,7 @@ cdef class MatGSO:
         return tuple(ret)
 
 
-    def barf(self, v):
+    def to_canonical(self, v):
         """
         Given a vector `v` wrt to to the Gram-Schmidt basis `B^*` return a vector wrt the canonical
         basis `\mathbb{Z}^n`
