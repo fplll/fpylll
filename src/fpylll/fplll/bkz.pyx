@@ -247,10 +247,10 @@ cdef class BKZReduction:
         :param param: reduction parameters
 
         """
-        if kappa < 0 or kappa >= self.M.dim:
-            raise ValueError("kappa %d out of bounds (0, %d)"%(kappa, self.M.dim))
-        if block_size < 2 or block_size > self.M.dim:
-            raise ValueError("block size %d out of bounds (2, %d)"%(block_size, self.M.dim))
+        if kappa < 0 or kappa >= self.M.d:
+            raise ValueError("kappa %d out of bounds (0, %d)"%(kappa, self.M.d))
+        if block_size < 2 or block_size > self.M.d:
+            raise ValueError("block size %d out of bounds (2, %d)"%(block_size, self.M.d))
 
         r = True
 
@@ -299,10 +299,10 @@ cdef class BKZReduction:
         cdef vector_fp_nr_t solution_
         cdef fp_nr_t t
 
-        if kappa < 0 or kappa >= self.M.dim:
-            raise ValueError("kappa %d out of bounds (0, %d)"%(kappa, self.M.dim))
-        if block_size < 2 or block_size > self.M.dim:
-            raise ValueError("block size %d out of bounds (2, %d)"%(block_size, self.M.dim))
+        if kappa < 0 or kappa >= self.M.d:
+            raise ValueError("kappa %d out of bounds (0, %d)"%(kappa, self.M.d))
+        if block_size < 2 or block_size > self.M.d:
+            raise ValueError("block size %d out of bounds (2, %d)"%(block_size, self.M.d))
 
         r = True
 
@@ -369,10 +369,10 @@ cdef class BKZReduction:
         cdef vector_fp_nr_t solution_
         cdef fp_nr_t t
 
-        if kappa < 0 or kappa >= self.M.dim:
-            raise ValueError("kappa %d out of bounds (0, %d)"%(kappa, self.M.dim))
-        if block_size < 2 or block_size > self.M.dim:
-            raise ValueError("block size %d out of bounds (2, %d)"%(block_size, self.M.dim))
+        if kappa < 0 or kappa >= self.M.d:
+            raise ValueError("kappa %d out of bounds (0, %d)"%(kappa, self.M.d))
+        if block_size < 2 or block_size > self.M.d:
+            raise ValueError("block size %d out of bounds (2, %d)"%(block_size, self.M.d))
 
         r = True
 
@@ -437,10 +437,10 @@ cdef class BKZReduction:
         :param dual: dual or primal reduction
 
         """
-        if kappa < 0 or kappa >= self.M.dim:
-            raise ValueError("kappa %d out of bounds (0, %d)"%(kappa, self.M.dim))
-        if block_size < 2 or block_size > self.M.dim:
-            raise ValueError("block size %d out of bounds (2, %d)"%(block_size, self.M.dim))
+        if kappa < 0 or kappa >= self.M.d:
+            raise ValueError("kappa %d out of bounds (0, %d)"%(kappa, self.M.d))
+        if block_size < 2 or block_size > self.M.d:
+            raise ValueError("block size %d out of bounds (2, %d)"%(block_size, self.M.d))
 
         r = True
 
@@ -488,10 +488,10 @@ cdef class BKZReduction:
                   if no changes were made, and ``max_kappa`` is the
                   maximum index for which no changes were made.
         """
-        if min_row < 0 or min_row >= self.M.dim:
-            raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.dim))
-        if max_row < min_row or max_row > self.M.dim:
-            raise ValueError("max row %d out of bounds (%d, %d)"%(max_row, min_row, self.M.dim))
+        if min_row < 0 or min_row >= self.M.d:
+            raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.d))
+        if max_row < min_row or max_row > self.M.d:
+            raise ValueError("max row %d out of bounds (%d, %d)"%(max_row, min_row, self.M.d))
 
         r = True
         cdef int kappa_max = 0
@@ -538,10 +538,10 @@ cdef class BKZReduction:
 
         :returns: ``True`` if no changes were made, ``False`` otherwise.
         """
-        if min_row < 0 or min_row >= self.M.dim:
-            raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.dim))
-        if max_row < min_row or max_row > self.M.dim:
-            raise ValueError("max row %d out of bounds (%d, %d)"%(max_row, min_row, self.M.dim))
+        if min_row < 0 or min_row >= self.M.d:
+            raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.d))
+        if max_row < min_row or max_row > self.M.d:
+            raise ValueError("max row %d out of bounds (%d, %d)"%(max_row, min_row, self.M.d))
 
         r = True
 
@@ -590,10 +590,10 @@ cdef class BKZReduction:
         :returns: ``True`` if no changes were made, ``False`` otherwise.
 
         """
-        if min_row < 0 or min_row >= self.M.dim:
-            raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.dim))
-        if max_row < min_row or max_row > self.M.dim:
-            raise ValueError("max row %d out of bounds (%d, %d)"%(max_row, min_row, self.M.dim))
+        if min_row < 0 or min_row >= self.M.d:
+            raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.d))
+        if max_row < min_row or max_row > self.M.d:
+            raise ValueError("max row %d out of bounds (%d, %d)"%(max_row, min_row, self.M.d))
 
         r = True
 
@@ -642,10 +642,10 @@ cdef class BKZReduction:
 
         """
 
-        if min_row < 0 or min_row >= self.M.dim:
-            raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.dim))
-        if max_row < min_row or max_row > self.M.dim:
-            raise ValueError("max row %d out of bounds (%d, %d)"%(max_row, min_row, self.M.dim))
+        if min_row < 0 or min_row >= self.M.d:
+            raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.d))
+        if max_row < min_row or max_row > self.M.d:
+            raise ValueError("max row %d out of bounds (%d, %d)"%(max_row, min_row, self.M.d))
 
         r = True
         cdef int kappa_max = 0
