@@ -589,6 +589,10 @@ cdef class BKZReduction:
 
         :returns: ``True`` if no changes were made, ``False`` otherwise.
 
+        ..  note ::
+
+            You must run ``lll_obj()`` before calling this function, otherwise
+            this function will produce an error.
         """
         if min_row < 0 or min_row >= self.M.d:
             raise ValueError("min row %d out of bounds (0, %d)"%(min_row, self.M.d))
