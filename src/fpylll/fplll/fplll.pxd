@@ -7,6 +7,7 @@ from fpylll.gmp.mpz cimport mpz_t
 from fpylll.gmp.random cimport gmp_randstate_t
 from libcpp.vector cimport vector
 from libcpp.string cimport string
+from libcpp.pair cimport pair
 
 #
 # Numbers
@@ -384,8 +385,10 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
     cdef cppclass Evaluator[FT]:
         Evaluator()
 
+        void set_max_aux_sols(const int new_max)
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
+        vector[pair[enumf, vector[FT]]] multimap2pairs()
 
         vector[FT] sol_coord
         int new_sol_flag
@@ -394,8 +397,10 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
     cdef cppclass FastEvaluator[FT]:
         FastEvaluator()
 
+        void set_max_aux_sols(const int new_max)
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
+        vector[pair[enumf, vector[FT]]] multimap2pairs()
 
         vector[FT] sol_coord
         int new_sol_flag

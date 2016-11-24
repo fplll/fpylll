@@ -4,6 +4,7 @@ include "cysignals/signals.pxi"
 
 
 from libcpp.vector cimport vector
+from libcpp.pair cimport pair
 from gso cimport MatGSO
 from fplll cimport Enumeration as Enumeration_c
 from fplll cimport FastEvaluator as FastEvaluator_c
@@ -24,7 +25,7 @@ class EnumerationError(Exception):
     pass
 
 cdef class Enumeration:
-    def __init__(self, MatGSO M):
+    def __init__(self, MatGSO M, max_aux_sols=0):
         """Create new enumeration object
 
         :param MatGSO M: GSO matrix
@@ -44,31 +45,37 @@ cdef class Enumeration:
         if M._type == mpz_double:
             m_double = M._core.mpz_double
             self._fe_core.double = new FastEvaluator_c[FP_NR[double]]()
+            self._fe_core.double.set_max_aux_sols(max_aux_sols)
             self._core.double = new Enumeration_c[FP_NR[double]](m_double[0], self._fe_core.double[0])
         elif M._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 m_ld = M._core.mpz_ld
                 self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]]()
+                self._fe_core.ld.set_max_aux_sols(max_aux_sols)
                 self._core.ld = new Enumeration_c[FP_NR[longdouble]](m_ld[0], self._fe_core.ld[0])
             ELSE:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mpz_dpe:
             m_dpe = M._core.mpz_dpe
             self._fe_core.dpe = new FastEvaluator_c[FP_NR[dpe_t]]()
+            self._fe_core.dpe.set_max_aux_sols(max_aux_sols)
             self._core.dpe = new Enumeration_c[FP_NR[dpe_t]](m_dpe[0], self._fe_core.dpe[0])
         elif M._type == mpz_mpfr:
             m_mpfr = M._core.mpz_mpfr
             self._fe_core.mpfr = new FastEvaluator_c[FP_NR[mpfr_t]]()
+            self._fe_core.mpfr.set_max_aux_sols(max_aux_sols)
             self._core.mpfr = new Enumeration_c[FP_NR[mpfr_t]](m_mpfr[0], self._fe_core.mpfr[0])
         else:
             IF HAVE_QD:
                 if M._type == mpz_dd:
                     m_dd = M._core.mpz_dd
                     self._fe_core.dd = new FastEvaluator_c[FP_NR[dd_real]]()
+                    self._fe_core.dd.set_max_aux_sols(max_aux_sols)
                     self._core.dd = new Enumeration_c[FP_NR[dd_real]](m_dd[0], self._fe_core.dd[0])
                 elif M._type == mpz_qd:
                     m_qd = M._core.mpz_qd
                     self._fe_core.qd = new FastEvaluator_c[FP_NR[qd_real]]()
+                    self._fe_core.qd.set_max_aux_sols(max_aux_sols)
                     self._core.qd = new Enumeration_c[FP_NR[qd_real]](m_qd[0], self._fe_core.qd[0])
                 else:
                     raise RuntimeError("MatGSO object '%s' has no core."%self)
@@ -98,7 +105,7 @@ cdef class Enumeration:
             del self._core.mpfr
 
     def enumerate(self, int first, int last, max_dist, max_dist_expo,
-                  target=None, subtree=None, pruning=None, dual=False, subtree_reset=False):
+                  target=None, subtree=None, pruning=None, dual=False, subtree_reset=False, aux_sols=[]):
         """Run enumeration on `M`
 
         :param int first:      first row
@@ -151,6 +158,14 @@ cdef class Enumeration:
         cdef FP_NR[mpfr_t] max_dist_mpfr = max_dist__
 
         solution = []
+        cdef vector[pair[double, vector[FP_NR[double]]]] aux_sols_d
+        IF HAVE_LONG_DOUBLE:
+            cdef vector[pair[double, vector[FP_NR[longdouble]]]] aux_sols_ld
+        cdef vector[pair[double, vector[FP_NR[dpe_t]]]] aux_sols_dpe
+        IF HAVE_QD:
+            cdef vector[pair[double, vector[FP_NR[dd_real]]]] aux_sols_dd
+            cdef vector[pair[double, vector[FP_NR[qd_real]]]] aux_sols_qd
+        cdef vector[pair[double, vector[FP_NR[mpfr_t]]]] aux_sols_mpfr
 
         if self.M._type == mpz_double:
             if target is not None:
@@ -169,6 +184,14 @@ cdef class Enumeration:
 
             max_dist = max_dist_d.get_d()
 
+            aux_sols_d = self._fe_core.double.multimap2pairs()
+            for i in range(aux_sols_d.size()):
+                cur_dist = aux_sols_d[i].first
+                cur_sol = []
+                for j in range(aux_sols_d[i].second.size()):
+                    cur_sol.append(aux_sols_d[i].second[j].get_d())
+                aux_sols.append([tuple(cur_sol), cur_dist])
+
         IF HAVE_LONG_DOUBLE:
             if self.M._type == mpz_ld:
                 if target is not None:
@@ -186,6 +209,13 @@ cdef class Enumeration:
                     solution.append(self._fe_core.ld.sol_coord[i].get_d())
 
                 max_dist = max_dist_ld.get_d()
+                aux_sols_ld = self._fe_core.ld.multimap2pairs()
+                for i in range(aux_sols_ld.size()):
+                    cur_dist = aux_sols_ld[i].first
+                    cur_sol = []
+                    for j in range(aux_sols_ld[i].second.size()):
+                        cur_sol.append(aux_sols_ld[i].second[j].get_d())
+                    aux_sols.append([tuple(cur_sol), cur_dist])
 
         if self.M._type == mpz_dpe:
             if target is not None:
@@ -203,6 +233,13 @@ cdef class Enumeration:
                 solution.append(self._fe_core.dpe.sol_coord[i].get_d())
 
             max_dist = max_dist_dpe.get_d()
+            aux_sols_dpe = self._fe_core.dpe.multimap2pairs()
+            for i in range(aux_sols_dpe.size()):
+                cur_dist = aux_sols_dpe[i].first
+                cur_sol = []
+                for j in range(aux_sols_dpe[i].second.size()):
+                    cur_sol.append(aux_sols_dpe[i].second[j].get_d())
+                aux_sols.append([tuple(cur_sol), cur_dist])
 
         IF HAVE_QD:
             if self.M._type == mpz_dd:
@@ -221,6 +258,13 @@ cdef class Enumeration:
                     solution.append(self._fe_core.dd.sol_coord[i].get_d())
 
                 max_dist = max_dist_dd.get_d()
+                aux_sols_dd = self._fe_core.dd.multimap2pairs()
+                for i in range(aux_sols_dd.size()):
+                    cur_dist = aux_sols_dd[i].first
+                    cur_sol = []
+                    for j in range(aux_sols_dd[i].second.size()):
+                        cur_sol.append(aux_sols_dd[i].second[j].get_d())
+                    aux_sols.append([tuple(cur_sol), cur_dist])
 
             if self.M._type == mpz_qd:
                 if target is not None:
@@ -238,6 +282,13 @@ cdef class Enumeration:
                     solution.append(self._fe_core.qd.sol_coord[i].get_d())
 
                 max_dist = max_dist_qd.get_d()
+                aux_sols_qd = self._fe_core.qd.multimap2pairs()
+                for i in range(aux_sols_qd.size()):
+                    cur_dist = aux_sols_qd[i].first
+                    cur_sol = []
+                    for j in range(aux_sols_qd[i].second.size()):
+                        cur_sol.append(aux_sols_qd[i].second[j].get_d())
+                    aux_sols.append([tuple(cur_sol), cur_dist])
 
         if self.M._type == mpz_mpfr:
             if target is not None:
@@ -255,6 +306,13 @@ cdef class Enumeration:
                 solution.append(self._fe_core.mpfr.sol_coord[i].get_d())
 
             max_dist = max_dist_mpfr.get_d()
+            aux_sols_mpfr = self._fe_core.mpfr.multimap2pairs()
+            for i in range(aux_sols_mpfr.size()):
+                cur_dist = aux_sols_mpfr[i].first
+                cur_sol = []
+                for j in range(aux_sols_mpfr[i].second.size()):
+                    cur_sol.append(aux_sols_mpfr[i].second[j].get_d())
+                aux_sols.append([tuple(cur_sol), cur_dist])
 
         return tuple(solution), max_dist
 
