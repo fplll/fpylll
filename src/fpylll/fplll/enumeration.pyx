@@ -46,43 +46,49 @@ cdef class Enumeration:
         if M._type == mpz_double:
             m_double = M._core.mpz_double
             self._fe_core.double = new FastEvaluator_c[FP_NR[double]]()
-            self._fe_core.double.max_aux_sols = max_aux_sols
-            self._fe_core.double.always_update_rad = False
+            if max_aux_sols > 0:
+                self._fe_core.double.max_aux_sols = max_aux_sols
+                self._fe_core.double.always_update_rad = False
             self._core.double = new Enumeration_c[FP_NR[double]](m_double[0], self._fe_core.double[0])
         elif M._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 m_ld = M._core.mpz_ld
                 self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]]()
-                self._fe_core.ld.max_aux_sols = max_aux_sols
-                self._fe_core.ld.always_update_rad = False
+                if max_aux_sols > 0:
+                    self._fe_core.ld.max_aux_sols = max_aux_sols
+                    self._fe_core.ld.always_update_rad = False
                 self._core.ld = new Enumeration_c[FP_NR[longdouble]](m_ld[0], self._fe_core.ld[0])
             ELSE:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mpz_dpe:
             m_dpe = M._core.mpz_dpe
             self._fe_core.dpe = new FastEvaluator_c[FP_NR[dpe_t]]()
-            self._fe_core.dpe.max_aux_sols = max_aux_sols
-            self._fe_core.dpe.always_update_rad = False
+            if max_aux_sols > 0:
+                self._fe_core.dpe.max_aux_sols = max_aux_sols
+                self._fe_core.dpe.always_update_rad = False
             self._core.dpe = new Enumeration_c[FP_NR[dpe_t]](m_dpe[0], self._fe_core.dpe[0])
         elif M._type == mpz_mpfr:
             m_mpfr = M._core.mpz_mpfr
             self._fe_core.mpfr = new FastEvaluator_c[FP_NR[mpfr_t]]()
-            self._fe_core.mpfr.max_aux_sols = max_aux_sols
-            self._fe_core.mpfr.always_update_rad = False
+            if max_aux_sols > 0:
+                self._fe_core.mpfr.max_aux_sols = max_aux_sols
+                self._fe_core.mpfr.always_update_rad = False
             self._core.mpfr = new Enumeration_c[FP_NR[mpfr_t]](m_mpfr[0], self._fe_core.mpfr[0])
         else:
             IF HAVE_QD:
                 if M._type == mpz_dd:
                     m_dd = M._core.mpz_dd
                     self._fe_core.dd = new FastEvaluator_c[FP_NR[dd_real]]()
-                    self._fe_core.dd.max_aux_sols = max_aux_sols
-                    self._fe_core.dd.always_update_rad = False
+                    if max_aux_sols > 0:
+                        self._fe_core.dd.max_aux_sols = max_aux_sols
+                        self._fe_core.dd.always_update_rad = False
                     self._core.dd = new Enumeration_c[FP_NR[dd_real]](m_dd[0], self._fe_core.dd[0])
                 elif M._type == mpz_qd:
                     m_qd = M._core.mpz_qd
                     self._fe_core.qd = new FastEvaluator_c[FP_NR[qd_real]]()
-                    self._fe_core.qd.max_aux_sols = max_aux_sols
-                    self._fe_core.qd.always_update_rad = False
+                    if max_aux_sols > 0:
+                        self._fe_core.qd.max_aux_sols = max_aux_sols
+                        self._fe_core.qd.always_update_rad = False
                     self._core.qd = new Enumeration_c[FP_NR[qd_real]](m_qd[0], self._fe_core.qd[0])
                 else:
                     raise RuntimeError("MatGSO object '%s' has no core."%self)
