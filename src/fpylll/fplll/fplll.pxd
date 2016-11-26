@@ -8,6 +8,7 @@ from fpylll.gmp.random cimport gmp_randstate_t
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.pair cimport pair
+from libcpp cimport bool
 
 #
 # Numbers
@@ -392,6 +393,8 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
         vector[FT] sol_coord
         int new_sol_flag
+        int max_aux_sols
+        bool always_update_rad
 
 
     cdef cppclass FastEvaluator[FT]:
@@ -404,6 +407,8 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
         vector[FT] sol_coord
         int new_sol_flag
+        int max_aux_sols
+        bool always_update_rad
 
 
 
