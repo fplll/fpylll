@@ -51,6 +51,11 @@ We also suggest
 - `IPython  <https://ipython.org>`__ for interacting with Python
 - `Numpy <http://www.numpy.org>`__ for numerical computations (e.g. with Gram-Schmidt values)
 
+Online
+------
+
+**fpylll** ships with Sage 7.4. Thus, it is available via `SageMathCell <http://sagecell.sagemath.org/?z=eJxtjk1rwzAMhu-F_gfRUzpCKGODXXxwWTfGWlrWDPZBMWrjFK-2lcketPv1U0657CJePUiP1DIFaLuL9x5c6IgzXI1HGhQ8xWyPlleY2Z0rxthQKO5mJUy-kS-TEoLqu5O6kbp3OUmYjkcdu5hBf852VSQOhaCUGcXlbBKtJ2zMQMxXoljMnz-q-8WDfl3WZlu_6Hrx-C6LPWbb_ByykyFdQg82yBiKvafDyST3a9W13B-EaojyIp6NJ-qSui2h9XhMqles9JtZrteb7fT_h_8AredZkw==&lang=sage>`__ and `SageMathCloud <https://cloud.sagemath.com>`__ (select an Jupyter notebook with a Sage 7.4 kernel, the default Sage worksheet still runs Sage 7.3 at the time of writing). You can also fire up a `dply.co virtual server <https://dply.co/b/pBZ2QbxW>`__ with the latest fpylll/fplll preinstalled (it takes perhaps 15 minutes until everything is compiled).
+
 Getting Started
 ---------------
 
