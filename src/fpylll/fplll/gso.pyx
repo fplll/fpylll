@@ -1146,6 +1146,26 @@ cdef class MatGSO:
         return tuple(ret)
 
 
+    def babai(self, v, gso=False):
+        """
+        Return lattice vector close to `v` using Babai's nearest plane algorithm.
+
+        :param v: a tuple-like object
+        :param gso: if ``True`` vector is represented wrt to the Gram-Schmidt basis, otherwise
+            canonical basis is assumed.
+
+        :returns: a tuple of dimension `M.B.nrows`
+        """
+        if not gso:
+            v = self.from_canonical(v)
+
+        v = list(v)
+        for i in range(self.d)[::-1]:
+            for j in range(i):
+                v[j] -= self.get_mu(i, j) * v[i]
+            v[i] = int(round(v[i]))
+        return tuple(v)
+
 class GSO:
     DEFAULT=GSO_DEFAULT
     INT_GRAM=GSO_INT_GRAM
