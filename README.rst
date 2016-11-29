@@ -187,7 +187,7 @@ The example below calls ``LLL.reduction`` on 128 matrices of dimension 30 on fou
         return r
         
     A = [IntegerMatrix.random(d, "uniform", bits=30) for _ in range(tasks)]    
-    A = run_it(Pool(workers), LLL.reduction)
+    A = run_it(Pool(workers), LLL.reduction, A)
 
 To test threading simply replace the line ``from multiprocessing import Pool`` with ``from multiprocessing.pool import ThreadPool as Pool``. For calling ``BKZ.reduction`` this way, which expects a second parameter with options, using `functools.partial <https://docs.python.org/2/library/functools.html#functools.partial>`_ is a good choice. 
     
