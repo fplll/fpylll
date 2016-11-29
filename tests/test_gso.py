@@ -79,6 +79,24 @@ def test_gso_update_gso():
             g00.append(M.get_gram(0, 0))
 
         for i in range(1, len(r00)):
-            abs(r00[0]/r00[i] - 1.0) < 0.0001
-            abs(re00[0]/re00[i] - 1.0) < 0.0001
-            abs(g00[0]/g00[i] - 1.0) < 0.0001
+            assert abs(r00[0]/r00[i] - 1.0) < 0.0001
+            assert abs(re00[0]/re00[i] - 1.0) < 0.0001
+            assert abs(g00[0]/g00[i] - 1.0) < 0.0001
+
+
+def test_gso_io():
+    for m, n in dimensions:
+        if m <= 2 or n <= 2:
+            continue
+
+        A = make_integer_matrix(m, n)
+        v = list(A[0])
+        LLL.reduction(A)
+
+        for float_type in float_types:
+            M = GSO.Mat(copy(A), float_type=float_type)
+            M.update_gso()
+            w = M.babai(v)
+            v_ = IntegerMatrix.from_iterable(1, m, w) * A
+            v_ = list(v_[0])
+            assert v == v_
