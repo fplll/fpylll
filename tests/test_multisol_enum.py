@@ -1,4 +1,4 @@
-from fpylll import IntegerMatrix, LLL, GSO
+from fpylll import IntegerMatrix, LLL, GSO, BKZ
 from fpylll import Enumeration
 
 #
@@ -55,11 +55,18 @@ def test_multisol():
     lll_obj()
 
     aux_sols = []
-    sol, max_dist = Enumeration(m, max_aux_sols=200).enumerate(0, 27, 48.5, 0, aux_sols=aux_sols)
-    aux_sols += [(sol, max_dist)]
+    sol, max_dist = Enumeration(m, max_aux_sols=200).enumerate(0, 27, 48.5, 0, aux_sols=aux_sols)    
     assert len(aux_sols)== 126 / 2
     for sol, _ in aux_sols:
         sol = IntegerMatrix.from_iterable(1, A.nrows, map(lambda x: int(round(x)), sol))
         sol = tuple((sol*A)[0])
         dist = sum([x**2 for x in sol])
         assert dist==48
+
+    aux_sols = []
+    sol, max_dist = Enumeration(m, max_aux_sols=126 / 2).enumerate(0, 27, 100., 0, aux_sols=aux_sols)
+    assert len(aux_sols)== 126 / 2
+    for x, y in aux_sols:
+        assert dist==48
+
+test_multisol()
