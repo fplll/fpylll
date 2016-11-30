@@ -1084,13 +1084,15 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 
-    def from_canonical(self, v):
-        """Given a vector `v` wrt to the canonical basis `\mathbb{Z}^n` return a vector wrt the
+    def from_canonical(self, v, start=0, dimension=None):
+        """Given a vector `v` wrt the canonical basis `\mathbb{Z}^n` return a vector wrt the
         Gram-Schmidt basis `B^*`
 
-        :param v: a tuple-like object of dimension `M.B.ncols`
+        :param v: a tuple-like object of dimension ``M.B.ncols``
+        :param start: only consider subbasis starting at ``start```
+        :param dimension: only consider ``dimension`` vectors or all if ``None```
 
-        :returns: a tuple of dimension `M.d`
+        :returns: a tuple of dimension ``dimension``` or ``M.d``` when ``dimension`` is ``None``
 
         This operation is the inverse of ``to_canonical``::
 
@@ -1108,61 +1110,75 @@ cdef class MatGSO:
             True
 
         """
-        ret = self.B.nrows*[0]
-        for i in range(self.B.nrows):
+        if dimension is None:
+            d = self.d - start
+        else:
+            d = dimension
+
+        ret = [0]*(start+d)
+        for i in range(start+d):
             for j in range(self.B.ncols):
-                ret[i] += self.B[i,j] * v[j]
+                ret[i] += self.B[i, j] * v[j]
 
             for j in range(i):
                 ret[i] -= self.get_mu(i, j) * ret[j]
 
-        for i in range(self.B.nrows):
-            ret[i] /= self.get_r(i,i)
+        # we drop the first ``start`` entries anyway
+        for i in range(d):
+            ret[start+i] /= self.get_r(start+i, start+i)
 
-        return tuple(ret)
+        return tuple(ret)[start:]
 
 
-    def to_canonical(self, v):
+    def to_canonical(self, v, start=0):
         """
-        Given a vector `v` wrt to to the Gram-Schmidt basis `B^*` return a vector wrt the canonical
-        basis `\mathbb{Z}^n`
+        Given a vector `v` wrt the Gram-Schmidt basis `B^*` return a vector wrt the canonical basis
+        `\mathbb{Z}^n`
 
-        :param v: a tuple-like object of dimension `M.d`
+        :param v: a tuple-like object of dimension ``M.d``
+        :param start: only consider subbasis starting at ``start```
 
-        :returns: a tuple of dimension `M.B.ncols`
+        :returns: a tuple of dimension ``M.B.ncols``
 
+            It holds that: `B = R × Q = (μ × D) × (D^{-1} × B^*)` where `Q` is orthonormal and `R`
+            is lower triangular.
         """
 
         v = list(v)
-        for i in range(self.d)[::-1]:
-            for j in range(i+1,self.d):
-                v[i] -= self.get_mu(j,i) * v[j]
+        d = min(len(v), self.d-start)
+        for i in range(d)[::-1]:
+            for j in range(i+1, d):
+                v[i] -= self.get_mu(start+j, start+i) * v[j]
 
-        ret = self.B.ncols*[0]
-        for i in range(self.B.nrows):
+        ret = [0]*self.B.ncols
+        for i in range(d):
             for j in range(self.B.ncols):
-                ret[j] += v[i] * self.B[i,j]
+                ret[j] += v[i] * self.B[start+i,j]
 
         return tuple(ret)
 
 
-    def babai(self, v, gso=False):
+    def babai(self, v, start=0, dimension=None, gso=False):
         """
         Return lattice vector close to `v` using Babai's nearest plane algorithm.
 
         :param v: a tuple-like object
+        :param start: only consider subbasis starting at ``start```
+        :param dimension: only consider ``dimension`` vectors or all if ``None```
         :param gso: if ``True`` vector is represented wrt to the Gram-Schmidt basis, otherwise
             canonical basis is assumed.
 
         :returns: a tuple of dimension `M.B.nrows`
         """
         if not gso:
-            v = self.from_canonical(v)
+            v = self.from_canonical(v, start, dimension)
+        if dimension is None:
+            dimension = self.d - start
 
         v = list(v)
-        for i in range(self.d)[::-1]:
+        for i in range(dimension)[::-1]:
             for j in range(i):
-                v[j] -= self.get_mu(i, j) * v[i]
+                v[j] -= self.get_mu(start+i, start+j) * v[i]
             v[i] = int(round(v[i]))
         return tuple(v)
 
