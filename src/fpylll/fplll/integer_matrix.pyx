@@ -1177,6 +1177,18 @@ cdef class IntegerMatrix:
                 i += 1
             return A
 
+    def multiply_left(self, v, start=0):
+        """Return ``v*A'`` where ``A'`` is ``A`` reduced to ``len(v)`` rows starting at ``start``.
+
+        :param v: a tuple-like object
+        :param start: start in row ``start``
+        """
+        r = [0]*self.ncols
+        for i in range(len(v)):
+            for j in range(self.ncols):
+                r[j] += v[i]*self[start+i, j]
+        return tuple(r)
+
     @classmethod
     def from_file(cls, filename):
         """Construct new matrix from file.
