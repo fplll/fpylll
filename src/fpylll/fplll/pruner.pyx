@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
 include "cysignals/signals.pxi"
-
 """
 Pruner
 
@@ -42,7 +41,7 @@ from bkz_param cimport Pruning
 from gso cimport MatGSO
 
 def _prune_vec(double enumeration_radius, double preproc_cost, double target_probability, M,
-               descent_method = "gradient", int start_row = 0, int stop_row=0, prec=None, improve=None):
+               descent_method="gradient", int start_row=0, int stop_row=0, prec=None, start_from=None):
     """Return optimal pruning parameters.
 
     :param enumeration_radius: target squared enumeration radius
@@ -53,7 +52,7 @@ def _prune_vec(double enumeration_radius, double preproc_cost, double target_pro
     :param int start_row:      start enumeration in this row
     :param int stop_row:       stop enumeration at this row
     :param prec:               bit precision to use internally
-    :param improve:            start from these pruning coefficients or ``None``
+    :param start_from:            start from these pruning coefficients or ``None``
 
     >>> from fpylll import IntegerMatrix, LLL, GSO, get_precision, set_precision
     >>> from fpylll.numpy import dump_r
@@ -113,8 +112,8 @@ def _prune_vec(double enumeration_radius, double preproc_cost, double target_pro
 
     cdef Pruning_c pruning;
 
-    if improve:
-        for e in improve:
+    if start_from:
+        for e in start_from:
             pruning.coefficients.push_back(<double>e)
 
     root_det = exp(sum([log(e) for e in avg])/d)
@@ -129,7 +128,7 @@ def _prune_vec(double enumeration_radius, double preproc_cost, double target_pro
                                                descent_method);
             pruner_dbl.load_basis_shapes(vec);
             sig_on()
-            pruner_dbl.optimize_coefficients(pruning.coefficients, not bool(improve))
+            pruner_dbl.optimize_coefficients(pruning.coefficients, not bool(start_from))
             sig_off()
             pruning.probability = pruner_dbl.svp_probability(pruning.coefficients)
         else:
@@ -137,7 +136,7 @@ def _prune_vec(double enumeration_radius, double preproc_cost, double target_pro
                                                 descent_method);
             pruner_mpfr.load_basis_shapes(vec);
             sig_on()
-            pruner_mpfr.optimize_coefficients(pruning.coefficients, not bool(improve))
+            pruner_mpfr.optimize_coefficients(pruning.coefficients, not bool(start_from))
             sig_off()
             pruning.probability = pruner_mpfr.svp_probability(pruning.coefficients)
 
@@ -146,7 +145,7 @@ def _prune_vec(double enumeration_radius, double preproc_cost, double target_pro
 
 
 def _prune_gso(double enumeration_radius, double preproc_cost, double target_probability, M,
-               descent_method = "gradient", int start_row = 0, int stop_row=0, improve=None):
+               descent_method = "gradient", int start_row = 0, int stop_row=0, start_from=None):
     """Return optimal pruning parameters.
 
     :param enumeration_radius: target squared enumeration radius
@@ -156,7 +155,7 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
     :param descent_method:     one of "gradient", "nm" or "hybrid"
     :param int start_row:      start enumeration in this row
     :param int stop_row:       stop enumeration at this row
-    :param improve:            start from these pruning coefficients or ``None``
+    :param start_from:            start from these pruning coefficients or ``None``
 
     """
     descent_method = check_descent_method(descent_method)
@@ -169,8 +168,8 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
     cdef int type = 0
     cdef Pruning_c pruning_c
 
-    if improve:
-        for e in improve:
+    if start_from:
+        for e in start_from:
             pruning_c.coefficients.push_back(<double>e)
 
     for m in M:
@@ -195,7 +194,7 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
             v_double.push_back((<MatGSO>m)._core.mpz_double[0])
 
         sig_on()
-        prune_c[FP_NR[double], Z_NR[mpz_t], FP_NR[double]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_double, descent_method, start_row, stop_row, not bool(improve))
+        prune_c[FP_NR[double], Z_NR[mpz_t], FP_NR[double]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_double, descent_method, start_row, stop_row, not bool(start_from))
         sig_off()
 
     elif type == mpz_ld:
@@ -204,7 +203,7 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
                 v_ld.push_back((<MatGSO>m)._core.mpz_ld[0])
 
             sig_on()
-            prune_c[FP_NR[longdouble], Z_NR[mpz_t], FP_NR[longdouble]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_ld, descent_method, start_row, stop_row, not bool(improve))
+            prune_c[FP_NR[longdouble], Z_NR[mpz_t], FP_NR[longdouble]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_ld, descent_method, start_row, stop_row, not bool(start_from))
             sig_off()
         ELSE:
             RuntimeError("Unknown type %d."%type)
@@ -214,7 +213,7 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
             v_dpe.push_back((<MatGSO>m)._core.mpz_dpe[0])
 
         sig_on()
-        prune_c[FP_NR[dpe_t], Z_NR[mpz_t], FP_NR[dpe_t]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_dpe, descent_method, start_row, stop_row, not bool(improve))
+        prune_c[FP_NR[dpe_t], Z_NR[mpz_t], FP_NR[dpe_t]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_dpe, descent_method, start_row, stop_row, not bool(start_from))
         sig_off()
 
     elif type == mpz_mpfr:
@@ -222,7 +221,7 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
             v_mpfr.push_back((<MatGSO>m)._core.mpz_mpfr[0])
 
             sig_on()
-            prune_c[FP_NR[mpfr_t], Z_NR[mpz_t], FP_NR[mpfr_t]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_mpfr, descent_method, start_row, stop_row, not bool(improve))
+            prune_c[FP_NR[mpfr_t], Z_NR[mpz_t], FP_NR[mpfr_t]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_mpfr, descent_method, start_row, stop_row, not bool(start_from))
             sig_off()
 
     else:
@@ -232,7 +231,7 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
                     v_dd.push_back((<MatGSO>m)._core.mpz_dd[0])
 
                     sig_on()
-                    prune_c[FP_NR[dd_real], Z_NR[mpz_t], FP_NR[dd_real]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_dd, descent_method, start_row, stop_row, not bool(improve))
+                    prune_c[FP_NR[dd_real], Z_NR[mpz_t], FP_NR[dd_real]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_dd, descent_method, start_row, stop_row, not bool(start_from))
                     sig_off()
 
             if type == mpz_qd:
@@ -240,7 +239,7 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
                     v_qd.push_back((<MatGSO>m)._core.mpz_qd[0])
 
                     sig_on()
-                    prune_c[FP_NR[qd_real], Z_NR[mpz_t], FP_NR[qd_real]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_qd, descent_method, start_row, stop_row, not bool(improve))
+                    prune_c[FP_NR[qd_real], Z_NR[mpz_t], FP_NR[qd_real]](pruning_c, enumeration_radius, preproc_cost, target_probability, v_qd, descent_method, start_row, stop_row, not bool(start_from))
                     sig_off()
             else:
                 RuntimeError("Unknown type %d."%type)
@@ -250,7 +249,7 @@ def _prune_gso(double enumeration_radius, double preproc_cost, double target_pro
     return Pruning.from_cxx(pruning_c)
 
 def prune(double enumeration_radius, double preproc_cost, double target_probability, M,
-          descent_method = "gradient", int start_row = 0, int stop_row=0, int precision=0, improve=None):
+          descent_method="gradient", int start_row=0, int stop_row=0, int precision=0, start_from=None):
     """Return optimal pruning parameters.
 
     :param enumeration_radius: target squared enumeration radius
@@ -261,14 +260,14 @@ def prune(double enumeration_radius, double preproc_cost, double target_probabil
     :param int start_row:      start enumeration in this row
     :param int stop_row:       stop enumeration at this row
     :param precision:          bit precision to use (only applies when ``M`` is a list of lists)
-    :param improve:            start from these pruning coefficients or ``None``
+    :param start_from:            start from these pruning coefficients or ``None``
 
     """
     try:
-        return _prune_gso(enumeration_radius, preproc_cost, target_probability, M, descent_method, start_row, stop_row, improve=improve)
+        return _prune_gso(enumeration_radius, preproc_cost, target_probability, M, descent_method, start_row, stop_row, start_from=start_from)
     except TypeError:
         return _prune_vec(enumeration_radius, preproc_cost, target_probability, M, descent_method, start_row, stop_row,
-                          prec=precision, improve=improve)
+                          prec=precision, start_from=start_from)
 
 def svp_probability(pr, float_type="double"):
     """Return probability of success for enumeration with given set of pruning parameters.

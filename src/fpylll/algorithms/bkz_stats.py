@@ -75,6 +75,7 @@ class BKZStats:
                                        ("svp time", 0.0),
                                        ("lll time", 0.0),
                                        ("postproc time", 0.0),
+                                       ("pruner time", 0.0),
                                        ("r_0", 0.0),
                                        ("slope", 0.0),
                                        ("enum nodes", 1),
@@ -147,6 +148,7 @@ class BKZStats:
         s.append("\"svp\": %8.2f"%(tour["svp time"]))
         s.append("\"lll\": %8.2f"%(tour["lll time"]))
         s.append("\"postproc\": %8.2f"%(tour["postproc time"]))
+        s.append("\"pruner\": %8.2f"%(tour["pruner time"]))
         s.append("\"r_0\": %.4e"%(tour["r_0"]))
         s.append("\"/\": %7.4f"%(tour["slope"]))
         s.append("\"#enum\": %5.2f"%(log(tour["enum nodes"], 2)))
