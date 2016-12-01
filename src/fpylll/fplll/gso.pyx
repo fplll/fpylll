@@ -1084,13 +1084,13 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 
-    def from_canonical(self, v, start=0, dimension=None):
+    def from_canonical(self, v, int start=0, int dimension=0):
         """Given a vector `v` wrt the canonical basis `\mathbb{Z}^n` return a vector wrt the
         Gram-Schmidt basis `B^*`
 
         :param v: a tuple-like object of dimension ``M.B.ncols``
         :param start: only consider subbasis starting at ``start```
-        :param dimension: only consider ``dimension`` vectors or all if ``None```
+        :param dimension: only consider ``dimension`` vectors or all if ``0``
 
         :returns: a tuple of dimension ``dimension``` or ``M.d``` when ``dimension`` is ``None``
 
@@ -1110,12 +1110,14 @@ cdef class MatGSO:
             True
 
         """
-        if dimension is None:
+        cdef Py_ssize_t i, j, d
+
+        if dimension == 0:
             d = self.d - start
         else:
             d = dimension
 
-        ret = [0]*(start+d)
+        cdef list ret = [0]*(start+d)
         for i in range(start+d):
             for j in range(self.B.ncols):
                 ret[i] += self.B[i, j] * v[j]
@@ -1123,14 +1125,14 @@ cdef class MatGSO:
             for j in range(i):
                 ret[i] -= self.get_mu(i, j) * ret[j]
 
-        # we drop the first ``start`` entries anyway
+        # we drop the first ``start`` entries anyway, so no need to update
         for i in range(d):
             ret[start+i] /= self.get_r(start+i, start+i)
 
         return tuple(ret)[start:]
 
 
-    def to_canonical(self, v, start=0):
+    def to_canonical(self, v, int start=0):
         """
         Given a vector `v` wrt the Gram-Schmidt basis `B^*` return a vector wrt the canonical basis
         `\mathbb{Z}^n`
@@ -1144,21 +1146,22 @@ cdef class MatGSO:
             is lower triangular.
         """
 
-        v = list(v)
-        d = min(len(v), self.d-start)
+        cdef list vv = list(v)
+        cdef Py_ssize_t i, j
+        cdef Py_ssize_t d = min(len(vv), self.d-start)
         for i in range(d)[::-1]:
             for j in range(i+1, d):
-                v[i] -= self.get_mu(start+j, start+i) * v[j]
+                vv[i] -= self.get_mu(start+j, start+i) * vv[j]
 
         ret = [0]*self.B.ncols
         for i in range(d):
             for j in range(self.B.ncols):
-                ret[j] += v[i] * self.B[start+i,j]
+                ret[j] += vv[i] * self.B[start+i,j]
 
         return tuple(ret)
 
 
-    def babai(self, v, start=0, dimension=None, gso=False):
+    def babai(self, v, int start=0, int dimension=0, gso=False):
         """
         Return lattice vector close to `v` using Babai's nearest plane algorithm.
 
@@ -1172,15 +1175,16 @@ cdef class MatGSO:
         """
         if not gso:
             v = self.from_canonical(v, start, dimension)
-        if dimension is None:
+        if dimension == 0:
             dimension = self.d - start
 
-        v = list(v)
+        cdef Py_ssize_t i, j
+        cdef list vv = list(v)
         for i in range(dimension)[::-1]:
             for j in range(i):
-                v[j] -= self.get_mu(start+i, start+j) * v[i]
-            v[i] = int(round(v[i]))
-        return tuple(v)
+                vv[j] -= self.get_mu(start+i, start+j) * vv[i]
+            vv[i] = int(round(vv[i]))
+        return tuple(vv)
 
 class GSO:
     DEFAULT=GSO_DEFAULT
