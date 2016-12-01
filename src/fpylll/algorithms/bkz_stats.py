@@ -156,16 +156,14 @@ class BKZStats:
         :param tour: tour statistics to merge in
 
         """
-        keys = ("total time",
-                "time",
-                "preproc time",
+        keys = ("preproc time",
                 "svp time",
                 "lll time",
                 "postproc time",
                 "enum nodes")
 
         for key in keys:
-            self.current_tour["total time"] += tour.get(key, 0)
+            self.current_tour[key] += tour.get(key, 0)
 
     def __str__(self):
         return self.dumps_tour(len(self.tours)-1)
