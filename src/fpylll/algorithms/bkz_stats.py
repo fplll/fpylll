@@ -145,10 +145,27 @@ class BKZStats:
         s.append("\"lll\": %8.2f"%(tour["lll time"]))
         s.append("\"postproc\": %8.2f"%(tour["postproc time"]))
         s.append("\"r_0\": %.4e"%(tour["r_0"]))
-        s.append("\"slope\": %7.4f"%(tour["slope"]))
-        s.append("\"enum nodes\": %5.2f"%(log(tour["enum nodes"], 2)))
-        s.append("\"max(kappa)\": %3d"%(tour["max(kappa)"]))
+        s.append("\"/\": %7.4f"%(tour["slope"]))
+        s.append("\"#enum\": %5.2f"%(log(tour["enum nodes"], 2)))
         return "{" + ",  ".join(s) + "}"
+
+    def merge_tour(self, tour):
+        """
+        Add times from ``tour`` to current tour.
+
+        :param tour: tour statistics to merge in
+
+        """
+        keys = ("total time",
+                "time",
+                "preproc time",
+                "svp time",
+                "lll time",
+                "postproc time",
+                "enum nodes")
+
+        for key in keys:
+            self.current_tour["total time"] += tour.get(key, 0)
 
     def __str__(self):
         return self.dumps_tour(len(self.tours)-1)
