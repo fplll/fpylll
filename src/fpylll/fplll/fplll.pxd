@@ -605,9 +605,10 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
 
     double svp_probability[FT](const vector[double] &pr)
 
-    Pruning prune[FT, GSO_ZT, GSO_FT](const double enumeration_radius, const double preproc_cost,
+    Pruning prune[FT, GSO_ZT, GSO_FT](Pruning pruning,
+                                      const double enumeration_radius, const double preproc_cost,
                                       const double target_probability, vector[MatGSO[GSO_ZT, GSO_FT]] &m,
-                                      const int descent_method, int start_row, int end_row)
+                                      const int descent_method, int start_row, int end_row, int reset)
 
     cdef enum PRUNER_METHOD:
         PRUNER_METHOD_GRADIENT
