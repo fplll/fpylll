@@ -32,6 +32,9 @@ class DummyStats:
         return DummyStatsContext(self, what)
 
 
+dummy_stats = DummyStats(None)
+
+
 class BKZStatsContext:
     def __init__(self, stats, what, **kwds):
         self.stats = stats
