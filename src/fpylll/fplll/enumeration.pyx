@@ -26,11 +26,16 @@ class EnumerationError(Exception):
     pass
 
 cdef class Enumeration:
-    def __init__(self, MatGSO M, max_aux_sols=0):
+    def __init__(self, MatGSO M, max_aux_solutions=0, always_update_radius=None):
         """Create new enumeration object
 
         :param MatGSO M: GSO matrix
         """
+        if always_update_radius is None:
+            if max_aux_solutions > 0:
+                always_update_radius = False
+            else:
+                always_update_radius = True
 
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]]  *m_double
         IF HAVE_LONG_DOUBLE:
@@ -45,50 +50,45 @@ cdef class Enumeration:
 
         if M._type == mpz_double:
             m_double = M._core.mpz_double
-            self._fe_core.double = new FastEvaluator_c[FP_NR[double]]()
-            if max_aux_sols > 0:
-                self._fe_core.double.max_aux_sols = max_aux_sols
-                self._fe_core.double.always_update_rad = False
+            self._fe_core.double = new FastEvaluator_c[FP_NR[double]](max_aux_solutions,
+                                                                      False,
+                                                                      always_update_radius)
             self._core.double = new Enumeration_c[FP_NR[double]](m_double[0], self._fe_core.double[0])
         elif M._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 m_ld = M._core.mpz_ld
-                self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]]()
-                if max_aux_sols > 0:
-                    self._fe_core.ld.max_aux_sols = max_aux_sols
-                    self._fe_core.ld.always_update_rad = False
+                self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]](max_aux_solutions,
+                                                                          False,
+                                                                          always_update_radius)
                 self._core.ld = new Enumeration_c[FP_NR[longdouble]](m_ld[0], self._fe_core.ld[0])
             ELSE:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mpz_dpe:
             m_dpe = M._core.mpz_dpe
-            self._fe_core.dpe = new FastEvaluator_c[FP_NR[dpe_t]]()
-            if max_aux_sols > 0:
-                self._fe_core.dpe.max_aux_sols = max_aux_sols
-                self._fe_core.dpe.always_update_rad = False
+            self._fe_core.dpe = new FastEvaluator_c[FP_NR[dpe_t]](max_aux_solutions,
+                                                                  False,
+                                                                  always_update_radius)
             self._core.dpe = new Enumeration_c[FP_NR[dpe_t]](m_dpe[0], self._fe_core.dpe[0])
         elif M._type == mpz_mpfr:
             m_mpfr = M._core.mpz_mpfr
             self._fe_core.mpfr = new FastEvaluator_c[FP_NR[mpfr_t]]()
-            if max_aux_sols > 0:
-                self._fe_core.mpfr.max_aux_sols = max_aux_sols
-                self._fe_core.mpfr.always_update_rad = False
+            # TODO work around missing interface in fplll:
+            self._fe_core.mpfr.max_aux_sols = max_aux_solutions
+            self._fe_core.mpfr.always_update_rad = always_update_radius
             self._core.mpfr = new Enumeration_c[FP_NR[mpfr_t]](m_mpfr[0], self._fe_core.mpfr[0])
         else:
             IF HAVE_QD:
                 if M._type == mpz_dd:
                     m_dd = M._core.mpz_dd
-                    self._fe_core.dd = new FastEvaluator_c[FP_NR[dd_real]]()
-                    if max_aux_sols > 0:
-                        self._fe_core.dd.max_aux_sols = max_aux_sols
-                        self._fe_core.dd.always_update_rad = False
+                    self._fe_core.dd = new FastEvaluator_c[FP_NR[dd_real]](max_aux_solutions,
+                                                                           False,
+                                                                           always_update_radius)
                     self._core.dd = new Enumeration_c[FP_NR[dd_real]](m_dd[0], self._fe_core.dd[0])
                 elif M._type == mpz_qd:
                     m_qd = M._core.mpz_qd
-                    self._fe_core.qd = new FastEvaluator_c[FP_NR[qd_real]]()
-                    if max_aux_sols > 0:
-                        self._fe_core.qd.max_aux_sols = max_aux_sols
-                        self._fe_core.qd.always_update_rad = False
+                    self._fe_core.qd = new FastEvaluator_c[FP_NR[qd_real]](max_aux_solutions,
+                                                                           False,
+                                                                           always_update_radius)
                     self._core.qd = new Enumeration_c[FP_NR[qd_real]](m_qd[0], self._fe_core.qd[0])
                 else:
                     raise RuntimeError("MatGSO object '%s' has no core."%self)

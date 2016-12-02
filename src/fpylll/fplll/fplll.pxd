@@ -399,6 +399,7 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
     cdef cppclass FastEvaluator[FT]:
         FastEvaluator()
+        FastEvaluator(size_t max_aux_solutions, bool find_subsolutions, bool always_update_radius)
 
         void set_max_aux_sols(const int new_max)
         void eval_sol(const vector[FT]& newSolCoord,
