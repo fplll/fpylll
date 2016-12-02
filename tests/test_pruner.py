@@ -22,7 +22,7 @@ def test_pruner_gso(n=20, m=20):
     radius = sum([mat.get_r(0, 0) for mat in M])/len(M)
     pruning = prune(radius, 0, 0.9, M)
     assert pruning.probability >= 0.89
-    pruning = prune(radius, 0, 0.9, M, improve=pruning.coefficients)
+    pruning = prune(radius, 0, 0.9, M, start_from=pruning.coefficients)
     assert pruning.probability >= 0.89
 
 
@@ -36,5 +36,5 @@ def test_pruner_vec(n=20, m=20):
     radius = sum([mat.get_r(0, 0) for mat in M])/len(M)
     pruning = prune(radius, 0, 0.9, vec)
     assert pruning.probability >= 0.89
-    pruning = prune(radius, 0, 0.9, vec, improve=pruning.coefficients)
+    pruning = prune(radius, 0, 0.9, vec, start_from=pruning.coefficients)
     assert pruning.probability >= 0.89
