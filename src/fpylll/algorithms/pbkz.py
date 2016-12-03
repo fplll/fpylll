@@ -2,7 +2,8 @@
 """
 Parallel BKZ reduction.
 
-.. note :: This code only offers a noticeable performance improvement in block size 70 or so.
+..  note :: This code only offers a noticeable performance improvement in block size 70 or so.
+   Hence, it will simply call the sequential code for smaller block sizes.
 """
 
 import os
@@ -131,7 +132,7 @@ class BKZReduction(BKZ2):
 
         """
         # calling fork is expensive so we simply revert to the sequential code for small block sizes
-        if block_size < 60:
+        if block_size < 70:
             return self.svp_reduction(kappa, block_size, params, tracer=dummy_tracer)
 
         self.lll_obj.size_reduction(0, kappa+1)
