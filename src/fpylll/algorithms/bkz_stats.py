@@ -38,8 +38,8 @@ def pretty_dict(d, keyword_width=None, round_bound=4096):
             k = "\"%s\""%k
 
         if isinstance(v, (int, long)):
-            if v > round_bound:
-                s.append(u"%s: %8s" %(k,  u"2^%.1f" % log(v, 2)))
+            if abs(v) > round_bound:
+                s.append(u"%s: %8s" %(k,  u"%s2^%.1f"%("" if v > 0 else "-", log(abs(v), 2))))
             else:
                 s.append(u"%s: %8d"%(k, v))
             continue
@@ -50,12 +50,14 @@ def pretty_dict(d, keyword_width=None, round_bound=4096):
                 s.append(u"%s: %s"%(k, v))
                 continue
 
-        if v < 2.0 and v >= 0.0:
+        if 0 <= v < 10.0:
             s.append(u"%s: %8.6f"%(k, v))
-        elif v < round_bound:
+        elif -10 < v < 0:
+            s.append(u"%s: %8.5f"%(k, v))
+        elif abs(v) < round_bound:
             s.append(u"%s: %8.3f"%(k, v))
         else:
-            s.append(u"%s: %8s" %(k,  u"2^%.1f" % log(v, 2)))
+            s.append(u"%s: %8s" %(k,  u"%s2^%.1f"%("" if v > 0 else "-", log(abs(v), 2))))
 
     return u"{" + u",  ".join(s) + u"}"
 
