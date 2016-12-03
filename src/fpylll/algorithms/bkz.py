@@ -15,7 +15,7 @@ from fpylll import BKZ
 from fpylll import Enumeration
 from fpylll import EnumerationError
 from fpylll.util import gaussian_heuristic
-from .bkz_stats import BKZStats
+from .bkz_stats import BKZTreeTracer, dummy_tracer
 
 
 class BKZReduction:
@@ -62,8 +62,6 @@ class BKZReduction:
         else:
             self.lll_obj = L
 
-        self.lll_obj()
-
     def __call__(self, params, min_row=0, max_row=-1):
         """Run the BKZ algorithm with parameters `param`.
 
@@ -72,19 +70,20 @@ class BKZReduction:
         :param max_row: stop processing in this row (exclusive)
 
         """
-        stats = BKZStats(self, verbose=params.flags & BKZ.VERBOSE)
+        tracer = BKZTreeTracer(self, verbosity=params.flags & BKZ.VERBOSE)
 
         if params.flags & BKZ.AUTO_ABORT:
             auto_abort = BKZ.AutoAbort(self.M, self.A.nrows)
 
         cputime_start = time.clock()
 
-        self.M.discover_all_rows()
+        with tracer.context("lll"):
+            self.lll_obj()
 
         i = 0
         while True:
-            with stats.context("tour"):
-                clean = self.tour(params, min_row, max_row, stats)
+            with tracer.context("tour", i):
+                clean = self.tour(params, min_row, max_row, tracer)
             i += 1
             if clean or params.block_size >= self.A.nrows:
                 break
@@ -95,11 +94,10 @@ class BKZReduction:
             if (params.flags & BKZ.MAX_TIME) and time.clock() - cputime_start >= params.max_time:
                 break
 
-        stats.finalize()
-        self.stats = stats
+        self.trace = tracer.trace
         return clean
 
-    def tour(self, params, min_row=0, max_row=-1, stats=None):
+    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
         """One BKZ loop over all indices.
 
         :param params: BKZ parameters
@@ -115,19 +113,17 @@ class BKZReduction:
 
         for kappa in range(min_row, max_row-2):
             block_size = min(params.block_size, max_row - kappa)
-            clean &= self.svp_reduction(kappa, block_size, params, stats)
-            if stats:
-                stats.log_clean_kappa(kappa, clean)
+            clean &= self.svp_reduction(kappa, block_size, params, tracer)
 
         return clean
 
-    def svp_preprocessing(self, kappa, block_size, params, stats):
+    def svp_preprocessing(self, kappa, block_size, params, tracer):
         """Perform preprocessing for calling the SVP oracle
 
         :param kappa: current index
         :param params: BKZ parameters
         :param block_size: block size
-        :param stats: object for maintaining statistics
+        :param tracer: object for maintaining statistics
 
         :returns: ``True`` if no change was made and ``False`` otherwise
 
@@ -139,20 +135,20 @@ class BKZReduction:
         clean = True
 
         lll_start = kappa if params.flags & BKZ.BOUNDED_LLL else 0
-        with stats.context("lll"):
+        with tracer.context("lll"):
             self.lll_obj(lll_start, lll_start, kappa + block_size)
             if self.lll_obj.nswaps > 0:
                 clean = False
 
         return clean
 
-    def svp_call(self, kappa, block_size, params, stats=None):
+    def svp_call(self, kappa, block_size, params, tracer=None):
         """Call SVP oracle
 
         :param kappa: current index
         :param params: BKZ parameters
         :param block_size: block size
-        :param stats: object for maintaining statistics
+        :param tracer: object for maintaining statistics
 
         :returns: Coordinates of SVP solution or ``None`` if none was found.
 
@@ -168,9 +164,10 @@ class BKZReduction:
             max_dist, expo = gaussian_heuristic(max_dist, expo, block_size, root_det, params.gh_factor)
 
         try:
-            E = Enumeration(self.M)
-            solution, max_dist = E.enumerate(kappa, kappa + block_size, max_dist, expo)
-            stats.current_tour["enum nodes"] += E.get_nodes()
+            enum_obj = Enumeration(self.M)
+            with tracer.context("enumeration", enum_obj=enum_obj, probability=1.0):
+                solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, max_dist, expo)
+
         except EnumerationError as msg:
             if params.flags & BKZ.GH_BND:
                 return None
@@ -182,13 +179,13 @@ class BKZReduction:
         else:
             return solution
 
-    def svp_postprocessing(self, kappa, block_size, solution, stats):
+    def svp_postprocessing(self, kappa, block_size, solution, tracer):
         """Insert SVP solution into basis and LLL reduce.
 
         :param solution: coordinates of an SVP solution
         :param kappa: current index
         :param block_size: block size
-        :param stats: object for maintaining statistics
+        :param tracer: object for maintaining statistics
 
         :returns: ``True`` if no change was made and ``False`` otherwise
         """
@@ -204,7 +201,7 @@ class BKZReduction:
                     break
 
             self.M.move_row(kappa + first_nonzero_vector, kappa)
-            with stats.context("lll"):
+            with tracer.context("lll"):
                 self.lll_obj.size_reduction(kappa, kappa + first_nonzero_vector + 1)
 
         else:
@@ -216,37 +213,33 @@ class BKZReduction:
                     self.M.row_addmul(d, kappa + i, solution[i])
 
             self.M.move_row(d, kappa)
-            with stats.context("lll"):
+            with tracer.context("lll"):
                 self.lll_obj(kappa, kappa, kappa + block_size + 1)
             self.M.move_row(kappa + block_size, d)
             self.M.remove_last_row()
 
         return False
 
-    def svp_reduction(self, kappa, block_size, params, stats=None):
+    def svp_reduction(self, kappa, block_size, params, tracer=dummy_tracer):
         """Find shortest vector in projected lattice of dimension ``block_size`` and insert into
         current basis.
 
         :param kappa: current index
         :param params: BKZ parameters
         :param block_size: block size
-        :param stats: object for maintaining statistics
+        :param tracer: object for maintaining statistics
 
         :returns: ``True`` if no change was made and ``False`` otherwise
         """
-        if stats is None:
-            stats = BKZStats(self)
-
         clean = True
-        with stats.context("preproc"):
-            clean_pre = self.svp_preprocessing(kappa, block_size, params, stats)
+        with tracer.context("preprocessing"):
+            clean_pre = self.svp_preprocessing(kappa, block_size, params, tracer)
         clean &= clean_pre
 
-        with stats.context("svp"):
-            solution = self.svp_call(kappa, block_size, params, stats)
+        solution = self.svp_call(kappa, block_size, params, tracer)
 
-        with stats.context("postproc"):
-            clean_post = self.svp_postprocessing(kappa, block_size, solution, stats)
+        with tracer.context("postprocessing"):
+            clean_post = self.svp_postprocessing(kappa, block_size, solution, tracer)
         clean &= clean_post
 
         return clean
