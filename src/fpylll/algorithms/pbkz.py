@@ -135,35 +135,28 @@ class BKZReduction(BKZ2):
         self.lll_obj.size_reduction(0, kappa+1)
         old_first, old_first_expo = self.M.get_r_exp(kappa, kappa)
 
-        remaining_probability, rerandomize = 1.0, False
+        remaining_probability = 1.0
 
         while remaining_probability > 1. - param.min_success_probability:
-
             pipes = []
             for i in range(self.ncores):
                 parent_connection, child_connection = multiprocessing.Pipe()
                 pipes.append(parent_connection)
 
-                if i < self.ncores - 1:
-                    pid = os.fork()
-                    if pid == 0:
-                        random.seed(os.getpid()+random.randint(0, 1<<20))
-                        ret = self.parallel_svp_reduction_worker(kappa, block_size, param, True)
-                        child_connection.send(ret)
-                        os._exit(0)
-                else:
-                    # we also use the parent process as a worker
-                    ret = self.parallel_svp_reduction_worker(kappa, block_size, param, rerandomize)
+                pid = os.fork()
+                if pid == 0:
+                    random.seed(os.getpid()+random.randint(0, 1<<20))
+                    ret = self.parallel_svp_reduction_worker(kappa, block_size, param, True)
                     child_connection.send(ret)
+                    os._exit(0)
 
-            solutions, rerandomize = set(), True  # avoid inserting the same solution twice
+            solutions = set()  # avoid inserting the same solution twice
             for i in range(self.ncores):
                 solution, tour_stats, probability = pipes[i].recv()
-                if solution:
-                    rerandomize = False
-                    solutions.add(solution)
-                stats.merge_tour(tour_stats)
                 remaining_probability *= (1 - probability)
+                stats.merge_tour(tour_stats)
+                if solution:
+                    solutions.add(solution)
 
             for solution in solutions:
                 with stats.context("postproc"):
