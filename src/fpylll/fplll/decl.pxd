@@ -14,7 +14,7 @@ IF HAVE_QD:
 
 from fplll cimport dpe_t
 from fplll cimport Z_NR, FP_NR
-from fplll cimport MatGSO, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration, FastEvaluator
+from fplll cimport MatGSO, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration, FastEvaluator, FastErrorBoundedEvaluator
 
 from libcpp.vector cimport vector
 
@@ -117,13 +117,13 @@ IF HAVE_LONG_DOUBLE:
             FastEvaluator[FP_NR[dpe_t]] *dpe
             FastEvaluator[FP_NR[dd_real]] *dd
             FastEvaluator[FP_NR[qd_real]] *qd
-            FastEvaluator[FP_NR[mpfr_t]] *mpfr
+            FastErrorBoundedEvaluator *mpfr
     ELSE:
         ctypedef union fast_evaluator_core_t:
             FastEvaluator[FP_NR[double]] *double
             FastEvaluator[FP_NR[longdouble]] *ld
             FastEvaluator[FP_NR[dpe_t]] *dpe
-            FastEvaluator[FP_NR[mpfr_t]] *mpfr
+            FastErrorBoundedEvaluator *mpfr
 
     IF HAVE_QD:
         ctypedef union enumeration_core_t:
