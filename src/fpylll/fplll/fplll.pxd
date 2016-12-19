@@ -4,11 +4,36 @@
 # General Includes
 
 from fpylll.gmp.mpz cimport mpz_t
+from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.gmp.random cimport gmp_randstate_t
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.pair cimport pair
 from libcpp cimport bool
+
+
+cdef extern from "<map>" namespace "std":
+    cdef cppclass multimap[T, U]:
+        cppclass iterator:
+            pair[T,U]& operator*()
+            iterator operator++()
+            iterator operator--()
+            bint operator==(iterator)
+            bint operator!=(iterator)
+
+        map()
+        U& operator[](T&)
+        U& at(T&)
+        iterator begin()
+        size_t count(T&)
+        bint empty()
+        iterator end()
+        void erase(iterator)
+        void erase(iterator, iterator)
+        size_t erase(T&)
+        iterator find(T&)
+        pair[iterator, bint] insert(pair[T,U])
+        size_t size()
 
 #
 # Numbers
@@ -383,34 +408,51 @@ cdef extern from "fplll/wrapper.h" namespace "fplll":
 
 cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
+    cdef enum EvaluatorStrategy:
+        EVALSTRATEGY_BEST_N_SOLUTIONS
+        EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
+        EVALSTRATEGY_FIRST_N_SOLUTIONS
+
+
     cdef cppclass Evaluator[FT]:
         Evaluator()
 
-        void set_max_aux_sols(const int new_max)
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
-        vector[pair[enumf, vector[FT]]] multimap2pairs()
 
-        vector[FT] sol_coord
-        int new_sol_flag
-        int max_aux_sols
-        bool always_update_rad
+        int size()
+
+        int max_sols
+        EvaluatorStrategy strategy
+        multimap[FT, vector[FT]] solutions
 
 
     cdef cppclass FastEvaluator[FT]:
         FastEvaluator()
-        FastEvaluator(size_t max_aux_solutions, bool find_subsolutions, bool always_update_radius)
+        FastEvaluator(size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
 
-        void set_max_aux_sols(const int new_max)
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
-        vector[pair[enumf, vector[FT]]] multimap2pairs()
 
-        vector[FT] sol_coord
-        int new_sol_flag
-        int max_aux_sols
-        bool always_update_rad
+        int size()
 
+        int max_sols
+        EvaluatorStrategy strategy
+        multimap[FT, vector[FT]] solutions
+
+
+    cdef cppclass FastErrorBoundedEvaluator:
+        FastErrorBoundedEvaluator()
+        FastErrorBoundedEvaluator(size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
+
+        void eval_sol(const vector[FP_NR[mpfr_t]]& newSolCoord,
+                      const enumf& newPartialDist, enumf& maxDist, long normExp)
+
+        int size()
+
+        int max_sols
+        EvaluatorStrategy strategy
+        multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]] solutions
 
 
 # Enumeration
@@ -418,6 +460,7 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
     cdef cppclass Enumeration[FT]:
         Enumeration(MatGSO[Z_NR[mpz_t], FT]& gso, FastEvaluator[FT]& evaluator)
+        Enumeration(MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]]& gso, FastErrorBoundedEvaluator& evaluator)
 
         void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
                        const vector[FT]& targetCoord,
