@@ -69,5 +69,4 @@ def test_multisol():
     for x, y in aux_sols:
         assert dist==48
 
-
 test_multisol()

@@ -74,8 +74,8 @@ cdef class Enumeration:
         elif M._type == mpz_mpfr:
             m_mpfr = M._core.mpz_mpfr
             self._fe_core.mpfr = new FastErrorBoundedEvaluator_c(M.d(),
-                                                                 M.get_mu(),
-                                                                 NULL,
+                                                                 M._core.mpz_mpfr.get_mu_matrix(),
+                                                                 M._core.mpz_mpfr.get_r_matrix(),
                                                                  EVALMODE_SV,
                                                                  max_aux_solutions + 1,
                                                                  strategy,
