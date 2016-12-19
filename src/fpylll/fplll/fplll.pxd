@@ -204,6 +204,12 @@ cdef extern from "fplll/defs.h" namespace "fplll":
         SVPM_FAST
         SVPM_PROVED
 
+    cdef enum EvaluatorMode:
+        EVALMODE_SV
+        EVALMODE_CV
+        EVALMODE_COUNT
+        EVALMODE_PRINT
+
     cdef double LLL_DEF_DELTA
     cdef double LLL_DEF_ETA
 
@@ -443,7 +449,7 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
     cdef cppclass FastErrorBoundedEvaluator:
         FastErrorBoundedEvaluator()
-        FastErrorBoundedEvaluator(size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
+        FastErrorBoundedEvaluator(d, mu, r, eval_mode, size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
 
         void eval_sol(const vector[FP_NR[mpfr_t]]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
