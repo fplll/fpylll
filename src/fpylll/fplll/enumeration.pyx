@@ -15,6 +15,7 @@ from fplll cimport FastEvaluator as FastEvaluator_c
 from fplll cimport FastErrorBoundedEvaluator as FastErrorBoundedEvaluator_c
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport Z_NR, FP_NR, mpz_t
+from fplll cimport EVALMODE_SV
 
 from fplll cimport dpe_t
 from fpylll.mpfr.mpfr cimport mpfr_t
@@ -72,9 +73,13 @@ cdef class Enumeration:
             self._core.dpe = new Enumeration_c[FP_NR[dpe_t]](m_dpe[0], self._fe_core.dpe[0])
         elif M._type == mpz_mpfr:
             m_mpfr = M._core.mpz_mpfr
-            self._fe_core.mpfr = new FastErrorBoundedEvaluator_c(max_aux_solutions + 1,
-                                                                strategy,
-                                                                False)
+            self._fe_core.mpfr = new FastErrorBoundedEvaluator_c(M.d(),
+                                                                 M.get_mu(),
+                                                                 NULL,
+                                                                 EVALMODE_SV,
+                                                                 max_aux_solutions + 1,
+                                                                 strategy,
+                                                                 False)
             self._core.mpfr = new Enumeration_c[FP_NR[mpfr_t]](m_mpfr[0], self._fe_core.mpfr[0])
         else:
             IF HAVE_QD:
