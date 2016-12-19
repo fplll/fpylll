@@ -323,7 +323,7 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         const FT& get_mu_exp(int i, int j) nogil
         FT& get_mu(FT& f, int i, int j) nogil
 
-        const Matrix[FT]& get_rmatrix() nogil
+        const Matrix[FT]& get_r_matrix() nogil
         const FT& get_r_exp(int i, int j, long& expo) nogil
         const FT& get_r_exp(int i, int j) nogil
         FT& get_r(FT& f, int i, int j) nogil
@@ -449,7 +449,7 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
     cdef cppclass FastErrorBoundedEvaluator:
         FastErrorBoundedEvaluator()
-        FastErrorBoundedEvaluator(d, mu, r, eval_mode, size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
+        FastErrorBoundedEvaluator(int d, Matrix[FP_NR[mpfr_t]] mu, Matrix[FP_NR[mpfr_t]] r, EvaluatorMode eval_mode, size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
 
         void eval_sol(const vector[FP_NR[mpfr_t]]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
