@@ -33,7 +33,7 @@ class EnumerationError(Exception):
     pass
 
 cdef class Enumeration:
-    def __init__(self, MatGSO M, max_aux_solutions=0, strategy=EVALSTRATEGY_BEST_N_SOLUTIONS):
+    def __init__(self, MatGSO M, nr_solutions=1, strategy=EVALSTRATEGY_BEST_N_SOLUTIONS):
         """Create new enumeration object
 
         :param MatGSO M: GSO matrix
@@ -52,14 +52,14 @@ cdef class Enumeration:
 
         if M._type == mpz_double:
             m_double = M._core.mpz_double
-            self._fe_core.double = new FastEvaluator_c[FP_NR[double]](max_aux_solutions + 1,
+            self._fe_core.double = new FastEvaluator_c[FP_NR[double]](nr_solutions,
                                                                       strategy,
                                                                       False)
             self._core.double = new Enumeration_c[FP_NR[double]](m_double[0], self._fe_core.double[0])
         elif M._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 m_ld = M._core.mpz_ld
-                self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]](max_aux_solutions + 1,
+                self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]](nr_solutions,
                                                                       strategy,
                                                                       False)
                 self._core.ld = new Enumeration_c[FP_NR[longdouble]](m_ld[0], self._fe_core.ld[0])
@@ -67,7 +67,7 @@ cdef class Enumeration:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mpz_dpe:
             m_dpe = M._core.mpz_dpe
-            self._fe_core.dpe = new FastEvaluator_c[FP_NR[dpe_t]](max_aux_solutions + 1,
+            self._fe_core.dpe = new FastEvaluator_c[FP_NR[dpe_t]](nr_solutions,
                                                                   strategy,
                                                                   False)
             self._core.dpe = new Enumeration_c[FP_NR[dpe_t]](m_dpe[0], self._fe_core.dpe[0])
@@ -77,7 +77,7 @@ cdef class Enumeration:
                                                                  M._core.mpz_mpfr.get_mu_matrix(),
                                                                  M._core.mpz_mpfr.get_r_matrix(),
                                                                  EVALMODE_SV,
-                                                                 max_aux_solutions + 1,
+                                                                 nr_solutions,
                                                                  strategy,
                                                                  False)
             self._core.mpfr = new Enumeration_c[FP_NR[mpfr_t]](m_mpfr[0], self._fe_core.mpfr[0])
@@ -85,13 +85,13 @@ cdef class Enumeration:
             IF HAVE_QD:
                 if M._type == mpz_dd:
                     m_dd = M._core.mpz_dd
-                    self._fe_core.dd = new FastEvaluator_c[FP_NR[dd_real]](max_aux_solutions + 1,
+                    self._fe_core.dd = new FastEvaluator_c[FP_NR[dd_real]](nr_solutions,
                                                                            strategy,
                                                                            False)
                     self._core.dd = new Enumeration_c[FP_NR[dd_real]](m_dd[0], self._fe_core.dd[0])
                 elif M._type == mpz_qd:
                     m_qd = M._core.mpz_qd
-                    self._fe_core.qd = new FastEvaluator_c[FP_NR[qd_real]](max_aux_solutions + 1,
+                    self._fe_core.qd = new FastEvaluator_c[FP_NR[qd_real]](nr_solutions,
                                                                            strategy,
                                                                            False)
                     self._core.qd = new Enumeration_c[FP_NR[qd_real]](m_qd[0], self._fe_core.qd[0])
@@ -123,7 +123,7 @@ cdef class Enumeration:
             del self._core.mpfr
 
     def enumerate(self, int first, int last, max_dist, max_dist_expo,
-                  target=None, subtree=None, pruning=None, dual=False, subtree_reset=False, aux_sols=[]):
+                  target=None, subtree=None, pruning=None, dual=False, subtree_reset=False):
         """Run enumeration on `M`
 
         :param int first:      first row
@@ -135,7 +135,7 @@ cdef class Enumeration:
         :param pruning:        pruning parameters
         :param dual:           run enumeration in the primal or dual lattice.
         :param subtree_reset:
-        :returns: solution, length
+        :returns: list of pairs containing the solutions and their lengths
 
         """
         cdef int block_size = last-first
@@ -175,7 +175,7 @@ cdef class Enumeration:
             cdef FP_NR[qd_real] max_dist_qd = max_dist__
         cdef FP_NR[mpfr_t] max_dist_mpfr = max_dist__
 
-        solution = []
+        solutions = []
         cdef multimap[FP_NR[double], vector[FP_NR[double]]].iterator solutions_d
         IF HAVE_LONG_DOUBLE:
             cdef multimap[FP_NR[longdouble], vector[FP_NR[longdouble]]].iterator solutions_ld
@@ -198,17 +198,12 @@ cdef class Enumeration:
                 raise EnumerationError("No vector found.")
 
             solutions_d = self._fe_core.double.solutions.begin()
-            for i in range(deref(solutions_d).second.size()):
-                solution.append(deref(solutions_d).second[i].get_d())
-            max_dist = max_dist_d.get_d()
-
-            inc(solutions_d)
             while solutions_d != self._fe_core.double.solutions.end():
                 cur_dist = deref(solutions_d).first.get_d()
                 cur_sol = []
                 for j in range(deref(solutions_d).second.size()):
                     cur_sol.append(deref(solutions_d).second[j].get_d())
-                aux_sols.append([tuple(cur_sol), cur_dist])
+                solutions.append([tuple(cur_sol), cur_dist])
                 inc(solutions_d)
 
         IF HAVE_LONG_DOUBLE:
@@ -225,17 +220,12 @@ cdef class Enumeration:
                     raise EnumerationError("No vector found.")
 
                 solutions_ld = self._fe_core.ld.solutions.begin()
-                for i in range(self._fe_core.ld.size()):
-                    solution.append(deref(solutions_ld).second[i].get_d())
-                max_dist = max_dist_ld.get_d()
-
-                inc(solutions_ld)
                 while solutions_ld != self._fe_core.ld.solutions.end():
                     cur_dist = deref(solutions_ld).first.get_d()
                     cur_sol = []
                     for j in range(deref(solutions_ld).second.size()):
                         cur_sol.append(deref(solutions_ld).second[j].get_d())
-                    aux_sols.append([tuple(cur_sol), cur_dist])
+                    solutions.append([tuple(cur_sol), cur_dist])
                     inc(solutions_ld)
 
         if self.M._type == mpz_dpe:
@@ -251,17 +241,12 @@ cdef class Enumeration:
                 raise EnumerationError("No vector found.")
 
             solutions_dpe = self._fe_core.dpe.solutions.begin()
-            for i in range(deref(solutions_dpe).second.size()):
-                solution.append(deref(solutions_dpe).second[i].get_d())
-            max_dist = max_dist_dpe.get_d()
-
-            inc(solutions_dpe)
             while solutions_dpe != self._fe_core.dpe.solutions.end():
                 cur_dist = deref(solutions_dpe).first.get_d()
                 cur_sol = []
                 for j in range(deref(solutions_dpe).second.size()):
                     cur_sol.append(deref(solutions_dpe).second[j].get_d())
-                aux_sols.append([tuple(cur_sol), cur_dist])
+                solutions.append([tuple(cur_sol), cur_dist])
                 inc(solutions_dpe)
 
         IF HAVE_QD:
@@ -278,17 +263,12 @@ cdef class Enumeration:
                     raise EnumerationError("No vector found.")
 
                 solutions_dd = self._fe_core.dd.solutions.begin()
-                for i in range(self._fe_core.dd.size()):
-                    solution.append(deref(solutions_dd).second[i].get_d())
-                max_dist = max_dist_dd.get_d()
-
-                inc(solutions_dd)
                 while solutions_dd != self._fe_core.dd.solutions.end():
                     cur_dist = deref(solutions_dd).first.get_d()
                     cur_sol = []
                     for j in range(deref(solutions_dd).second.size()):
                         cur_sol.append(deref(solutions_dd).second[j].get_d())
-                    aux_sols.append([tuple(cur_sol), cur_dist])
+                    solutions.append([tuple(cur_sol), cur_dist])
                     inc(solutions_dd)
 
             if self.M._type == mpz_qd:
@@ -304,17 +284,12 @@ cdef class Enumeration:
                     raise EnumerationError("No vector found.")
 
                 solutions_qd = self._fe_core.qd.solutions.begin()
-                for i in range(self._fe_core.qd.size()):
-                    solution.append(deref(solutions_qd).second[i].get_d())
-                max_dist = max_dist_qd.get_d()
-
-                inc(solutions_qd)
                 while solutions_qd != self._fe_core.qd.solutions.end():
                     cur_dist = deref(solutions_qd).first.get_d()
                     cur_sol = []
                     for j in range(deref(solutions_qd).second.size()):
                         cur_sol.append(deref(solutions_qd).second[j].get_d())
-                    aux_sols.append([tuple(cur_sol), cur_dist])
+                    solutions.append([tuple(cur_sol), cur_dist])
                     inc(solutions_qd)
 
         if self.M._type == mpz_mpfr:
@@ -330,20 +305,15 @@ cdef class Enumeration:
                 raise EnumerationError("No vector found.")
 
             solutions_mpfr = self._fe_core.mpfr.solutions.begin()
-            for i in range(deref(solutions_mpfr).second.size()):
-                solution.append(deref(solutions_mpfr).second[i].get_d())
-            max_dist = max_dist_mpfr.get_d()
-
-            inc(solutions_mpfr)
             while solutions_mpfr != self._fe_core.mpfr.solutions.end():
                 cur_dist = deref(solutions_mpfr).first.get_d()
                 cur_sol = []
                 for j in range(deref(solutions_mpfr).second.size()):
                     cur_sol.append(deref(solutions_mpfr).second[j].get_d())
-                aux_sols.append([tuple(cur_sol), cur_dist])
+                solutions.append([tuple(cur_sol), cur_dist])
                 inc(solutions_mpfr)
 
-        return tuple(solution), max_dist
+        return solutions
 
     def get_nodes(self):
         """Return number of visited nodes in last enumeration call.
