@@ -37,7 +37,7 @@ def pretty_dict(d, keyword_width=None, round_bound=4096):
         else:
             k = "\"%s\""%k
 
-        if isinstance(v, (int, long)):
+        if isinstance(v, int):
             if abs(v) > round_bound:
                 s.append(u"%s: %8s" %(k,  u"%s2^%.1f"%("" if v > 0 else "-", log(abs(v), 2))))
             else:
