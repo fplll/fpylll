@@ -21,7 +21,7 @@ def test_cvp():
         v0 = CVP.closest_vector(A, t)
 
         E = Enumeration(M)
-        v1, _ = E.enumerate(0, A.nrows, 2, 40, M.from_canonical(t))
+        v1, _ = E.enumerate(0, A.nrows, 2, 40, M.from_canonical(t))[0]
         v1 = IntegerMatrix.from_iterable(1, A.nrows, map(lambda x: int(round(x)), v1))
         v1 = tuple((v1*A)[0])
 
