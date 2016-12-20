@@ -20,7 +20,7 @@ def test_dump_mu(nrows=10):
     mu = dump_mu(M, 0, nrows)
 
     for i in range(nrows):
-        for j in range(nrows):
+        for j in range(i):
             assert abs(M.get_mu(i, j) - mu[i, j]) < 0.001
 
 

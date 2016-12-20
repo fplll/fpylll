@@ -4,9 +4,36 @@
 # General Includes
 
 from fpylll.gmp.mpz cimport mpz_t
+from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.gmp.random cimport gmp_randstate_t
 from libcpp.vector cimport vector
 from libcpp.string cimport string
+from libcpp.pair cimport pair
+from libcpp cimport bool
+
+
+cdef extern from "<map>" namespace "std":
+    cdef cppclass multimap[T, U]:
+        cppclass iterator:
+            pair[T,U]& operator*()
+            iterator operator++()
+            iterator operator--()
+            bint operator==(iterator)
+            bint operator!=(iterator)
+
+        map()
+        U& operator[](T&)
+        U& at(T&)
+        iterator begin()
+        size_t count(T&)
+        bint empty()
+        iterator end()
+        void erase(iterator)
+        void erase(iterator, iterator)
+        size_t erase(T&)
+        iterator find(T&)
+        pair[iterator, bint] insert(pair[T,U])
+        size_t size()
 
 #
 # Numbers
@@ -177,6 +204,12 @@ cdef extern from "fplll/defs.h" namespace "fplll":
         SVPM_FAST
         SVPM_PROVED
 
+    cdef enum EvaluatorMode:
+        EVALMODE_SV
+        EVALMODE_CV
+        EVALMODE_COUNT
+        EVALMODE_PRINT
+
     cdef double LLL_DEF_DELTA
     cdef double LLL_DEF_ETA
 
@@ -290,7 +323,7 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         const FT& get_mu_exp(int i, int j) nogil
         FT& get_mu(FT& f, int i, int j) nogil
 
-        const Matrix[FT]& get_rmatrix() nogil
+        const Matrix[FT]& get_r_matrix() nogil
         const FT& get_r_exp(int i, int j, long& expo) nogil
         const FT& get_r_exp(int i, int j) nogil
         FT& get_r(FT& f, int i, int j) nogil
@@ -381,25 +414,51 @@ cdef extern from "fplll/wrapper.h" namespace "fplll":
 
 cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
+    cdef enum EvaluatorStrategy:
+        EVALSTRATEGY_BEST_N_SOLUTIONS
+        EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
+        EVALSTRATEGY_FIRST_N_SOLUTIONS
+
+
     cdef cppclass Evaluator[FT]:
         Evaluator()
 
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
 
-        vector[FT] sol_coord
-        int new_sol_flag
+        int size()
+
+        int max_sols
+        EvaluatorStrategy strategy
+        multimap[FT, vector[FT]] solutions
 
 
     cdef cppclass FastEvaluator[FT]:
         FastEvaluator()
+        FastEvaluator(size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
 
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
 
-        vector[FT] sol_coord
-        int new_sol_flag
+        int size()
 
+        int max_sols
+        EvaluatorStrategy strategy
+        multimap[FT, vector[FT]] solutions
+
+
+    cdef cppclass FastErrorBoundedEvaluator:
+        FastErrorBoundedEvaluator()
+        FastErrorBoundedEvaluator(int d, Matrix[FP_NR[mpfr_t]] mu, Matrix[FP_NR[mpfr_t]] r, EvaluatorMode eval_mode, size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
+
+        void eval_sol(const vector[FP_NR[mpfr_t]]& newSolCoord,
+                      const enumf& newPartialDist, enumf& maxDist, long normExp)
+
+        int size()
+
+        int max_sols
+        EvaluatorStrategy strategy
+        multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]] solutions
 
 
 # Enumeration
@@ -407,6 +466,7 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
     cdef cppclass Enumeration[FT]:
         Enumeration(MatGSO[Z_NR[mpz_t], FT]& gso, FastEvaluator[FT]& evaluator)
+        Enumeration(MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]]& gso, FastErrorBoundedEvaluator& evaluator)
 
         void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
                        const vector[FT]& targetCoord,
@@ -438,6 +498,11 @@ cdef extern from "fplll/svpcvp.h" namespace "fplll":
                         SVPMethod method, int flags) nogil
 
     int shortest_vector_pruning(ZZ_mat[mpz_t]& b, vector[Z_NR[mpz_t]]& sol_coord,
+                                const vector[double]& pruning, int flags) nogil
+
+    int shortest_vector_pruning(ZZ_mat[mpz_t]& b, vector[Z_NR[mpz_t]]& sol_coord,
+                                vector[vector[Z_NR[mpz_t]]]& auxsol_coord,
+                                vector[double]& auxsol_dist, const int max_aux_sols,
                                 const vector[double]& pruning, int flags) nogil
 
     # Experimental. Do not use.
@@ -590,9 +655,10 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
 
     double svp_probability[FT](const vector[double] &pr)
 
-    Pruning prune[FT, GSO_ZT, GSO_FT](const double enumeration_radius, const double preproc_cost,
+    Pruning prune[FT, GSO_ZT, GSO_FT](Pruning pruning,
+                                      const double enumeration_radius, const double preproc_cost,
                                       const double target_probability, vector[MatGSO[GSO_ZT, GSO_FT]] &m,
-                                      const int descent_method, int start_row, int end_row)
+                                      const int descent_method, int start_row, int end_row, int reset)
 
     cdef enum PRUNER_METHOD:
         PRUNER_METHOD_GRADIENT

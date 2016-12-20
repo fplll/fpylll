@@ -3,7 +3,7 @@
 from random import randint
 from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZBase
-from fpylll.algorithms.bkz_stats import DummyStats
+from fpylll.algorithms.bkz_stats import dummy_tracer
 from fpylll.util import gaussian_heuristic
 
 
@@ -16,9 +16,8 @@ class BKZReduction(BKZBase):
 
         """
         BKZBase.__init__(self, A)
-        self.M.discover_all_rows()  # TODO: this belongs in __call__ (?)
 
-    def get_pruning(self, kappa, block_size, param, stats=None):
+    def get_pruning(self, kappa, block_size, param, tracer=dummy_tracer):
         strategy = param.strategies[block_size]
 
         radius, re = self.M.get_r_exp(kappa, kappa)
@@ -26,7 +25,7 @@ class BKZReduction(BKZBase):
         gh_radius, ge = gaussian_heuristic(radius, re, block_size, root_det, 1.0)
         return strategy.get_pruning(radius  * 2**re, gh_radius * 2**ge)
 
-    def randomize_block(self, min_row, max_row, stats, density=0):
+    def randomize_block(self, min_row, max_row, tracer=dummy_tracer, density=0):
         """Randomize basis between from ``min_row`` and ``max_row`` (exclusive)
 
             1. permute rows
@@ -37,7 +36,7 @@ class BKZReduction(BKZBase):
 
         :param min_row: start in this row
         :param max_row: stop at this row (exclusive)
-        :param stats: object for maintaining statistics
+        :param tracer: object for maintaining statistics
         :param density: number of non-zero coefficients in lower triangular transformation matrix
         """
         if max_row - min_row < 2:
@@ -62,10 +61,10 @@ class BKZReduction(BKZBase):
 
         return
 
-    def svp_preprocessing(self, kappa, block_size, param, stats):
+    def svp_preprocessing(self, kappa, block_size, param, tracer=dummy_tracer):
         clean = True
 
-        clean &= BKZBase.svp_preprocessing(self, kappa, block_size, param, stats)
+        clean &= BKZBase.svp_preprocessing(self, kappa, block_size, param, tracer)
 
         for preproc in param.strategies[block_size].preprocessing_block_sizes:
             prepar = param.__class__(block_size=preproc, strategies=param.strategies, flags=BKZ.GH_BND)
@@ -73,17 +72,15 @@ class BKZReduction(BKZBase):
 
         return clean
 
-    def svp_reduction(self, kappa, block_size, param, stats):
+    def svp_reduction(self, kappa, block_size, param, tracer=dummy_tracer):
         """
 
         :param kappa:
         :param block_size:
         :param params:
-        :param stats:
+        :param tracer:
 
         """
-        if stats is None:
-            stats = DummyStats(self)
 
         self.lll_obj.size_reduction(0, kappa+1)
         old_first, old_first_expo = self.M.get_r_exp(kappa, kappa)
@@ -91,11 +88,13 @@ class BKZReduction(BKZBase):
         remaining_probability, rerandomize = 1.0, False
 
         while remaining_probability > 1. - param.min_success_probability:
-            with stats.context("preproc"):
+            with tracer.context("preprocessing"):
                 if rerandomize:
-                    self.randomize_block(kappa+1, kappa+block_size,
-                                         density=param.rerandomization_density, stats=stats)
-                self.svp_preprocessing(kappa, block_size, param, stats)
+                    with tracer.context("randomization"):
+                        self.randomize_block(kappa+1, kappa+block_size,
+                                             density=param.rerandomization_density, tracer=tracer)
+                with tracer.context("reduction"):
+                    self.svp_preprocessing(kappa, block_size, param, tracer=tracer)
 
             radius, expo = self.M.get_r_exp(kappa, kappa)
             radius *= self.lll_obj.delta
@@ -104,14 +103,18 @@ class BKZReduction(BKZBase):
                 root_det = self.M.get_root_det(kappa, kappa + block_size)
                 radius, expo = gaussian_heuristic(radius, expo, block_size, root_det, param.gh_factor)
 
-            pruning = self.get_pruning(kappa, block_size, param, stats)
+            pruning = self.get_pruning(kappa, block_size, param, tracer)
 
             try:
                 enum_obj = Enumeration(self.M)
-                with stats.context("svp", E=enum_obj):
+                with tracer.context("enumeration",
+                                    enum_obj=enum_obj,
+                                    probability=pruning.probability,
+                                    full=block_size==param.block_size):
                     solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
-                                                            pruning=pruning.coefficients)
-                self.svp_postprocessing(kappa, block_size, solution, stats)
+                                                            pruning=pruning.coefficients)[0]
+                with tracer.context("postprocessing"):
+                    self.svp_postprocessing(kappa, block_size, solution, tracer=tracer)
                 rerandomize = False
 
             except EnumerationError:

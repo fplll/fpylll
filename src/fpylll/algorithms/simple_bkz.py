@@ -77,7 +77,7 @@ class BKZReduction:
         max_dist, expo = self.m.get_r_exp(kappa, kappa)
         delta_max_dist = self.lll_obj.delta * max_dist
 
-        solution, max_dist = Enumeration(self.m).enumerate(kappa, kappa + block_size, max_dist, expo, pruning=None)
+        solution, max_dist = Enumeration(self.m).enumerate(kappa, kappa + block_size, max_dist, expo, pruning=None)[0]
 
         if max_dist >= delta_max_dist:
             return clean

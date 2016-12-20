@@ -333,7 +333,12 @@ cdef class BKZParam:
                 self.strategies = strategies_c_to_strategies(self.strategies_c)
             else:
                 load_strategies_python(self.strategies_c, strategies)
-                self.strategies = tuple(strategies)
+                if all(isinstance(x, Strategy) for x in strategies):
+                    self.strategies = tuple(strategies)
+                elif all(isinstance(x, OrderedDict) for x in strategies):
+                    self.strategies = tuple([Strategy(**strategy) for strategy in strategies])
+                else:
+                    raise TypeError("Entry type of strategies must be Strategy or OrderedDict")
 
         cdef BKZParam_c *o = new BKZParam_c(block_size, self.strategies_c, delta)
 
