@@ -112,7 +112,7 @@ class BKZReduction(BKZBase):
                                     probability=pruning.probability,
                                     full=block_size==param.block_size):
                     solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
-                                                            pruning=pruning.coefficients)
+                                                            pruning=pruning.coefficients)[0]
                 with tracer.context("postprocessing"):
                     self.svp_postprocessing(kappa, block_size, solution, tracer=tracer)
                 rerandomize = False
