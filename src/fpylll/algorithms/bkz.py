@@ -174,7 +174,7 @@ class BKZReduction:
             else:
                 raise EnumerationError(msg)
 
-        if max_dist >= delta_max_dist:
+        if max_dist >= delta_max_dist * (1<<expo):
             return None
         else:
             return solution

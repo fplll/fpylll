@@ -79,7 +79,7 @@ class BKZReduction:
 
         solution, max_dist = Enumeration(self.m).enumerate(kappa, kappa + block_size, max_dist, expo, pruning=None)[0]
 
-        if max_dist >= delta_max_dist:
+        if max_dist >= delta_max_dist * (1<<expo):
             return clean
 
         nonzero_vectors = len([x for x in solution if x])
@@ -92,7 +92,7 @@ class BKZReduction:
                     break
 
             self.m.move_row(kappa + first_nonzero_vector, kappa)
-            self.lll_obj.size_reduction(kappa, kappa + 1)
+            self.lll_obj.size_reduction(kappa, kappa + first_nonzero_vector + 1)
 
         else:
             d = self.m.d
