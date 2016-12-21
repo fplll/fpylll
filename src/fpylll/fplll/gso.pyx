@@ -1186,6 +1186,14 @@ cdef class MatGSO:
             vv[i] = int(round(vv[i]))
         return tuple(vv)
 
+    def r(self, start=0, end=-1):
+        """
+        Return ``r`` vector from ``start`` to ``end``
+        """
+        if end == -1:
+            end = self.d
+        return tuple([self.get_r(i, i) for i in range(start, end)])
+
 class GSO:
     DEFAULT=GSO_DEFAULT
     INT_GRAM=GSO_INT_GRAM

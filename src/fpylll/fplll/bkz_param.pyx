@@ -71,6 +71,22 @@ cdef class Pruning:
         self._core = p
         return self
 
+    cdef _update_from_cxx(Pruning self):
+        """
+        Update Python representation from internal C++ representation
+        """
+        coefficients = []
+        cdef vector[double].iterator it = self._core.coefficients.begin()
+        while it != self._core.coefficients.end():
+            coefficients.append(deref(it))
+            inc(it)
+        self.coefficients = tuple(coefficients)
+        self.radius_factor = self._core.radius_factor
+        self.metric = self._core.metric
+        self.expectation = self._core.expectation
+        return self
+
+
     @staticmethod
     cdef to_cxx(Pruning_c& self, Pruning p):
         """

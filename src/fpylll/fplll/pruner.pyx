@@ -7,15 +7,15 @@ Pruner
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 
     >>> from fpylll import *
-    >>> A = [IntegerMatrix.random(10, "qary", bits=10, k=10) for _ in range(20)]
+    >>> A = [IntegerMatrix.random(10, "qary", bits=10, k=5) for _ in range(20)]
     >>> M = [GSO.Mat(a) for a in A]
     >>> _ = [LLL.Reduction(m)() for m in M]
     >>> radius = sum([m.get_r(0, 0) for m in M])/len(M)
-    >>> print(prune(radius, 0, 0.9, M))
-    Pruning<1.205907, (1.00,...,0.44), 0.8998>
+    >>> print(prune(None, radius, 0, 0.9, [m.r() for m in M]))
+    Pruning<1.000000, (1.00,...,0.45), 0.9000>
 
-    >>> print(prune(M[0].get_r(0,0), 0, 0.9, M[0]))
-    Pruning<1.205907, (1.00,...,0.46), 0.9002>
+    >>> print(prune(None, M[0].get_r(0, 0), 0, 0.9, M[0].r()))
+    Pruning<1.000000, (1.00,...,0.46), 0.9001>
 
 """
 from libcpp.vector cimport vector
@@ -62,16 +62,17 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
     >>> LLL.Reduction(M)()
     >>> _ = set_precision(53)
     >>> R = [M.get_r(i,i) for i in range(0, 20)]
-    >>> pr0 = prune(R[0], 2^20, 0.5, [R], float_type="double")
-    >>> pr1 = prune(R[0], 2^20, 0.5, [R], float_typp="longdouble")
+    >>> pr0 = prune(None, R[0], 2^20, 0.5, [R], float_type="double")
+    >>> pr1 = prune(None, R[0], 2^20, 0.5, [R], float_type="long double")
 
     >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.6074884495481888, 0.6074884494762931)
+    (0.6031931311346213, 0.6031931310703095)
 
-    >>> pr0 = prune(R[0], 2^20, 0.5, [R], descent_method="nm", float_type="double")
-    >>> pr1 = prune(R[0], 2^20, 0.5, [R], descent_method="nm", float_type="longdouble")
+    >>> pr0 = prune(None, R[0], 2^20, 0.5, [R], descent_method="nm", float_type="double")
+    >>> pr1 = prune(None, R[0], 2^20, 0.5, [R], descent_method="nm", float_type="long double")
     >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.5864317103477773, 0.5864317103476406)
+    (0.588966774320058, 0.5889667743200249)
+
     """
 
     cdef FloatType ft = check_float_type(float_type)
@@ -80,7 +81,7 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
 
     try:
         M[0][0]
-    except AttributeError:
+    except (AttributeError, TypeError):
         M = [M]
 
     if pruning is None:
@@ -105,33 +106,33 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
         sig_on()
         prune_c[FP_NR[double]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        return pruning
+        return (<Pruning>pruning)._update_from_cxx()
     if ft == FT_LONG_DOUBLE:
         sig_on()
         prune_c[FP_NR[longdouble]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        return pruning
+        return (<Pruning>pruning)._update_from_cxx()
     if ft == FT_DPE:
         sig_on()
         prune_c[FP_NR[dpe_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        return pruning
+        return (<Pruning>pruning)._update_from_cxx()
     if ft == FT_MPFR:
         sig_on()
         prune_c[FP_NR[mpfr_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        return pruning
+        return (<Pruning>pruning)._update_from_cxx()
     IF HAVE_QD:
             if ft == FT_DD:
                 sig_on()
                 prune_c[FP_NR[dd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
-                return pruning
+                return (<Pruning>pruning)._update_from_cxx()
             if ft == FT_QD:
                 sig_on()
                 prune_c[FP_NR[qd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
-                return pruning
+                return (<Pruning>pruning)._update_from_cxx()
 
 
 def svp_probability(pr, float_type="double"):
