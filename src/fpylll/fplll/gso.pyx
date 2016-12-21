@@ -1181,9 +1181,9 @@ cdef class MatGSO:
         cdef Py_ssize_t i, j
         cdef list vv = list(v)
         for i in range(dimension)[::-1]:
+            vv[i] = int(round(vv[i]))
             for j in range(i):
                 vv[j] -= self.get_mu(start+i, start+j) * vv[i]
-            vv[i] = int(round(vv[i]))
         return tuple(vv)
 
 class GSO:
