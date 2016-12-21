@@ -251,7 +251,7 @@ def load_strategies_json(filename):
     >>> strategies[80].preprocessing_block_sizes
     (58,)
 
-    >>> strategies[80].pruning_parameters[0].probability
+    >>> strategies[80].pruning_parameters[0].expectation
     0.25250527262687683
 
     """
