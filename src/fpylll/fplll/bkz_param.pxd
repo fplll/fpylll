@@ -6,12 +6,14 @@ from gso cimport MatGSO
 from fplll cimport BKZParam as BKZParam_c
 from fplll cimport Pruning as Pruning_c
 from fplll cimport Strategy as Strategy_c
+from fplll cimport PrunerMetric
 
 cdef class Pruning:
     cdef Pruning_c _core
     cdef readonly float radius_factor
     cdef readonly tuple coefficients
-    cdef readonly float probability
+    cdef readonly float expectation
+    cdef readonly PrunerMetric metric
 
     @staticmethod
     cdef Pruning from_cxx(Pruning_c & p)

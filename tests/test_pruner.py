@@ -17,15 +17,6 @@ def prepare(n, m):
     return M
 
 
-def test_pruner_gso(n=20, m=20):
-    M = prepare(n, m)
-    radius = sum([mat.get_r(0, 0) for mat in M])/len(M)
-    pruning = prune(radius, 0, 0.9, M)
-    assert pruning.probability >= 0.89
-    pruning = prune(radius, 0, 0.9, M, start_from=pruning.coefficients)
-    assert pruning.probability >= 0.89
-
-
 def test_pruner_vec(n=20, m=20):
     M = prepare(n, m)
     if have_numpy:
@@ -34,7 +25,7 @@ def test_pruner_vec(n=20, m=20):
             vec.append(tuple(dump_r(m, 0, n)))
 
     radius = sum([mat.get_r(0, 0) for mat in M])/len(M)
-    pruning = prune(radius, 0, 0.9, vec)
-    assert pruning.probability >= 0.89
-    pruning = prune(radius, 0, 0.9, vec, start_from=pruning.coefficients)
-    assert pruning.probability >= 0.89
+    pruning = prune(None, radius, 0, 0.9, vec)
+    assert pruning.expectation >= 0.89
+    pruning = prune(pruning, radius, 0, 0.9, vec, reset=False)
+    assert pruning.expectation >= 0.89

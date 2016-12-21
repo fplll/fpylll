@@ -13,13 +13,14 @@ from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUT
 from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
 from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
 from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
+from fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST
 from fplll cimport LLL_DEF_DELTA
 from fplll cimport Pruning as Pruning_c
 from fplll cimport Strategy as Strategy_c
 from fplll cimport load_strategies_json as load_strategies_json_c
 from fplll cimport strategy_full_path
 
-from fpylll.util cimport check_delta
+from fpylll.util cimport check_delta, check_pruner_metric
 from cython.operator cimport dereference as deref, preincrement as inc
 
 from collections import OrderedDict
@@ -29,21 +30,25 @@ cdef class Pruning:
     """
     Pruning parameters.
     """
-    def __init__(self, radius_factor, coefficients, probability=1.0):
+    def __init__(self, radius_factor, coefficients, expectation=1.0, metric="probability"):
         """Create new pruning parameters object.
 
         :param radius_factor: ratio of radius to Gaussian heuristic
         :param coefficients:  a list of pruning coefficients
-        :param probability:   success probability
+        :param expectation:   success probability or number of solutions
+        :param metric:        either "probability" or "solutions"
 
         """
         if radius_factor <= 0:
             raise ValueError("Radius factor must be > 0")
         self.radius_factor = radius_factor
         self.coefficients = tuple(coefficients)
-        if probability <= 0 or probability > 1:
-            raise ValueError("Probability must be between 0 and 1")
-        self.probability = probability
+
+        self.metric = <PrunerMetric>check_pruner_metric(metric)
+        if self.metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
+            if expectation <= 0 or expectation > 1:
+                raise ValueError("Probability must be between 0 and 1")
+        self.expectation = expectation
 
         Pruning.to_cxx(self._core, self)
 
@@ -62,7 +67,7 @@ cdef class Pruning:
         while it != p.coefficients.end():
             coefficients.append(deref(it))
             inc(it)
-        cdef Pruning self = Pruning(p.radius_factor, tuple(coefficients), p.probability)
+        cdef Pruning self = Pruning(p.radius_factor, tuple(coefficients), p.expectation, p.metric)
         self._core = p
         return self
 
@@ -76,7 +81,8 @@ cdef class Pruning:
            All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
         self.radius_factor = p.radius_factor
-        self.probability = p.probability
+        self.expectation = p.expectation
+        self.metric = p.metric
         for c in p.coefficients:
             self.coefficients.push_back(c)
 
@@ -102,10 +108,10 @@ cdef class Pruning:
             Pruning<1.000000, (1.00,...,0.30), 1.0000>
 
         """
-        return Pruning, (self.radius_factor, self.coefficients, self.probability)
+        return Pruning, (self.radius_factor, self.coefficients, self.expectation, self.metric)
 
     def __str__(self):
-        return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.radius_factor, self.coefficients[0], self.coefficients[-1], self.probability)
+        return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.radius_factor, self.coefficients[0], self.coefficients[-1], self.expectation)
 
 cdef class Strategy:
     """
@@ -169,12 +175,12 @@ cdef class Strategy:
         d = OrderedDict()
         d["block_size"] = self.block_size
         d["preprocessing_block_sizes"] = tuple(self.preprocessing_block_sizes)
-        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.probability) for p in self.pruning_parameters])
+        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.expectation, p.metric) for p in self.pruning_parameters])
         return d
 
     def __str__(self):
         preproc = ",".join([str(p) for p in self.preprocessing_block_sizes])
-        pruning = [p.probability for p in self.pruning_parameters]
+        pruning = [p.expectation for p in self.pruning_parameters]
         if pruning:
             pruning = min(pruning), max(pruning)
         else:
