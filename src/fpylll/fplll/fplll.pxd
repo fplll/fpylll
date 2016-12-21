@@ -382,12 +382,14 @@ cdef extern from "fplll/lll.h" namespace "fplll":
         LLLReduction(MatGSO[ZT, FT]& m, double delta, double eta, int flags)
 
         int lll() nogil
-        int lll(int kappaMin) nogil
-        int lll(int kappaMin, int kappaStart) nogil
-        int lll(int kappaMin, int kappaStart, int kappaEnd) nogil
+        int lll(int kappa_min) nogil
+        int lll(int kappa_min, int kappa_start) nogil
+        int lll(int kappa_min, int kappa_start, int kappa_end) nogil
+        int lll(int kappa_min, int kappa_start, int kappa_end, int size_reduction_start) nogil
         int size_reduction() nogil
-        int size_reduction(int kappaMin) nogil
-        int size_reduction(int kappaMin, int kappaEnd) nogil
+        int size_reduction(int kappa_min) nogil
+        int size_reduction(int kappa_min, int kappa_end) nogil
+        int size_reduction(int kappa_min, int kappa_end, int size_reduction_start) nogil
 
         int status
         int final_kappa
