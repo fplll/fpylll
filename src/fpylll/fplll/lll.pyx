@@ -142,15 +142,14 @@ cdef class LLLReduction:
         """
         raise NotImplementedError
 
-    def __call__(self, int kappa_min=0, int kappa_start=0, int kappa_end=-1):
-        """FIXME! briefly describe function
+    def __call__(self, int kappa_min=0, int kappa_start=0, int kappa_end=-1, int size_reduction_start=0):
+        """LLL reduction.
 
-        :param int kappa_min:
-        :param int kappa_start:
-        :param int kappa_end:
-        :returns:
-        :rtype:
-
+        :param int kappa_min: minimal index to go back to
+        :param int kappa_start: index to start processing at
+        :param int kappa_end: end index (exclusive)
+        :param int size_reduction_start: only perform size reductions using vectors starting at this
+            index
         """
         if self.M.d == 0:
             return
@@ -161,37 +160,37 @@ cdef class LLLReduction:
         cdef int r
         if self._type == mpz_double:
             sig_on()
-            self._core.mpz_double.lll(kappa_min, kappa_start, kappa_end)
+            self._core.mpz_double.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
             r = self._core.mpz_double.status
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 sig_on()
-                self._core.mpz_ld.lll(kappa_min, kappa_start, kappa_end)
+                self._core.mpz_ld.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
                 r = self._core.mpz_ld.status
                 sig_off()
             ELSE:
                 raise RuntimeError("LLLReduction object '%s' has no core."%self)
         elif self._type == mpz_dpe:
             sig_on()
-            self._core.mpz_dpe.lll(kappa_min, kappa_start, kappa_end)
+            self._core.mpz_dpe.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
             r = self._core.mpz_dpe.status
             sig_off()
         elif self._type == mpz_mpfr:
             sig_on()
-            self._core.mpz_mpfr.lll(kappa_min, kappa_start, kappa_end)
+            self._core.mpz_mpfr.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
             r = self._core.mpz_mpfr.status
             sig_off()
         else:
             IF HAVE_QD:
                 if self._type == mpz_dd:
                     sig_on()
-                    self._core.mpz_dd.lll(kappa_min, kappa_start, kappa_end)
+                    self._core.mpz_dd.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
                     r = self._core.mpz_dd.status
                     sig_off()
                 elif self._type == mpz_qd:
                     sig_on()
-                    self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end)
+                    self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
                     r = self._core.mpz_qd.status
                     sig_off()
                 else:
@@ -202,33 +201,34 @@ cdef class LLLReduction:
         if r:
             raise ReductionError( str(get_red_status_str(r)) )
 
-    def size_reduction(self, int kappa_min=0, int kappa_end=-1):
-        """FIXME! briefly describe function
+    def size_reduction(self, int kappa_min=0, int kappa_end=-1, int size_reduction_start=0):
+        """Size reduction.
 
-        :param int kappa_min:
-        :param int kappa_end:
-
+        :param int kappa_min: start index
+        :param int kappa_end: end index (exclusive)
+        :param int size_reduction_start: only perform size reductions using vectors starting at this
+            index
         """
         if kappa_end == -1:
             kappa_end = self.M.d
 
         if self._type == mpz_double:
-            r = self._core.mpz_double.size_reduction(kappa_min, kappa_end)
+            r = self._core.mpz_double.size_reduction(kappa_min, kappa_end, size_reduction_start)
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
-                r = self._core.mpz_ld.size_reduction(kappa_min, kappa_end)
+                r = self._core.mpz_ld.size_reduction(kappa_min, kappa_end, size_reduction_start)
             ELSE:
                 raise RuntimeError("LLLReduction object '%s' has no core."%self)
         elif self._type == mpz_dpe:
-            r = self._core.mpz_dpe.size_reduction(kappa_min, kappa_end)
+            r = self._core.mpz_dpe.size_reduction(kappa_min, kappa_end, size_reduction_start)
         elif self._type == mpz_mpfr:
-            r = self._core.mpz_mpfr.size_reduction(kappa_min, kappa_end)
+            r = self._core.mpz_mpfr.size_reduction(kappa_min, kappa_end, size_reduction_start)
         else:
             IF HAVE_QD:
                 if self._type == mpz_dd:
-                    r = self._core.mpz_dd.size_reduction(kappa_min, kappa_end)
+                    r = self._core.mpz_dd.size_reduction(kappa_min, kappa_end, size_reduction_start)
                 elif self._type == mpz_qd:
-                    r = self._core.mpz_qd.size_reduction(kappa_min, kappa_end)
+                    r = self._core.mpz_qd.size_reduction(kappa_min, kappa_end, size_reduction_start)
                 else:
                     raise RuntimeError("LLLReduction object '%s' has no core."%self)
             ELSE:
