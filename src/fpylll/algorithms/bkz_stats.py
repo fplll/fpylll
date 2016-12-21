@@ -532,9 +532,6 @@ class Node(object):
         >>> root.get("foo")[1]
         {"(u'foo', 3)": {}}
 
-        .. note :: this syntactical sugar will not work for children whose labels are not valid Python
-           identifies or whose name matches the name of some other attribute of the class ``Node``.
-
         """
         r = []
         for child in self.children:
