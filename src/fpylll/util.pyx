@@ -8,7 +8,8 @@ from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fpylll.fplll.fplll cimport gaussian_heuristic as gaussian_heuristic_c
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
-from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID
+from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID, PRUNER_METHOD_GREEDY
+from fpylll.fplll.fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS
 from fpylll.fplll.gso cimport MatGSO
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
@@ -46,12 +47,22 @@ cdef FloatType check_float_type(object float_type):
 cdef int check_descent_method(object descent_method) except -1:
     if descent_method == "gradient":
         return PRUNER_METHOD_GRADIENT
-    if descent_method == "nm":
+    elif descent_method == "nm":
         return PRUNER_METHOD_NM
-    if descent_method == "hybrid":
+    elif descent_method == "hybrid":
         return PRUNER_METHOD_HYBRID
+    elif descent_method == "greedy":
+        return PRUNER_METHOD_GREEDY
     else:
         raise ValueError("Descent method '%s' not supported."%descent_method)
+
+cdef int check_pruner_metric(object metric) except -1:
+    if metric == "probability" or metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
+        return PRUNER_METRIC_PROBABILITY_OF_SHORTEST
+    elif metric == "solutions" or metric == PRUNER_METRIC_EXPECTED_SOLUTIONS:
+        return PRUNER_METRIC_EXPECTED_SOLUTIONS
+    else:
+        raise ValueError("Pruner metric '%s' not supported."%metric)
 
 cdef int preprocess_indices(int &i, int &j, int m, int n) except -1:
     if i < 0:

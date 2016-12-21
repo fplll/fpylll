@@ -520,7 +520,8 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
     cdef cppclass Pruning:
         double radius_factor
         vector[double] coefficients
-        double probability
+        double expectation
+        PrunerMetric metric
 
         Pruning()
 
@@ -632,40 +633,50 @@ cdef extern from "fplll/util.h" namespace "fplll":
 
 cdef extern from "fplll/pruner.h" namespace "fplll":
 
-    cdef cppclass Pruner[FT]:
-
-        FT preproc_cost
-        FT target_probability
-        FT enumeration_radius;
-
-        Pruner()
-        Pruner(double enumeration_radius, double preproc_cost, double target_probability, int descent_method)
-        Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability)
-        Pruner(FT enumeration_radius, FT preproc_cost, FT target_probability, size_t n, size_t d)
-
-        void load_basis_shape[GSO_ZT, GSO_FT](MatGSO[GSO_ZT, GSO_FT] &gso, int start_row, int end_row, int reset_renorm)
-        void load_basis_shape(const vector[double] &gso_sq_norms, int reset_renorm)
-
-        void load_basis_shapes[GSO_ZT, GSO_FT](vector[MatGSO[GSO_ZT, GSO_FT]] &gsos, int start_row, int end_row)
-        void load_basis_shapes(const vector[vector[double]] &gso_sq_norms_vec)
-
-        void optimize_coefficients(vector[double] &pr, const int reset)
-
-        double single_enum_cost(const vector[double] &pr)
-        double repeated_enum_cost(const vector[double] &pr)
-        double svp_probability(const vector[double] &pr)
-
-    double svp_probability[FT](const vector[double] &pr)
-
-    Pruning prune[FT, GSO_ZT, GSO_FT](Pruning pruning,
-                                      const double enumeration_radius, const double preproc_cost,
-                                      const double target_probability, vector[MatGSO[GSO_ZT, GSO_FT]] &m,
-                                      const int descent_method, int start_row, int end_row, int reset)
-
-    cdef enum PRUNER_METHOD:
+    cdef enum PrunerMethod:
+        PRUNER_METHOD_GREEDY
         PRUNER_METHOD_GRADIENT
         PRUNER_METHOD_NM
         PRUNER_METHOD_HYBRID
+
+    cdef enum PrunerMetric:
+        PRUNER_METRIC_PROBABILITY_OF_SHORTEST
+        PRUNER_METRIC_EXPECTED_SOLUTIONS
+
+    cdef cppclass Pruner[FT]:
+        FT enumeration_radius
+        FT preproc_cost
+        FT target
+
+        int verbosity
+
+        PrunerMethod method
+        PrunerMetric metric
+
+        Pruner()
+        Pruner(FT enumeration_radius, FT preproc_cost, FT target)
+        Pruner(FT enumeration_radius, FT preproc_cost, FT target, PrunerMethod method,
+               PrunerMetric metric, size_t n, size_t d)
+
+        void load_basis_shape(const vector[double] &gso_sq_norms, bool reset_renorm)
+        void load_basis_shapes(const vector[vector[double]] &gso_sq_norms_vec)
+
+        void optimize_coefficients(vector[double] &pr, bool reset)
+
+        double single_enum_cost(const vector[double] &pr)
+        double single_enum_cost(const vector[double] &pr, vector[double] *detailed_cost)
+        double repeated_enum_cost(const vector[double] &pr)
+        double measure_metric(const vector[double] &pr)
+
+    void prune[FT](Pruning &pruning, double &enumeration_radius, const double preproc_cost, const double target,
+                   vector[double] &r, const PrunerMethod method, const PrunerMetric metric, bool reset)
+
+    void prune[FT](Pruning &pruning, double &enumeration_radius, const double preproc_cost, const double target,
+                   vector[vector[double]] &rs, const PrunerMethod method, const PrunerMetric metric, bool reset);
+
+    FT svp_probability[FT](const Pruning &pruning)
+    FT svp_probability[FT](const vector[double] &pr)
+
 
 
 # Highlevel Functions

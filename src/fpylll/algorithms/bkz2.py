@@ -109,7 +109,7 @@ class BKZReduction(BKZBase):
                 enum_obj = Enumeration(self.M)
                 with tracer.context("enumeration",
                                     enum_obj=enum_obj,
-                                    probability=pruning.probability,
+                                    probability=pruning.expectation,
                                     full=block_size==param.block_size):
                     solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
                                                             pruning=pruning.coefficients)[0]
@@ -120,7 +120,7 @@ class BKZReduction(BKZBase):
             except EnumerationError:
                 rerandomize = True
 
-            remaining_probability *= (1 - pruning.probability)
+            remaining_probability *= (1 - pruning.expectation)
 
         self.lll_obj.size_reduction(0, kappa+1)
         new_first, new_first_expo = self.M.get_r_exp(kappa, kappa)

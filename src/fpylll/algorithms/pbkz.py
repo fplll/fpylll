@@ -105,7 +105,7 @@ class BKZReduction(BKZ2):
             enum_obj = Enumeration(self.M)
             with tracer.context("enumeration",
                                 enum_obj=enum_obj,
-                                probability=pruning.probability,
+                                probability=pruning.expectation,
                                 full=block_size==params.block_size):
                 solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
                                                         pruning=pruning.coefficients)[0]
@@ -117,7 +117,7 @@ class BKZReduction(BKZ2):
         except EnumerationError:
             solution = None
 
-        return solution, tracer.trace, pruning.probability
+        return solution, tracer.trace, pruning.expectation
 
     def parallel_svp_reduction(self, kappa, block_size, params, tracer=dummy_tracer):
         """
