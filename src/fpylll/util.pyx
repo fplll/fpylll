@@ -13,6 +13,8 @@ from fpylll.fplll.fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_ME
 from fpylll.fplll.gso cimport MatGSO
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
+from math import log, exp, lgamma, pi
+
 
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
@@ -218,3 +220,13 @@ def adjust_radius_to_gh_bound(double dist, int dist_expo, int block_size, double
 
 class ReductionError(RuntimeError):
     pass
+
+
+def ball_log_vol(n):
+    return (n/2.) * log(pi) - lgamma(n/2. + 1)
+
+def gaussian_heuristic(r):
+    n = len(list(r))
+    log_vol = sum([log(x) for x in r])
+    log_gh =  1./n * (log_vol - 2 * ball_log_vol(n))
+    return exp(log_gh)

@@ -3,8 +3,7 @@
 from copy import copy
 
 from fpylll import LLL, IntegerMatrix, GSO
-from fpylll.algorithms.util import gaussian_heuristic
-from fpylll.util import adjust_radius_to_gh_bound, set_random_seed
+from fpylll.util import adjust_radius_to_gh_bound, set_random_seed, gaussian_heuristic
 from fpylll.numpy import dump_r
 from math import log, exp
 
