@@ -14,6 +14,7 @@ from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
 from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
 from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
 from fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST
+from fplll cimport PRUNER_METRIC_EXPECTED_SOLUTIONS
 from fplll cimport LLL_DEF_DELTA
 from fplll cimport Pruning as Pruning_c
 from fplll cimport Strategy as Strategy_c
@@ -30,7 +31,8 @@ cdef class Pruning:
     """
     Pruning parameters.
     """
-    def __init__(self, radius_factor, coefficients, expectation=1.0, metric="probability"):
+    def __init__(self, radius_factor, coefficients, expectation=1.0,
+                 metric="probability", detailed_cost=tuple()):
         """Create new pruning parameters object.
 
         :param radius_factor: ratio of radius to Gaussian heuristic
@@ -41,16 +43,22 @@ cdef class Pruning:
         """
         if radius_factor <= 0:
             raise ValueError("Radius factor must be > 0")
-        self.radius_factor = radius_factor
-        self.coefficients = tuple(coefficients)
 
-        self.metric = <PrunerMetric>check_pruner_metric(metric)
-        if self.metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
+        cdef PrunerMetric met = <PrunerMetric>check_pruner_metric(metric)
+
+        if met == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
             if expectation <= 0 or expectation > 1:
                 raise ValueError("Probability must be between 0 and 1")
-        self.expectation = expectation
 
-        Pruning.to_cxx(self._core, self)
+        self._core.radius_factor = radius_factor
+        self._core.expectation = expectation
+        self._core.metric = met
+
+        for c in coefficients:
+            self._core.coefficients.push_back(c)
+
+        for c in detailed_cost:
+            self._core.detailed_cost.push_back(c)
 
     @staticmethod
     cdef Pruning from_cxx(Pruning_c& p):
@@ -61,31 +69,10 @@ cdef class Pruning:
 
            All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
-        coefficients = []
 
-        cdef vector[double].iterator it = p.coefficients.begin()
-        while it != p.coefficients.end():
-            coefficients.append(deref(it))
-            inc(it)
-        cdef Pruning self = Pruning(p.radius_factor, tuple(coefficients), p.expectation, p.metric)
+        cdef Pruning self = Pruning(1.0, ())
         self._core = p
         return self
-
-    cdef _update_from_cxx(Pruning self):
-        """
-        Update Python representation from internal C++ representation
-        """
-        coefficients = []
-        cdef vector[double].iterator it = self._core.coefficients.begin()
-        while it != self._core.coefficients.end():
-            coefficients.append(deref(it))
-            inc(it)
-        self.coefficients = tuple(coefficients)
-        self.radius_factor = self._core.radius_factor
-        self.metric = self._core.metric
-        self.expectation = self._core.expectation
-        return self
-
 
     @staticmethod
     cdef to_cxx(Pruning_c& self, Pruning p):
@@ -96,11 +83,13 @@ cdef class Pruning:
 
            All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
-        self.radius_factor = p.radius_factor
-        self.expectation = p.expectation
-        self.metric = p.metric
-        for c in p.coefficients:
+        self.radius_factor = p._core.radius_factor
+        self.expectation = p._core.expectation
+        self.metric = p._core.metric
+        for c in p._core.coefficients:
             self.coefficients.push_back(c)
+        for c in p._core.detailed_cost:
+            self.detailed_cost.push_back(c)
 
     @staticmethod
     def LinearPruning(block_size, level):
@@ -124,10 +113,86 @@ cdef class Pruning:
             Pruning<1.000000, (1.00,...,0.30), 1.0000>
 
         """
-        return Pruning, (self.radius_factor, self.coefficients, self.expectation, self.metric)
+        return Pruning, (self.radius_factor, self.coefficients, self.expectation, self.metric, self.detailed_cost)
 
     def __str__(self):
         return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.radius_factor, self.coefficients[0], self.coefficients[-1], self.expectation)
+
+    @property
+    def radius_factor(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.radius_factor
+            1.0
+
+        """
+        return self._core.radius_factor
+
+    @property
+    def expectation(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.expectation
+            0.9
+
+        """
+        return self._core.expectation
+
+    @property
+    def metric(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.metric
+            'probability'
+
+        """
+        if self._core.metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
+            return "probability"
+        elif self._core.metric == PRUNER_METRIC_EXPECTED_SOLUTIONS:
+            return "solutions"
+        else:
+            raise NotImplementedError("Metric %d not understood"%self._core.metric)
+
+    @property
+    def coefficients(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.coefficients
+            (1.0, 0.6, 0.3)
+
+        """
+        cdef list coefficients = []
+        cdef vector[double].iterator it = self._core.coefficients.begin()
+        while it != self._core.coefficients.end():
+            coefficients.append(deref(it))
+            inc(it)
+        return tuple(coefficients)
+
+    @property
+    def detailed_cost(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.detailed_cost
+            ()
+
+        """
+        cdef list detailed_cost = []
+        cdef vector[double].iterator it = self._core.detailed_cost.begin()
+        while it != self._core.detailed_cost.end():
+            detailed_cost.append(deref(it))
+            inc(it)
+        return tuple(detailed_cost)
+
 
 cdef class Strategy:
     """
@@ -142,25 +207,24 @@ cdef class Strategy:
         :param pruning_parameters: a list of pruning parameters
 
         """
-        self.block_size = block_size
+
+        if block_size < 0:
+            raise ValueError("Block size must be ≥ 0")
+        self._core.block_size = block_size
 
         pruning_parameters_ = []
         for p in pruning_parameters:
             if not isinstance(p, Pruning):
                 p = Pruning(*p)
-            pruning_parameters_.append(p)
+            self._core.pruning_parameters.push_back((<Pruning>p)._core)
 
         if len(pruning_parameters_) == 0:
             pruning_parameters_.append(Pruning(1.0, [1.0 for _ in range(self.block_size)], 1.0))
-        self.pruning_parameters = tuple(pruning_parameters_)
 
-        preprocessing_block_sizes_ = []
         for p in preprocessing_block_sizes:
             if p<=2:
                 raise ValueError("Preprocessing block_size must be > 2, got %s", p)
-            preprocessing_block_sizes_.append(int(p))
-        self.preprocessing_block_sizes = tuple(preprocessing_block_sizes_)
-        Strategy.to_cxx(self._core, self)
+            self._core.preprocessing_block_sizes.push_back(p)
 
     def get_pruning(self, radius, gh):
         """
@@ -190,8 +254,9 @@ cdef class Strategy:
         """
         d = OrderedDict()
         d["block_size"] = self.block_size
-        d["preprocessing_block_sizes"] = tuple(self.preprocessing_block_sizes)
-        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.expectation, p.metric) for p in self.pruning_parameters])
+        d["preprocessing_block_sizes"] = self.preprocessing_block_sizes
+        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.expectation, p.metric, p.detailed_cost)
+                                         for p in self.pruning_parameters])
         return d
 
     def __str__(self):
@@ -207,30 +272,15 @@ cdef class Strategy:
         """
             >>> from fpylll.fplll.bkz_param import Strategy
             >>> import pickle
-            >>> print(pickle.loads(pickle.dumps(Strategy(20, [10], []))))
-            Strategy< 20, (10), 1.00-1.00>
+            >>> print(pickle.loads(pickle.dumps(Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)]))))
+            Strategy< 20, (10), 0.50-0.50>
 
         """
         return unpickle_Strategy, (self.__class__, tuple(self.dict().items()))
 
     @staticmethod
     cdef Strategy from_cxx(Strategy_c& s):
-        pruning_parameters = []
-
-        block_size = s.block_size
-
-        cdef vector[Pruning_c].iterator pit = s.pruning_parameters.begin()
-        while pit != s.pruning_parameters.end():
-            pruning_parameters.append(Pruning.from_cxx(deref(pit)))
-            inc(pit)
-
-        preprocessing_block_sizes = []
-        cdef vector[size_t].iterator bit = s.preprocessing_block_sizes.begin()
-        while bit != s.preprocessing_block_sizes.end():
-            preprocessing_block_sizes.append(deref(bit))
-            inc(bit)
-
-        cdef Strategy self = Strategy(block_size, tuple(preprocessing_block_sizes), tuple(pruning_parameters))
+        cdef Strategy self = Strategy(0)
         self._core = s
         return self
 
@@ -244,6 +294,50 @@ cdef class Strategy:
             self.preprocessing_block_sizes.push_back(p)
 
         self.block_size = s.block_size
+
+    @property
+    def block_size(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Strategy
+            >>> s = Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
+            >>> s.block_size
+            20
+
+        """
+        return self._core.block_size
+
+    @property
+    def preprocessing_block_sizes(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Strategy
+            >>> s = Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
+            >>> s.preprocessing_block_sizes
+            (10,)
+
+        """
+        cdef list preprocessing_block_sizes = []
+        cdef vector[size_t].iterator it = self._core.preprocessing_block_sizes.begin()
+        while it != self._core.preprocessing_block_sizes.end():
+            preprocessing_block_sizes.append(deref(it))
+            inc(it)
+        return tuple(preprocessing_block_sizes)
+
+    @property
+    def pruning_parameters(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Strategy
+            >>> s = Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
+            >>> print(s.pruning_parameters[0])
+            Pruning<1.000000, (1.00,...,0.25), 0.5000>
+
+        """
+        cdef list pruning_parameters = []
+        cdef vector[Pruning_c].iterator it = self._core.pruning_parameters.begin()
+        while it != self._core.pruning_parameters.end():
+            pruning_parameters.append(Pruning.from_cxx(deref(it)))
+            inc(it)
+        return tuple(pruning_parameters)
+
 
 cdef strategies_c_to_strategies(vector[Strategy_c]& strategies):
     """
@@ -302,7 +396,7 @@ cdef class BKZParam:
                  gh_factor=None,
                  float min_success_probability=BKZ_DEF_MIN_SUCCESS_PROBABILITY,
                  int rerandomization_density=BKZ_DEF_RERANDOMIZATION_DENSITY,
-                 dump_gso_filename=None):
+                 dump_gso_filename=None, **kwds):
         """
         Create BKZ parameters object.
 
@@ -317,15 +411,18 @@ cdef class BKZParam:
             that the algorithm will terminate if for ``max_iter`` loops the slope is not smaller
             than ``scale * old_slope`` where ``old_slope`` was the old minimum.  If ``True`` is
             given, this is equivalent to providing ``(1.0,5)`` which is fpLLL's default.
-        :param gh_factor: heuristic, if set then the enumeration bound will be set to
-            ``gh_factor`` times the Gaussian Heuristic.  If ``True`` then ``gh_factor`` is set to
-            1.1, which is fpLLL's default.
+        :param gh_factor: heuristic, if set then the enumeration bound will be set to ``gh_factor``
+            times the Gaussian Heuristic.  If ``True`` then ``gh_factor`` is set to 1.1, which is
+            fpLLL's default.
         :param min_success_probability: minimum success probability in an SVP reduction (when using
             pruning)
         :param rerandomization_density: density of rerandomization operation when using extreme
             pruning
         :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
+
+        All other keyword arguments starting with "aux" are stored as auxiliary parameters in
+        the ``aux`` attribute.
         """
 
         # if the user sets these, they want the appropriate flags to be set
@@ -401,6 +498,12 @@ cdef class BKZParam:
         o.rerandomization_density = rerandomization_density
 
         self.o = o
+        self.aux = {}
+        for k,v in kwds.iteritems():
+            if isinstance(k, str) and k.startswith("aux"):
+                self.aux[k] = v
+            else:
+                raise ValueError("Parameter '%s' not supported"%k)
 
     def __dealloc__(self):
         del self.o
@@ -415,12 +518,6 @@ cdef class BKZParam:
         return unpickle_BKZParam, tuple(self.dict().items())
 
     def __str__(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
-
-        """
         cdef BKZParam param = self
         r = str(param.dict(all=False))
         return r
@@ -467,15 +564,45 @@ cdef class BKZParam:
     def rerandomization_density(self):
         return self.o.rerandomization_density
 
-    def __getitem__(self, key):
-        try:
-            return getattr(self, key)
-        except AttributeError:
-            raise ValueError("Key '%s' not found."%key)
+    def __getitem__(self, what):
+        """
 
+            >>> from fpylll import BKZ
+            >>> p = BKZ.Param(40, max_loops=4, aux_foo=True)
+            >>> p["aux_foo"]
+            True
+
+        """
+        return self.aux[what]
+
+    def __setitem__(self, what, value):
+        """
+
+            >>> from fpylll import BKZ
+            >>> p = BKZ.Param(40, max_loops=4, aux_foo=True)
+            >>> p["aux_foo"] = False
+            >>> p["aux_foo"]
+            False
+
+        """
+        if not isinstance(what, str):
+            raise TypeError("Only strings are supported as auxilary keys but got %s"%what)
+        if not what.startswith("aux"):
+            raise ValueError("Auxilary keys must start with 'aux' but got '%s'"%what)
+        self.aux[what] = value
 
     def dict(self, all=True):
         """
+
+            >>> from fpylll import BKZ
+            >>> d = BKZ.Param(40, max_loops=4, flags=BKZ.MAX_LOOPS).dict(False)
+            >>> d["block_size"]
+            40
+            >>> d["max_loops"]
+            4
+            >>> d.get("delta", False)
+            False
+
         """
         d = {}
         d["block_size"] = self.block_size
@@ -498,6 +625,9 @@ cdef class BKZParam:
             d["rerandomization_density"]  = self.rerandomization_density
         if all:
             d["strategies"] = [strategy.dict() for strategy in self.strategies[:self.block_size+1]]
+        if all:
+            for k,v in self.aux.iteritems():
+                d[k] = v
 
         return d
 

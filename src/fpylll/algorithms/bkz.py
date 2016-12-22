@@ -70,7 +70,7 @@ class BKZReduction:
         :param max_row: stop processing in this row (exclusive)
 
         """
-        tracer = BKZTreeTracer(self, verbosity=params.flags & BKZ.VERBOSE)
+        tracer = BKZTreeTracer(self, verbosity=params.flags & BKZ.VERBOSE, start_clocks=True)
 
         if params.flags & BKZ.AUTO_ABORT:
             auto_abort = BKZ.AutoAbort(self.M, self.A.nrows)
@@ -94,6 +94,7 @@ class BKZReduction:
             if (params.flags & BKZ.MAX_TIME) and time.clock() - cputime_start >= params.max_time:
                 break
 
+        tracer.exit()
         self.trace = tracer.trace
         return clean
 
