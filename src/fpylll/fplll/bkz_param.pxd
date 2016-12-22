@@ -33,3 +33,4 @@ cdef class BKZParam:
     cdef vector[Strategy_c] strategies_c
     cdef BKZParam_c *o
     cdef readonly tuple strategies
+    cdef aux

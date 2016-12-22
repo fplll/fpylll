@@ -396,7 +396,7 @@ cdef class BKZParam:
                  gh_factor=None,
                  float min_success_probability=BKZ_DEF_MIN_SUCCESS_PROBABILITY,
                  int rerandomization_density=BKZ_DEF_RERANDOMIZATION_DENSITY,
-                 dump_gso_filename=None):
+                 dump_gso_filename=None, **kwds):
         """
         Create BKZ parameters object.
 
@@ -411,15 +411,18 @@ cdef class BKZParam:
             that the algorithm will terminate if for ``max_iter`` loops the slope is not smaller
             than ``scale * old_slope`` where ``old_slope`` was the old minimum.  If ``True`` is
             given, this is equivalent to providing ``(1.0,5)`` which is fpLLL's default.
-        :param gh_factor: heuristic, if set then the enumeration bound will be set to
-            ``gh_factor`` times the Gaussian Heuristic.  If ``True`` then ``gh_factor`` is set to
-            1.1, which is fpLLL's default.
+        :param gh_factor: heuristic, if set then the enumeration bound will be set to ``gh_factor``
+            times the Gaussian Heuristic.  If ``True`` then ``gh_factor`` is set to 1.1, which is
+            fpLLL's default.
         :param min_success_probability: minimum success probability in an SVP reduction (when using
             pruning)
         :param rerandomization_density: density of rerandomization operation when using extreme
             pruning
         :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
+
+        All other keyword arguments starting with "aux" are stored as auxiliary parameters in
+        the ``aux`` attribute.
         """
 
         # if the user sets these, they want the appropriate flags to be set
@@ -495,6 +498,12 @@ cdef class BKZParam:
         o.rerandomization_density = rerandomization_density
 
         self.o = o
+        self.aux = {}
+        for k,v in kwds.iteritems():
+            if isinstance(k, str) and k.startswith("aux"):
+                self.aux[k] = v
+            else:
+                raise ValueError("Parameter '%s' not supported"%k)
 
     def __dealloc__(self):
         del self.o
@@ -509,12 +518,6 @@ cdef class BKZParam:
         return unpickle_BKZParam, tuple(self.dict().items())
 
     def __str__(self):
-        """FIXME! briefly describe function
-
-        :returns:
-        :rtype:
-
-        """
         cdef BKZParam param = self
         r = str(param.dict(all=False))
         return r
@@ -561,15 +564,40 @@ cdef class BKZParam:
     def rerandomization_density(self):
         return self.o.rerandomization_density
 
-    def __getitem__(self, key):
-        try:
-            return getattr(self, key)
-        except AttributeError:
-            raise ValueError("Key '%s' not found."%key)
+    def __getitem__(self, what):
+        """
 
+            >>> from fpylll import BKZ
+            >>> p = BKZ.Param(40, max_loops=4, aux_foo=True)
+            >>> p["aux_foo"]
+            True
+
+        """
+        return self.aux[what]
+
+    def __setitem__(self, what, value):
+        """
+
+            >>> from fpylll import BKZ
+            >>> p = BKZ.Param(40, max_loops=4, aux_foo=True)
+            >>> p["aux_foo"] = False
+            >>> p["aux_foo"]
+            False
+
+        """
+        if not isinstance(what, str):
+            raise TypeError("Only strings are supported as auxilary keys but got %s"%what)
+        if not what.startswith("aux"):
+            raise ValueError("Auxilary keys must start with 'aux' but got '%s'"%what)
+        self.aux[what] = value
 
     def dict(self, all=True):
         """
+
+            >>> from fpylll import BKZ
+            >>> BKZ.Param(40, max_loops=4, flags=BKZ.MAX_LOOPS).dict(False)
+            {'max_loops': 4, 'block_size': 40, 'flags': 4}
+
         """
         d = {}
         d["block_size"] = self.block_size
@@ -592,6 +620,9 @@ cdef class BKZParam:
             d["rerandomization_density"]  = self.rerandomization_density
         if all:
             d["strategies"] = [strategy.dict() for strategy in self.strategies[:self.block_size+1]]
+        if all:
+            for k,v in self.aux.iteritems():
+                d[k] = v
 
         return d
 
