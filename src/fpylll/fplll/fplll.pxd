@@ -20,14 +20,25 @@ cdef extern from "<map>" namespace "std":
             iterator operator--()
             bint operator==(iterator)
             bint operator!=(iterator)
+            iterator operator=()
+
+        cppclass reverse_iterator:
+            pair[T,U]& operator*()
+            iterator operator++()
+            iterator operator--()
+            bint operator==(reverse_iterator)
+            bint operator!=(reverse_iterator)
+            iterator operator=()
 
         map()
         U& operator[](T&)
         U& at(T&)
         iterator begin()
+        reverse_iterator rbegin()
+        iterator end()
+        reverse_iterator rend()
         size_t count(T&)
         bint empty()
-        iterator end()
         void erase(iterator)
         void erase(iterator, iterator)
         size_t erase(T&)
@@ -433,6 +444,8 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         int max_sols
         EvaluatorStrategy strategy
         multimap[FT, vector[FT]] solutions
+        multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator begin()
+        multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator end()
 
 
     cdef cppclass FastEvaluator[FT]:
@@ -447,6 +460,8 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         int max_sols
         EvaluatorStrategy strategy
         multimap[FT, vector[FT]] solutions
+        multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator begin()
+        multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator end()
 
 
     cdef cppclass FastErrorBoundedEvaluator:
@@ -461,6 +476,8 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         int max_sols
         EvaluatorStrategy strategy
         multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]] solutions
+        multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator begin()
+        multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator end()
 
 
 # Enumeration
