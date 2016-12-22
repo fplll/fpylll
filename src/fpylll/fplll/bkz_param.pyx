@@ -207,25 +207,24 @@ cdef class Strategy:
         :param pruning_parameters: a list of pruning parameters
 
         """
-        self.block_size = block_size
+
+        if block_size < 0:
+            raise ValueError("Block size must be ≥ 0")
+        self._core.block_size = block_size
 
         pruning_parameters_ = []
         for p in pruning_parameters:
             if not isinstance(p, Pruning):
                 p = Pruning(*p)
-            pruning_parameters_.append(p)
+            self._core.pruning_parameters.push_back((<Pruning>p)._core)
 
         if len(pruning_parameters_) == 0:
             pruning_parameters_.append(Pruning(1.0, [1.0 for _ in range(self.block_size)], 1.0))
-        self.pruning_parameters = tuple(pruning_parameters_)
 
-        preprocessing_block_sizes_ = []
         for p in preprocessing_block_sizes:
             if p<=2:
                 raise ValueError("Preprocessing block_size must be > 2, got %s", p)
-            preprocessing_block_sizes_.append(int(p))
-        self.preprocessing_block_sizes = tuple(preprocessing_block_sizes_)
-        Strategy.to_cxx(self._core, self)
+            self._core.preprocessing_block_sizes.push_back(p)
 
     def get_pruning(self, radius, gh):
         """
@@ -255,8 +254,9 @@ cdef class Strategy:
         """
         d = OrderedDict()
         d["block_size"] = self.block_size
-        d["preprocessing_block_sizes"] = tuple(self.preprocessing_block_sizes)
-        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.expectation, p.metric) for p in self.pruning_parameters])
+        d["preprocessing_block_sizes"] = self.preprocessing_block_sizes
+        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.expectation, p.metric, p.detailed_cost)
+                                         for p in self.pruning_parameters])
         return d
 
     def __str__(self):
@@ -272,30 +272,15 @@ cdef class Strategy:
         """
             >>> from fpylll.fplll.bkz_param import Strategy
             >>> import pickle
-            >>> print(pickle.loads(pickle.dumps(Strategy(20, [10], []))))
-            Strategy< 20, (10), 1.00-1.00>
+            >>> print(pickle.loads(pickle.dumps(Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)]))))
+            Strategy< 20, (10), 0.50-0.50>
 
         """
         return unpickle_Strategy, (self.__class__, tuple(self.dict().items()))
 
     @staticmethod
     cdef Strategy from_cxx(Strategy_c& s):
-        pruning_parameters = []
-
-        block_size = s.block_size
-
-        cdef vector[Pruning_c].iterator pit = s.pruning_parameters.begin()
-        while pit != s.pruning_parameters.end():
-            pruning_parameters.append(Pruning.from_cxx(deref(pit)))
-            inc(pit)
-
-        preprocessing_block_sizes = []
-        cdef vector[size_t].iterator bit = s.preprocessing_block_sizes.begin()
-        while bit != s.preprocessing_block_sizes.end():
-            preprocessing_block_sizes.append(deref(bit))
-            inc(bit)
-
-        cdef Strategy self = Strategy(block_size, tuple(preprocessing_block_sizes), tuple(pruning_parameters))
+        cdef Strategy self = Strategy(0)
         self._core = s
         return self
 
@@ -309,6 +294,50 @@ cdef class Strategy:
             self.preprocessing_block_sizes.push_back(p)
 
         self.block_size = s.block_size
+
+    @property
+    def block_size(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Strategy
+            >>> s = Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
+            >>> s.block_size
+            20
+
+        """
+        return self._core.block_size
+
+    @property
+    def preprocessing_block_sizes(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Strategy
+            >>> s = Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
+            >>> s.preprocessing_block_sizes
+            (10,)
+
+        """
+        cdef list preprocessing_block_sizes = []
+        cdef vector[size_t].iterator it = self._core.preprocessing_block_sizes.begin()
+        while it != self._core.preprocessing_block_sizes.end():
+            preprocessing_block_sizes.append(deref(it))
+            inc(it)
+        return tuple(preprocessing_block_sizes)
+
+    @property
+    def pruning_parameters(self):
+        """
+            >>> from fpylll.fplll.bkz_param import Strategy
+            >>> s = Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
+            >>> print(s.pruning_parameters[0])
+            Pruning<1.000000, (1.00,...,0.25), 0.5000>
+
+        """
+        cdef list pruning_parameters = []
+        cdef vector[Pruning_c].iterator it = self._core.pruning_parameters.begin()
+        while it != self._core.pruning_parameters.end():
+            pruning_parameters.append(Pruning.from_cxx(deref(it)))
+            inc(it)
+        return tuple(pruning_parameters)
+
 
 cdef strategies_c_to_strategies(vector[Strategy_c]& strategies):
     """
