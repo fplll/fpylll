@@ -13,6 +13,6 @@ tab_unit_ball_logVol = [0.000000000000000, 0.693147180559945, 1.14472988584940, 
 
 def gaussian_heuristic(r):
 	n = len(list(r))
-	log_vol = .5 * sum([log(x) for x in r])
-	log_gh =  1./n * (log_vol - tab_unit_ball_logVol[n])
+	log_vol = sum([log(x) for x in r])
+	log_gh =  1./n * (log_vol - 2*tab_unit_ball_logVol[n])
 	return exp(log_gh)
