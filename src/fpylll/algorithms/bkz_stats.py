@@ -267,15 +267,15 @@ class TraceContext(object):
     A trace context collects data about an underlying process on entry/exit of particular parts of
     the code.
     """
-    def __init__(self, trace, *args, **kwds):
+    def __init__(self, tracer, *args, **kwds):
         """Create a new context for gathering statistics.
 
-        :param trace: a trace object
+        :param tracer: a tracer object
         :param args: all args form a label for the trace context
         :param kwds: all kwds are considered auxiliary data
 
         """
-        self.trace = trace
+        self.tracer = tracer
         self.what = args if len(args)>1 else args[0]
         self.kwds = kwds
 
@@ -283,13 +283,13 @@ class TraceContext(object):
         """
         Call ``enter`` on trace object
         """
-        self.trace.enter(self.what, **self.kwds)
+        self.tracer.enter(self.what, **self.kwds)
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         """
         Call ``exit`` on trace object
         """
-        self.trace.exit(self.what, **self.kwds)
+        self.tracer.exit(**self.kwds)
 
 
 class Tracer(object):
@@ -322,7 +322,7 @@ class Tracer(object):
         """
         pass
 
-    def exit(self, label, **kwds):
+    def exit(self, **kwds):
         """
         An implementation would implement this function which controls what happens when the context
         given by ``label`` is left.
@@ -616,7 +616,7 @@ class TimeTreeTracer(Tracer):
 
         self.current = node
 
-    def exit(self, label, **kwds):
+    def exit(self, **kwds):
         """
         Leave context, record time spent.
 
@@ -640,39 +640,53 @@ class BKZTreeTracer(Tracer):
     """
     Default tracer for BKZ-like algorithms.
     """
-    def __init__(self, instance, verbosity=False, root_label="bkz"):
+    def __init__(self, instance, verbosity=False, root_label="bkz", start_clocks=False):
         """
         Create a new tracer instance.
 
         :param instance: BKZ-like object instance
         :param verbosity: print information, integers ≥ 0 are also accepted
         :param root_label: label to give to root node
+        :param start_clocks: start tracking time for the root node immediately
 
         """
 
         Tracer.__init__(self, instance, verbosity)
         self.trace = Node(root_label)
         self.current = self.trace
+        if start_clocks:
+            self.reenter()
 
     def enter(self, label, **kwds):
-        node = self.current.child(label)
+        """Enter new context with label
 
+        :param label: label
+
+        """
+        self.current = self.current.child(label)
+        self.reenter()
+
+    def reenter(self, **kwds):
+        """Reenter current context, i.e. restart clocks
+
+        """
+
+        node = self.current
         node.data["cputime"]  = node.data.get("cputime",  0) + Statistic(-time.clock(), repr="sum", count=False)
         node.data["walltime"] = node.data.get("walltime", 0) + Statistic(-time.time(),  repr="sum", count=False)
-        self.current = node
 
-    def exit(self, label, **kwds):
+    def exit(self, **kwds):
         """
         By default CPU and wall time are recorded.  More information is recorded for "enumeration"
         labels.  When the label is a tour then the status is printed if verbosity > 0.
-
-        :param label:
         """
         node = self.current
+        label = node.label
+
         node.data["cputime"] += time.clock()
         node.data["walltime"] += time.time()
-        node.data["r_0"] = self.instance.M.get_r(0, 0)
-        node.data["/"] = self.instance.M.get_current_slope(0, self.instance.A.nrows)
+        node.data["r_0"] = Statistic(self.instance.M.get_r(0, 0), repr="min")
+        node.data["/"] = Statistic(self.instance.M.get_current_slope(0, self.instance.A.nrows), repr="min")
 
         if label == "enumeration":
             full = kwds.get("full", True)

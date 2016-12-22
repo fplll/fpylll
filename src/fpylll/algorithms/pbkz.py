@@ -133,7 +133,7 @@ class BKZReduction(BKZ2):
         """
         # calling fork is expensive so we simply revert to the sequential code for small block sizes
         if block_size < 70:
-            return self.svp_reduction(kappa, block_size, params, tracer=dummy_tracer)
+            return self.svp_reduction(kappa, block_size, params, tracer=tracer)
 
         self.lll_obj.size_reduction(0, kappa+1)
         old_first, old_first_expo = self.M.get_r_exp(kappa, kappa)
