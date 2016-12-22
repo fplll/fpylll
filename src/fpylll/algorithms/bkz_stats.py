@@ -15,7 +15,7 @@ from collections import OrderedDict
 from math import log
 
 
-def pretty_dict(d, keyword_width=None, round_bound=4096):
+def pretty_dict(d, keyword_width=None, round_bound=9999):
     """Return 'pretty' string representation of the dictionary ``d``.
 
     :param d: a dictionary
