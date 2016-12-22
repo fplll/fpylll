@@ -608,7 +608,7 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
         int test_abort(double scale) nogil
         int test_abort(double scale, int max_no_dec) nogil
 
-    void gaussian_heuristic[FT](FT& max_dist, long max_dist_expo,
+    void adjust_radius_to_gh_bound[FT](FT& max_dist, long max_dist_expo,
                                         int block_size, FT& root_det_mpfr, double gh_factor) nogil
 
     FT get_root_det[FT](MatGSO[Z_NR[mpz_t], FT]& m, int start, int end)

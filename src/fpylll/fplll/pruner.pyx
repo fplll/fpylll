@@ -30,7 +30,7 @@ from fplll cimport prune as prune_c
 from fplll cimport Pruning as Pruning_c
 from fplll cimport Pruner
 from fplll cimport svp_probability as svp_probability_c
-from fpylll.util import gaussian_heuristic, precision, get_precision
+from fpylll.util import adjust_radius_to_gh_bound, precision, get_precision
 from fpylll.util cimport check_float_type, check_precision, check_descent_method, check_pruner_metric
 
 IF HAVE_QD:
