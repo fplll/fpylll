@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from copy import copy
-
-from fpylll import LLL, IntegerMatrix, GSO
+from fpylll import IntegerMatrix, GSO
 from fpylll.util import adjust_radius_to_gh_bound, set_random_seed, gaussian_heuristic
 from fpylll.numpy import dump_r
 from math import log, exp
 
 dimensions = [20, 21, 40, 41, 60, 61, 80, 81, 100, 101, 200, 201, 300, 301, 400, 401]
-
 
 
 def make_integer_matrix(n):
@@ -20,10 +17,10 @@ def test_gh():
     for n in dimensions:
         set_random_seed(n)
         A = make_integer_matrix(n)
-        M = GSO.Mat(A, float_type="dd")
+        M = GSO.Mat(A, float_type="ld")
         M.discover_all_rows()
         M.update_gso()
-        radius = M.get_r(0,0)
+        radius = M.get_r(0, 0)
         root_det = M.get_root_det(0, n)
         print n
         print root_det
