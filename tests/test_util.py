@@ -22,17 +22,10 @@ def test_gh():
         M.update_gso()
         radius = M.get_r(0, 0)
         root_det = M.get_root_det(0, n)
-        print n
-        print root_det
         gh_radius, ge = adjust_radius_to_gh_bound(2000*radius, 0, n, root_det, 1.0)
 
         gh1 = gh_radius * 2**ge
 
         r = dump_r(M, 0, n)
-        print exp(sum([log(x) for x in r])/n)
         gh2 = gaussian_heuristic(r)
-
-        print gh1
-        print gh2
-        print
         assert abs(gh1/gh2 -1) < 0.01
