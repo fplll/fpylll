@@ -522,6 +522,7 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
         vector[double] coefficients
         double expectation
         PrunerMetric metric
+        vector[double] detailed_cost
 
         Pruning()
 

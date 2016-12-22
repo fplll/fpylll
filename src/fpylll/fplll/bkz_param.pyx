@@ -14,6 +14,7 @@ from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
 from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
 from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
 from fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST
+from fplll cimport PRUNER_METRIC_EXPECTED_SOLUTIONS
 from fplll cimport LLL_DEF_DELTA
 from fplll cimport Pruning as Pruning_c
 from fplll cimport Strategy as Strategy_c
@@ -30,7 +31,8 @@ cdef class Pruning:
     """
     Pruning parameters.
     """
-    def __init__(self, radius_factor, coefficients, expectation=1.0, metric="probability"):
+    def __init__(self, radius_factor, coefficients, expectation=1.0,
+                 metric="probability", detailed_cost=tuple()):
         """Create new pruning parameters object.
 
         :param radius_factor: ratio of radius to Gaussian heuristic
@@ -41,16 +43,22 @@ cdef class Pruning:
         """
         if radius_factor <= 0:
             raise ValueError("Radius factor must be > 0")
-        self.radius_factor = radius_factor
-        self.coefficients = tuple(coefficients)
 
-        self.metric = <PrunerMetric>check_pruner_metric(metric)
-        if self.metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
+        cdef PrunerMetric met = <PrunerMetric>check_pruner_metric(metric)
+
+        if met == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
             if expectation <= 0 or expectation > 1:
                 raise ValueError("Probability must be between 0 and 1")
-        self.expectation = expectation
 
-        Pruning.to_cxx(self._core, self)
+        self._core.radius_factor = radius_factor
+        self._core.expectation = expectation
+        self._core.metric = met
+
+        for c in coefficients:
+            self._core.coefficients.push_back(c)
+
+        for c in detailed_cost:
+            self._core.detailed_cost.push_back(c)
 
     @staticmethod
     cdef Pruning from_cxx(Pruning_c& p):
@@ -61,31 +69,10 @@ cdef class Pruning:
 
            All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
-        coefficients = []
 
-        cdef vector[double].iterator it = p.coefficients.begin()
-        while it != p.coefficients.end():
-            coefficients.append(deref(it))
-            inc(it)
-        cdef Pruning self = Pruning(p.radius_factor, tuple(coefficients), p.expectation, p.metric)
+        cdef Pruning self = Pruning(1.0, ())
         self._core = p
         return self
-
-    cdef _update_from_cxx(Pruning self):
-        """
-        Update Python representation from internal C++ representation
-        """
-        coefficients = []
-        cdef vector[double].iterator it = self._core.coefficients.begin()
-        while it != self._core.coefficients.end():
-            coefficients.append(deref(it))
-            inc(it)
-        self.coefficients = tuple(coefficients)
-        self.radius_factor = self._core.radius_factor
-        self.metric = self._core.metric
-        self.expectation = self._core.expectation
-        return self
-
 
     @staticmethod
     cdef to_cxx(Pruning_c& self, Pruning p):
@@ -96,11 +83,13 @@ cdef class Pruning:
 
            All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
-        self.radius_factor = p.radius_factor
-        self.expectation = p.expectation
-        self.metric = p.metric
-        for c in p.coefficients:
+        self.radius_factor = p._core.radius_factor
+        self.expectation = p._core.expectation
+        self.metric = p._core.metric
+        for c in p._core.coefficients:
             self.coefficients.push_back(c)
+        for c in p._core.detailed_cost:
+            self.detailed_cost.push_back(c)
 
     @staticmethod
     def LinearPruning(block_size, level):
@@ -124,10 +113,86 @@ cdef class Pruning:
             Pruning<1.000000, (1.00,...,0.30), 1.0000>
 
         """
-        return Pruning, (self.radius_factor, self.coefficients, self.expectation, self.metric)
+        return Pruning, (self.radius_factor, self.coefficients, self.expectation, self.metric, self.detailed_cost)
 
     def __str__(self):
         return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.radius_factor, self.coefficients[0], self.coefficients[-1], self.expectation)
+
+    @property
+    def radius_factor(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.radius_factor
+            1.0
+
+        """
+        return self._core.radius_factor
+
+    @property
+    def expectation(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.expectation
+            0.9
+
+        """
+        return self._core.expectation
+
+    @property
+    def metric(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.metric
+            'probability'
+
+        """
+        if self._core.metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
+            return "probability"
+        elif self._core.metric == PRUNER_METRIC_EXPECTED_SOLUTIONS:
+            return "solutions"
+        else:
+            raise NotImplementedError("Metric %d not understood"%self._core.metric)
+
+    @property
+    def coefficients(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.coefficients
+            (1.0, 0.6, 0.3)
+
+        """
+        cdef list coefficients = []
+        cdef vector[double].iterator it = self._core.coefficients.begin()
+        while it != self._core.coefficients.end():
+            coefficients.append(deref(it))
+            inc(it)
+        return tuple(coefficients)
+
+    @property
+    def detailed_cost(self):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Pruning
+            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.detailed_cost
+            ()
+
+        """
+        cdef list detailed_cost = []
+        cdef vector[double].iterator it = self._core.detailed_cost.begin()
+        while it != self._core.detailed_cost.end():
+            detailed_cost.append(deref(it))
+            inc(it)
+        return tuple(detailed_cost)
+
 
 cdef class Strategy:
     """

@@ -106,33 +106,33 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
         sig_on()
         prune_c[FP_NR[double]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        return (<Pruning>pruning)._update_from_cxx()
+        return pruning
     if ft == FT_LONG_DOUBLE:
         sig_on()
         prune_c[FP_NR[longdouble]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        return (<Pruning>pruning)._update_from_cxx()
+        return pruning
     if ft == FT_DPE:
         sig_on()
         prune_c[FP_NR[dpe_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        return (<Pruning>pruning)._update_from_cxx()
+        return pruning
     if ft == FT_MPFR:
         sig_on()
         prune_c[FP_NR[mpfr_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        return (<Pruning>pruning)._update_from_cxx()
+        return pruning
     IF HAVE_QD:
             if ft == FT_DD:
                 sig_on()
                 prune_c[FP_NR[dd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
-                return (<Pruning>pruning)._update_from_cxx()
+                return pruning
             if ft == FT_QD:
                 sig_on()
                 prune_c[FP_NR[qd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
-                return (<Pruning>pruning)._update_from_cxx()
+                return pruning
 
 
 def svp_probability(pr, float_type="double"):
