@@ -14,7 +14,7 @@ from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZ1
 from fpylll.algorithms.bkz2 import BKZReduction as BKZ2
 from fpylll.algorithms.bkz_stats import BKZTreeTracer, dummy_tracer
-from fpylll.util import gaussian_heuristic
+from fpylll.util import adjust_radius_to_gh_bound
 
 
 class BKZReduction(BKZ2):
@@ -97,7 +97,7 @@ class BKZReduction(BKZ2):
 
         if params.flags & BKZ.GH_BND and block_size > 30:
             root_det = self.M.get_root_det(kappa, kappa + block_size)
-            radius, expo = gaussian_heuristic(radius, expo, block_size, root_det, params.gh_factor)
+            radius, expo = adjust_radius_to_gh_bound(radius, expo, block_size, root_det, params.gh_factor)
 
         pruning = self.get_pruning(kappa, block_size, params, tracer)
 

@@ -6,13 +6,15 @@ include "cysignals/signals.pxi"
 from fpylll.fplll.decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
 from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
-from fpylll.fplll.fplll cimport gaussian_heuristic as gaussian_heuristic_c
+from fpylll.fplll.fplll cimport adjust_radius_to_gh_bound as adjust_radius_to_gh_bound_c
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
 from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID, PRUNER_METHOD_GREEDY
 from fpylll.fplll.fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS
 from fpylll.fplll.gso cimport MatGSO
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
+from math import log, exp, lgamma, pi
+
 
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
@@ -198,7 +200,7 @@ def precision(prec):
     return PrecisionContext(prec)
 
 
-def gaussian_heuristic(double dist, int dist_expo, int block_size, double root_det, double gh_factor):
+def adjust_radius_to_gh_bound(double dist, int dist_expo, int block_size, double root_det, double gh_factor):
     """
     Use Gaussian Heuristic to reduce bound on the length of the shortest vector.
 
@@ -213,8 +215,18 @@ def gaussian_heuristic(double dist, int dist_expo, int block_size, double root_d
     """
     cdef FP_NR[double] gh_dist = dist
     cdef FP_NR[double] root_det_ = root_det
-    gaussian_heuristic_c[FP_NR[double]](gh_dist, dist_expo, block_size, root_det_, gh_factor)
+    adjust_radius_to_gh_bound_c[FP_NR[double]](gh_dist, dist_expo, block_size, root_det_, gh_factor)
     return gh_dist.get_d(), dist_expo
 
 class ReductionError(RuntimeError):
     pass
+
+
+def ball_log_vol(n):
+    return (n/2.) * log(pi) - lgamma(n/2. + 1)
+
+def gaussian_heuristic(r):
+    n = len(list(r))
+    log_vol = sum([log(x) for x in r])
+    log_gh =  1./n * (log_vol - 2 * ball_log_vol(n))
+    return exp(log_gh)
