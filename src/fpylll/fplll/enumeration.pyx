@@ -34,6 +34,12 @@ IF HAVE_QD:
 class EnumerationError(Exception):
     pass
 
+class EvaluatorStrategy:
+    BEST_N_SOLUTIONS = EVALSTRATEGY_BEST_N_SOLUTIONS
+    OPPORTUNISTIC_N_SOLUTIONS = EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
+    FIRST_N_SOLUTIONS = EVALSTRATEGY_FIRST_N_SOLUTIONS
+
+
 cdef class Enumeration:
     def __init__(self, MatGSO M, nr_solutions=1, strategy=EvaluatorStrategy.BEST_N_SOLUTIONS):
         """Create new enumeration object
@@ -334,9 +340,4 @@ cdef class Enumeration:
                 return self._core.qd.get_nodes()
         if self.M._type == mpz_mpfr:
             return self._core.mpfr.get_nodes()
-
-class EvaluatorStrategy:
-    BEST_N_SOLUTIONS = EVALSTRATEGY_BEST_N_SOLUTIONS
-    OPPORTUNISTIC_N_SOLUTIONS = EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
-    FIRST_N_SOLUTIONS = EVALSTRATEGY_FIRST_N_SOLUTIONS
 
