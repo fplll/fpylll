@@ -595,8 +595,13 @@ cdef class BKZParam:
         """
 
             >>> from fpylll import BKZ
-            >>> BKZ.Param(40, max_loops=4, flags=BKZ.MAX_LOOPS).dict(False)
-            {'max_loops': 4, 'block_size': 40, 'flags': 4}
+            >>> d = BKZ.Param(40, max_loops=4, flags=BKZ.MAX_LOOPS).dict(False)
+            >>> d["block_size"]
+            40
+            >>> d["max_loops"]
+            4
+            >>> d.get("delta", False)
+            False
 
         """
         d = {}
