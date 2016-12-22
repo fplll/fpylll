@@ -35,7 +35,7 @@ class EnumerationError(Exception):
     pass
 
 cdef class Enumeration:
-    def __init__(self, MatGSO M, nr_solutions=1, strategy=EVALSTRATEGY_BEST_N_SOLUTIONS):
+    def __init__(self, MatGSO M, nr_solutions=1, strategy=EvaluatorStrategy.BEST_N_SOLUTIONS):
         """Create new enumeration object
 
         :param MatGSO M: GSO matrix
@@ -335,7 +335,7 @@ cdef class Enumeration:
         if self.M._type == mpz_mpfr:
             return self._core.mpfr.get_nodes()
 
-class EnumerationStrategy:
+class EvaluatorStrategy:
     BEST_N_SOLUTIONS = EVALSTRATEGY_BEST_N_SOLUTIONS
     OPPORTUNISTIC_N_SOLUTIONS = EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
     FIRST_N_SOLUTIONS = EVALSTRATEGY_FIRST_N_SOLUTIONS
