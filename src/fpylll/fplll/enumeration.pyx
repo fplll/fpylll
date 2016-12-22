@@ -10,6 +10,8 @@ from libcpp cimport bool
 from gso cimport MatGSO
 from fplll cimport EvaluatorStrategy as EvaluatorStrategy_c
 from fplll cimport EVALSTRATEGY_BEST_N_SOLUTIONS
+from fplll cimport EVALSTRATEGY_FIRST_N_SOLUTIONS
+from fplll cimport EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
 from fplll cimport Enumeration as Enumeration_c
 from fplll cimport FastEvaluator as FastEvaluator_c
 from fplll cimport FastErrorBoundedEvaluator as FastErrorBoundedEvaluator_c
@@ -176,14 +178,14 @@ cdef class Enumeration:
         cdef FP_NR[mpfr_t] max_dist_mpfr = max_dist__
 
         solutions = []
-        cdef multimap[FP_NR[double], vector[FP_NR[double]]].iterator solutions_d
+        cdef multimap[FP_NR[double], vector[FP_NR[double]]].reverse_iterator solutions_d
         IF HAVE_LONG_DOUBLE:
-            cdef multimap[FP_NR[longdouble], vector[FP_NR[longdouble]]].iterator solutions_ld
-        cdef multimap[FP_NR[dpe_t], vector[FP_NR[dpe_t]]].iterator solutions_dpe
+            cdef multimap[FP_NR[longdouble], vector[FP_NR[longdouble]]].reverse_iterator solutions_ld
+        cdef multimap[FP_NR[dpe_t], vector[FP_NR[dpe_t]]].reverse_iterator solutions_dpe
         IF HAVE_QD:
-            cdef multimap[FP_NR[dd_real], vector[FP_NR[dd_real]]].iterator solutions_dd
-            cdef multimap[FP_NR[qd_real], vector[FP_NR[qd_real]]].iterator solutions_qd
-        cdef multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].iterator solutions_mpfr
+            cdef multimap[FP_NR[dd_real], vector[FP_NR[dd_real]]].reverse_iterator solutions_dd
+            cdef multimap[FP_NR[qd_real], vector[FP_NR[qd_real]]].reverse_iterator solutions_qd
+        cdef multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator solutions_mpfr
 
         if self.M._type == mpz_double:
             if target is not None:
@@ -197,8 +199,8 @@ cdef class Enumeration:
             if not self._fe_core.double.size():
                 raise EnumerationError("No vector found.")
 
-            solutions_d = self._fe_core.double.solutions.begin()
-            while solutions_d != self._fe_core.double.solutions.end():
+            solutions_d = self._fe_core.double.begin()
+            while solutions_d != self._fe_core.double.end():
                 cur_dist = deref(solutions_d).first.get_d()
                 cur_sol = []
                 for j in range(deref(solutions_d).second.size()):
@@ -219,8 +221,8 @@ cdef class Enumeration:
                 if not self._fe_core.ld.size():
                     raise EnumerationError("No vector found.")
 
-                solutions_ld = self._fe_core.ld.solutions.begin()
-                while solutions_ld != self._fe_core.ld.solutions.end():
+                solutions_ld = self._fe_core.ld.begin()
+                while solutions_ld != self._fe_core.ld.end():
                     cur_dist = deref(solutions_ld).first.get_d()
                     cur_sol = []
                     for j in range(deref(solutions_ld).second.size()):
@@ -240,8 +242,8 @@ cdef class Enumeration:
             if not self._fe_core.dpe.size():
                 raise EnumerationError("No vector found.")
 
-            solutions_dpe = self._fe_core.dpe.solutions.begin()
-            while solutions_dpe != self._fe_core.dpe.solutions.end():
+            solutions_dpe = self._fe_core.dpe.begin()
+            while solutions_dpe != self._fe_core.dpe.end():
                 cur_dist = deref(solutions_dpe).first.get_d()
                 cur_sol = []
                 for j in range(deref(solutions_dpe).second.size()):
@@ -262,8 +264,8 @@ cdef class Enumeration:
                 if not self._fe_core.dd.size():
                     raise EnumerationError("No vector found.")
 
-                solutions_dd = self._fe_core.dd.solutions.begin()
-                while solutions_dd != self._fe_core.dd.solutions.end():
+                solutions_dd = self._fe_core.dd.begin()
+                while solutions_dd != self._fe_core.dd.end():
                     cur_dist = deref(solutions_dd).first.get_d()
                     cur_sol = []
                     for j in range(deref(solutions_dd).second.size()):
@@ -283,8 +285,8 @@ cdef class Enumeration:
                 if not self._fe_core.qd.size():
                     raise EnumerationError("No vector found.")
 
-                solutions_qd = self._fe_core.qd.solutions.begin()
-                while solutions_qd != self._fe_core.qd.solutions.end():
+                solutions_qd = self._fe_core.qd.begin()
+                while solutions_qd != self._fe_core.qd.end():
                     cur_dist = deref(solutions_qd).first.get_d()
                     cur_sol = []
                     for j in range(deref(solutions_qd).second.size()):
@@ -304,8 +306,8 @@ cdef class Enumeration:
             if not self._fe_core.mpfr.size():
                 raise EnumerationError("No vector found.")
 
-            solutions_mpfr = self._fe_core.mpfr.solutions.begin()
-            while solutions_mpfr != self._fe_core.mpfr.solutions.end():
+            solutions_mpfr = self._fe_core.mpfr.begin()
+            while solutions_mpfr != self._fe_core.mpfr.end():
                 cur_dist = deref(solutions_mpfr).first.get_d()
                 cur_sol = []
                 for j in range(deref(solutions_mpfr).second.size()):
@@ -332,3 +334,9 @@ cdef class Enumeration:
                 return self._core.qd.get_nodes()
         if self.M._type == mpz_mpfr:
             return self._core.mpfr.get_nodes()
+
+class EnumerationStrategy:
+    BEST_N_SOLUTIONS = EVALSTRATEGY_BEST_N_SOLUTIONS
+    OPPORTUNISTIC_N_SOLUTIONS = EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
+    FIRST_N_SOLUTIONS = EVALSTRATEGY_FIRST_N_SOLUTIONS
+
