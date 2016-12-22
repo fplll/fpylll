@@ -678,15 +678,13 @@ class BKZTreeTracer(Tracer):
     def exit(self, **kwds):
         """
         By default CPU and wall time are recorded.  More information is recorded for "enumeration"
-        labels.  When the label is a tour then the status is printed if verbosity > 0.
+        and "tour" labels.  When the label is a tour then the status is printed if verbosity > 0.
         """
         node = self.current
         label = node.label
 
         node.data["cputime"] += time.clock()
         node.data["walltime"] += time.time()
-        node.data["r_0"] = Statistic(self.instance.M.get_r(0, 0), repr="min")
-        node.data["/"] = Statistic(self.instance.M.get_current_slope(0, self.instance.A.nrows), repr="min")
 
         if label == "enumeration":
             full = kwds.get("full", True)
@@ -696,6 +694,10 @@ class BKZTreeTracer(Tracer):
                     node.data["%"] = Statistic(kwds["probability"], repr="avg") + node.data.get("%", None)
                 except KeyError:
                     pass
+
+        if label[0] == "tour":
+            node.data["r_0"] = Statistic(self.instance.M.get_r(0, 0), repr="min")
+            node.data["/"] = Statistic(self.instance.M.get_current_slope(0, self.instance.A.nrows), repr="min")
 
         if self.verbosity and label[0] == "tour":
             report = OrderedDict()
