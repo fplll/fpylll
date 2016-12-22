@@ -10,6 +10,8 @@ from libcpp cimport bool
 from gso cimport MatGSO
 from fplll cimport EvaluatorStrategy as EvaluatorStrategy_c
 from fplll cimport EVALSTRATEGY_BEST_N_SOLUTIONS
+from fplll cimport EVALSTRATEGY_FIRST_N_SOLUTIONS
+from fplll cimport EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
 from fplll cimport Enumeration as Enumeration_c
 from fplll cimport FastEvaluator as FastEvaluator_c
 from fplll cimport FastErrorBoundedEvaluator as FastErrorBoundedEvaluator_c
@@ -332,3 +334,9 @@ cdef class Enumeration:
                 return self._core.qd.get_nodes()
         if self.M._type == mpz_mpfr:
             return self._core.mpfr.get_nodes()
+
+class EnumerationStrategy:
+    BEST_N_SOLUTIONS = EVALSTRATEGY_BEST_N_SOLUTIONS
+    OPPORTUNISTIC_N_SOLUTIONS = EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
+    FIRST_N_SOLUTIONS = EVALSTRATEGY_FIRST_N_SOLUTIONS
+
