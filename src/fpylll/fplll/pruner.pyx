@@ -11,11 +11,12 @@ Pruner
     >>> M = [GSO.Mat(a) for a in A]
     >>> _ = [LLL.Reduction(m)() for m in M]
     >>> radius = sum([m.get_r(0, 0) for m in M])/len(M)
-    >>> print(prune(None, radius, 0, 0.9, [m.r() for m in M]))
-    Pruning<1.000000, (1.00,...,0.45), 0.9000>
+    >>> pr = prune(radius, 10000, 0.4, [m.r() for m in M])
+    >>> print pr
+    Pruning<1.000000, (1.00,...,0.80), 0.4262>
 
-    >>> print(prune(None, M[0].get_r(0, 0), 0, 0.9, M[0].r()))
-    Pruning<1.000000, (1.00,...,0.46), 0.9001>
+    >>> print(prune(M[0].get_r(0, 0), 2**20, 0.9, [m.r() for m in M], pruning=pr))
+    Pruning<1.000000, (1.00,...,0.90), 0.9475>
 
 """
 from libcpp.vector cimport vector
@@ -62,16 +63,16 @@ def prune(double enumeration_radius, double preproc_cost, double target, M,
     >>> LLL.Reduction(M)()
     >>> _ = set_precision(53)
     >>> R = [M.get_r(i,i) for i in range(0, 20)]
-    >>> pr0 = prune(None, R[0], 2^20, 0.5, [R], float_type="double")
-    >>> pr1 = prune(None, R[0], 2^20, 0.5, [R], float_type="long double")
+    >>> pr0 = prune(R[0], 2^20, 0.5, [R], float_type="double")
+    >>> pr1 = prune(R[0], 2^20, 0.5, [R], float_type="long double")
 
     >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.6031931311346213, 0.6031931310703095)
+    (0.582351709334894, 0.5823517093341659)
 
-    >>> pr0 = prune(None, R[0], 2^20, 0.5, [R], descent_method="nm", float_type="double")
-    >>> pr1 = prune(None, R[0], 2^20, 0.5, [R], descent_method="nm", float_type="long double")
+    >>> pr0 = prune(R[0], 2^20, 0.5, [R], descent_method="nm", float_type="double")
+    >>> pr1 = prune(R[0], 2^20, 0.5, [R], descent_method="nm", float_type="long double")
     >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.588966774320058, 0.5889667743200249)
+    (0.573303043090725, 0.5733030430907222)
 
     """
 
