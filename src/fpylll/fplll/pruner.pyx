@@ -105,44 +105,44 @@ def prune(double enumeration_radius, double preproc_cost, double target, M,
         sig_on()
         prune_c[FP_NR[double]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        if descent_method==PRUNER_METHOD_GREEDY:
-            return (enumeration_radius, pruning)
+        if descent_method == PRUNER_METHOD_GREEDY:
+            return enumeration_radius, pruning
         return pruning
     if ft == FT_LONG_DOUBLE:
         sig_on()
         prune_c[FP_NR[longdouble]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        if descent_method==PRUNER_METHOD_GREEDY:
-            return (enumeration_radius, pruning)
+        if descent_method == PRUNER_METHOD_GREEDY:
+            return enumeration_radius, pruning
         return pruning
     if ft == FT_DPE:
         sig_on()
         prune_c[FP_NR[dpe_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        if descent_method==PRUNER_METHOD_GREEDY:
-            return (enumeration_radius, pruning)
+        if descent_method == PRUNER_METHOD_GREEDY:
+            return enumeration_radius, pruning
         return pruning
     if ft == FT_MPFR:
         sig_on()
         prune_c[FP_NR[mpfr_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
-        if descent_method==PRUNER_METHOD_GREEDY:
-            return (enumeration_radius, pruning)
+        if descent_method == PRUNER_METHOD_GREEDY:
+            return enumeration_radius, pruning
         return pruning
     IF HAVE_QD:
             if ft == FT_DD:
                 sig_on()
                 prune_c[FP_NR[dd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
-                if descent_method==PRUNER_METHOD_GREEDY:
-                    return (enumeration_radius, pruning)
+                if descent_method == PRUNER_METHOD_GREEDY:
+                    return enumeration_radius, pruning
                 return pruning
             if ft == FT_QD:
                 sig_on()
                 prune_c[FP_NR[qd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
-                if descent_method==PRUNER_METHOD_GREEDY:
-                    return (enumeration_radius, pruning)
+                if descent_method == PRUNER_METHOD_GREEDY:
+                    return enumeration_radius, pruning
                 return pruning
 
 

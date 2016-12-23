@@ -18,64 +18,61 @@ def prepare(n):
 def test_pruner_vec():
     for (n, overhead) in dim_oh:
 
-        print " \n ==== Dim \n", n
+        print(" \n ~~~~ Dim %d \n" % n)
 
         M = prepare(n)
         r = [M.get_r(i, i) for i in range(n)]
 
-        print " \n GREEDY"
+        print(" \n GREEDY")
         radius = gaussian_heuristic(r) * 1.6
-        print "pre-greedy radius %.4e" % radius
+        print("pre-greedy radius %.4e" % radius)
         tt = clock()
         (radius, pruning) = prune(radius, overhead, 200, r,
                                   descent_method="greedy", metric="solutions")
-        print "Time %.4e"%(clock() - tt)
-        print "post-greedy radius %.4e" % radius
-        print pruning
-        print "cost %.4e" % sum(pruning.detailed_cost)
+        print("Time %.4e"%(clock() - tt))
+        print("post-greedy radius %.4e" % radius)
+        print(pruning)
+        print("cost %.4e" % sum(pruning.detailed_cost))
         solutions = Enumeration(M, nr_solutions=10000).enumerate(0, n, radius, 0, pruning=pruning.coefficients)
-        print len(solutions)
+        print(len(solutions))
         assert len(solutions)/pruning.expectation < 2
         assert len(solutions)/pruning.expectation > .2
 
-        print " \n GREEDY \n"
-        print "pre-greedy radius %.4e" % radius
+        print(" \n GREEDY \n")
+        print("pre-greedy radius %.4e" % radius)
         tt = clock()
         (radius, pruning) = prune(radius, overhead, 200, r, descent_method="greedy", metric="solutions")
-        print "Time %.4e"%(clock() - tt)
-        print "post-greedy radius %.4e" % radius
-        print pruning
-        print "cost %.4e" % sum(pruning.detailed_cost)
+        print("Time %.4e"%(clock() - tt))
+        print("post-greedy radius %.4e" % radius)
+        print(pruning)
+        print("cost %.4e" % sum(pruning.detailed_cost))
         solutions = Enumeration(M, nr_solutions=10000).enumerate(0, n, radius, 0, pruning=pruning.coefficients)
-        print len(solutions)
+        print(len(solutions))
         assert len(solutions)/pruning.expectation < 2
         assert len(solutions)/pruning.expectation > .2
 
-        print " \n GRADIENT \n"
+        print(" \n GRADIENT \n")
 
-        print "radius %.4e" % radius
+        print("radius %.4e" % radius)
         tt = clock()
         pruning = prune(radius, overhead, 200, r, descent_method="gradient", metric="solutions")
-        print "Time %.4e"%(clock() - tt)
-        print pruning
-        print "cost %.4e" % sum(pruning.detailed_cost)
+        print("Time %.4e"%(clock() - tt))
+        print(pruning)
+        print("cost %.4e" % sum(pruning.detailed_cost))
         solutions = Enumeration(M, nr_solutions=10000).enumerate(0, n, radius, 0, pruning=pruning.coefficients)
-        print len(solutions)
+        print(len(solutions))
         assert len(solutions)/pruning.expectation < 2
         assert len(solutions)/pruning.expectation > .2
 
-        print " \n HYBRID \n"
+        print(" \n HYBRID \n")
 
-        print "radius %.4e" % radius
+        print("radius %.4e" % radius)
         tt = clock()
         pruning = prune(radius, overhead, 200, r, descent_method="hybrid", metric="solutions")
-        print "Time %.4e"%(clock() - tt)
-        print pruning
-        print "cost %.4e" % sum(pruning.detailed_cost)
+        print("Time %.4e"%(clock() - tt))
+        print(pruning)
+        print("cost %.4e" % sum(pruning.detailed_cost))
         solutions = Enumeration(M, nr_solutions=10000).enumerate(0, n, radius, 0, pruning=pruning.coefficients)
-        print len(solutions)
+        print(len(solutions))
         assert len(solutions)/pruning.expectation < 2
         assert len(solutions)/pruning.expectation > .2
-
-
-test_pruner_vec()
