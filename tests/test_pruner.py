@@ -15,7 +15,11 @@ def prepare(n):
     return M
 
 
-def test_pruner_vec():
+def test_pruner():
+
+    # A dummy prune to load tabulated values
+    prune(5, 50, .5, 10*[1.])
+
     for (n, overhead) in dim_oh:
 
         print(" \n ~~~~ Dim %d \n" % n)
