@@ -10,7 +10,7 @@ fi;
 
 cloned=$(git clone https://github.com/fplll/fplll -b "$FPLLL_BRANCH")
 
-if [ $cloned -ne 0 ]; then
+if [ "$cloned" != "0" ]; then
     git clone https://github.com/fplll/fplll
 fi
 
