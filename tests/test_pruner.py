@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from fpylll import IntegerMatrix, GSO, LLL, prune, Enumeration
+from fpylll import Enumeration, GSO, IntegerMatrix, LLL, prune
 from fpylll.util import gaussian_heuristic
+from time import clock
 
 dim_oh = ((40, 2**22), (41, 2**22), (50, 2**24), (51, 2**24))
-
-try:
-    from fpylll.numpy import dump_r
-    have_numpy = True
-except ImportError:
-    have_numpy = False
 
 
 def prepare(n):
@@ -31,8 +26,10 @@ def test_pruner_vec():
         print " \n GREEDY"
         radius = gaussian_heuristic(r) * 1.6
         print "pre-greedy radius %.4e" % radius
+        tt = clock()
         (radius, pruning) = prune(radius, overhead, 200, r,
                                   descent_method="greedy", metric="solutions")
+        print "Time %.4e"%(clock() - tt)
         print "post-greedy radius %.4e" % radius
         print pruning
         print "cost %.4e" % sum(pruning.detailed_cost)
@@ -43,7 +40,9 @@ def test_pruner_vec():
 
         print " \n GREEDY \n"
         print "pre-greedy radius %.4e" % radius
+        tt = clock()
         (radius, pruning) = prune(radius, overhead, 200, r, descent_method="greedy", metric="solutions")
+        print "Time %.4e"%(clock() - tt)
         print "post-greedy radius %.4e" % radius
         print pruning
         print "cost %.4e" % sum(pruning.detailed_cost)
@@ -55,9 +54,10 @@ def test_pruner_vec():
         print " \n GRADIENT \n"
 
         print "radius %.4e" % radius
+        tt = clock()
         pruning = prune(radius, overhead, 200, r, descent_method="gradient", metric="solutions")
+        print "Time %.4e"%(clock() - tt)
         print pruning
-        #print pruning.coefficients
         print "cost %.4e" % sum(pruning.detailed_cost)
         solutions = Enumeration(M, nr_solutions=10000).enumerate(0, n, radius, 0, pruning=pruning.coefficients)
         print len(solutions)
@@ -67,9 +67,10 @@ def test_pruner_vec():
         print " \n HYBRID \n"
 
         print "radius %.4e" % radius
+        tt = clock()
         pruning = prune(radius, overhead, 200, r, descent_method="hybrid", metric="solutions")
+        print "Time %.4e"%(clock() - tt)
         print pruning
-        #print pruning.coefficients
         print "cost %.4e" % sum(pruning.detailed_cost)
         solutions = Enumeration(M, nr_solutions=10000).enumerate(0, n, radius, 0, pruning=pruning.coefficients)
         print len(solutions)
