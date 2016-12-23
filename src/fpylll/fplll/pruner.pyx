@@ -24,6 +24,7 @@ from math import log, exp
 from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t, mpz_t, dpe_t, mpfr_t
 from bkz_param cimport Pruning
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
+from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID, PRUNER_METHOD_GREEDY
 from fplll cimport FP_NR, Z_NR
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport prune as prune_c
@@ -41,8 +42,8 @@ IF HAVE_QD:
 from bkz_param cimport Pruning
 from gso cimport MatGSO
 
-def prune(pruning, double enumeration_radius, double preproc_cost, double target, M,
-          descent_method="gradient", metric="probability", float_type="double", reset=True):
+def prune(double enumeration_radius, double preproc_cost, double target, M,
+          descent_method="gradient", metric="probability", float_type="double", pruning=None):
     """Return optimal pruning parameters.
 
     :param pruning:            write output here, pass ``None`` for creating a new one
@@ -53,7 +54,6 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
     :param descent_method:     one of "gradient", "nm", "greedy" or "hybrid"
     :param metric:             "probability" or "solutions"
     :param float_type:         floating point type to use
-    :param reset:              start from current values in ``pruning`` or not
 
     >>> from fpylll import IntegerMatrix, LLL, GSO, get_precision, set_precision
     >>> from fpylll.numpy import dump_r
@@ -84,13 +84,12 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
     except (AttributeError, TypeError):
         M = [M]
 
+    reset = False
     if pruning is None:
         pruning = Pruning(1.0, [], 1.0)
-        if reset is False:
-            raise ValueError("reset == True requires first parameter != None")
+        reset = True
     elif not isinstance(pruning, Pruning):
         raise TypeError("First parameter must be of type Pruning or None but got type '%s'"%type(pruning))
-
 
     cdef vector[vector[double]] vec
 
@@ -106,32 +105,44 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
         sig_on()
         prune_c[FP_NR[double]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
+        if descent_method==PRUNER_METHOD_GREEDY:
+            return (enumeration_radius, pruning)
         return pruning
     if ft == FT_LONG_DOUBLE:
         sig_on()
         prune_c[FP_NR[longdouble]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
+        if descent_method==PRUNER_METHOD_GREEDY:
+            return (enumeration_radius, pruning)
         return pruning
     if ft == FT_DPE:
         sig_on()
         prune_c[FP_NR[dpe_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
+        if descent_method==PRUNER_METHOD_GREEDY:
+            return (enumeration_radius, pruning)
         return pruning
     if ft == FT_MPFR:
         sig_on()
         prune_c[FP_NR[mpfr_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
+        if descent_method==PRUNER_METHOD_GREEDY:
+            return (enumeration_radius, pruning)
         return pruning
     IF HAVE_QD:
             if ft == FT_DD:
                 sig_on()
                 prune_c[FP_NR[dd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
+                if descent_method==PRUNER_METHOD_GREEDY:
+                    return (enumeration_radius, pruning)
                 return pruning
             if ft == FT_QD:
                 sig_on()
                 prune_c[FP_NR[qd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
+                if descent_method==PRUNER_METHOD_GREEDY:
+                    return (enumeration_radius, pruning)
                 return pruning
 
 
