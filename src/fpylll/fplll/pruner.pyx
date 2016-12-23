@@ -12,7 +12,7 @@ Pruner
     >>> _ = [LLL.Reduction(m)() for m in M]
     >>> radius = sum([m.get_r(0, 0) for m in M])/len(M)
     >>> pr = prune(radius, 10000, 0.4, [m.r() for m in M])
-    >>> print pr
+    >>> print(pr)
     Pruning<1.000000, (1.00,...,0.80), 0.4262>
 
     >>> print(prune(M[0].get_r(0, 0), 2**20, 0.9, [m.r() for m in M], pruning=pr))
