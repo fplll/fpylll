@@ -1,4 +1,4 @@
-from fpylll import IntegerMatrix, LLL, GSO, BKZ
+from fpylll import IntegerMatrix, LLL, GSO
 from fpylll import Enumeration
 
 #
@@ -71,5 +71,3 @@ def test_multisol():
         sol = tuple((sol*A)[0])
         dist = sum([x**2 for x in sol])
         assert dist==48
-
-test_multisol()

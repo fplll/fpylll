@@ -11,11 +11,12 @@ Pruner
     >>> M = [GSO.Mat(a) for a in A]
     >>> _ = [LLL.Reduction(m)() for m in M]
     >>> radius = sum([m.get_r(0, 0) for m in M])/len(M)
-    >>> print(prune(None, radius, 0, 0.9, [m.r() for m in M]))
-    Pruning<1.000000, (1.00,...,0.45), 0.9000>
+    >>> pr = prune(radius, 10000, 0.4, [m.r() for m in M])
+    >>> print(pr)
+    Pruning<1.000000, (1.00,...,0.80), 0.4262>
 
-    >>> print(prune(None, M[0].get_r(0, 0), 0, 0.9, M[0].r()))
-    Pruning<1.000000, (1.00,...,0.46), 0.9001>
+    >>> print(prune(M[0].get_r(0, 0), 2**20, 0.9, [m.r() for m in M], pruning=pr))
+    Pruning<1.000000, (1.00,...,0.90), 0.9475>
 
 """
 from libcpp.vector cimport vector
@@ -24,6 +25,7 @@ from math import log, exp
 from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t, mpz_t, dpe_t, mpfr_t
 from bkz_param cimport Pruning
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
+from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID, PRUNER_METHOD_GREEDY
 from fplll cimport FP_NR, Z_NR
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport prune as prune_c
@@ -41,8 +43,8 @@ IF HAVE_QD:
 from bkz_param cimport Pruning
 from gso cimport MatGSO
 
-def prune(pruning, double enumeration_radius, double preproc_cost, double target, M,
-          descent_method="gradient", metric="probability", float_type="double", reset=True):
+def prune(double enumeration_radius, double preproc_cost, double target, M,
+          descent_method="gradient", metric="probability", float_type="double", pruning=None):
     """Return optimal pruning parameters.
 
     :param pruning:            write output here, pass ``None`` for creating a new one
@@ -53,7 +55,6 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
     :param descent_method:     one of "gradient", "nm", "greedy" or "hybrid"
     :param metric:             "probability" or "solutions"
     :param float_type:         floating point type to use
-    :param reset:              start from current values in ``pruning`` or not
 
     >>> from fpylll import IntegerMatrix, LLL, GSO, get_precision, set_precision
     >>> from fpylll.numpy import dump_r
@@ -62,16 +63,16 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
     >>> LLL.Reduction(M)()
     >>> _ = set_precision(53)
     >>> R = [M.get_r(i,i) for i in range(0, 20)]
-    >>> pr0 = prune(None, R[0], 2^20, 0.5, [R], float_type="double")
-    >>> pr1 = prune(None, R[0], 2^20, 0.5, [R], float_type="long double")
+    >>> pr0 = prune(R[0], 2^20, 0.5, [R], float_type="double")
+    >>> pr1 = prune(R[0], 2^20, 0.5, [R], float_type="long double")
 
     >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.6031931311346213, 0.6031931310703095)
+    (0.582351709334894, 0.5823517093341659)
 
-    >>> pr0 = prune(None, R[0], 2^20, 0.5, [R], descent_method="nm", float_type="double")
-    >>> pr1 = prune(None, R[0], 2^20, 0.5, [R], descent_method="nm", float_type="long double")
+    >>> pr0 = prune(R[0], 2^20, 0.5, [R], descent_method="nm", float_type="double")
+    >>> pr1 = prune(R[0], 2^20, 0.5, [R], descent_method="nm", float_type="long double")
     >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.588966774320058, 0.5889667743200249)
+    (0.573303043090725, 0.5733030430907222)
 
     """
 
@@ -84,13 +85,12 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
     except (AttributeError, TypeError):
         M = [M]
 
+    reset = False
     if pruning is None:
         pruning = Pruning(1.0, [], 1.0)
-        if reset is False:
-            raise ValueError("reset == True requires first parameter != None")
+        reset = True
     elif not isinstance(pruning, Pruning):
         raise TypeError("First parameter must be of type Pruning or None but got type '%s'"%type(pruning))
-
 
     cdef vector[vector[double]] vec
 
@@ -106,32 +106,44 @@ def prune(pruning, double enumeration_radius, double preproc_cost, double target
         sig_on()
         prune_c[FP_NR[double]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
+        if descent_method == PRUNER_METHOD_GREEDY:
+            return enumeration_radius, pruning
         return pruning
     if ft == FT_LONG_DOUBLE:
         sig_on()
         prune_c[FP_NR[longdouble]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
+        if descent_method == PRUNER_METHOD_GREEDY:
+            return enumeration_radius, pruning
         return pruning
     if ft == FT_DPE:
         sig_on()
         prune_c[FP_NR[dpe_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
+        if descent_method == PRUNER_METHOD_GREEDY:
+            return enumeration_radius, pruning
         return pruning
     if ft == FT_MPFR:
         sig_on()
         prune_c[FP_NR[mpfr_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
         sig_off()
+        if descent_method == PRUNER_METHOD_GREEDY:
+            return enumeration_radius, pruning
         return pruning
     IF HAVE_QD:
             if ft == FT_DD:
                 sig_on()
                 prune_c[FP_NR[dd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
+                if descent_method == PRUNER_METHOD_GREEDY:
+                    return enumeration_radius, pruning
                 return pruning
             if ft == FT_QD:
                 sig_on()
                 prune_c[FP_NR[qd_real]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
                 sig_off()
+                if descent_method == PRUNER_METHOD_GREEDY:
+                    return enumeration_radius, pruning
                 return pruning
 
 

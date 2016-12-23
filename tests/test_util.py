@@ -3,7 +3,6 @@
 from fpylll import IntegerMatrix, GSO
 from fpylll.util import adjust_radius_to_gh_bound, set_random_seed, gaussian_heuristic
 from fpylll.numpy import dump_r
-from math import log, exp
 
 dimensions = [20, 21, 40, 41, 60, 61, 80, 81, 100, 101, 200, 201, 300, 301, 400, 401]
 
