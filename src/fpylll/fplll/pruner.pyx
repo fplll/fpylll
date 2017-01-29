@@ -67,12 +67,12 @@ def prune(double enumeration_radius, double preproc_cost, double target, M,
     >>> pr1 = prune(R[0], 2^20, 0.5, [R], float_type="long double")
 
     >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.582351709334894, 0.5823517093341659)
+    (0.6044693471812789, 0.6044693471811267)
 
     >>> pr0 = prune(R[0], 2^20, 0.5, [R], descent_method="nm", float_type="double")
     >>> pr1 = prune(R[0], 2^20, 0.5, [R], descent_method="nm", float_type="long double")
     >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.573303043090725, 0.5733030430907222)
+    (0.5991264443329389, 0.5991264443329438)
 
     """
 
