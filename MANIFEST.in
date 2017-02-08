@@ -2,5 +2,6 @@ global-include README.rst requirements.txt suggestions.txt
 global-include setup.py *.pyx
 graft src
 include tests/test_*
+include LICENSE
 prune build
 prune dist
