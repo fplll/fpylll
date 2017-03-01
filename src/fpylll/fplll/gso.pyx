@@ -1142,8 +1142,6 @@ cdef class MatGSO:
 
         :returns: a tuple of dimension ``M.B.ncols``
 
-            It holds that: `B = R × Q = (μ × D) × (D^{-1} × B^*)` where `Q` is orthonormal and `R`
-            is lower triangular.
         """
 
         cdef list vv = list(v)
