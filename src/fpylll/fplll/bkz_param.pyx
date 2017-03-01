@@ -446,6 +446,8 @@ cdef class BKZParam:
 
         check_delta(delta)
         if strategies:
+            if isinstance(strategies, bytes):
+                strategies = strategies.decode("UTF-8")
             if isinstance(strategies, str):
                 strategies = strategies.encode('UTF-8')
                 sig_on()
