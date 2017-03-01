@@ -19,7 +19,7 @@ def test_bkz_init():
         for float_type in float_types:
             M = GSO.Mat(copy(A), float_type=float_type)
             lll_obj = LLL.Reduction(M)
-            param = BKZ.Param(block_size=3, strategies="default.json")
+            param = BKZ.Param(block_size=3, strategies=BKZ.DEFAULT_STRATEGY)
             bkz = BKZ.Reduction(M, lll_obj, param)
             del bkz
 
@@ -34,7 +34,7 @@ def test_bkz_bkz():
             B = copy(A)
             M = GSO.Mat(B, float_type=float_type)
             lll_obj = LLL.Reduction(M)
-            param = BKZ.Param(block_size=min(m, 40), strategies="default.json")
+            param = BKZ.Param(block_size=min(m, 40), strategies=BKZ.DEFAULT_STRATEGY)
             bkz = BKZ.Reduction(M, lll_obj, param)
             bkz()
             b00.append(B[0, 0])
