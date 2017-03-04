@@ -59,6 +59,8 @@ Online
 Getting Started
 ---------------
 
+**Note:** fpylll is also available via `PyPI <https://pypi.python.org/pypi/fpylll/0.2.1dev>`__ and `Conda-Forge <https://conda-forge.github.io>`__ for `Conda <https://conda.io/docs/>`__. In what follows, we explain manual installation.
+
 We recommend `virtualenv <https://virtualenv.readthedocs.org/>`__ for isolating Python build environments and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`__ to manage virtual environments.
 
 1. Create a new virtualenv and activate it:
