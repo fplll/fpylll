@@ -168,7 +168,7 @@ in the ``deactivate`` function in the ``activate`` script.
 Multicore Support
 -----------------
 
-**fpylll** supports parallelisation on multiple cores. For all C++ support to drop the `GIL <https://wiki.python.org/moin/GlobalInterpreterLock>`_ is enabled, allowing the use of threads to parallelise. Note, however, that because fplll's enumeration is not thread safe, we using `locks <https://docs.python.org/2/library/threading.html#lock-objects>`_ to enforce only one thread calls it at any one point. Also, **fpylll** does not actually drop the GIL in all calls to C++ functions yet. In many scenarios using `multiprocessing <https://docs.python.org/2/library/multiprocessing.html>`_, which sidesteps the GIL and thread safety issues by using processes instead of threads, will be the better choice.
+**fpylll** supports parallelisation on multiple cores. For all C++ support to drop the `GIL <https://wiki.python.org/moin/GlobalInterpreterLock>`_ is enabled, allowing the use of threads to parallelise. Fplll is thread safe as long as each thread works on a separate object such as ``IntegerMatrix`` or ``MatGSO``. Also, **fpylll** does not actually drop the GIL in all calls to C++ functions yet. In many scenarios using `multiprocessing <https://docs.python.org/2/library/multiprocessing.html>`_, which sidesteps the GIL and thread safety issues by using processes instead of threads, will be the better choice.
 
 The example below calls ``LLL.reduction`` on 128 matrices of dimension 30 on four worker processes.
 
