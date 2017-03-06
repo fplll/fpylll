@@ -81,7 +81,7 @@ cdef class Enumeration:
             self._core.dpe = new Enumeration_c[FP_NR[dpe_t]](m_dpe[0], self._fe_core.dpe[0])
         elif M._type == mpz_mpfr:
             m_mpfr = M._core.mpz_mpfr
-            self._fe_core.mpfr = new FastErrorBoundedEvaluator_c(M.d(),
+            self._fe_core.mpfr = new FastErrorBoundedEvaluator_c(M.d,
                                                                  M._core.mpz_mpfr.get_mu_matrix(),
                                                                  M._core.mpz_mpfr.get_r_matrix(),
                                                                  EVALMODE_SV,
