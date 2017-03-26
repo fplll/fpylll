@@ -1159,7 +1159,7 @@ cdef class MatGSO:
         return tuple(ret)
 
 
-    def babai(self, v, int start=0, int dimension=0, gso=False):
+    def babai(self, v, int start=0, int dimension=-1, gso=False):
         """
         Return lattice vector close to `v` using Babai's nearest plane algorithm.
 
@@ -1173,7 +1173,7 @@ cdef class MatGSO:
         """
         if not gso:
             v = self.from_canonical(v, start, dimension)
-        if dimension == 0:
+        if dimension == -1:
             dimension = self.d - start
 
         cdef Py_ssize_t i, j
