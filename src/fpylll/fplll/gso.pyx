@@ -1084,13 +1084,13 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 
-    def from_canonical(self, v, int start=0, int dimension=0):
+    def from_canonical(self, v, int start=0, int dimension=-1):
         """Given a vector `v` wrt the canonical basis `\mathbb{Z}^n` return a vector wrt the
         Gram-Schmidt basis `B^*`
 
         :param v: a tuple-like object of dimension ``M.B.ncols``
         :param start: only consider subbasis starting at ``start```
-        :param dimension: only consider ``dimension`` vectors or all if ``0``
+        :param dimension: only consider ``dimension`` vectors or all if ``-1``
 
         :returns: a tuple of dimension ``dimension``` or ``M.d``` when ``dimension`` is ``None``
 
@@ -1112,7 +1112,7 @@ cdef class MatGSO:
         """
         cdef Py_ssize_t i, j, d
 
-        if dimension == 0:
+        if dimension == -1:
             d = self.d - start
         else:
             d = dimension
@@ -1165,16 +1165,16 @@ cdef class MatGSO:
 
         :param v: a tuple-like object
         :param start: only consider subbasis starting at ``start```
-        :param dimension: only consider ``dimension`` vectors or all if ``None```
+        :param dimension: only consider ``dimension`` vectors or all if ``-1```
         :param gso: if ``True`` vector is represented wrt to the Gram-Schmidt basis, otherwise
             canonical basis is assumed.
 
         :returns: a tuple of dimension `M.B.nrows`
         """
-        if not gso:
-            v = self.from_canonical(v, start, dimension)
         if dimension == -1:
             dimension = self.d - start
+        if not gso:
+            v = self.from_canonical(v, start, dimension)
 
         cdef Py_ssize_t i, j
         cdef list vv = list(v)
