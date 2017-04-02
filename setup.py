@@ -94,23 +94,23 @@ if cur_config_pxi != config_pxi:  # check if we need to write
 # EXTENSIONS
 
 extensions = [
-    Extension("gmp.pylong", ["src/fpylll/gmp/pylong.pyx"], **other),
-    Extension("fplll.integer_matrix", ["src/fpylll/fplll/integer_matrix.pyx"], **fplll),
-    Extension("fplll.gso", ["src/fpylll/fplll/gso.pyx"], **fplll),
-    Extension("fplll.lll", ["src/fpylll/fplll/lll.pyx"], **fplll),
-    Extension("fplll.wrapper", ["src/fpylll/fplll/wrapper.pyx"], **fplll),
-    Extension("fplll.bkz_param", ["src/fpylll/fplll/bkz_param.pyx"], **fplll),
-    Extension("fplll.bkz", ["src/fpylll/fplll/bkz.pyx"], **fplll),
-    Extension("fplll.enumeration", ["src/fpylll/fplll/enumeration.pyx"], **fplll),
-    Extension("fplll.svpcvp", ["src/fpylll/fplll/svpcvp.pyx"], **fplll),
-    Extension("fplll.pruner", ["src/fpylll/fplll/pruner.pyx"], **fplll),
-    Extension("util", ["src/fpylll/util.pyx"], **fplll),
-    Extension("io", ["src/fpylll/io.pyx"], **fplll),
-    Extension("config", ["src/fpylll/config.pyx"], **fplll),
+    Extension("fpylll.gmp.pylong", ["src/fpylll/gmp/pylong.pyx"], **other),
+    Extension("fpylll.fplll.integer_matrix", ["src/fpylll/fplll/integer_matrix.pyx"], **fplll),
+    Extension("fpylll.fplll.gso", ["src/fpylll/fplll/gso.pyx"], **fplll),
+    Extension("fpylll.fplll.lll", ["src/fpylll/fplll/lll.pyx"], **fplll),
+    Extension("fpylll.fplll.wrapper", ["src/fpylll/fplll/wrapper.pyx"], **fplll),
+    Extension("fpylll.fplll.bkz_param", ["src/fpylll/fplll/bkz_param.pyx"], **fplll),
+    Extension("fpylll.fplll.bkz", ["src/fpylll/fplll/bkz.pyx"], **fplll),
+    Extension("fpylll.fplll.enumeration", ["src/fpylll/fplll/enumeration.pyx"], **fplll),
+    Extension("fpylll.fplll.svpcvp", ["src/fpylll/fplll/svpcvp.pyx"], **fplll),
+    Extension("fpylll.fplll.pruner", ["src/fpylll/fplll/pruner.pyx"], **fplll),
+    Extension("fpylll.util", ["src/fpylll/util.pyx"], **fplll),
+    Extension("fpylll.io", ["src/fpylll/io.pyx"], **fplll),
+    Extension("fpylll.config", ["src/fpylll/config.pyx"], **fplll),
 ]
 
 if have_numpy:
-    extensions.append(Extension("numpy", ["src/fpylll/numpy.pyx"], **numpy_args))
+    extensions.append(Extension("fpylll.numpy", ["src/fpylll/numpy.pyx"], **numpy_args))
 
 
 setup(
@@ -120,7 +120,6 @@ setup(
     author_email="fplll-devel@googlegroups.com",
     url="https://github.com/fplll/fpylll",
     version='0.2.4dev',
-    ext_package='fpylll',
     ext_modules=Cython.Build.cythonize(extensions,
                                        include_path=["src"] + sys.path,
                                        build_dir=cythonize_dir,
