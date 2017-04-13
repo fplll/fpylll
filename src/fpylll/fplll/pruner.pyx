@@ -22,9 +22,9 @@ Pruner
 from libcpp.vector cimport vector
 from math import log, exp
 
-from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t, mpz_t, dpe_t, mpfr_t
+from decl cimport mpz_double, mpz_dpe, mpz_mpfr, fp_nr_t, mpz_t, dpe_t, mpfr_t
 from bkz_param cimport Pruning
-from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
+from fplll cimport FT_DOUBLE, FT_DPE, FT_MPFR, FloatType
 from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID, PRUNER_METHOD_GREEDY
 from fplll cimport FP_NR, Z_NR
 from fplll cimport MatGSO as MatGSO_c
@@ -34,6 +34,10 @@ from fplll cimport Pruner
 from fplll cimport svp_probability as svp_probability_c
 from fpylll.util import adjust_radius_to_gh_bound, precision, get_precision
 from fpylll.util cimport check_float_type, check_precision, check_descent_method, check_pruner_metric
+
+IF HAVE_LONG_DOUBLE:
+    from fplll import FT_LONG_DOUBLE
+    from decl import mpz_ld
 
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
@@ -109,13 +113,14 @@ def prune(double enumeration_radius, double preproc_cost, double target, M,
         if descent_method == PRUNER_METHOD_GREEDY:
             return enumeration_radius, pruning
         return pruning
-    if ft == FT_LONG_DOUBLE:
-        sig_on()
-        prune_c[FP_NR[longdouble]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
-        sig_off()
-        if descent_method == PRUNER_METHOD_GREEDY:
-            return enumeration_radius, pruning
-        return pruning
+    IF HAVE_LONG_DOUBLE:
+        if ft == FT_LONG_DOUBLE:
+            sig_on()
+            prune_c[FP_NR[longdouble]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
+            sig_off()
+            if descent_method == PRUNER_METHOD_GREEDY:
+                return enumeration_radius, pruning
+            return pruning
     if ft == FT_DPE:
         sig_on()
         prune_c[FP_NR[dpe_t]]((<Pruning>pruning)._core, enumeration_radius, preproc_cost, target, vec, descent_method, metric, reset)
