@@ -36,8 +36,8 @@ from fpylll.util import adjust_radius_to_gh_bound, precision, get_precision
 from fpylll.util cimport check_float_type, check_precision, check_descent_method, check_pruner_metric
 
 IF HAVE_LONG_DOUBLE:
-    from fplll import FT_LONG_DOUBLE
-    from decl import mpz_ld
+    from fplll cimport FT_LONG_DOUBLE
+    from decl cimport mpz_ld
 
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
