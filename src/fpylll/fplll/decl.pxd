@@ -228,12 +228,12 @@ ELSE:
             FastEvaluator[FP_NR[dpe_t]] *dpe
             FastEvaluator[FP_NR[dd_real]] *dd
             FastEvaluator[FP_NR[qd_real]] *qd
-            FastEvaluator[FP_NR[mpfr_t]] *mpfr
+            FastErrorBoundedEvaluator *mpfr
     ELSE:
         ctypedef union fast_evaluator_core_t:
             FastEvaluator[FP_NR[double]] *double
             FastEvaluator[FP_NR[dpe_t]] *dpe
-            FastEvaluator[FP_NR[mpfr_t]] *mpfr
+            FastErrorBoundedEvaluator *mpfr
 
     IF HAVE_QD:
         ctypedef union enumeration_core_t:

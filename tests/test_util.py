@@ -16,7 +16,10 @@ def test_gh():
     for n in dimensions:
         set_random_seed(n)
         A = make_integer_matrix(n)
-        M = GSO.Mat(A, float_type="ld")
+        try:
+            M = GSO.Mat(A, float_type="ld")
+        except ValueError:
+            M = GSO.Mat(A, float_type="d")
         M.discover_all_rows()
         M.update_gso()
         radius = M.get_r(0, 0)
