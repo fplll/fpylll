@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-include "fpylll/config.pxi"
-
 """
 Parameters for Block Korkine Zolotarev algorithm.
 
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
+
+include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 

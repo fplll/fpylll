@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-include "fpylll/config.pxi"
-
 """
 Elementary basis operations, Gram matrix and Gram-Schmidt orthogonalization.
 
@@ -17,6 +15,8 @@ A ``MatGSO`` object stores the following information:
 It holds that: `B = R × Q = (μ × D) × (D^{-1} × B^*)` where `Q` is orthonormal and `R` is lower
 triangular.
 """
+
+include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 

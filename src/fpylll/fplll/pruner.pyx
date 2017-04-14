@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-include "fpylll/config.pxi"
 """
 Pruner
 
@@ -18,6 +17,9 @@ Pruner
     Pruning<1.000000, (1.00,...,0.90), 0.9475>
 
 """
+
+include "fpylll/config.pxi"
+
 from libcpp.vector cimport vector
 from math import log, exp
 from cysignals.signals cimport sig_on, sig_off

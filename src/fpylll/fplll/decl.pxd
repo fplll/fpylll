@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-include "fpylll/config.pxi"
-
 """
 Fpylll datatypes
 
 These are mainly for internal consumption
 """
+
+include "fpylll/config.pxi"
+
 from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 

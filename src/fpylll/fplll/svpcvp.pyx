@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-include "fpylll/config.pxi"
-
 """
 Shortest and Closest Vectors.
 
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
+
+include "fpylll/config.pxi"
 
 import threading
 from cysignals.signals cimport sig_on, sig_off

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-include "fpylll/config.pxi"
-
 """
 Integer matrices.
 
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
+
 """
+
+include "fpylll/config.pxi"
 
 from cpython cimport PyIndex_Check
 from cysignals.signals cimport sig_on, sig_off
