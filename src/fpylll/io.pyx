@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 
-
 from cpython.int cimport PyInt_AS_LONG
 from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set
 from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong

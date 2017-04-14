@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 
 """
 Block Korkine Zolotarev algorithm.
 
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
+
+from cysignals.signals cimport sig_on, sig_off
 
 IF HAVE_QD:
     from decl cimport mpz_dd, mpz_qd

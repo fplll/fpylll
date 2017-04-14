@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 
 """
 Shortest and Closest Vectors.
@@ -9,6 +8,7 @@ Shortest and Closest Vectors.
 """
 
 import threading
+from cysignals.signals cimport sig_on, sig_off
 
 from libcpp.vector cimport vector
 from fpylll.gmp.mpz cimport mpz_t

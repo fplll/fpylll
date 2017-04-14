@@ -121,7 +121,7 @@ setup(
     url="https://github.com/fplll/fpylll",
     version='0.2.4dev',
     ext_modules=Cython.Build.cythonize(extensions,
-                                       include_path=["src"] + sys.path,
+                                       include_path=["src"],
                                        build_dir=cythonize_dir,
                                        compiler_directives={'embedsignature': True}),
     package_dir={"": "src"},

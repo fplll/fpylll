@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 
 """
 Integer matrices.
@@ -8,9 +7,9 @@ Integer matrices.
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
 
-include "cysignals/signals.pxi"
-
 from cpython cimport PyIndex_Check
+from cysignals.signals cimport sig_on, sig_off
+
 from fplll cimport Matrix, MatrixRow, sqr_norm, Z_NR
 from fpylll.util cimport preprocess_indices
 from fpylll.io cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
@@ -20,7 +19,6 @@ from math import log10, ceil, sqrt, floor
 
 from fpylll.gmp.pylong cimport mpz_get_pyintlong
 from fpylll.gmp.mpz cimport mpz_init, mpz_mod, mpz_fdiv_q_ui, mpz_clear, mpz_cmp, mpz_sub, mpz_set
-
 
 cdef class IntegerMatrixRow:
     """

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 
 """
 Elementary basis operations, Gram matrix and Gram-Schmidt orthogonalization.
@@ -19,6 +18,7 @@ It holds that: `B = R × Q = (μ × D) × (D^{-1} × B^*)` where `Q` is orthonor
 triangular.
 """
 
+from cysignals.signals cimport sig_on, sig_off
 
 from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
@@ -38,7 +38,6 @@ IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
     from decl cimport mpz_dd, mpz_qd
     from fplll cimport FT_DD, FT_QD
-
 
 class MatGSORowOpContext(object):
     """
