@@ -24,7 +24,6 @@ addons:
 install:
   - export CXX="g++-4.9"
   - ./install-dependencies.sh $VIRTUAL_ENV
-  - pip install Cython
   - pip install -r requirements.txt
   - python setup.py build
   - python setup.py -q install
