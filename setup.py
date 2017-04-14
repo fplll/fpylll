@@ -14,28 +14,21 @@ from copy import copy
 
 cythonize_dir = "build"
 
-fplll = {"include_dirs": [],
-         "library_dirs": [],
+include_dirs = [os.path.join(sys.prefix, "include")]
+library_dirs = [os.path.join(sys.exec_prefix, "lib")]
+
+fplll = {"include_dirs": include_dirs,
+         "library_dirs": library_dirs,
          "language": "c++",
          "libraries": ["gmp", "mpfr", "fplll"],
          "extra_compile_args": ["-std=c++11"],
          "extra_link_args": ["-std=c++11"]}
 
-other = {"include_dirs": [],
-         "library_dirs": [],
+other = {"include_dirs": include_dirs,
+         "library_dirs": library_dirs,
          "libraries": ["gmp"]}
 
 config_pxi = []
-
-
-# VIRTUALENVS
-
-if "VIRTUAL_ENV" in os.environ:
-    prefix = os.environ["VIRTUAL_ENV"]
-    fplll["include_dirs"] = [os.path.join(prefix, "include")]
-    fplll["library_dirs"] = [os.path.join(prefix, "lib")]
-    other["include_dirs"] = [os.path.join(prefix, "include")]
-    other["library_dirs"] = [os.path.join(prefix, "lib")]
 
 
 # QD
