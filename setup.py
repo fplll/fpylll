@@ -1,12 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from distutils.core import setup
-from distutils.extension import Extension
-import Cython.Build
 
 import os
 import subprocess
 import sys
+
+if "READTHEDOCS" in os.environ:
+    # When building with readthedocs, install the dependencies too.
+    # See https://github.com/rtfd/readthedocs.org/issues/2776
+    for reqs in ["requirements.txt", "suggestions.txt"]:
+        if os.path.isfile(reqs):
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", reqs])
+
+from distutils.core import setup
+from distutils.extension import Extension
+import Cython.Build
+
 from copy import copy
 
 
@@ -27,6 +36,11 @@ fplll = {"include_dirs": include_dirs,
 other = {"include_dirs": include_dirs,
          "library_dirs": library_dirs,
          "libraries": ["gmp"]}
+
+if "READTHEDOCS" in os.environ:
+    # ReadTheDocs uses fplll from Conda, which was built with the old
+    # C++ ABI.
+    fplll["extra_compile_args"].append("-D_GLIBCXX_USE_CXX11_ABI=0")
 
 config_pxi = []
 
@@ -116,7 +130,7 @@ setup(
     ext_modules=Cython.Build.cythonize(extensions,
                                        include_path=["src"],
                                        build_dir=cythonize_dir,
-                                       compiler_directives={'embedsignature': True}),
+                                       compiler_directives={'binding': True}),
     package_dir={"": "src"},
     packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms", "fpylll.tools"],
     license='GNU General Public License, version 2 or later',
