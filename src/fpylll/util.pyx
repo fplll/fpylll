@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 
 
 from fpylll.fplll.decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t

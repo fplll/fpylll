@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 
 """
 Parameters for Block Korkine Zolotarev algorithm.
 
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
+
+from cysignals.signals cimport sig_on, sig_off
+
 from fplll cimport BKZParam as BKZParam_c
 from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
 from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT

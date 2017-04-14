@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 """
 Pruner
 
@@ -21,6 +20,7 @@ Pruner
 """
 from libcpp.vector cimport vector
 from math import log, exp
+from cysignals.signals cimport sig_on, sig_off
 
 from decl cimport mpz_double, mpz_dpe, mpz_mpfr, fp_nr_t, mpz_t, dpe_t, mpfr_t
 from bkz_param cimport Pruning

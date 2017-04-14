@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 
 from cython.operator cimport dereference as deref, preincrement as inc
 
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp cimport bool
+from cysignals.signals cimport sig_on, sig_off
+
 from gso cimport MatGSO
 from fplll cimport EvaluatorStrategy as EvaluatorStrategy_c
 from fplll cimport EVALSTRATEGY_BEST_N_SOLUTIONS

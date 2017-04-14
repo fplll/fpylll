@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-include "cysignals/signals.pxi"
 
 
 from fplll.fplll cimport default_strategy as default_strategy_c
