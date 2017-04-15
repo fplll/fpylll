@@ -5,18 +5,21 @@ import os
 import subprocess
 import sys
 
+from itertools import ifilter
+from os import path
+from ast import parse
+from distutils.core import setup
+from distutils.extension import Extension
+import Cython.Build
+
+from copy import copy
+
 if "READTHEDOCS" in os.environ:
     # When building with readthedocs, install the dependencies too.
     # See https://github.com/rtfd/readthedocs.org/issues/2776
     for reqs in ["requirements.txt", "suggestions.txt"]:
         if os.path.isfile(reqs):
             subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", reqs])
-
-from distutils.core import setup
-from distutils.extension import Extension
-import Cython.Build
-
-from copy import copy
 
 
 # CONFIG VARIABLES
@@ -119,6 +122,14 @@ extensions = [
 if have_numpy:
     extensions.append(Extension("fpylll.numpy", ["src/fpylll/numpy.pyx"], **numpy_args))
 
+
+# VERSION
+
+with open(path.join('src', 'fpylll', '__init__.py')) as f:
+    __version__ = parse(next(ifilter(lambda line: line.startswith('__version__'), f))).body[0].value.s
+
+
+# FIRE
 
 setup(
     name="fpylll",
@@ -126,7 +137,7 @@ setup(
     author=u"Martin R. Albrecht",
     author_email="fplll-devel@googlegroups.com",
     url="https://github.com/fplll/fpylll",
-    version='0.2.4dev',
+    version=__version__,
     ext_modules=Cython.Build.cythonize(extensions,
                                        include_path=["src"],
                                        build_dir=cythonize_dir,
