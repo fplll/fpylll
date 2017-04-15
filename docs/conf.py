@@ -16,11 +16,15 @@ import sys
 import os
 import shlex
 
-from itertools import ifilter
+try:
+    from itertools import ifilter as filter
+except ImportError:
+    pass  # python 3
+
 from ast import parse
 
 with open(os.path.join('..', 'src', 'fpylll', '__init__.py')) as f:
-    __version__ = parse(next(ifilter(lambda line: line.startswith('__version__'), f))).body[0].value.s
+    __version__ = parse(next(filter(lambda line: line.startswith('__version__'), f))).body[0].value.s
 
 
 # If extensions (or modules to document with autodoc) are in another directory,

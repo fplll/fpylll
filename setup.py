@@ -5,7 +5,11 @@ import os
 import subprocess
 import sys
 
-from itertools import ifilter
+try:
+    from itertools import ifilter as filter
+except ImportError:
+    pass  # python 3
+
 from os import path
 from ast import parse
 from distutils.core import setup
@@ -126,7 +130,7 @@ if have_numpy:
 # VERSION
 
 with open(path.join('src', 'fpylll', '__init__.py')) as f:
-    __version__ = parse(next(ifilter(lambda line: line.startswith('__version__'), f))).body[0].value.s
+    __version__ = parse(next(filter(lambda line: line.startswith('__version__'), f))).body[0].value.s
 
 
 # FIRE
