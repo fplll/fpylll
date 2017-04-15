@@ -1,4 +1,3 @@
 ipython
-sphinx
+git+https://github.com/jdemeyer/sphinx
 numpy
-
