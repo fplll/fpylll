@@ -7,7 +7,9 @@ A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`__.
     :target: https://travis-ci.org/fplll/fpylll
 .. image:: https://badge.fury.io/py/fpylll.svg
     :target: https://badge.fury.io/py/fpylll
-             
+.. image:: https://readthedocs.org/projects/fpylll/badge/?version=latest
+    :target: http://fpylll.readthedocs.io/en/latest/?badge=latest
+
 .. code-block:: python
 
     >>> from fpylll import *
