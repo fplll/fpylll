@@ -217,6 +217,7 @@ The following people have contributed to **fpylll**
 
 - Martin Albrecht
 - Guillaume Bonnoron
+- Jeroen Demeyer
 - Leo Ducas
 - Omer Katz
 
