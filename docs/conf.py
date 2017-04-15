@@ -54,8 +54,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'fpylll'
-copyright = u'2015, Martin R. Albrecht'
-author = u'Martin R. Albrecht'
+copyright = u'2015-2017, fpylll team'
+author = u'fpylll team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
