@@ -822,7 +822,7 @@ class BKZ:
 
     Param = BKZParam
     AutoAbort = BKZAutoAbort
-    reduction = bkz_reduction
+    reduction = staticmethod(bkz_reduction)
     Reduction = BKZReduction
 
     DEFAULT_AUTO_ABORT_SCALE        = BKZ_DEF_AUTO_ABORT_SCALE

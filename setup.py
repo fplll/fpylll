@@ -130,7 +130,7 @@ setup(
     ext_modules=Cython.Build.cythonize(extensions,
                                        include_path=["src"],
                                        build_dir=cythonize_dir,
-                                       compiler_directives={'binding': True}),
+                                       compiler_directives={'binding': True, "embedsignature": True}),
     package_dir={"": "src"},
     packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms", "fpylll.tools"],
     license='GNU General Public License, version 2 or later',

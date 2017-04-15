@@ -478,7 +478,8 @@ class LLL:
     DEFAULT_ETA = LLL_DEF_ETA
 
     Reduction = LLLReduction
-    reduction = lll_reduction
-    is_reduced = is_LLL_reduced
+
+    reduction = staticmethod(lll_reduction)
+    is_reduced = staticmethod(is_LLL_reduced)
 
     Wrapper = Wrapper

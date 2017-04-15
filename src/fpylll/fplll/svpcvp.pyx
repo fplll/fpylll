@@ -158,6 +158,6 @@ def closest_vector(IntegerMatrix B, target, int flags=CVP_DEFAULT):
     return tuple(v)
 
 class CVP:
-    closest_vector = closest_vector
+    closest_vector = staticmethod(closest_vector)
     DEFAULT = CVP_DEFAULT
     VERBOSE = CVP_VERBOSE
