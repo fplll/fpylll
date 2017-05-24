@@ -425,7 +425,7 @@ cdef class IntegerMatrix:
         except TypeError:
             for i in range(m):
                 for j in range(n):
-                    A[i][j] = A[i][j]
+                    A[i][j] = self[i, j]
         return A
 
     def __dealloc__(self):
