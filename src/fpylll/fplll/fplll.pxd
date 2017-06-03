@@ -230,6 +230,73 @@ cdef extern from "fplll/defs.h" namespace "fplll":
     const double BKZ_DEF_GH_FACTOR
     const double BKZ_DEF_MIN_SUCCESS_PROBABILITY
     const int BKZ_DEF_RERANDOMIZATION_DENSITY
+
+# Vectors (only used in some places)
+
+cdef extern from "fplll/nr/numvect.h" namespace "fplll":
+
+    cdef cppclass NumVect[T]:
+
+        cppclass iterator:
+            iterator operator++()
+            iterator operator--()
+            bint operator==(iterator)
+            bint operator!=(iterator)
+            iterator operator=()
+
+        NumVect()
+        NumVect(const NumVect[T]& v)
+        NumVect(int size)
+        NumVect(int size, T &t)
+
+        void operator=(NumVect &v)
+        void swap(NumVect &v)
+
+        const iterator begin()
+        iterator end()
+        int size()
+        bool empty()
+        void resize(int size)
+        void resize(int size, const T &t)
+        void gen_zero(int size)
+
+        void push_back(const T &t)
+        void pop_back()
+        T &front()
+        T &back()
+        void extend(int maxSize)
+        void clear()
+        T &operator[](int i)
+
+        void add(const NumVect[T] &v, int n)
+        void add(const NumVect[T] &v)
+        void sub(const NumVect[T] &v, int n)
+        void sub(const NumVect[T] &v)
+        void mul(const NumVect[T] &v, int n, T c)
+        void mul(const NumVect[T] &v, T c)
+        void addmul(const NumVect[T] &v, T x, int n)
+        void addmul(const NumVect[T] &v, T x)
+        void addmul_2exp(const NumVect[T] &v, const T &x, long expo, T &tmp)
+        void addmul_2exp(const NumVect[T] &v, const T &x, long expo, int n, T &tmp)
+        void addmul_si(const NumVect[T] &v, long x)
+        void addmul_si(const NumVect[T] &v, long x, int n)
+        void addmul_si_2exp(const NumVect[T] &v, long x, long expo, T &tmp)
+        void addmul_si_2exp(const NumVect[T] &v, long x, long expo, int n, T &tmp)
+
+        # (v[first],...,v[last]) becomes (v[first+1],...,v[last],v[first]) */
+        void rotate_left(int first, int last)
+
+        # (v[first],...,v[last]) becomes (v[last],v[first],...,v[last-1]) */
+        void rotate_right(int first, int last)
+
+        # Returns expo >= 0 such that all elements are < 2^expo.
+        long get_max_exponent()
+
+        void fill(long value)
+
+        bool is_zero(int fromCol = 0) const
+
+        int size_nz() const
 
 
 # Matrices over the Integers
@@ -694,6 +761,30 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
 
     FT svp_probability[FT](const Pruning &pruning)
     FT svp_probability[FT](const vector[double] &pr)
+
+
+
+# Sieving
+
+cdef extern from "fplll/sieve/sieve_gauss.h" namespace "fplll":
+    cdef cppclass GaussSieve[ZT, FT]:
+        GaussSieve(ZZ_mat[ZT] &B, int alg, bool ver, int seed);
+
+        bool run_2sieve()
+        bool run_3sieve()
+        bool run_4sieve()
+
+        void set_verbose(bool verbose)
+        void set_goal_norm2(Z_NR[ZT] norm)
+        bool verbose
+
+        int alg
+
+        # norms/listsize for all iterations
+        vector[Z_NR[ZT]] iters_norm
+        vector[long] iters_ls
+
+        NumVect[Z_NR[ZT]] return_first()
 
 
 
