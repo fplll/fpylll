@@ -36,7 +36,7 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
     :param int flags:
     :param pruning:
     :param run_lll:
-    :param max_aux_sols
+    :param max_aux_sols:
     :returns:
     :rtype:
 
