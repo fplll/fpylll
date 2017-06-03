@@ -105,7 +105,7 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
         return tuple(v)
 
 class SVP:
-    shortest_vector = shortest_vector
+    shortest_vector = staticmethod(shortest_vector)
     DEFAULT = SVP_DEFAULT
     VERBOSE = SVP_VERBOSE
     OVERRIDE_BND = SVP_OVERRIDE_BND
