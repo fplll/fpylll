@@ -768,14 +768,11 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
 
 cdef extern from "fplll/sieve/sieve_gauss.h" namespace "fplll":
     cdef cppclass GaussSieve[ZT, FT]:
-        GaussSieve(ZZ_mat[ZT] &B, int alg, bool ver, int seed);
+        GaussSieve(ZZ_mat[ZT] &B, int algorithm, bool verbose, int seed);
 
-        bool run_2sieve()
-        bool run_3sieve()
-        bool run_4sieve()
+        bool sieve(Z_NR[ZT] target_norm)
 
         void set_verbose(bool verbose)
-        void set_goal_norm2(Z_NR[ZT] norm)
         bool verbose
 
         int alg

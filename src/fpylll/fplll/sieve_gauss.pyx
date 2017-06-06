@@ -56,25 +56,12 @@ cdef class GaussSieve:
 
         """
 
-
         cdef Z_NR[mpz_t] target_norm_
         assign_Z_NR_mpz(target_norm_, target_norm)
-        self._core.set_goal_norm2(target_norm_)
 
-        if self._core.alg == 2:
-            sig_on()
-            self._core.run_2sieve()
-            sig_off()
-        elif self._core.alg == 3:
-            sig_on()
-            self._core.run_2sieve()
-            sig_off()
-        elif self._core.alg == 4:
-            sig_on()
-            self._core.run_2sieve()
-            sig_off()
-        else:
-            raise RuntimeError("internal algorithm is %d"%self._core.alg)
+        sig_on()
+        self._core.sieve(target_norm_)
+        sig_off()
 
         cdef NumVect[Z_NR[mpz_t]] r_ = self._core.return_first()
         cdef list r  = []
