@@ -380,7 +380,7 @@ cdef extern from "fplll/nr/matrix.h" namespace "fplll":
 
 cdef extern from "fplll/gso.h" namespace "fplll":
 
-    cdef enum MatGSOFlags:
+    cdef enum MatGSOInterfaceFlags:
         GSO_DEFAULT
         GSO_INT_GRAM
         GSO_ROW_EXPO
