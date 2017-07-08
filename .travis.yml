@@ -33,7 +33,9 @@ before_script:
   
 script:
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" py.test
-  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/*.pyx src/fpylll/fplll/*.pyx
+  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/algorithms/*.py
+  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/fplll/*.pyx
+  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/*.pyx
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python setup.py sdist
 
 notifications:

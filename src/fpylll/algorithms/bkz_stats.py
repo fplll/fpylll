@@ -23,7 +23,7 @@ def pretty_dict(d, keyword_width=None, round_bound=9999):
     :param round_bound: values beyond this bound are shown as `2^x`
 
     >>> pretty_dict({'d': 2, 'f': 0.1, 'large': 4097})
-    u'{"large":   2^12.0,  "d":        2,  "f": 0.100000}'
+    u'{"large":     4097,  "d":        2,  "f": 0.100000}'
 
     """
     s = []
@@ -413,7 +413,7 @@ class Node(object):
         >>> print(root.report())
         {"root": {}}
           {"(u'child', 1)": {"a":  100.000}}
-            {"(u'child', 3)": {"a":   2^12.0}}
+            {"(u'child', 3)": {"a":     4097}}
           {"(u'child', 2)": {}}
 
         >>> print(root.report(indentation=2, depth=1))

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from .simple_bkz import BKZReduction
+from fpylll.algorithms.simple_bkz import BKZReduction
 from fpylll import Enumeration
 import math
 from functools import reduce
