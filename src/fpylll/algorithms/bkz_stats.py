@@ -6,7 +6,6 @@ Collecting traces from BKZ-like computations
 
 """
 from __future__ import print_function
-from __future__ import unicode_literals
 from __future__ import absolute_import
 
 import time
@@ -22,8 +21,9 @@ def pretty_dict(d, keyword_width=None, round_bound=9999):
     :param keyword_width: width allocated for keywords
     :param round_bound: values beyond this bound are shown as `2^x`
 
-    >>> pretty_dict({'d': 2, 'f': 0.1, 'large': 4097})
-    u'{"large":     4097,  "d":        2,  "f": 0.100000}'
+    >>> from collections import OrderedDict
+    >>> str(pretty_dict(OrderedDict([('d', 2), ('f', 0.1), ('large', 4097)])))
+    '{"d":        2,  "f": 0.100000,  "large":     4097}'
 
     """
     s = []
@@ -412,14 +412,14 @@ class Node(object):
 
         >>> print(root.report())
         {"root": {}}
-          {"(u'child', 1)": {"a":  100.000}}
-            {"(u'child', 3)": {"a":     4097}}
-          {"(u'child', 2)": {}}
+          {"('child', 1)": {"a":  100.000}}
+            {"('child', 3)": {"a":     4097}}
+          {"('child', 2)": {}}
 
         >>> print(root.report(indentation=2, depth=1))
           {"root": {}}
-            {"(u'child', 1)": {"a":  100.000}}
-            {"(u'child', 2)": {}}
+            {"('child', 1)": {"a":  100.000}}
+            {"('child', 2)": {}}
         """
         s = [" "*indentation + str(self)]
         if depth is None or depth > 0:
@@ -458,7 +458,7 @@ class Node(object):
         >>> root.sum("a", label=("child",2), raise_keyerror=True)
         Traceback (most recent call last):
         ...
-        KeyError: u'a'
+        KeyError: 'a'
 
         """
         if include_self and (label is None or self.label == label):
@@ -525,12 +525,12 @@ class Node(object):
         {"bar": {}}
 
         >>> root.get("foo")
-        ({"(u'foo', 0)": {"a":  100.000}}, {"(u'foo', 3)": {}})
+        ({"('foo', 0)": {"a":  100.000}}, {"('foo', 3)": {}})
 
         >>> root.get("foo")[0]
-        {"(u'foo', 0)": {"a":  100.000}}
+        {"('foo', 0)": {"a":  100.000}}
         >>> root.get("foo")[1]
-        {"(u'foo', 3)": {}}
+        {"('foo', 3)": {}}
 
         """
         r = []
