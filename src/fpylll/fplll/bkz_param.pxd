@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from libcpp.vector cimport vector
-from decl cimport bkz_auto_abort_core_t, fplll_type_t
+from decl cimport bkz_auto_abort_core_t, fplll_gso_type_t
 from gso cimport MatGSO
 from fplll cimport BKZParam as BKZParam_c
 from fplll cimport Pruning as Pruning_c

@@ -3,7 +3,7 @@ include "fpylll/config.pxi"
 
 
 from fpylll.fplll.gso cimport MatGSO
-from fpylll.fplll.decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
+from fpylll.fplll.decl cimport mpz_d, mpz_ld, mpz_dpe, mpz_mpfr
 
 IF HAVE_QD:
     from fpylll.fplll.decl cimport mpz_dd, mpz_qd
@@ -25,8 +25,8 @@ def _dump_mu(ndarray[double, ndim=2, mode="c"] mu not None, MatGSO M, int kappa,
 
      :returns: Nothing
      """
-    if M._type == mpz_double:
-        return M._core.mpz_double.dump_mu_d(&mu[0,0], kappa, block_size)
+    if M._type == mpz_d:
+        return M._core.mpz_d.dump_mu_d(&mu[0,0], kappa, block_size)
     IF HAVE_LONG_DOUBLE:
         if M._type == mpz_ld:
             return M._core.mpz_ld.dump_mu_d(&mu[0,0], kappa, block_size)
@@ -68,8 +68,8 @@ def _dump_r(ndarray[double, ndim=1, mode="c"] r not None, MatGSO M, int kappa, i
      :returns: Nothing
      """
 
-    if M._type == mpz_double:
-        return M._core.mpz_double.dump_r_d(&r[0], kappa, block_size)
+    if M._type == mpz_d:
+        return M._core.mpz_d.dump_r_d(&r[0], kappa, block_size)
     IF HAVE_LONG_DOUBLE:
         if M._type == mpz_ld:
             return M._core.mpz_ld.dump_r_d(&r[0], kappa, block_size)

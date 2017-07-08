@@ -20,19 +20,34 @@ from fplll cimport MatGSO, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
 from libcpp.vector cimport vector
 
 IF HAVE_QD:
-    ctypedef enum fplll_type_t:
-        mpz_double =  1
+    ctypedef enum fplll_gso_type_t:
+        mpz_d =  1
         mpz_ld     =  2
         mpz_dpe    =  4
         mpz_dd     =  8
         mpz_qd     = 16
         mpz_mpfr   = 32
 ELSE:
-    ctypedef enum fplll_type_t:
-        mpz_double =  1
+    ctypedef enum fplll_gso_type_t:
+        mpz_d =  1
         mpz_ld     =  2
         mpz_dpe    =  4
         mpz_mpfr   = 32
+
+IF HAVE_QD:
+    ctypedef enum fplll_nr_type_t:
+        d      =  1
+        ld     =  2
+        dpe    =  4
+        dd     =  8
+        qd     = 16
+        mpfr   = 32
+ELSE:
+    ctypedef enum fplll_nr_type_t:
+        d      =  1
+        ld     =  2
+        dpe    =  4
+        mpfr   = 32
 
 IF HAVE_LONG_DOUBLE:
     IF HAVE_QD:
@@ -53,7 +68,7 @@ IF HAVE_LONG_DOUBLE:
 
     IF HAVE_QD:
         ctypedef union mat_gso_core_t:
-            MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_double
+            MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_d
             MatGSO[Z_NR[mpz_t], FP_NR[longdouble]] *mpz_ld
             MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             MatGSO[Z_NR[mpz_t], FP_NR[dd_real]] *mpz_dd
@@ -61,14 +76,14 @@ IF HAVE_LONG_DOUBLE:
             MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
     ELSE:
         ctypedef union mat_gso_core_t:
-            MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_double
+            MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_d
             MatGSO[Z_NR[mpz_t], FP_NR[longdouble]] *mpz_ld
             MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
 
     IF HAVE_QD:
         ctypedef union lll_reduction_core_t:
-            LLLReduction[Z_NR[mpz_t], FP_NR[double]] *mpz_double
+            LLLReduction[Z_NR[mpz_t], FP_NR[double]] *mpz_d
             LLLReduction[Z_NR[mpz_t], FP_NR[longdouble]] *mpz_ld
             LLLReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             LLLReduction[Z_NR[mpz_t], FP_NR[dd_real]] *mpz_dd
@@ -76,14 +91,14 @@ IF HAVE_LONG_DOUBLE:
             LLLReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
     ELSE:
         ctypedef union lll_reduction_core_t:
-            LLLReduction[Z_NR[mpz_t], FP_NR[double]] *mpz_double
+            LLLReduction[Z_NR[mpz_t], FP_NR[double]] *mpz_d
             LLLReduction[Z_NR[mpz_t], FP_NR[longdouble]] *mpz_ld
             LLLReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             LLLReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
 
     IF HAVE_QD:
         ctypedef union bkz_auto_abort_core_t:
-            BKZAutoAbort[FP_NR[double]] *mpz_double
+            BKZAutoAbort[FP_NR[double]] *mpz_d
             BKZAutoAbort[FP_NR[longdouble]] *mpz_ld
             BKZAutoAbort[FP_NR[dpe_t]] *mpz_dpe
             BKZAutoAbort[FP_NR[dd_real]] *mpz_dd
@@ -91,14 +106,14 @@ IF HAVE_LONG_DOUBLE:
             BKZAutoAbort[FP_NR[mpfr_t]] *mpz_mpfr
     ELSE:
         ctypedef union bkz_auto_abort_core_t:
-            BKZAutoAbort[FP_NR[double]] *mpz_double
+            BKZAutoAbort[FP_NR[double]] *mpz_d
             BKZAutoAbort[FP_NR[longdouble]] *mpz_ld
             BKZAutoAbort[FP_NR[dpe_t]] *mpz_dpe
             BKZAutoAbort[FP_NR[mpfr_t]] *mpz_mpfr
 
     IF HAVE_QD:
         ctypedef union bkz_reduction_core_t:
-            BKZReduction[FP_NR[double]] *mpz_double
+            BKZReduction[FP_NR[double]] *mpz_d
             BKZReduction[FP_NR[longdouble]] *mpz_ld
             BKZReduction[FP_NR[dpe_t]] *mpz_dpe
             BKZReduction[FP_NR[dd_real]] *mpz_dd
@@ -106,7 +121,7 @@ IF HAVE_LONG_DOUBLE:
             BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
     ELSE:
         ctypedef union bkz_reduction_core_t:
-            BKZReduction[FP_NR[double]] *mpz_double
+            BKZReduction[FP_NR[double]] *mpz_d
             BKZReduction[FP_NR[longdouble]] *mpz_ld
             BKZReduction[FP_NR[dpe_t]] *mpz_dpe
             BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
@@ -173,53 +188,53 @@ ELSE:
 
     IF HAVE_QD:
         ctypedef union mat_gso_core_t:
-            MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_double
+            MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_d
             MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             MatGSO[Z_NR[mpz_t], FP_NR[dd_real]] *mpz_dd
             MatGSO[Z_NR[mpz_t], FP_NR[qd_real]] *mpz_qd
             MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
     ELSE:
         ctypedef union mat_gso_core_t:
-            MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_double
+            MatGSO[Z_NR[mpz_t], FP_NR[double]] *mpz_d
             MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
 
     IF HAVE_QD:
         ctypedef union lll_reduction_core_t:
-            LLLReduction[Z_NR[mpz_t], FP_NR[double]] *mpz_double
+            LLLReduction[Z_NR[mpz_t], FP_NR[double]] *mpz_d
             LLLReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             LLLReduction[Z_NR[mpz_t], FP_NR[dd_real]] *mpz_dd
             LLLReduction[Z_NR[mpz_t], FP_NR[qd_real]] *mpz_qd
             LLLReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
     ELSE:
         ctypedef union lll_reduction_core_t:
-            LLLReduction[Z_NR[mpz_t], FP_NR[double]] *mpz_double
+            LLLReduction[Z_NR[mpz_t], FP_NR[double]] *mpz_d
             LLLReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             LLLReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
 
     IF HAVE_QD:
         ctypedef union bkz_auto_abort_core_t:
-            BKZAutoAbort[FP_NR[double]] *mpz_double
+            BKZAutoAbort[FP_NR[double]] *mpz_d
             BKZAutoAbort[FP_NR[dpe_t]] *mpz_dpe
             BKZAutoAbort[FP_NR[dd_real]] *mpz_dd
             BKZAutoAbort[FP_NR[qd_real]] *mpz_qd
             BKZAutoAbort[FP_NR[mpfr_t]] *mpz_mpfr
     ELSE:
         ctypedef union bkz_auto_abort_core_t:
-            BKZAutoAbort[FP_NR[double]] *mpz_double
+            BKZAutoAbort[FP_NR[double]] *mpz_d
             BKZAutoAbort[FP_NR[dpe_t]] *mpz_dpe
             BKZAutoAbort[FP_NR[mpfr_t]] *mpz_mpfr
 
     IF HAVE_QD:
         ctypedef union bkz_reduction_core_t:
-            BKZReduction[FP_NR[double]] *mpz_double
+            BKZReduction[FP_NR[double]] *mpz_d
             BKZReduction[FP_NR[dpe_t]] *mpz_dpe
             BKZReduction[FP_NR[dd_real]] *mpz_dd
             BKZReduction[FP_NR[qd_real]] *mpz_qd
             BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
     ELSE:
         ctypedef union bkz_reduction_core_t:
-            BKZReduction[FP_NR[double]] *mpz_double
+            BKZReduction[FP_NR[double]] *mpz_d
             BKZReduction[FP_NR[dpe_t]] *mpz_dpe
             BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
 

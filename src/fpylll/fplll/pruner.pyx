@@ -24,7 +24,7 @@ from libcpp.vector cimport vector
 from math import log, exp
 from cysignals.signals cimport sig_on, sig_off
 
-from decl cimport mpz_double, mpz_dpe, mpz_mpfr, fp_nr_t, mpz_t, dpe_t, mpfr_t
+from decl cimport mpz_d, mpz_dpe, mpz_mpfr, fp_nr_t, mpz_t, dpe_t, mpfr_t
 from bkz_param cimport Pruning
 from fplll cimport FT_DOUBLE, FT_DPE, FT_MPFR, FloatType
 from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID, PRUNER_METHOD_GREEDY

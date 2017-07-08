@@ -22,7 +22,7 @@ from fplll cimport EVALMODE_SV
 
 from fplll cimport dpe_t
 from fpylll.mpfr.mpfr cimport mpfr_t
-from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
+from decl cimport mpz_d, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
 from fplll cimport multimap
@@ -59,8 +59,8 @@ cdef class Enumeration:
 
         self.M = M
 
-        if M._type == mpz_double:
-            m_double = M._core.mpz_double
+        if M._type == mpz_d:
+            m_double = M._core.mpz_d
             self._fe_core.double = new FastEvaluator_c[FP_NR[double]](nr_solutions,
                                                                       strategy,
                                                                       False)
@@ -110,7 +110,7 @@ cdef class Enumeration:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
 
     def __dealloc__(self):
-        if self.M._type == mpz_double:
+        if self.M._type == mpz_d:
             del self._fe_core.double
             del self._core.double
         IF HAVE_LONG_DOUBLE:
@@ -194,7 +194,7 @@ cdef class Enumeration:
             cdef multimap[FP_NR[qd_real], vector[FP_NR[qd_real]]].reverse_iterator solutions_qd
         cdef multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator solutions_mpfr
 
-        if self.M._type == mpz_double:
+        if self.M._type == mpz_d:
             if target is not None:
                 for it in target:
                     tmp.double = float(it)
@@ -327,7 +327,7 @@ cdef class Enumeration:
     def get_nodes(self):
         """Return number of visited nodes in last enumeration call.
         """
-        if self.M._type == mpz_double:
+        if self.M._type == mpz_d:
             return self._core.double.get_nodes()
         IF HAVE_LONG_DOUBLE:
             if self.M._type == mpz_ld:

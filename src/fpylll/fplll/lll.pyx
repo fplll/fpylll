@@ -29,7 +29,7 @@ from fplll cimport FloatType
 
 from fpylll.util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll.util import ReductionError
-from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr
+from decl cimport mpz_d, mpz_ld, mpz_dpe, mpz_mpfr
 
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
@@ -72,10 +72,10 @@ cdef class LLLReduction:
 
         self.M = M
 
-        if M._type == mpz_double:
-            m_double = M._core.mpz_double
-            self._type = mpz_double
-            self._core.mpz_double = new LLLReduction_c[Z_NR[mpz_t], FP_NR[double]](m_double[0],
+        if M._type == mpz_d:
+            m_double = M._core.mpz_d
+            self._type = mpz_d
+            self._core.mpz_d = new LLLReduction_c[Z_NR[mpz_t], FP_NR[double]](m_double[0],
                                                                                    delta,
                                                                                    eta, flags)
         elif M._type == mpz_ld:
@@ -122,8 +122,8 @@ cdef class LLLReduction:
         self._eta = eta
 
     def __dealloc__(self):
-        if self._type == mpz_double:
-            del self._core.mpz_double
+        if self._type == mpz_d:
+            del self._core.mpz_d
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 del self._core.mpz_ld
@@ -159,10 +159,10 @@ cdef class LLLReduction:
             kappa_end = self.M.d
 
         cdef int r
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            self._core.mpz_double.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
-            r = self._core.mpz_double.status
+            self._core.mpz_d.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
+            r = self._core.mpz_d.status
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -213,8 +213,8 @@ cdef class LLLReduction:
         if kappa_end == -1:
             kappa_end = self.M.d
 
-        if self._type == mpz_double:
-            r = self._core.mpz_double.size_reduction(kappa_min, kappa_end, size_reduction_start)
+        if self._type == mpz_d:
+            r = self._core.mpz_d.size_reduction(kappa_min, kappa_end, size_reduction_start)
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 r = self._core.mpz_ld.size_reduction(kappa_min, kappa_end, size_reduction_start)
@@ -245,8 +245,8 @@ cdef class LLLReduction:
         :rtype:
 
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.final_kappa
+        if self._type == mpz_d:
+            return self._core.mpz_d.final_kappa
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.final_kappa
@@ -270,8 +270,8 @@ cdef class LLLReduction:
         :rtype:
 
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.last_early_red
+        if self._type == mpz_d:
+            return self._core.mpz_d.last_early_red
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.last_early_red
@@ -295,8 +295,8 @@ cdef class LLLReduction:
         :rtype:
 
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.zeros
+        if self._type == mpz_d:
+            return self._core.mpz_d.zeros
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.zeros
@@ -320,8 +320,8 @@ cdef class LLLReduction:
         :rtype:
 
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.n_swaps
+        if self._type == mpz_d:
+            return self._core.mpz_d.n_swaps
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.n_swaps
@@ -451,8 +451,8 @@ def is_LLL_reduced(M, delta=LLL_DEF_DELTA, eta=LLL_DEF_ETA):
     else:
         raise TypeError("Type '%s' not understood."%type(M))
 
-    if M_._type == mpz_double:
-        return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[double]](M_._core.mpz_double[0], delta, eta))
+    if M_._type == mpz_d:
+        return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[double]](M_._core.mpz_d[0], delta, eta))
 
     IF HAVE_LONG_DOUBLE:
         if M_._type == mpz_ld:

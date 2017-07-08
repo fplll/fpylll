@@ -14,7 +14,7 @@ IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
 
 from bkz_param cimport BKZParam
-from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, vector_fp_nr_t, fp_nr_t
+from decl cimport mpz_d, mpz_ld, mpz_dpe, mpz_mpfr, vector_fp_nr_t, fp_nr_t
 from fplll cimport BKZAutoAbort as BKZAutoAbort_c
 from fplll cimport BKZReduction as BKZReduction_c
 from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
@@ -50,9 +50,9 @@ cdef class BKZAutoAbort:
         :param start_row: start at this row
 
         """
-        if M._type == mpz_double:
-            self._type = mpz_double
-            self._core.mpz_double = new BKZAutoAbort_c[FP_NR[double]](M._core.mpz_double[0],
+        if M._type == mpz_d:
+            self._type = mpz_d
+            self._core.mpz_d = new BKZAutoAbort_c[FP_NR[double]](M._core.mpz_d[0],
                                                                       num_rows,
                                                                       start_row)
         elif M._type == mpz_ld:
@@ -100,8 +100,8 @@ cdef class BKZAutoAbort:
         :param scale: target decrease
         :param int max_no_dec: number of rounds allowed to be stuck
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.test_abort(scale, max_no_dec)
+        if self._type == mpz_d:
+            return self._core.mpz_d.test_abort(scale, max_no_dec)
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 return self._core.mpz_ld.test_abort(scale, max_no_dec)
@@ -135,10 +135,10 @@ cdef class BKZReduction:
         self.param = param
         self._type = M._type
 
-        if M._type == mpz_double:
-            self._type = mpz_double
-            self._core.mpz_double = new BKZReduction_c[FP_NR[double]](self.M._core.mpz_double[0],
-                                                                      self.lll_obj._core.mpz_double[0],
+        if M._type == mpz_d:
+            self._type = mpz_d
+            self._core.mpz_d = new BKZReduction_c[FP_NR[double]](self.M._core.mpz_d[0],
+                                                                      self.lll_obj._core.mpz_d[0],
                                                                       param.o[0])
         elif M._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -176,8 +176,8 @@ cdef class BKZReduction:
                 raise RuntimeError("MatGSO object '%s' has no core."%M)
 
     def __dealloc__(self):
-        if self._type == mpz_double:
-            del self._core.mpz_double
+        if self._type == mpz_d:
+            del self._core.mpz_d
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 del self._core.mpz_ld
@@ -207,9 +207,9 @@ cdef class BKZReduction:
             the constructor of this class.
 
         """
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.bkz()
+            r = self._core.mpz_d.bkz()
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -255,9 +255,9 @@ cdef class BKZReduction:
 
         r = True
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.svp_preprocessing(kappa, block_size, param.o[0])
+            r = self._core.mpz_d.svp_preprocessing(kappa, block_size, param.o[0])
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -307,12 +307,12 @@ cdef class BKZReduction:
 
         r = True
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             for s in solution:
                 t.double = float(s)
                 solution_.double.push_back(t.double)
             sig_on()
-            r = self._core.mpz_double.svp_postprocessing(kappa, block_size, solution_.double)
+            r = self._core.mpz_d.svp_postprocessing(kappa, block_size, solution_.double)
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -377,12 +377,12 @@ cdef class BKZReduction:
 
         r = True
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             for s in solution:
                 t.double = float(s)
                 solution_.double.push_back(t.double)
             sig_on()
-            r = self._core.mpz_double.dsvp_postprocessing(kappa, block_size, solution_.double)
+            r = self._core.mpz_d.dsvp_postprocessing(kappa, block_size, solution_.double)
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -445,9 +445,9 @@ cdef class BKZReduction:
 
         r = True
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.svp_reduction(kappa, block_size, param.o[0], int(dual))
+            r = self._core.mpz_d.svp_reduction(kappa, block_size, param.o[0], int(dual))
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -496,9 +496,9 @@ cdef class BKZReduction:
 
         r = True
         cdef int kappa_max = 0
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.tour(loop, kappa_max, param.o[0], min_row, max_row)
+            r = self._core.mpz_d.tour(loop, kappa_max, param.o[0], min_row, max_row)
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -546,9 +546,9 @@ cdef class BKZReduction:
 
         r = True
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.sd_tour(loop, param.o[0], min_row, max_row)
+            r = self._core.mpz_d.sd_tour(loop, param.o[0], min_row, max_row)
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -602,9 +602,9 @@ cdef class BKZReduction:
 
         r = True
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.slide_tour(loop, param.o[0], min_row, max_row)
+            r = self._core.mpz_d.slide_tour(loop, param.o[0], min_row, max_row)
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -655,9 +655,9 @@ cdef class BKZReduction:
         r = True
         cdef int kappa_max = 0
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.hkz(kappa_max, param.o[0], min_row, max_row)
+            r = self._core.mpz_d.hkz(kappa_max, param.o[0], min_row, max_row)
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -696,9 +696,9 @@ cdef class BKZReduction:
         :param density:
 
         """
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            self._core.mpz_double.rerandomize_block(min_row, max_row, density)
+            self._core.mpz_d.rerandomize_block(min_row, max_row, density)
             sig_off()
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
@@ -733,8 +733,8 @@ cdef class BKZReduction:
         """
         Status of this reduction.
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.status
+        if self._type == mpz_d:
+            return self._core.mpz_d.status
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 return self._core.mpz_ld.status
@@ -758,8 +758,8 @@ cdef class BKZReduction:
         """
         Total number of enumeration nodes visited during this reduction.
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.nodes
+        if self._type == mpz_d:
+            return self._core.mpz_d.nodes
         elif self._type == mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 return self._core.mpz_ld.nodes

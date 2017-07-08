@@ -20,7 +20,7 @@ include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 
-from decl cimport mpz_double, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
+from decl cimport mpz_d, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 from fplll cimport GSO_DEFAULT
 from fplll cimport GSO_INT_GRAM
@@ -142,8 +142,8 @@ cdef class MatGSO:
         cdef FloatType float_type_ = check_float_type(float_type)
 
         if float_type_ == FT_DOUBLE:
-            self._type = mpz_double
-            self._core.mpz_double = new MatGSO_c[Z_NR[mpz_t],FP_NR[double]](b[0], u[0], u_inv_t[0], flags)
+            self._type = mpz_d
+            self._core.mpz_d = new MatGSO_c[Z_NR[mpz_t],FP_NR[double]](b[0], u[0], u_inv_t[0], flags)
         elif float_type_ == FT_LONG_DOUBLE:
             IF HAVE_LONG_DOUBLE:
                 self._type = mpz_ld
@@ -172,8 +172,8 @@ cdef class MatGSO:
         self.B = B
 
     def __dealloc__(self):
-        if self._type == mpz_double:
-            del self._core.mpz_double
+        if self._type == mpz_d:
+            del self._core.mpz_d
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 del self._core.mpz_ld
@@ -208,7 +208,7 @@ cdef class MatGSO:
         'mpfr'
 
         """
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             return "double"
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
@@ -235,8 +235,8 @@ cdef class MatGSO:
         11
 
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.d
+        if self._type == mpz_d:
+            return self._core.mpz_d.d
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.d
@@ -268,8 +268,8 @@ cdef class MatGSO:
         True
 
         """
-        if self._type == mpz_double:
-            return bool(self._core.mpz_double.enable_int_gram)
+        if self._type == mpz_d:
+            return bool(self._core.mpz_d.enable_int_gram)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return bool(self._core.mpz_ld.enable_int_gram)
@@ -301,8 +301,8 @@ cdef class MatGSO:
         True
 
         """
-        if self._type == mpz_double:
-            return bool(self._core.mpz_double.enable_row_expo)
+        if self._type == mpz_d:
+            return bool(self._core.mpz_d.enable_row_expo)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return bool(self._core.mpz_ld.enable_row_expo)
@@ -336,8 +336,8 @@ cdef class MatGSO:
         True
 
         """
-        if self._type == mpz_double:
-            return bool(self._core.mpz_double.enable_transform)
+        if self._type == mpz_d:
+            return bool(self._core.mpz_d.enable_transform)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return bool(self._core.mpz_ld.enable_transform)
@@ -371,8 +371,8 @@ cdef class MatGSO:
         True
 
         """
-        if self._type == mpz_double:
-            return bool(self._core.mpz_double.enable_inverse_transform)
+        if self._type == mpz_d:
+            return bool(self._core.mpz_d.enable_inverse_transform)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return bool(self._core.mpz_ld.enable_inverse_transform)
@@ -404,8 +404,8 @@ cdef class MatGSO:
         True
 
         """
-        if self._type == mpz_double:
-            return bool(self._core.mpz_double.row_op_force_long)
+        if self._type == mpz_d:
+            return bool(self._core.mpz_d.row_op_force_long)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return bool(self._core.mpz_ld.row_op_force_long)
@@ -430,8 +430,8 @@ cdef class MatGSO:
 
         .. note:: It is preferable to use ``MatGSORowOpContext`` via ``row_ops``.
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.row_op_begin(first, last)
+        if self._type == mpz_d:
+            return self._core.mpz_d.row_op_begin(first, last)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.row_op_begin(first, last)
@@ -457,8 +457,8 @@ cdef class MatGSO:
 
         .. note:: It is preferable to use ``MatGSORowOpContext`` via ``row_ops``.
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.row_op_end(first, last)
+        if self._type == mpz_d:
+            return self._core.mpz_d.row_op_end(first, last)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.row_op_end(first, last)
@@ -499,8 +499,8 @@ cdef class MatGSO:
         cdef fp_nr_t t
 
         # TODO: don't just return doubles
-        if self._type == mpz_double:
-            return self._core.mpz_double.get_gram(t.double, i, j).get_d()
+        if self._type == mpz_d:
+            return self._core.mpz_d.get_gram(t.double, i, j).get_d()
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.get_gram(t.ld, i, j).get_d()
@@ -536,8 +536,8 @@ cdef class MatGSO:
         cdef fp_nr_t t
 
         # TODO: don't just return doubles
-        if self._type == mpz_double:
-            return self._core.mpz_double.get_r(t.double, i, j).get_d()
+        if self._type == mpz_d:
+            return self._core.mpz_d.get_r(t.double, i, j).get_d()
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.get_r(t.ld, i, j).get_d()
@@ -570,8 +570,8 @@ cdef class MatGSO:
         cdef long expo = 0
 
         # TODO: don't just return doubles
-        if self._type == mpz_double:
-            r = self._core.mpz_double.get_r_exp(i, j, expo).get_data()
+        if self._type == mpz_d:
+            r = self._core.mpz_d.get_r_exp(i, j, expo).get_data()
             return r, expo
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
@@ -606,8 +606,8 @@ cdef class MatGSO:
         cdef fp_nr_t t
 
         # TODO: don't just return doubles
-        if self._type == mpz_double:
-            return self._core.mpz_double.get_mu(t.double, i, j).get_d()
+        if self._type == mpz_d:
+            return self._core.mpz_d.get_mu(t.double, i, j).get_d()
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.get_mu(t.ld, i, j).get_d()
@@ -640,8 +640,8 @@ cdef class MatGSO:
         cdef long expo = 0
 
         # TODO: don't just return doubles
-        if self._type == mpz_double:
-            r = self._core.mpz_double.get_mu_exp(i, j, expo).get_data()
+        if self._type == mpz_d:
+            r = self._core.mpz_d.get_mu_exp(i, j, expo).get_data()
             return r, expo
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
@@ -669,9 +669,9 @@ cdef class MatGSO:
         Updates all GSO coefficients (`μ` and `r`).
         """
         cdef int r
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             with nogil:
-                r = self._core.mpz_double.update_gso()
+                r = self._core.mpz_d.update_gso()
             return bool(r)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
@@ -707,8 +707,8 @@ cdef class MatGSO:
         :param int last_j:
 
         """
-        if self._type == mpz_double:
-            return bool(self._core.mpz_double.update_gso_row(i, last_j))
+        if self._type == mpz_d:
+            return bool(self._core.mpz_d.update_gso_row(i, last_j))
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return bool(self._core.mpz_ld.update_gso_row(i, last_j))
@@ -729,8 +729,8 @@ cdef class MatGSO:
         """
         Allows ``row_addmul`` for all rows even if the GSO has never been computed.
         """
-        if self._type == mpz_double:
-            return self._core.mpz_double.discover_all_rows()
+        if self._type == mpz_d:
+            return self._core.mpz_d.discover_all_rows()
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.discover_all_rows()
@@ -756,8 +756,8 @@ cdef class MatGSO:
 
         """
         preprocess_indices(old_r, new_r, self.d, self.d)
-        if self._type == mpz_double:
-            return self._core.mpz_double.move_row(old_r, new_r)
+        if self._type == mpz_d:
+            return self._core.mpz_d.move_row(old_r, new_r)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.move_row(old_r, new_r)
@@ -827,9 +827,9 @@ cdef class MatGSO:
         preprocess_indices(i, j, self.d, self.d)
         cdef fp_nr_t x_
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             x_.double = float(x)
-            return self._core.mpz_double.row_addmul(i, j, x_.double)
+            return self._core.mpz_d.row_addmul(i, j, x_.double)
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 x_.ld = float(x)
@@ -859,8 +859,8 @@ cdef class MatGSO:
         if self.inverse_transform_enabled:
             raise ValueError("create_row is incompatible with ``inverse_transform_enabled``")
 
-        if self._type == mpz_double:
-            return self._core.mpz_double.create_row()
+        if self._type == mpz_d:
+            return self._core.mpz_d.create_row()
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.create_row()
@@ -884,8 +884,8 @@ cdef class MatGSO:
         if self.inverse_transform_enabled:
             raise ValueError("remove_last_row is incompatible with ``inverse_transform_enabled``")
 
-        if self._type == mpz_double:
-            return self._core.mpz_double.remove_last_row()
+        if self._type == mpz_d:
+            return self._core.mpz_d.remove_last_row()
         IF HAVE_LONG_DOUBLE:
             if self._type == mpz_ld:
                 return self._core.mpz_ld.remove_last_row()
@@ -914,9 +914,9 @@ cdef class MatGSO:
 
         preprocess_indices(start_row, stop_row, self.d, self.d+1)
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.get_current_slope(start_row, stop_row)
+            r = self._core.mpz_d.get_current_slope(start_row, stop_row)
             sig_off()
             return r
         IF HAVE_LONG_DOUBLE:
@@ -958,9 +958,9 @@ cdef class MatGSO:
         """
         preprocess_indices(start_row, stop_row, self.d, self.d+1)
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.get_root_det(start_row, stop_row).get_d()
+            r = self._core.mpz_d.get_root_det(start_row, stop_row).get_d()
             sig_off()
             return r
         elif self._type == mpz_dpe:
@@ -1002,9 +1002,9 @@ cdef class MatGSO:
         """
         preprocess_indices(start_row, stop_row, self.d, self.d+1)
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.get_log_det(start_row, stop_row).get_d()
+            r = self._core.mpz_d.get_log_det(start_row, stop_row).get_d()
             sig_off()
             return r
         elif self._type == mpz_dpe:
@@ -1047,9 +1047,9 @@ cdef class MatGSO:
         """
         preprocess_indices(start_row, stop_row, self.d, self.d+1)
 
-        if self._type == mpz_double:
+        if self._type == mpz_d:
             sig_on()
-            r = self._core.mpz_double.get_slide_potential(start_row, stop_row, block_size).get_d()
+            r = self._core.mpz_d.get_slide_potential(start_row, stop_row, block_size).get_d()
             sig_off()
             return r
         elif self._type == mpz_dpe:
