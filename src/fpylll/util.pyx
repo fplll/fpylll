@@ -2,7 +2,7 @@
 include "fpylll/config.pxi"
 
 
-from fpylll.fplll.decl cimport mpz_d, mpz_ld, mpz_dpe, mpz_mpfr, fp_nr_t
+from fpylll.fplll.decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t
 from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fpylll.fplll.fplll cimport adjust_radius_to_gh_bound as adjust_radius_to_gh_bound_c
