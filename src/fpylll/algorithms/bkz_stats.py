@@ -395,7 +395,8 @@ class Node(object):
 
     def __str__(self):
         """
-        >>> str(Node("root", data={'a':1, 'b': 2}))
+        >>> from collections import OrderedDict
+        >>> str(Node("root", data=OrderedDict([('a',1), ('b', 2)])))
         '{"root": {"a":        1,  "b":        2}}'
         """
         return u"{\"%s\": %s}"%(self.label, pretty_dict(self.data))
