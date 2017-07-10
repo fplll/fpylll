@@ -225,6 +225,16 @@ class Statistic(object):
         """
         return self + other
 
+    def __sub__(self, other):
+        """
+        Return the difference of the averages.
+
+        """
+        if not isinstance(other, Statistic):
+            return self.avg - other
+        else:
+            return self.avg - other.avg
+
     def __float__(self):
         """
         Reduce this stats object down a float depending on strategy chosen in constructor.
@@ -581,6 +591,33 @@ class Node(object):
             level += 1
             node = node.parent
         return level
+
+    def __sub__(self, rhs):
+        """
+        Return tree that contains the difference of this node and the other.
+
+        The semantics are as follows:
+
+        - For all data in this node the matching data item in ``rhs`` is subtracted.
+        - If the data is missing in ``rhs`` it is assumed to be zero.
+        - For all children of this node this function is called recursively.
+        - If ``rhs`` does not have an immediate child node with a matching label, those children are skipped.
+        """
+
+        if not isinstance(rhs, Node):
+            raise ValueError("Expected node but got '%s'"%type(rhs))
+        diff = Node(self.label)
+        for k in self.data:
+            diff.data[k] = self.data[k] - rhs.data.get(k, 0)
+
+        for lchild in self.children:
+            for rchild in rhs.children:
+                if lchild.label == rchild.label:
+                    diff.children.append(lchild - rchild)
+                    break
+            else:
+                print("Skipping missing node '%s'"%lchild.label)
+        return diff
 
 
 class TimeTreeTracer(Tracer):
