@@ -227,13 +227,9 @@ class Statistic(object):
 
     def __sub__(self, other):
         """
-        Return the difference of the averages.
-
+        Return the difference of the two nodes reduced to floats.
         """
-        if not isinstance(other, Statistic):
-            return self.avg - other
-        else:
-            return self.avg - other.avg
+        return float(self) - float(other)
 
     def __float__(self):
         """
