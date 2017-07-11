@@ -4,7 +4,7 @@ include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 
-from fplll cimport Matrix, Z_NR, mpz_t
+from fplll cimport Matrix, Z_NR, mpz_t, ZT_MPZ
 from fplll cimport LLL_DEF_ETA, LLL_DEF_DELTA, LLL_DEFAULT
 from fplll cimport get_red_status_str
 from fpylll.util import ReductionError
@@ -26,14 +26,17 @@ cdef class Wrapper:
         >>> W = LLL.Wrapper(A)
 
         """
+        if B._type != ZT_MPZ:
+            raise NotImplementedError("Only integer matrices over GMP integers (mpz_t) are supported.")
+
         self.B = B
         # TODO: Don't hardcode this
         self.U = IntegerMatrix(0,0)
         self.UinvT = IntegerMatrix(0,0)
 
-        self._core = new Wrapper_c((self.B._core)[0],
-                                   (self.U._core)[0],
-                                   (self.UinvT._core)[0],
+        self._core = new Wrapper_c((self.B._core.mpz)[0],
+                                   (self.U._core.mpz)[0],
+                                   (self.UinvT._core.mpz)[0],
                                    delta, eta, flags)
         self._called = False
 

@@ -550,9 +550,9 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 # Enumeration
 
 cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
-    cdef cppclass Enumeration[FT]:
-        Enumeration(MatGSO[Z_NR[mpz_t], FT]& gso, FastEvaluator[FT]& evaluator)
-        Enumeration(MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]]& gso, FastErrorBoundedEvaluator& evaluator)
+    cdef cppclass Enumeration[ZT, FT]:
+        Enumeration(MatGSO[ZT, FT]& gso, FastEvaluator[FT]& evaluator)
+        Enumeration(MatGSO[ZT, FP_NR[mpfr_t]]& gso, FastErrorBoundedEvaluator& evaluator)
 
         void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
                        const vector[FT]& targetCoord,

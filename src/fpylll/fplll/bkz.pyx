@@ -30,6 +30,7 @@ from fplll cimport RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT
 from fplll cimport bkz_reduction as bkz_reduction_c
 from fplll cimport dpe_t
 from fplll cimport get_red_status_str
+from fplll cimport ZT_MPZ
 from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.util cimport check_delta, check_precision, check_float_type
@@ -796,9 +797,12 @@ def bkz_reduction(IntegerMatrix B, BKZParam o, float_type=None, int precision=0)
     cdef FloatType float_type_ = check_float_type(float_type)
     cdef int r = 0
 
+    if B._type != ZT_MPZ:
+        raise NotImplementedError("C++ BKZ is not implemented over longs, try the Python version.")
+
     with nogil:
         sig_on()
-        r = bkz_reduction_c(B._core, NULL, o.o[0], float_type_, precision)
+        r = bkz_reduction_c(B._core.mpz, NULL, o.o[0], float_type_, precision)
         sig_off()
 
     if r and r not in (RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT):
