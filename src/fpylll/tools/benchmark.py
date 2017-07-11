@@ -22,7 +22,7 @@ def bench_enumeration(n):
     L(0, 0, n)
 
     radius = M.get_r(0, 0) * .999
-    pruning = prune(radius, 2**30, 0.9, M)
+    pruning = prune(radius, 2**30, 0.9, M.r())
 
     enum = Enumeration(M)
     t = time()
