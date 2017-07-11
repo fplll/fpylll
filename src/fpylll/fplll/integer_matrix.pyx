@@ -124,7 +124,7 @@ cdef class IntegerMatrixRow:
         if self.m._type == ZT_MPZ:
             return self.m._core.mpz[0][self.row].size()
         elif self.m._type == ZT_LONG:
-            return self.m._.core.long[0][self.row].size()
+            return self.m._core.long[0][self.row].size()
         else:
             raise RuntimeError("Integer type '%s' not understood."%self.m._type)
 
@@ -141,7 +141,7 @@ cdef class IntegerMatrixRow:
         if self.m._type == ZT_MPZ:
             return bool(self.m._core.mpz[0][self.row].is_zero(frm))
         elif self.m._type == ZT_LONG:
-            return bool(self.m._.core.long[0][self.row].is_zero(frm))
+            return bool(self.m._core.long[0][self.row].is_zero(frm))
         else:
             raise RuntimeError("Integer type '%s' not understood."%self.m._type)
 
@@ -161,7 +161,7 @@ cdef class IntegerMatrixRow:
         if self.m._type == ZT_MPZ:
             return self.m._core.mpz[0][self.row].size_nz()
         elif self.m._type == ZT_LONG:
-            return self.m._.core.long[0][self.row].size_nz()
+            return self.m._core.long[0][self.row].size_nz()
         else:
             raise RuntimeError("Integer type '%s' not understood."%self.m._type)
 
@@ -181,7 +181,7 @@ cdef class IntegerMatrixRow:
         if self.m._type == ZT_MPZ:
             self.m._core.mpz[0][self.row].add(v.m._core.mpz[0][v.row])
         elif self.m._type == ZT_LONG:
-            self.m._.core.long[0][self.row].add(v.m._.core.long[0][v.row])
+            self.m._core.long[0][self.row].add(v.m._core.long[0][v.row])
         else:
             raise RuntimeError("Integer type '%s' not understood."%self.m._type)
         return self
@@ -202,7 +202,7 @@ cdef class IntegerMatrixRow:
         if self.m._type == ZT_MPZ:
             self.m._core.mpz[0][self.row].sub(v.m._core.mpz[0][v.row])
         elif self.m._type == ZT_LONG:
-            self.m._.core.long[0][self.row].sub(v.m._.core.long[0][v.row])
+            self.m._core.long[0][self.row].sub(v.m._core.long[0][v.row])
         else:
             raise RuntimeError("Integer type '%s' not understood."%self.m._type)
         return self
