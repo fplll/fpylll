@@ -41,9 +41,9 @@ cdef class GaussSieve:
         if algorithm not in (2,3,4):
             raise ValueError("Algorithm must be one of 2, 3 or 4, but received %d"%algorithm)
 
-        if A._type != ZT_MPZ:
+        if A._type == ZT_MPZ:
             self._core.mpz_d = new GaussSieve_c[mpz_t, FP_NR[double]](A._core.mpz[0], algorithm, verbose, seed)
-        elif A._type != ZT_LONG:
+        elif A._type == ZT_LONG:
             self._core.long_d = new GaussSieve_c[long, FP_NR[double]](A._core.long[0], algorithm, verbose, seed)
         else:
             raise RuntimeError("Integer type '%s' not understood."%A._type)
