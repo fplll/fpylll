@@ -22,7 +22,7 @@ from cysignals.signals cimport sig_on, sig_off
 
 from decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t, zz_mat_core_t
 from decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
-from decl cimport d_t, ld_t, dd_t, qd_t
+from decl cimport d_t, ld_t
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 from fplll cimport ZT_LONG, ZT_MPZ, IntType
 from fplll cimport GSO_DEFAULT
