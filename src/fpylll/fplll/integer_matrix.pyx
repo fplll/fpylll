@@ -121,12 +121,12 @@ cdef class IntegerMatrixRow:
         2
 
         """
-        if self._m._type == ZT_MPZ:
+        if self.m._type == ZT_MPZ:
             return self.m._core.mpz[0][self.row].size()
-        elif self._m._type == ZT_LONG:
+        elif self.m._type == ZT_LONG:
             return self.m._.core.long[0][self.row].size()
         else:
-            raise RuntimeError("Integer type '%s' not understood."%self._m._type)
+            raise RuntimeError("Integer type '%s' not understood."%self.m._type)
 
     def is_zero(self, int frm=0):
         """Return ``True`` if this vector consists of only zeros starting at index ``frm``
@@ -138,12 +138,12 @@ cdef class IntegerMatrixRow:
         True
 
         """
-        if self._m._type == ZT_MPZ:
+        if self.m._type == ZT_MPZ:
             return bool(self.m._core.mpz[0][self.row].is_zero(frm))
-        elif self._m._type == ZT_LONG:
+        elif self.m._type == ZT_LONG:
             return bool(self.m._.core.long[0][self.row].is_zero(frm))
         else:
-            raise RuntimeError("Integer type '%s' not understood."%self._m._type)
+            raise RuntimeError("Integer type '%s' not understood."%self.m._type)
 
     def size_nz(self):
         """Index at which an all zero vector starts.
@@ -158,12 +158,12 @@ cdef class IntegerMatrixRow:
 
         """
 
-        if self._m._type == ZT_MPZ:
+        if self.m._type == ZT_MPZ:
             return self.m._core.mpz[0][self.row].size_nz()
-        elif self._m._type == ZT_LONG:
+        elif self.m._type == ZT_LONG:
             return self.m._.core.long[0][self.row].size_nz()
         else:
-            raise RuntimeError("Integer type '%s' not understood."%self._m._type)
+            raise RuntimeError("Integer type '%s' not understood."%self.m._type)
 
     def __iadd__(self, IntegerMatrixRow v):
         """
@@ -178,12 +178,12 @@ cdef class IntegerMatrixRow:
         (6, 10)
 
         """
-        if self._m._type == ZT_MPZ:
+        if self.m._type == ZT_MPZ:
             self.m._core.mpz[0][self.row].add(v.m._core.mpz[0][v.row])
-        elif self._m._type == ZT_LONG:
+        elif self.m._type == ZT_LONG:
             self.m._.core.long[0][self.row].add(v.m._.core.long[0][v.row])
         else:
-            raise RuntimeError("Integer type '%s' not understood."%self._m._type)
+            raise RuntimeError("Integer type '%s' not understood."%self.m._type)
         return self
 
     def __isub__(self, IntegerMatrixRow v):
@@ -199,12 +199,12 @@ cdef class IntegerMatrixRow:
         (-6, -6)
 
         """
-        if self._m._type == ZT_MPZ:
+        if self.m._type == ZT_MPZ:
             self.m._core.mpz[0][self.row].sub(v.m._core.mpz[0][v.row])
-        elif self._m._type == ZT_LONG:
+        elif self.m._type == ZT_LONG:
             self.m._.core.long[0][self.row].sub(v.m._.core.long[0][v.row])
         else:
-            raise RuntimeError("Integer type '%s' not understood."%self._m._type)
+            raise RuntimeError("Integer type '%s' not understood."%self.m._type)
         return self
 
     def addmul(self, IntegerMatrixRow v, x=1, int expo=0):
@@ -235,14 +235,14 @@ cdef class IntegerMatrixRow:
         cdef Z_NR[long] x_l_
         cdef Z_NR[long] tmp_l
 
-        if self._m._type == ZT_MPZ:
+        if self.m._type == ZT_MPZ:
             assign_Z_NR_mpz(x_mpz_, x)
             self.m._core.mpz[0][self.row].addmul_2exp(v.m._core.mpz[0][v.row], x_mpz_, expo, tmp_mpz)
-        elif self._m._type == ZT_LONG:
+        elif self.m._type == ZT_LONG:
             x_l_ = <long>x
             self.m._core.long[0][self.row].addmul_2exp(v.m._core.long[0][v.row], x_l_, expo, tmp_l)
         else:
-            raise RuntimeError("Integer type '%s' not understood."%self._m._type)
+            raise RuntimeError("Integer type '%s' not understood."%self.m._type)
         return
 
 
