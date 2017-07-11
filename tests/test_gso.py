@@ -4,12 +4,12 @@ from fpylll import GSO, IntegerMatrix, LLL
 from fpylll.config import float_types, int_types
 from copy import copy
 
-dimensions = ((0, 0), (1, 1), (2, 2), (3, 3), (10, 10), (50, 50), (60, 60))
+dimensions = ((0, 0), (2, 2), (3, 3), (10, 10), (50, 50), (60, 60))
 
 
 def make_integer_matrix(m, n, int_type="mpz"):
     A = IntegerMatrix(m, n, int_type=int_type)
-    A.randomize("ntrulike", bits=m)
+    A.randomize("qary", k=m//2, bits=m)
     return A
 
 
