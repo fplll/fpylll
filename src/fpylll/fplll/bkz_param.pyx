@@ -226,6 +226,8 @@ cdef class Strategy:
         for p in preprocessing_block_sizes:
             if p<=2:
                 raise ValueError("Preprocessing block_size must be > 2, got %s", p)
+            if p >= block_size:
+                raise ValueError("Preprocessing block_size must be < block size, got %s", p)
             self._core.preprocessing_block_sizes.push_back(p)
 
     def get_pruning(self, radius, gh):
