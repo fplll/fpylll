@@ -192,6 +192,19 @@ class BKZReduction:
         if solution is None:
             return True
 
+        # d = self.M.d
+        # self.M.create_row()
+
+        # with self.M.row_ops(d, d+1):
+        #     for i in range(block_size):
+        #         self.M.row_addmul(d, kappa + i, solution[i])
+
+        # self.M.move_row(d, kappa)
+        # with tracer.context("lll"):
+        #     self.lll_obj(kappa, kappa, kappa + block_size + 1)
+        # self.M.move_row(kappa + block_size, d)
+        # self.M.remove_last_row()
+
         j_nz = None
 
         for i in range(block_size):
@@ -239,6 +252,9 @@ class BKZReduction:
                     offset *= 2
 
             self.M.move_row(kappa + block_size - 1, kappa)
+
+        # TODO the C++ version doesn't seem to require this call
+        self.lll_obj.size_reduction(kappa, kappa+block_size, kappa)
 
         return False
 
