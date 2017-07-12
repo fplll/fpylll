@@ -415,7 +415,7 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         void discover_all_rows() nogil
         void set_r(int i, int j, FT& f) nogil
         void move_row(int oldR, int newR) nogil
-        void swap_rows(int row1, int row2)
+        void row_swap(int row1, int row2)
 
         void row_addmul(int i, int j, const FT& x) nogil
         void row_addmul_we(int i, int j, const FT& x, long expoAdd) nogil

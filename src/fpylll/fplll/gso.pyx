@@ -1125,6 +1125,47 @@ cdef class MatGSO:
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
+    def swap_rows(self, int i, int j):
+        """
+        Swap rows ``i`` and ``j``.
+
+        :param int i: row index
+        :param int j: row index
+
+        """
+        preprocess_indices(i, j, self.d, self.d)
+        if self._type == gso_mpz_d:
+            return self._core.mpz_d.row_swap(i, j)
+        IF HAVE_LONG_DOUBLE:
+            if self._type == gso_mpz_ld:
+                return self._core.mpz_ld.row_swap(i, j)
+        if self._type == gso_mpz_dpe:
+            return self._core.mpz_dpe.row_swap(i, j)
+        IF HAVE_QD:
+            if self._type == gso_mpz_dd:
+                return self._core.mpz_dd.row_swap(i, j)
+            if self._type == gso_mpz_qd:
+                return self._core.mpz_qd.row_swap(i, j)
+        if self._type == gso_mpz_mpfr:
+            return self._core.mpz_mpfr.row_swap(i, j)
+
+        if self._type == gso_long_d:
+            return self._core.long_d.row_swap(i, j)
+        IF HAVE_LONG_DOUBLE:
+            if self._type == gso_long_ld:
+                return self._core.long_ld.row_swap(i, j)
+        if self._type == gso_long_dpe:
+            return self._core.long_dpe.row_swap(i, j)
+        IF HAVE_QD:
+            if self._type == gso_long_dd:
+                return self._core.long_dd.row_swap(i, j)
+            if self._type == gso_long_qd:
+                return self._core.long_qd.row_swap(i, j)
+        if self._type == gso_long_mpfr:
+            return self._core.long_mpfr.row_swap(i, j)
+
+        raise RuntimeError("MatGSO object '%s' has no core."%self)
+
     def negate_row(self, int i):
         """Set `b_i` to `-b_i`.
 
