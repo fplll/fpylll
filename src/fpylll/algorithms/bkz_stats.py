@@ -748,10 +748,6 @@ class BKZTreeTracer(Tracer):
                 pass
             report["lll"] = node.sum("cputime", label="lll")
             try:
-                report["postproc"] = node.find("postprocessing", True)["cputime"]
-            except KeyError:
-                pass
-            try:
                 report["pruner"] = node.find("pruner", True)["cputime"]
             except KeyError:
                 pass
