@@ -188,6 +188,9 @@ class BKZReduction:
         :param tracer: object for maintaining statistics
 
         :returns: ``True`` if no change was made and ``False`` otherwise
+
+        ..  note :: postprocessing does not necessarily leave the GSO in a safe state.  You may
+            need to call ``update_gso()`` afterwards.
         """
         if solution is None:
             return True
@@ -252,9 +255,6 @@ class BKZReduction:
                     offset *= 2
 
             self.M.move_row(kappa + block_size - 1, kappa)
-
-        # TODO the C++ version doesn't seem to require this call
-        self.lll_obj.size_reduction(kappa, kappa+block_size, kappa)
 
         return False
 
