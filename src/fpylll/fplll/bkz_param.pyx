@@ -214,14 +214,14 @@ cdef class Strategy:
             raise ValueError("Block size must be ≥ 0")
         self._core.block_size = block_size
 
-        pruning_parameters_ = []
         for p in pruning_parameters:
             if not isinstance(p, Pruning):
                 p = Pruning(*p)
             self._core.pruning_parameters.push_back((<Pruning>p)._core)
 
-        if len(pruning_parameters_) == 0:
-            pruning_parameters_.append(Pruning(1.0, [1.0 for _ in range(self.block_size)], 1.0))
+        if len(pruning_parameters) == 0:
+            p = Pruning(1.0, [1.0 for _ in range(self.block_size)], 1.0)
+            self._core.pruning_parameters.push_back((<Pruning>p)._core)
 
         for p in preprocessing_block_sizes:
             if p<=2:
