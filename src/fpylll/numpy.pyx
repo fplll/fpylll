@@ -4,9 +4,11 @@ include "fpylll/config.pxi"
 
 from fpylll.fplll.gso cimport MatGSO
 from fpylll.fplll.decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr
+from fpylll.fplll.decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
 
 IF HAVE_QD:
     from fpylll.fplll.decl cimport gso_mpz_dd, gso_mpz_qd
+    from fpylll.fplll.decl cimport gso_long_dd, gso_long_qd
 
 IF not HAVE_NUMPY:
     raise ImportError("NumPy is not installed, but this module relies on it.")
@@ -39,6 +41,21 @@ def _dump_mu(ndarray[double, ndim=2, mode="c"] mu not None, MatGSO M, int kappa,
             return M._core.mpz_qd.dump_mu_d(&mu[0,0], kappa, block_size)
     if M._type == gso_mpz_mpfr:
         return M._core.mpz_mpfr.dump_mu_d(&mu[0,0], kappa, block_size)
+
+    if M._type == gso_long_d:
+        return M._core.long_d.dump_mu_d(&mu[0,0], kappa, block_size)
+    IF HAVE_LONG_DOUBLE:
+        if M._type == gso_long_ld:
+            return M._core.long_ld.dump_mu_d(&mu[0,0], kappa, block_size)
+    if M._type == gso_long_dpe:
+        return M._core.long_dpe.dump_mu_d(&mu[0,0], kappa, block_size)
+    IF HAVE_QD:
+        if M._type == gso_long_dd:
+            return M._core.long_dd.dump_mu_d(&mu[0,0], kappa, block_size)
+        if M._type == gso_long_qd:
+            return M._core.long_qd.dump_mu_d(&mu[0,0], kappa, block_size)
+    if M._type == gso_long_mpfr:
+        return M._core.long_mpfr.dump_mu_d(&mu[0,0], kappa, block_size)
 
     raise RuntimeError("MatGSO object '%s' has no core."%M)
 
@@ -82,6 +99,21 @@ def _dump_r(ndarray[double, ndim=1, mode="c"] r not None, MatGSO M, int kappa, i
             return M._core.mpz_qd.dump_r_d(&r[0], kappa, block_size)
     if M._type == gso_mpz_mpfr:
         return M._core.mpz_mpfr.dump_r_d(&r[0], kappa, block_size)
+
+    if M._type == gso_long_d:
+        return M._core.long_d.dump_r_d(&r[0], kappa, block_size)
+    IF HAVE_LONG_DOUBLE:
+        if M._type == gso_long_ld:
+            return M._core.long_ld.dump_r_d(&r[0], kappa, block_size)
+    if M._type == gso_long_dpe:
+        return M._core.long_dpe.dump_r_d(&r[0], kappa, block_size)
+    IF HAVE_QD:
+        if M._type == gso_long_dd:
+            return M._core.long_dd.dump_r_d(&r[0], kappa, block_size)
+        if M._type == gso_long_qd:
+            return M._core.long_qd.dump_r_d(&r[0], kappa, block_size)
+    if M._type == gso_long_mpfr:
+        return M._core.long_mpfr.dump_r_d(&r[0], kappa, block_size)
 
     raise RuntimeError("MatGSO object '%s' has no core."%M)
 

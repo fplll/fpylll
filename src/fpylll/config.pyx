@@ -19,5 +19,7 @@ ELSE:
     have_qd = False
     float_types = float_types + ("dpe", "mpfr")
 
+int_types = ("long", "mpz")
+
 default_strategy = default_strategy_c().c_str()
 default_strategy_path = default_strategy_path_c().c_str()

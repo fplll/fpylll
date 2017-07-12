@@ -3,9 +3,9 @@
 from fpylll import IntegerMatrix, set_random_seed
 
 
-def make_integer_matrix(m, n):
-    A = IntegerMatrix(m, n)
-    A.randomize("uniform", bits=m+n)
+def make_integer_matrix(m, n, int_type="mpz"):
+    A = IntegerMatrix(m, n, int_type=int_type)
+    A.randomize("qary", k=m//2, bits=m)
     return A
 
 

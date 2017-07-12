@@ -49,8 +49,7 @@ class BKZReduction:
 
         if M is None and L is None:
             # run LLL first, but only if a matrix was passed
-            wrapper = LLL.Wrapper(A)
-            wrapper()
+            LLL.reduction(A)
 
         self.A = A
         if M is None:
