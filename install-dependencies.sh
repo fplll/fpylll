@@ -2,10 +2,12 @@
 
 if [ "$TRAVIS_BRANCH" != "" ]; then
     FPLLL_BRANCH=$TRAVIS_BRANCH;
+    CONFIGURE_FLAGS="--disable-static --with-max-enumeration-dimension=64"
 fi
 
 if [ "$FPLLL_BRANCH" = "" ]; then
     FPLLL_BRANCH=master
+    CONFIGURE_FLAGS="--disable-static"
 fi;
 
 cloned=$(git clone https://github.com/fplll/fplll -b "$FPLLL_BRANCH")
@@ -18,9 +20,9 @@ cd fplll || exit
 ./autogen.sh
 
 if [ "$1" != "" ]; then
-    ./configure --prefix="$1"
+    ./configure --prefix="$1" $CONFIGURE_FLAGS
 else
-    ./configure
+    ./configure $CONFIGURE_FLAGS
 fi
 
 make
