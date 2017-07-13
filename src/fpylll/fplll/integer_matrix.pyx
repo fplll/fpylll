@@ -1437,7 +1437,7 @@ cdef class IntegerMatrix:
 
         >>> fn = tempfile.mktemp()
         >>> fh = open(fn, "w")
-        >>> fh.write(str(A))
+        >>> _ = fh.write(str(A))
         >>> fh.close()
 
         >>> B = IntegerMatrix.from_file(fn)
