@@ -1432,6 +1432,18 @@ cdef class IntegerMatrix:
     def from_file(cls, filename):
         """Construct new matrix from file.
 
+        >>> import tempfile
+        >>> A = IntegerMatrix.random(10, "qary", k=5, bits=20)
+
+        >>> fn = tempfile.mktemp()
+        >>> fh = open(fn, "w")
+        >>> fh.write(str(A))
+        >>> fh.close()
+
+        >>> B = IntegerMatrix.from_file(fn)
+        >>> A == B
+        True
+
         :param filename: name of file to read from
 
         """
@@ -1455,7 +1467,7 @@ cdef class IntegerMatrix:
                     raise RuntimeError("Integer type '%s' not understood."%(<IntegerMatrix>A)._type)
 
                 for j, v in enumerate(values):
-                    A._set(i, j, v)
+                    (<IntegerMatrix>A)._set(i, j, v)
         return A
 
 
