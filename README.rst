@@ -223,8 +223,10 @@ The following people have contributed to **fpylll**
 - Martin Albrecht
 - Guillaume Bonnoron
 - Jeroen Demeyer
+- Konstantinos Draziotis
 - Leo Ducas
 - Omer Katz
+- Fernando Virdia
 
 We copied a decent bit of code over from Sage, mostly from it's fpLLL interface.
 
