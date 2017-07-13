@@ -7,6 +7,10 @@ python:
 
 cache: pip
 
+branches:
+  only:
+    - master
+
 addons:
   apt:
     sources:
