@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Integer matrices.
+Dense matrices over the Integers.
 
 .. moduleauthor:: Martin R. Albrecht <martinralbrecht+fpylll@googlemail.com>
 
@@ -68,7 +68,17 @@ cdef class IntegerMatrixRow:
             raise RuntimeError("Integer type '%s' not understood."%self._m._type)
 
     def __str__(self):
-        """String representation of this row.
+        """
+        String representation of this row.
+
+        Example::
+
+            >>> from fpylll import IntegerMatrix
+            >>> A = IntegerMatrix(2, 3)
+            >>> A[0,0] = 1; A[0,1] = 2; A[0,2] = 3
+            >>> print(str(A[0]))
+            (1, 2, 3)
+
         """
         cdef int i
         r = []
@@ -78,6 +88,16 @@ cdef class IntegerMatrixRow:
         return "(" + ", ".join(r) + ")"
 
     def __repr__(self):
+        """
+        Example::
+
+            >>> from fpylll import IntegerMatrix
+            >>> A = IntegerMatrix(2, 3)
+            >>> A[0,0] = 1; A[0,1] = 2; A[0,2] = 3
+            >>> print(repr(A[0]))  # doctest: +ELLIPSIS
+            row 0 of <IntegerMatrix(2, 3) at 0x...>
+
+        """
         return "row %d of %r"%(self.row, self.m)
 
     def __reduce__(self):
@@ -89,14 +109,16 @@ cdef class IntegerMatrixRow:
     def __abs__(self):
         """Return ℓ_2 norm of this vector.
 
-        >>> A = IntegerMatrix.from_iterable(1, 3, [1,2,3])
-        >>> A[0].norm()  # doctest: +ELLIPSIS
-        3.74165...
-        >>> 1*1 + 2*2 + 3*3
-        14
-        >>> from math import sqrt
-        >>> sqrt(14)  # doctest: +ELLIPSIS
-        3.74165...
+        Example::
+
+            >>> A = IntegerMatrix.from_iterable(1, 3, [1,2,3])
+            >>> A[0].norm()  # doctest: +ELLIPSIS
+            3.74165...
+            >>> 1*1 + 2*2 + 3*3
+            14
+            >>> from math import sqrt
+            >>> sqrt(14)  # doctest: +ELLIPSIS
+            3.74165...
 
         """
         cdef Z_NR[mpz_t] t_mpz
@@ -116,9 +138,13 @@ cdef class IntegerMatrixRow:
 
     def __len__(self):
         """
-        >>> A = IntegerMatrix.from_matrix([[1,2],[3,4]], 2, 2)
-        >>> len(A[0])
-        2
+        Return vector length.
+
+        Example::
+
+            >>> A = IntegerMatrix.from_matrix([[1,2],[3,4]], 2, 2)
+            >>> len(A[0])
+            2
 
         """
         if self.m._type == ZT_MPZ:
@@ -129,13 +155,16 @@ cdef class IntegerMatrixRow:
             raise RuntimeError("Integer type '%s' not understood."%self.m._type)
 
     def is_zero(self, int frm=0):
-        """Return ``True`` if this vector consists of only zeros starting at index ``frm``
+        """
+        Return ``True`` if this vector consists of only zeros starting at index ``frm``
 
-        >>> A = IntegerMatrix.from_matrix([[1,0,0]])
-        >>> A[0].is_zero()
-        False
-        >>> A[0].is_zero(1)
-        True
+        Example::
+
+            >>> A = IntegerMatrix.from_matrix([[1,0,0]])
+            >>> A[0].is_zero()
+            False
+            >>> A[0].is_zero(1)
+            True
 
         """
         if self.m._type == ZT_MPZ:
@@ -146,15 +175,18 @@ cdef class IntegerMatrixRow:
             raise RuntimeError("Integer type '%s' not understood."%self.m._type)
 
     def size_nz(self):
-        """Index at which an all zero vector starts.
+        """
+        Index at which an all zero vector starts.
 
-        >>> A = IntegerMatrix.from_matrix([[0,2,3],[0,2,0],[0,0,0]])
-        >>> A[0].size_nz()
-        3
-        >>> A[1].size_nz()
-        2
-        >>> A[2].size_nz()
-        0
+        Example::
+
+            >>> A = IntegerMatrix.from_matrix([[0,2,3],[0,2,0],[0,0,0]])
+            >>> A[0].size_nz()
+            3
+            >>> A[1].size_nz()
+            2
+            >>> A[2].size_nz()
+            0
 
         """
 
@@ -167,15 +199,20 @@ cdef class IntegerMatrixRow:
 
     def __iadd__(self, IntegerMatrixRow v):
         """
+        In-place add row vector ``v``
 
-        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
-        >>> A[0] += A[1]
-        >>> print(A[0])
-        (3, 6)
-        >>> v = A[0]
-        >>> v += A[1]
-        >>> print(A[0])
-        (6, 10)
+        :param IntegerMatrixRow v: a row vector
+
+        Example::
+
+            >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+            >>> A[0] += A[1]
+            >>> print(A[0])
+            (3, 6)
+            >>> v = A[0]
+            >>> v += A[1]
+            >>> print(A[0])
+            (6, 10)
 
         """
         if self.m._type == ZT_MPZ:
@@ -188,15 +225,20 @@ cdef class IntegerMatrixRow:
 
     def __isub__(self, IntegerMatrixRow v):
         """
+        In-place subtract row vector ``v``
 
-        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
-        >>> A[0] -= A[1]
-        >>> print(A[0])
-        (-3, -2)
-        >>> v = A[0]
-        >>> v -= A[1]
-        >>> print(A[0])
-        (-6, -6)
+        :param IntegerMatrixRow v: a row vector
+
+        Example::
+
+            >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+            >>> A[0] -= A[1]
+            >>> print(A[0])
+            (-3, -2)
+            >>> v = A[0]
+            >>> v -= A[1]
+            >>> print(A[0])
+            (-6, -6)
 
         """
         if self.m._type == ZT_MPZ:
@@ -210,24 +252,26 @@ cdef class IntegerMatrixRow:
     def addmul(self, IntegerMatrixRow v, x=1, int expo=0):
         """In-place add row vector ``2^expo ⋅ x ⋅ v``
 
-        :param IntegerMatrixRow v: row vector
+        :param IntegerMatrixRow v: a row vector
         :param x: multiplier
         :param int expo: scaling exponent.
 
-        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
-        >>> A[0].addmul(A[1])
-        >>> print(A[0])
-        (3, 6)
+        Example::
 
-        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
-        >>> A[0].addmul(A[1],x=0)
-        >>> print(A[0])
-        (0, 2)
+            >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+            >>> A[0].addmul(A[1])
+            >>> print(A[0])
+            (3, 6)
 
-        >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
-        >>> A[0].addmul(A[1],x=1,expo=2)
-        >>> print(A[0])
-        (12, 18)
+            >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+            >>> A[0].addmul(A[1],x=0)
+            >>> print(A[0])
+            (0, 2)
+
+            >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
+            >>> A[0].addmul(A[1],x=1,expo=2)
+            >>> print(A[0])
+            (12, 18)
 
         """
         cdef Z_NR[mpz_t] x_mpz_
@@ -401,9 +445,159 @@ cdef class IntegerMatrix:
 
     @classmethod
     def random(cls, d, algorithm, int_type="mpz", **kwds):
-        """Construct new random matrix.
+        """
+        Construct new random matrix.
 
-        :seealso: `IntegerMatrix.randomize`
+        :param d: dominant size parameter, see below for details
+        :param algorithm: type of matrix create, see below for details
+        :param int_type: underlying integer type
+
+        :returns: a random lattice basis
+
+        Examples::
+
+            >>> from fpylll import set_random_seed
+            >>> set_random_seed(1337)
+
+            >>> print(IntegerMatrix.random(10, "intrel", bits=100))
+            [ 256463166861109549799341521970 1 0 0 0 0 0 0 0 0 0 ]
+            [ 873207450444980568127200753712 0 1 0 0 0 0 0 0 0 0 ]
+            [ 516416770023228805415484560020 0 0 1 0 0 0 0 0 0 0 ]
+            [ 994525604022093635359952223251 0 0 0 1 0 0 0 0 0 0 ]
+            [ 780641228987278628796386273758 0 0 0 0 1 0 0 0 0 0 ]
+            [ 340097864333930124184854172929 0 0 0 0 0 1 0 0 0 0 ]
+            [ 844948852837276759341122419576 0 0 0 0 0 0 1 0 0 0 ]
+            [ 324772894317620180051644618459 0 0 0 0 0 0 0 1 0 0 ]
+            [ 376229655695162649452550239601 0 0 0 0 0 0 0 0 1 0 ]
+            [ 495116044692403918956390532457 0 0 0 0 0 0 0 0 0 1 ]
+
+        ::
+
+            >>> print(IntegerMatrix.random(10, "simdioph", bits=10, bits2=100))
+            [ 1267650600228229401496703205376  707  806  537  912  911  788  822  187  170 ]
+            [                               0 1024    0    0    0    0    0    0    0    0 ]
+            [                               0    0 1024    0    0    0    0    0    0    0 ]
+            [                               0    0    0 1024    0    0    0    0    0    0 ]
+            [                               0    0    0    0 1024    0    0    0    0    0 ]
+            [                               0    0    0    0    0 1024    0    0    0    0 ]
+            [                               0    0    0    0    0    0 1024    0    0    0 ]
+            [                               0    0    0    0    0    0    0 1024    0    0 ]
+            [                               0    0    0    0    0    0    0    0 1024    0 ]
+            [                               0    0    0    0    0    0    0    0    0 1024 ]
+
+
+        ::
+
+            >>> print(IntegerMatrix.random(10, "uniform", bits=10))
+            [ 973  94 326 837  61 477 614 100 180 342 ]
+            [ 496 824 519  44 718 219 583 322 587 747 ]
+            [ 493 919 759 510 523 601 499 223 259 745 ]
+            [  47 828 224 878 125  85 577 307 842 541 ]
+            [  54 805 185 424 211 165 473 801 596 768 ]
+            [ 201 709 292 882 253 126 291 232 696 587 ]
+            [ 410 303 252 547 517 999  78 776 334 474 ]
+            [ 512 818  30 657 589 894 426 140 212  98 ]
+            [ 314 947 225 231 923 274 456 376 608 210 ]
+            [  17 486 924 427 455 937 734 915 732 438 ]
+
+        ::
+
+            >>> print(IntegerMatrix.random(5, "ntrulike", q=127))
+            [ 1 0 0 0 0 125  39  62  24   4 ]
+            [ 0 1 0 0 0   4 125  39  62  24 ]
+            [ 0 0 1 0 0  24   4 125  39  62 ]
+            [ 0 0 0 1 0  62  24   4 125  39 ]
+            [ 0 0 0 0 1  39  62  24   4 125 ]
+            [ 0 0 0 0 0 127   0   0   0   0 ]
+            [ 0 0 0 0 0   0 127   0   0   0 ]
+            [ 0 0 0 0 0   0   0 127   0   0 ]
+            [ 0 0 0 0 0   0   0   0 127   0 ]
+            [ 0 0 0 0 0   0   0   0   0 127 ]
+
+        ::
+
+            >>> print(IntegerMatrix.random(5, "ntrulike2", q=127))
+            [ 127   0   0   0   0 0 0 0 0 0 ]
+            [   0 127   0   0   0 0 0 0 0 0 ]
+            [   0   0 127   0   0 0 0 0 0 0 ]
+            [   0   0   0 127   0 0 0 0 0 0 ]
+            [   0   0   0   0 127 0 0 0 0 0 ]
+            [  67   3  46  34 104 1 0 0 0 0 ]
+            [ 104  67   3  46  34 0 1 0 0 0 ]
+            [  34 104  67   3  46 0 0 1 0 0 ]
+            [  46  34 104  67   3 0 0 0 1 0 ]
+            [   3  46  34 104  67 0 0 0 0 1 ]
+
+        ::
+
+            >>> print(IntegerMatrix.random(10, "qary", k=8, q=127))
+            [ 1 0 107 110  45  98  19  71  10  87 ]
+            [ 0 1  79  63  62   8  33 126  32  33 ]
+            [ 0 0 127   0   0   0   0   0   0   0 ]
+            [ 0 0   0 127   0   0   0   0   0   0 ]
+            [ 0 0   0   0 127   0   0   0   0   0 ]
+            [ 0 0   0   0   0 127   0   0   0   0 ]
+            [ 0 0   0   0   0   0 127   0   0   0 ]
+            [ 0 0   0   0   0   0   0 127   0   0 ]
+            [ 0 0   0   0   0   0   0   0 127   0 ]
+            [ 0 0   0   0   0   0   0   0   0 127 ]
+
+        ::
+
+            >>> print(IntegerMatrix.random(10, "trg", alpha=0.99))
+            [ 127027      0      0      0     0     0    0   0   0   0 ]
+            [   -524  68055      0      0     0     0    0   0   0   0 ]
+            [ -28001  25785  43896      0     0     0    0   0   0   0 ]
+            [   4141  15090 -11328  28142     0     0    0   0   0   0 ]
+            [  -9556   4411  10194  -7745  7687     0    0   0   0   0 ]
+            [  22770 -11762  15511  -6888  1915 12850    0   0   0   0 ]
+            [  11304  26857 -15251  -3005 -1178  2695 2196   0   0   0 ]
+            [  49186 -25085  -9654 -10658  1601 -4043 1090 816   0   0 ]
+            [ -36512  12331 -12834   9700 -1098 -3501  579  58 309   0 ]
+            [ -48197  18158  14830 -10361 -1478 -4212 -383 -23   5 638 ]
+
+        Available Algorithms:
+
+            - ``"intrel"`` - (``bits`` = `b`) generate a knapsack like matrix of dimension `d ×
+              (d+1)` and `b` bits: the i-th vector starts with a random integer of bit-length `≤ b`
+              and the rest is the i-th canonical unit vector.
+
+            - ``"simdioph"`` - (``bits`` = `b_1`, ``bits2`` = `b_2`) generate a `d × d` matrix of a
+              form similar to that is involved when trying to find rational approximations to reals
+              with the same small denominator. The first vector starts with a random integer of
+              bit-length `≤ b_2` and continues with `d-1` independent integers of bit-lengths `≤
+              b_1`; the i-th vector for `i>1` is the i-th canonical unit vector scaled by a factor
+              `2^{b_1}`.
+
+            - ``"uniform"`` - (``bits`` = `b`) - generate a `d × d` matrix whose entries are independent
+              integers of bit-lengths `≤ b`.
+
+            - ``"ntrulike"`` - (``bits`` = `b` or ``q``) generate a `2d × 2d` NTRU-like matrix. If
+              ``bits`` is given, then it first samples an integer `q` of bit-length `≤ b`, whereas
+              if ``q``, then it sets `q` to the provided value. Then it samples a uniform `h` in the
+              ring `Z_q[x]/(x^n-1)`. It finally returns the 2 x 2 block matrix `[[I, rot(h)], [0,
+              qI]]`, where each block is `d x d`, the first row of `rot(h)` is the coefficient
+              vector of `h`, and the i-th row of `rot(h)` is the shift of the (i-1)-th (with last
+              entry put back in first position), for all i>1.
+
+            - ``ntrulike2"`` - (``bits`` = `b` or ``q``) as the previous option, except that the
+              constructed matrix is `[[qI, 0], [rot(h), I]]`.
+
+            - ``"qary"`` - (``bits`` = `b` or ``q``, ``k``) generate a `d × d` q-ary matrix with
+              determinant `q^k`. If ``bits`` is given, then it first samples an integer `q` of
+              bit-length `≤ b`; if ``q`` is provided, then set `q` to the provided value. It returns
+              a `2 x 2` block matrix `[[qI, 0], [H, I]]`, where `H` is `k x (d-k)` and uniformly
+              random modulo q. These bases correspond to the SIS/LWE q-ary lattices. Goldstein-Mayer
+              lattices correspond to `k=1` and `q` prime.
+
+            - ``"trg"`` - (``alpha``) generate a `d × d` lower-triangular matrix `B` with `B_{ii} =
+              2^{(d-i+1)^\\alpha}` for all `i`, and `B_{ij}` is uniform between `-B_{jj}/2` and
+              `B_{jj}/2` for all ``j<i`.
+
+        :warning: The NTRU options above do *not* produce genuine NTRU lattice with an unusually
+            short dense sublattice.
+
+        :seealso: :func:`~IntegerMatrix.randomize`
         """
         if algorithm == "intrel":
             A = IntegerMatrix(d, d+1, int_type=int_type)
@@ -680,7 +874,7 @@ cdef class IntegerMatrix:
         :param key: a tuple of row and column indices
         :param value: an integer
 
-        EXAMPLE::
+        Example::
 
             >>> from fpylll import IntegerMatrix
             >>> A = IntegerMatrix(10, 10)
@@ -722,46 +916,10 @@ cdef class IntegerMatrix:
     def randomize(self, algorithm, **kwds):
         """Randomize this matrix using ``algorithm``.
 
-        :param algorithm: string, see below for choices.
+        :param algorithm: see :func:`~IntegerMatrix.random`
 
-            Available algorithms:
+        :seealso: :func:`~IntegerMatrix.random`
 
-                - ``"intrel"`` - generate a knapsack like matrix of dimension ``d x (d+1)`` and
-                  ``bits`` bits: the i-th vector starts with a random integer of bit-length <=b and
-                  the rest is the i-th canonical unit vector.
-
-                - ``"simdioph"`` - generate a ``d x d`` matrix of a form similar to that is involved
-                  when trying to find rational approximations to reals with the same small
-                  denominator.  The first vector starts with a random integer of bit-length
-                  ``<=bits2`` and continues with ``d-1`` independent integers of bit-lengths
-                  ``<=bits``; the i-th vector for ``i>1`` is the i-th canonical unit vector scaled
-                  by a factor ``2^b``.
-
-                - ``"uniform"`` - generate a ``d x d`` matrix whose entries are independent integers
-                  of bit-lengths ``<=bits``.
-
-                - ``"ntrulike"`` - generate an NTRU-like matrix.  If ``bits`` is given, then it
-                  first samples an integer ``q`` of bit-length ``<=bits``, whereas if ``q``, then it
-                  sets ``q`` to the provided value.  Then it samples a uniform ``h`` in the ring
-                  ``Z_q[x]/(x^n-1)``.  It finally returns the 2 x 2 block matrix ``[[I, Rot(h)], [0,
-                  q*I]]``, where each block is ``d x d``, the first row of ``Rot(h)`` is the
-                  coefficient vector of ``h``, and the i-th row of ``Rot(h)`` is the shift of the
-                  (i-1)-th (with last entry put back in first position), for all i>1.  Warning: this
-                  does not produce a genuine ntru lattice with h a genuine public key.
-
-                - ``ntrulike2"`` : as the previous option, except that the constructed matrix is
-                  ``[[q*I, 0], [Rot(h), I]]``.
-
-                - ``"qary"`` : generate a q-ary matrix.  If ``bits`` is given, then it first samples
-                  an integer ``q`` of bit-length ``<=bits``; if ``q`` is provided, then set ``q`` to
-                  the provided value.  It returns a ``2 x 2`` block matrix ``[[q*I, 0], [H, I]]``,
-                  where ``H`` is ``k x (d-k)`` and uniformly random modulo q.  These bases
-                  correspond to the SIS/LWE q-ary lattices.  Goldstein-Mayer lattices correspond to
-                  ``k=1`` and ``q`` prime.
-
-                - ``"trg"`` - generate a ``d x d`` lower-triangular matrix ``B`` with ``B_ii =
-                  2^(d-i+1)^f`` for all ``i``, and ``B_ij`` is uniform between ``-B_jj/2`` and
-                  ``B_jj/2`` for all ``j<i``.
         """
         if algorithm == "intrel":
             bits = int(kwds["bits"])
