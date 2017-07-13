@@ -33,17 +33,17 @@ cdef class Pruning:
     """
     Pruning parameters.
     """
-    def __init__(self, radius_factor, coefficients, expectation=1.0,
+    def __init__(self, gh_factor, coefficients, expectation=1.0,
                  metric="probability", detailed_cost=tuple()):
         """Create new pruning parameters object.
 
-        :param radius_factor: ratio of radius to Gaussian heuristic
+        :param gh_factor: ratio of radius to Gaussian heuristic
         :param coefficients:  a list of pruning coefficients
         :param expectation:   success probability or number of solutions
         :param metric:        either "probability" or "solutions"
 
         """
-        if radius_factor <= 0:
+        if gh_factor <= 0:
             raise ValueError("Radius factor must be > 0")
 
         cdef PrunerMetric met = <PrunerMetric>check_pruner_metric(metric)
@@ -52,7 +52,7 @@ cdef class Pruning:
             if expectation <= 0 or expectation > 1:
                 raise ValueError("Probability must be between 0 and 1")
 
-        self._core.radius_factor = radius_factor
+        self._core.gh_factor = gh_factor
         self._core.expectation = expectation
         self._core.metric = met
 
@@ -85,7 +85,7 @@ cdef class Pruning:
 
            All data is copied, i.e. `p` can be safely deleted after this function returned.
         """
-        self.radius_factor = p._core.radius_factor
+        self.gh_factor = p._core.gh_factor
         self.expectation = p._core.expectation
         self.metric = p._core.metric
         for c in p._core.coefficients:
@@ -115,22 +115,22 @@ cdef class Pruning:
             Pruning<1.000000, (1.00,...,0.30), 1.0000>
 
         """
-        return Pruning, (self.radius_factor, self.coefficients, self.expectation, self.metric, self.detailed_cost)
+        return Pruning, (self.gh_factor, self.coefficients, self.expectation, self.metric, self.detailed_cost)
 
     def __str__(self):
-        return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.radius_factor, self.coefficients[0], self.coefficients[-1], self.expectation)
+        return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.gh_factor, self.coefficients[0], self.coefficients[-1], self.expectation)
 
     @property
-    def radius_factor(self):
+    def gh_factor(self):
         """
 
             >>> from fpylll.fplll.bkz_param import Pruning
             >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
-            >>> pr.radius_factor
+            >>> pr.gh_factor
             1.0
 
         """
-        return self._core.radius_factor
+        return self._core.gh_factor
 
     @property
     def expectation(self):
@@ -241,7 +241,7 @@ cdef class Strategy:
         closest_dist = 2**80
         best = None
         for pruning in self.pruning_parameters:
-            if abs(pruning.radius_factor - gh_factor) < closest_dist:
+            if abs(pruning.gh_factor - gh_factor) < closest_dist:
                 best = pruning
         assert(best is not None)
         return best
@@ -259,7 +259,7 @@ cdef class Strategy:
         d = OrderedDict()
         d["block_size"] = self.block_size
         d["preprocessing_block_sizes"] = self.preprocessing_block_sizes
-        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.expectation, p.metric, p.detailed_cost)
+        d["pruning_parameters"] = tuple([(p.gh_factor, p.coefficients, p.expectation, p.metric, p.detailed_cost)
                                          for p in self.pruning_parameters])
         return d
 
