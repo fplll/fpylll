@@ -8,12 +8,15 @@ Gaussian Sieving was proposed in Micciancio, D., & Voulgaris, P.  (2010).  Faste
 algorithms for the shortest vector problem.  In M.  Charika, 21st SODA (pp.  1468–1480).  :
 ACM-SIAM.
 
->>> from fpylll import IntegerMatrix, GaussSieve, SVP, LLL
->>> A = IntegerMatrix.random(30, "qary", k=15, q=127); A = LLL.reduction(A)
->>> w = SVP.shortest_vector(A)
->>> v = GaussSieve(A, algorithm=2)()
->>> sum([w_**2 for w_ in w]) == sum([v_**2 for v_ in v])
-True
+Example::
+
+    >>> from fpylll import IntegerMatrix, GaussSieve, SVP, LLL, set_random_seed
+    >>> set_random_seed(1337)
+    >>> A = IntegerMatrix.random(30, "qary", k=15, q=127); A = LLL.reduction(A)
+    >>> w = SVP.shortest_vector(A)
+    >>> v = GaussSieve(A, algorithm=2)()
+    >>> sum([w_**2 for w_ in w]) == sum([v_**2 for v_ in v])
+    True
 
 """
 

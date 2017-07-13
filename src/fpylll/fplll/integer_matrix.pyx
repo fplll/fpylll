@@ -294,6 +294,7 @@ cdef class IntegerMatrix:
     """
     Dense matrices over the Integers.
     """
+
     def __init__(self, arg0, arg1=None, int_type="mpz"):
         """Construct a new integer matrix
 
@@ -619,11 +620,30 @@ cdef class IntegerMatrix:
         return A
 
     def set_matrix(self, A):
-        """Set this matrix from matrix-like object A
+        """Set this matrix from matrix-like object A.
 
         :param A: a matrix like object, with element access A[i,j] or A[i][j]
 
-        .. warning:: entries starting at ``A[nrows, ncols]`` are ignored.
+        Example::
+
+            >>> z = [[1,2,3,4], [5,6,7,8], [9,10,11,12], [13,14,15,16]]
+            >>> A = IntegerMatrix(4, 4)
+            >>> A.set_matrix(z)
+            >>> print(A)
+            [  1  2  3  4 ]
+            [  5  6  7  8 ]
+            [  9 10 11 12 ]
+            [ 13 14 15 16 ]
+
+
+            >>> A = IntegerMatrix(3, 3)
+            >>> A.set_matrix(z)
+            >>> print(A)
+            [ 1  2  3 ]
+            [ 5  6  7 ]
+            [ 9 10 11 ]
+
+        .. warning:: entries starting from ``A[nrows, ncols]`` are ignored.
 
         """
         cdef int i, j
@@ -639,11 +659,28 @@ cdef class IntegerMatrix:
                 for j in range(n):
                     self._set(i, j, A[i][j])
 
-
     def set_iterable(self, A):
         """Set this matrix from iterable A
 
         :param A: an iterable object such as a list or tuple
+
+        EXAMPLE::
+
+            >>> z = range(16)
+            >>> A = IntegerMatrix(4, 4)
+            >>> A.set_iterable(z)
+            >>> print(A)
+            [  0  1  2  3 ]
+            [  4  5  6  7 ]
+            [  8  9 10 11 ]
+            [ 12 13 14 15 ]
+
+            >>> A = IntegerMatrix(3, 3)
+            >>> A.set_iterable(z)
+            >>> print(A)
+            [ 0 1 2 ]
+            [ 3 4 5 ]
+            [ 6 7 8 ]
 
         .. warning:: entries starting at ``A[nrows * ncols]`` are ignored.
 
@@ -662,6 +699,15 @@ cdef class IntegerMatrix:
 
         :param A: a matrix like object, with element access A[i,j] or A[i][j]
         :returns: A
+
+        Example::
+
+            >>> from fpylll import set_random_seed
+            >>> z = [[0 for _ in range(10)] for _ in range(10)]
+            >>> A = IntegerMatrix.random(10, "qary", q=127, k=5)
+            >>> _ = A.to_matrix(z)
+            >>> z[0] == list(A[0])
+            True
 
         """
         cdef int i, j
