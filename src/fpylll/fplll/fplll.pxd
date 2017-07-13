@@ -664,7 +664,6 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
 
         int svp_preprocessing(int kappa, int block_size, const BKZParam &param) nogil
         int svp_postprocessing(int kappa, int block_size, const vector[FT] &solution) nogil
-        int dsvp_postprocessing(int kappa, int block_size, const vector[FT] &solution) nogil
 
         int svp_reduction(int kappa, int block_size, const BKZParam &param, int dual) nogil except +
 

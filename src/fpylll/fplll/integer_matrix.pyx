@@ -1456,13 +1456,14 @@ cdef class IntegerMatrix:
                 line = line.groups()[0]
                 line = line.strip()
                 line = [e for e in line.split(" ") if e != '']
+                ncols = len(line)
                 values = map(int, line)
                 if (<IntegerMatrix>A)._type == ZT_MPZ:
                     (<IntegerMatrix>A)._core.mpz.set_rows(i+1)
-                    (<IntegerMatrix>A)._core.mpz.set_cols(len(values))
+                    (<IntegerMatrix>A)._core.mpz.set_cols(ncols)
                 elif (<IntegerMatrix>A)._type == ZT_LONG:
                     (<IntegerMatrix>A)._core.long.set_rows(i+1)
-                    (<IntegerMatrix>A)._core.long.set_cols(len(values))
+                    (<IntegerMatrix>A)._core.long.set_cols(ncols)
                 else:
                     raise RuntimeError("Integer type '%s' not understood."%(<IntegerMatrix>A)._type)
 
