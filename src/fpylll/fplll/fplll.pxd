@@ -658,9 +658,9 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
 
 cdef extern from "fplll/bkz.h" namespace "fplll":
 
-    cdef cppclass BKZReduction[FT]:
+    cdef cppclass BKZReduction[ZT, FT]:
 
-        BKZReduction(MatGSO[Z_NR[mpz_t], FT] &m, LLLReduction[Z_NR[mpz_t], FT] &lll_obj, const BKZParam &param) nogil
+        BKZReduction(MatGSO[ZT, FT] &m, LLLReduction[ZT, FT] &lll_obj, const BKZParam &param) nogil
 
         int svp_preprocessing(int kappa, int block_size, const BKZParam &param) nogil
         int svp_postprocessing(int kappa, int block_size, const vector[FT] &solution) nogil
@@ -684,9 +684,9 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
         long nodes
 
 
-    cdef cppclass BKZAutoAbort[FT]:
-        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int num_rows) nogil
-        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int num_rows, int start_row) nogil
+    cdef cppclass BKZAutoAbort[ZT, FT]:
+        BKZAutoAbort(MatGSO[ZT, FT]& m, int num_rows) nogil
+        BKZAutoAbort(MatGSO[ZT, FT]& m, int num_rows, int start_row) nogil
 
         int test_abort() nogil
         int test_abort(double scale) nogil
