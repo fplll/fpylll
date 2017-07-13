@@ -2,12 +2,12 @@
 
 if [ "$TRAVIS_BRANCH" != "" ]; then
     FPLLL_BRANCH=$TRAVIS_BRANCH;
-    CONFIGURE_FLAGS=" --with-max-enumeration-dimension=64"
+    CONFIGURE_FLAGS="--disable-static --with-max-enumeration-dimension=64"
 fi
 
 if [ "$FPLLL_BRANCH" = "" ]; then
     FPLLL_BRANCH=master
-    CONFIGURE_FLAGS=""
+    CONFIGURE_FLAGS="--disable-static"
 fi;
 
 cloned=$(git clone https://github.com/fplll/fplll -b "$FPLLL_BRANCH")
