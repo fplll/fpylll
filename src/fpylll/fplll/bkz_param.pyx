@@ -243,7 +243,7 @@ cdef class Strategy:
         for pruning in self.pruning_parameters:
             if abs(pruning.gh_factor - gh_factor) < closest_dist:
                 best = pruning
-                closest_dist = abs(pruning.radius_factor - gh_factor)
+                closest_dist = abs(pruning.gh_factor - gh_factor)
         assert(best is not None)
         return best
 
