@@ -111,13 +111,11 @@ class BKZReduction:
 
         clean = True
 
-        for kappa in range(min_row, max_row-2):
+        for kappa in range(min_row, max_row-1):
             block_size = min(params.block_size, max_row - kappa)
             clean &= self.svp_reduction(kappa, block_size, params, tracer)
 
-        # TODO: the C++ library gets away with
-        # self.lll_obj.size_reduction(max(0, max_row-1), max_row, max(0, max_row-2))
-        self.lll_obj.size_reduction(max(0, max_row-2), max_row, max(0, max_row-3))
+        self.lll_obj.size_reduction(max(0, max_row-1), max_row, max(0, max_row-2))
         return clean
 
     def svp_preprocessing(self, kappa, block_size, params, tracer):
