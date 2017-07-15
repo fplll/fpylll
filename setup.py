@@ -33,11 +33,13 @@ cythonize_dir = "build"
 include_dirs = [os.path.join(sys.prefix, "include")]
 library_dirs = [os.path.join(sys.exec_prefix, "lib")]
 
+cxxflags = [flag for flag in os.environ.get("CXXFLAGS", "").split(" ") if flag]
+
 fplll = {"include_dirs": include_dirs,
          "library_dirs": library_dirs,
          "language": "c++",
          "libraries": ["gmp", "mpfr", "fplll"],
-         "extra_compile_args": ["-std=c++11"],
+         "extra_compile_args": ["-std=c++11"] + cxxflags,
          "extra_link_args": ["-std=c++11"]}
 
 other = {"include_dirs": include_dirs,
