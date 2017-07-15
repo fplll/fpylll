@@ -70,10 +70,6 @@ class BKZReduction(BKZBase):
             prepar = params.__class__(block_size=preproc, strategies=params.strategies, flags=BKZ.GH_BND)
             clean &= self.tour(prepar, kappa, kappa + block_size, tracer=tracer)
 
-        # clean up the GSO which is left in a messy state by postprocessing
-        # TODO the C++ version doesn't seem to require this call
-        self.lll_obj.size_reduction(kappa, kappa+block_size, kappa)
-
         return clean
 
     def svp_reduction(self, kappa, block_size, params, tracer=dummy_tracer):

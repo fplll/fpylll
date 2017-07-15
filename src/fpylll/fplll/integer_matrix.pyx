@@ -359,7 +359,7 @@ cdef class IntegerMatrix:
             raise TypeError("Parameters arg0 and arg1 not understood")
 
     @classmethod
-    def from_matrix(cls, A, nrows=None, ncols=None, int_type="mpz"):
+    def from_matrix(cls, A, nrows=None, ncols=None, **kwds):
         """Construct a new integer matrix from matrix-like object A
 
         :param A: a matrix like object, with element access A[i,j] or A[i][j]
@@ -404,12 +404,12 @@ cdef class IntegerMatrix:
         m = nrows
         n = ncols
 
-        B = cls(m, n, int_type=int_type)
+        B = cls(m, n, **kwds)
         B.set_matrix(A)
         return B
 
     @classmethod
-    def from_iterable(cls, nrows, ncols, it, int_type="mpz"):
+    def from_iterable(cls, nrows, ncols, it, **kwds):
         """Construct a new integer matrix from matrix-like object A
 
         :param nrows: number of rows
@@ -422,7 +422,7 @@ cdef class IntegerMatrix:
         [ 4 5 6 ]
 
         """
-        A = cls(nrows, ncols, int_type=int_type)
+        A = cls(nrows, ncols, **kwds)
         A.set_iterable(it)
         return A
 
@@ -1633,7 +1633,7 @@ cdef class IntegerMatrix:
         return tuple(r)
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename, **kwds):
         """Construct new matrix from file.
 
         >>> import tempfile
@@ -1651,7 +1651,7 @@ cdef class IntegerMatrix:
         :param filename: name of file to read from
 
         """
-        A = cls(0, 0)
+        A = cls(0, 0, **kwds)
         with open(filename, 'r') as fh:
             for i, line in enumerate(fh.readlines()):
                 line = re.match("\[+([^\]]+) *\]", line)

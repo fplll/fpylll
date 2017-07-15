@@ -311,37 +311,61 @@ cdef class LLLReduction:
             kappa_end = self.M.d
 
         if self._type == gso_mpz_d:
+            sig_on()
             r = self._core.mpz_d.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
         elif self._type == gso_long_d:
+            sig_on()
             r = self._core.long_d.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
         elif self._type == gso_mpz_ld:
             IF HAVE_LONG_DOUBLE:
+                sig_on()
                 r = self._core.mpz_ld.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                sig_off()
             ELSE:
                 raise RuntimeError("LLLReduction object '%s' has no core."%self)
         elif self._type == gso_long_ld:
             IF HAVE_LONG_DOUBLE:
+                sig_on()
                 r = self._core.long_ld.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                sig_off()
             ELSE:
                 raise RuntimeError("LLLReduction object '%s' has no core."%self)
         elif self._type == gso_mpz_dpe:
+            sig_on()
             r = self._core.mpz_dpe.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
         elif self._type == gso_mpz_mpfr:
+            sig_on()
             r = self._core.mpz_mpfr.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
         elif self._type == gso_long_dpe:
+            sig_on()
             r = self._core.long_dpe.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
         elif self._type == gso_long_mpfr:
+            sig_on()
             r = self._core.long_mpfr.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
         else:
             IF HAVE_QD:
                 if self._type == gso_mpz_dd:
+                    sig_on()
                     r = self._core.mpz_dd.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                    sig_off()
                 elif self._type == gso_mpz_qd:
+                    sig_on()
                     r = self._core.mpz_qd.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                    sig_off()
                 elif self._type == gso_long_dd:
+                    sig_on()
                     r = self._core.long_dd.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                    sig_off()
                 elif self._type == gso_long_qd:
+                    sig_on()
                     r = self._core.long_qd.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                    sig_off()
                 else:
                     raise RuntimeError("LLLReduction object '%s' has no core."%self)
             ELSE:
