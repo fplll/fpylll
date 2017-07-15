@@ -58,3 +58,4 @@ target/
 /src/fpylll/config.pxi
 /.ipynb_checkpoints/*.ipynb
 /MANIFEST
+/valgrind-python.supp
