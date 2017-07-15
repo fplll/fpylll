@@ -210,7 +210,7 @@ class BKZReduction:
 
         j_nz = None
 
-        for i in range(block_size):
+        for i in range(block_size)[::-1]:
             if abs(solution[i]) == 1:
                 j_nz = i
                 break
