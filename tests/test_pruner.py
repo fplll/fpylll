@@ -17,7 +17,7 @@ def prepare(n):
 
 def test_pruner():
 
-    # A dummyPruning.run to load tabulated values
+    # A dummyPruningParams.run to load tabulated values
     Pruning.run(5, 50, 10*[1.], .5)
 
     for (n, overhead) in dim_oh:

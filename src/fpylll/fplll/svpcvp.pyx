@@ -67,7 +67,7 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
 
     if pruning:
         if len(pruning) != B.nrows:
-            raise ValueError("Pruning vector must have length %d but got %d."%(B.nrows, len(pruning)))
+            raise ValueError("PruningParams vector must have length %d but got %d."%(B.nrows, len(pruning)))
 
         pruning_.resize(B.nrows)
         for i in range(len(pruning)):

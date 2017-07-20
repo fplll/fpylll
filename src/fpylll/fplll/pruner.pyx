@@ -12,10 +12,10 @@ Pruner
     >>> radius = sum([m.get_r(0, 0) for m in M])/len(M)
     >>> pr = Pruning.run(radius, 10000, [m.r() for m in M], 0.4)
     >>> print(pr)  # doctest: +ELLIPSIS
-    Pruning<7.797437, (1.00,...,0.80), 0.4173>
+    PruningParams<7.797437, (1.00,...,0.80), 0.4173>
 
     >>> print(Pruning.run(M[0].get_r(0, 0), 2**20, [m.r() for m in M], 0.9, pruning=pr))
-    Pruning<1.001130, (1.00,...,0.98), 0.9410>
+    PruningParams<1.001130, (1.00,...,0.98), 0.9410>
 
 """
 
@@ -25,20 +25,21 @@ from libcpp cimport bool
 from libcpp.vector cimport vector
 from math import log, exp
 from cysignals.signals cimport sig_on, sig_off
+from cython.operator cimport dereference as deref, preincrement as inc
 
 from decl cimport fp_nr_t, mpz_t, dpe_t, mpfr_t
 from decl cimport nr_d, nr_dpe, nr_mpfr, pruner_core_t, d_t, ld_t
-from bkz_param cimport Pruning as PruningParams
 from fplll cimport FT_DOUBLE, FT_DPE, FT_MPFR, FloatType
 from fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS
 from fplll cimport FP_NR, Z_NR
 from fplll cimport MatGSO as MatGSO_c
 from fplll cimport prune as prune_c
-from fplll cimport Pruning as Pruning_c
+from fplll cimport PruningParams as PruningParams_c
 from fplll cimport Pruner as Pruner_c
 from fplll cimport PrunerMetric
 from fplll cimport svp_probability as svp_probability_c
 from fplll cimport PRUNER_CVP, PRUNER_START_FROM_INPUT, PRUNER_GRADIENT, PRUNER_NELDER_MEAD, PRUNER_VERBOSE
+
 
 from fpylll.util import adjust_radius_to_gh_bound, precision, get_precision
 from fpylll.util cimport check_float_type, check_precision, check_pruner_metric
@@ -54,6 +55,173 @@ IF HAVE_QD:
     from fplll cimport FT_DD, FT_QD
 
 from gso cimport MatGSO
+
+
+cdef class PruningParams:
+    """
+    Pruning parameters.
+    """
+    def __init__(self, gh_factor, coefficients, expectation=1.0,
+                 metric="probability", detailed_cost=tuple()):
+        """Create new pruning parameters object.
+
+        :param gh_factor: ratio of radius to Gaussian heuristic
+        :param coefficients:  a list of pruning coefficients
+        :param expectation:   success probability or number of solutions
+        :param metric:        either "probability" or "solutions"
+
+        """
+        if gh_factor <= 0:
+            raise ValueError("Radius factor must be > 0")
+
+        cdef PrunerMetric met = <PrunerMetric>check_pruner_metric(metric)
+
+        if met == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
+            if expectation <= 0 or expectation > 1:
+                raise ValueError("Probability must be between 0 and 1")
+
+        self._core.gh_factor = gh_factor
+        self._core.expectation = expectation
+        self._core.metric = met
+
+        for c in coefficients:
+            self._core.coefficients.push_back(c)
+
+        for c in detailed_cost:
+            self._core.detailed_cost.push_back(c)
+
+    @staticmethod
+    cdef PruningParams from_cxx(PruningParams_c& p):
+        """
+        Load PruningParams object from C++ PruningParams object.
+
+        .. note::
+
+           All data is copied, i.e. `p` can be safely deleted after this function returned.
+        """
+
+        cdef PruningParams self = PruningParams(1.0, ())
+        self._core = p
+        return self
+
+    @staticmethod
+    cdef to_cxx(PruningParams_c& self, PruningParams p):
+        """
+        Store pruning object in C++ pruning object.
+
+        .. note::
+
+           All data is copied, i.e. `p` can be safely deleted after this function returned.
+        """
+        self.gh_factor = p._core.gh_factor
+        self.expectation = p._core.expectation
+        self.metric = p._core.metric
+        for c in p._core.coefficients:
+            self.coefficients.push_back(c)
+        for c in p._core.detailed_cost:
+            self.detailed_cost.push_back(c)
+
+    @staticmethod
+    def LinearPruningParams(block_size, level):
+        """
+        Set all pruning coefficients to 1, except the last <level>
+        coefficients, these will be linearly with slope `-1 / block_size`.
+
+        :param block_size: block size
+        :param level: level
+        """
+        sig_on()
+        cdef PruningParams_c p = PruningParams_c.LinearPruningParams(block_size, level)
+        sig_off()
+        return PruningParams.from_cxx(p)
+
+    def __reduce__(self):
+        """
+            >>> from fpylll.fplll.pruner import PruningParams
+            >>> import pickle
+            >>> print(pickle.loads(pickle.dumps(PruningParams(1.0, [1.0, 0.6, 0.3], 1.0))))
+            PruningParams<1.000000, (1.00,...,0.30), 1.0000>
+
+        """
+        return PruningParams, (self.gh_factor, self.coefficients, self.expectation, self.metric, self.detailed_cost)
+
+    def __str__(self):
+        return "PruningParams<%f, (%.2f,...,%.2f), %.4f>"%(self.gh_factor, self.coefficients[0], self.coefficients[-1], self.expectation)
+
+    @property
+    def gh_factor(self):
+        """
+
+            >>> from fpylll.fplll.pruner import PruningParams
+            >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.gh_factor
+            1.0
+
+        """
+        return self._core.gh_factor
+
+    @property
+    def expectation(self):
+        """
+
+            >>> from fpylll.fplll.pruner import PruningParams
+            >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.expectation
+            0.9
+
+        """
+        return self._core.expectation
+
+    @property
+    def metric(self):
+        """
+
+            >>> from fpylll.fplll.pruner import PruningParams
+            >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.metric
+            'probability'
+
+        """
+        if self._core.metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
+            return "probability"
+        elif self._core.metric == PRUNER_METRIC_EXPECTED_SOLUTIONS:
+            return "solutions"
+        else:
+            raise NotImplementedError("Metric %d not understood"%self._core.metric)
+
+    @property
+    def coefficients(self):
+        """
+
+            >>> from fpylll.fplll.pruner import PruningParams
+            >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.coefficients
+            (1.0, 0.6, 0.3)
+
+        """
+        cdef list coefficients = []
+        cdef vector[double].iterator it = self._core.coefficients.begin()
+        while it != self._core.coefficients.end():
+            coefficients.append(deref(it))
+            inc(it)
+        return tuple(coefficients)
+
+    @property
+    def detailed_cost(self):
+        """
+
+            >>> from fpylll.fplll.pruner import PruningParams
+            >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
+            >>> pr.detailed_cost
+            ()
+
+        """
+        cdef list detailed_cost = []
+        cdef vector[double].iterator it = self._core.detailed_cost.begin()
+        while it != self._core.detailed_cost.end():
+            detailed_cost.append(deref(it))
+            inc(it)
+        return tuple(detailed_cost)
 
 cdef class Pruner:
     def __init__(self, double enumeration_radius, double preproc_cost,
@@ -474,7 +642,7 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
     >>> pr0 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.GRADIENT, float_type="double")
     >>> pr1 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.NELDER_MEAD, float_type="long double")
     >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.7135102661831775, 0.570711423707835)
+    (0.7135102661831587, 0.8242914753302696)
 
     .. note :: Preprocessing cost should be expressed in terms of nodes in an
        enumeration (~100 CPU cycles per node)
@@ -500,7 +668,7 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
     if pruning is None:
         pruning = PruningParams(1.0, [], 1.0)
     elif not isinstance(pruning, PruningParams):
-        raise TypeError("First parameter must be of type Pruning or None but got type '%s'"%type(pruning))
+        raise TypeError("First parameter must be of type PruningParams or None but got type '%s'"%type(pruning))
 
     cdef vector[vector[double]] gso_r_
 
@@ -555,14 +723,14 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
 def svp_probability(pr, float_type="double"):
     """Return probability of success for enumeration with given set of pruning parameters.
 
-    :param pr: pruning parameters, either Pruning object or list of floating point numbers
+    :param pr: pruning parameters, either PruningParams object or list of floating point numbers
     :param float_type: floating point type used internally
 
     """
     cdef FloatType ft = check_float_type(float_type)
 
-    if not isinstance(pr, Pruning):
-        pr = Pruning(1.0, pr, 1.0)
+    if not isinstance(pr, PruningParams):
+        pr = PruningParams(1.0, pr, 1.0)
 
     if ft == FT_DOUBLE:
         return svp_probability_c[FP_NR[double]]((<PruningParams>pr)._core.coefficients).get_d()
@@ -583,6 +751,8 @@ def svp_probability(pr, float_type="double"):
 
 class Pruning:
     Pruner = Pruner
+    PruningParams = PruningParams
+    LinearPruningParams = PruningParams.LinearPruningParams
     run = staticmethod(prune)
 
     CVP = PRUNER_CVP
