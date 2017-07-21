@@ -49,8 +49,7 @@ class BKZReduction:
 
         if M is None and L is None:
             # run LLL first, but only if a matrix was passed
-            wrapper = LLL.Wrapper(A)
-            wrapper()
+            LLL.reduction(A)
 
         self.A = A
         if M is None:
@@ -112,10 +111,11 @@ class BKZReduction:
 
         clean = True
 
-        for kappa in range(min_row, max_row-2):
+        for kappa in range(min_row, max_row-1):
             block_size = min(params.block_size, max_row - kappa)
             clean &= self.svp_reduction(kappa, block_size, params, tracer)
 
+        self.lll_obj.size_reduction(max(0, max_row-1), max_row, max(0, max_row-2))
         return clean
 
     def svp_preprocessing(self, kappa, block_size, params, tracer):
@@ -189,35 +189,73 @@ class BKZReduction:
         :param tracer: object for maintaining statistics
 
         :returns: ``True`` if no change was made and ``False`` otherwise
+
+        ..  note :: postprocessing does not necessarily leave the GSO in a safe state.  You may
+            need to call ``update_gso()`` afterwards.
         """
         if solution is None:
             return True
 
-        nonzero_vectors = len([x for x in solution if x])
-        if nonzero_vectors == 1:
-            first_nonzero_vector = None
-            for i in range(block_size):
-                if abs(solution[i]) == 1:
-                    first_nonzero_vector = i
-                    break
+        # d = self.M.d
+        # self.M.create_row()
 
-            self.M.move_row(kappa + first_nonzero_vector, kappa)
-            with tracer.context("lll"):
-                self.lll_obj.size_reduction(kappa, kappa + first_nonzero_vector + 1)
+        # with self.M.row_ops(d, d+1):
+        #     for i in range(block_size):
+        #         self.M.row_addmul(d, kappa + i, solution[i])
+
+        # self.M.move_row(d, kappa)
+        # with tracer.context("lll"):
+        #     self.lll_obj(kappa, kappa, kappa + block_size + 1)
+        # self.M.move_row(kappa + block_size, d)
+        # self.M.remove_last_row()
+
+        j_nz = None
+
+        for i in range(block_size)[::-1]:
+            if abs(solution[i]) == 1:
+                j_nz = i
+                break
+
+        if len([x for x in solution if x]) == 1:
+            self.M.move_row(kappa + j_nz, kappa)
+
+        elif j_nz is not None:
+            with self.M.row_ops(kappa + j_nz, kappa + j_nz + 1):
+                for i in range(block_size):
+                    if solution[i] and i != j_nz:
+                        self.M.row_addmul(kappa + j_nz, kappa + i, solution[j_nz] * solution[i])
+
+            self.M.move_row(kappa + j_nz, kappa)
 
         else:
-            d = self.M.d
-            self.M.create_row()
+            solution = list(solution)
 
-            with self.M.row_ops(d, d+1):
-                for i in range(block_size):
-                    self.M.row_addmul(d, kappa + i, solution[i])
+            for i in range(block_size):
+                if solution[i] < 0:
+                    solution[i] = -solution[i]
+                    self.M.negate_row(kappa + i)
 
-            self.M.move_row(d, kappa)
-            with tracer.context("lll"):
-                self.lll_obj(kappa, kappa, kappa + block_size + 1)
-            self.M.move_row(kappa + block_size, d)
-            self.M.remove_last_row()
+            with self.M.row_ops(kappa, kappa + block_size):
+                offset = 1
+                while offset < block_size:
+                    k = block_size - 1
+                    while k - offset >= 0:
+                        if solution[k] or solution[k - offset]:
+                            if solution[k] < solution[k - offset]:
+                                solution[k], solution[k - offset] = solution[k - offset], solution[k]
+                                self.M.swap_rows(kappa + k - offset, kappa + k)
+
+                            while solution[k - offset]:
+                                while solution[k - offset] <= solution[k]:
+                                    solution[k] = solution[k] - solution[k - offset]
+                                    self.M.row_addmul(kappa + k - offset, kappa + k, 1)
+
+                                solution[k], solution[k - offset] = solution[k - offset], solution[k]
+                                self.M.swap_rows(kappa + k - offset, kappa + k)
+                        k -= 2 * offset
+                    offset *= 2
+
+            self.M.move_row(kappa + block_size - 1, kappa)
 
         return False
 

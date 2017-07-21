@@ -5,11 +5,13 @@ Test if Python BKZ classes can be instantiated and run.
 """
 from copy import copy
 
-from fpylll import IntegerMatrix
+from fpylll import IntegerMatrix, LLL
 from fpylll.algorithms.simple_bkz import BKZReduction as SimpleBKZ
 from fpylll.algorithms.simple_dbkz import DBKZReduction as SimpleDualBKZ
 from fpylll.algorithms.bkz import BKZReduction as BKZ
 from fpylll.algorithms.bkz2 import BKZReduction as BKZ2
+from fpylll.algorithms.bkz_stats import BKZTreeTracer
+
 from fpylll import BKZ as fplll_bkz
 from fpylll.util import set_random_seed
 
@@ -46,3 +48,26 @@ def test_bkz_call(block_size=10):
             A = make_integer_matrix(n)
             B = copy(A)
             cls(B)(params=params)
+
+
+def test_bkz_postprocessing():
+    A = IntegerMatrix.random(20, "qary", bits=20, k=10, int_type="long")
+    LLL.reduction(A)
+
+    bkz = BKZ(A)
+    bkz.M.update_gso()
+    tracer = BKZTreeTracer(bkz)
+
+    solution = (2, 2, 0, 3, 4, 5, 7)
+
+    v = A.multiply_left(solution, 3)
+    bkz.svp_postprocessing(3, len(solution), solution, tracer)
+    w = tuple(A[3])
+    assert v == w
+
+    solution = (2, 1, 0, 3, 4, 5, 7)
+
+    v = A.multiply_left(solution, 3)
+    bkz.svp_postprocessing(3, len(solution), solution, tracer)
+    w = tuple(A[3])
+    assert v == w

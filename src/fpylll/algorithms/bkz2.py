@@ -61,18 +61,18 @@ class BKZReduction(BKZBase):
 
         return
 
-    def svp_preprocessing(self, kappa, block_size, param, tracer=dummy_tracer):
+    def svp_preprocessing(self, kappa, block_size, params, tracer=dummy_tracer):
         clean = True
 
-        clean &= BKZBase.svp_preprocessing(self, kappa, block_size, param, tracer)
+        clean &= BKZBase.svp_preprocessing(self, kappa, block_size, params, tracer)
 
-        for preproc in param.strategies[block_size].preprocessing_block_sizes:
-            prepar = param.__class__(block_size=preproc, strategies=param.strategies, flags=BKZ.GH_BND)
+        for preproc in params.strategies[block_size].preprocessing_block_sizes:
+            prepar = params.__class__(block_size=preproc, strategies=params.strategies, flags=BKZ.GH_BND)
             clean &= self.tour(prepar, kappa, kappa + block_size, tracer=tracer)
 
         return clean
 
-    def svp_reduction(self, kappa, block_size, param, tracer=dummy_tracer):
+    def svp_reduction(self, kappa, block_size, params, tracer=dummy_tracer):
         """
 
         :param kappa:
@@ -87,30 +87,30 @@ class BKZReduction(BKZBase):
 
         remaining_probability, rerandomize = 1.0, False
 
-        while remaining_probability > 1. - param.min_success_probability:
+        while remaining_probability > 1. - params.min_success_probability:
             with tracer.context("preprocessing"):
                 if rerandomize:
                     with tracer.context("randomization"):
                         self.randomize_block(kappa+1, kappa+block_size,
-                                             density=param.rerandomization_density, tracer=tracer)
+                                             density=params.rerandomization_density, tracer=tracer)
                 with tracer.context("reduction"):
-                    self.svp_preprocessing(kappa, block_size, param, tracer=tracer)
+                    self.svp_preprocessing(kappa, block_size, params, tracer=tracer)
 
             radius, expo = self.M.get_r_exp(kappa, kappa)
             radius *= self.lll_obj.delta
 
-            if param.flags & BKZ.GH_BND and block_size > 30:
+            if params.flags & BKZ.GH_BND and block_size > 30:
                 root_det = self.M.get_root_det(kappa, kappa + block_size)
-                radius, expo = adjust_radius_to_gh_bound(radius, expo, block_size, root_det, param.gh_factor)
+                radius, expo = adjust_radius_to_gh_bound(radius, expo, block_size, root_det, params.gh_factor)
 
-            pruning = self.get_pruning(kappa, block_size, param, tracer)
+            pruning = self.get_pruning(kappa, block_size, params, tracer)
 
             try:
                 enum_obj = Enumeration(self.M)
                 with tracer.context("enumeration",
                                     enum_obj=enum_obj,
                                     probability=pruning.expectation,
-                                    full=block_size==param.block_size):
+                                    full=block_size==params.block_size):
                     solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
                                                             pruning=pruning.coefficients)[0]
                 with tracer.context("postprocessing"):

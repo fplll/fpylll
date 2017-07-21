@@ -7,9 +7,9 @@ from copy import copy
 dimensions = ((0, 0), (1, 1), (2, 2), (3, 3), (10, 10), (50, 50), (60, 60),)
 
 
-def make_integer_matrix(m, n):
-    A = IntegerMatrix(m, n)
-    A.randomize("uniform", bits=m+n)
+def make_integer_matrix(m, n, int_type="mpz"):
+    A = IntegerMatrix(m, n, int_type=int_type)
+    A.randomize("uniform", bits=20)
     return A
 
 

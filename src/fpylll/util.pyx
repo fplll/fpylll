@@ -5,6 +5,7 @@ include "fpylll/config.pxi"
 from fpylll.fplll.decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t
 from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
+from fpylll.fplll.fplll cimport IntType, ZT_LONG, ZT_MPZ
 from fpylll.fplll.fplll cimport adjust_radius_to_gh_bound as adjust_radius_to_gh_bound_c
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
 from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID, PRUNER_METHOD_GREEDY
@@ -44,6 +45,18 @@ cdef FloatType check_float_type(object float_type):
         return FT_MPFR
 
     raise ValueError("Float type '%s' unknown." % float_type)
+
+cdef IntType check_int_type(object int_type):
+
+    if int_type == "default" or int_type is None:
+        return ZT_MPZ
+    if int_type == "mpz":
+        return ZT_MPZ
+    if int_type == "long":
+        return ZT_LONG
+
+    raise ValueError("Float type '%s' unknown." % int_type)
+
 
 cdef int check_descent_method(object descent_method) except -1:
     if descent_method == "gradient":

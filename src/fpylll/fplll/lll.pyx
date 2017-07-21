@@ -16,6 +16,7 @@ from fplll cimport LLL_DEFAULT
 from fplll cimport LLLMethod, LLL_DEF_ETA, LLL_DEF_DELTA
 from fplll cimport LM_WRAPPER, LM_PROVED, LM_HEURISTIC, LM_FAST
 from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD
+from fplll cimport ZT_MPZ
 
 from fplll cimport dpe_t
 from fplll cimport Z_NR, FP_NR
@@ -29,11 +30,13 @@ from fplll cimport FloatType
 
 from fpylll.util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll.util import ReductionError
+
+from decl cimport d_t, ld_t
 from decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr
+from decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
 
 IF HAVE_QD:
-    from fpylll.qd.qd cimport dd_real, qd_real
-    from decl cimport gso_mpz_dd, gso_mpz_qd
+    from decl cimport gso_mpz_dd, gso_mpz_qd, gso_long_dd, gso_long_qd, dd_t, qd_t
 
 from wrapper import Wrapper
 
@@ -62,57 +65,104 @@ cdef class LLLReduction:
         check_delta(delta)
         check_eta(eta)
 
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]]  *m_double
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]] *m_ld
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]] *m_dpe
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[d_t]]  *m_mpz_double
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[ld_t]] *m_mpz_ld
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]] *m_mpz_dpe
         IF HAVE_QD:
-            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_real]] *m_dd
-            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_real]] *m_qd
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpfr
+            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_t]] *m_mpz_dd
+            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_t]] *m_mpz_qd
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpz_mpfr
+
+        cdef MatGSO_c[Z_NR[long], FP_NR[d_t]]  *m_long_double
+        cdef MatGSO_c[Z_NR[long], FP_NR[ld_t]] *m_long_ld
+        cdef MatGSO_c[Z_NR[long], FP_NR[dpe_t]] *m_long_dpe
+        IF HAVE_QD:
+            cdef MatGSO_c[Z_NR[long], FP_NR[dd_t]] *m_long_dd
+            cdef MatGSO_c[Z_NR[long], FP_NR[qd_t]] *m_long_qd
+        cdef MatGSO_c[Z_NR[long], FP_NR[mpfr_t]]  *m_long_mpfr
 
         self.M = M
 
         if M._type == gso_mpz_d:
-            m_double = M._core.mpz_d
+            m_mpz_double = M._core.mpz_d
             self._type = gso_mpz_d
-            self._core.mpz_d = new LLLReduction_c[Z_NR[mpz_t], FP_NR[double]](m_double[0],
-                                                                                   delta,
-                                                                                   eta, flags)
+            self._core.mpz_d = new LLLReduction_c[Z_NR[mpz_t], FP_NR[d_t]](m_mpz_double[0],
+                                                                           delta,
+                                                                           eta, flags)
         elif M._type == gso_mpz_ld:
             IF HAVE_LONG_DOUBLE:
-                m_ld = M._core.mpz_ld
+                m_mpz_ld = M._core.mpz_ld
                 self._type = gso_mpz_ld
-                self._core.mpz_ld = new LLLReduction_c[Z_NR[mpz_t], FP_NR[longdouble]](m_ld[0],
-                                                                                       delta,
-                                                                                       eta, flags)
+                self._core.mpz_ld = new LLLReduction_c[Z_NR[mpz_t], FP_NR[ld_t]](m_mpz_ld[0],
+                                                                                 delta,
+                                                                                 eta, flags)
             ELSE:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == gso_mpz_dpe:
-            m_dpe = M._core.mpz_dpe
+            m_mpz_dpe = M._core.mpz_dpe
             self._type = gso_mpz_dpe
-            self._core.mpz_dpe = new LLLReduction_c[Z_NR[mpz_t], FP_NR[dpe_t]](m_dpe[0],
+            self._core.mpz_dpe = new LLLReduction_c[Z_NR[mpz_t], FP_NR[dpe_t]](m_mpz_dpe[0],
                                                                                delta,
                                                                                eta, flags)
         elif M._type == gso_mpz_mpfr:
-            m_mpfr = M._core.mpz_mpfr
+            m_mpz_mpfr = M._core.mpz_mpfr
             self._type = gso_mpz_mpfr
-            self._core.mpz_mpfr = new LLLReduction_c[Z_NR[mpz_t], FP_NR[mpfr_t]](m_mpfr[0],
+            self._core.mpz_mpfr = new LLLReduction_c[Z_NR[mpz_t], FP_NR[mpfr_t]](m_mpz_mpfr[0],
+                                                                                 delta,
+                                                                                 eta, flags)
+        elif M._type == gso_long_d:
+            m_long_double = M._core.long_d
+            self._type = gso_long_d
+            self._core.long_d = new LLLReduction_c[Z_NR[long], FP_NR[d_t]](m_long_double[0],
+                                                                           delta,
+                                                                           eta, flags)
+        elif M._type == gso_long_ld:
+            IF HAVE_LONG_DOUBLE:
+                m_long_ld = M._core.long_ld
+                self._type = gso_long_ld
+                self._core.long_ld = new LLLReduction_c[Z_NR[long], FP_NR[ld_t]](m_long_ld[0],
+                                                                                 delta,
+                                                                                 eta, flags)
+            ELSE:
+                raise RuntimeError("MatGSO object '%s' has no core."%self)
+        elif M._type == gso_long_dpe:
+            m_long_dpe = M._core.long_dpe
+            self._type = gso_long_dpe
+            self._core.long_dpe = new LLLReduction_c[Z_NR[long], FP_NR[dpe_t]](m_long_dpe[0],
+                                                                               delta,
+                                                                               eta, flags)
+        elif M._type == gso_long_mpfr:
+            m_long_mpfr = M._core.long_mpfr
+            self._type = gso_long_mpfr
+            self._core.long_mpfr = new LLLReduction_c[Z_NR[long], FP_NR[mpfr_t]](m_long_mpfr[0],
                                                                                  delta,
                                                                                  eta, flags)
         else:
             IF HAVE_QD:
                 if M._type == gso_mpz_dd:
-                    m_dd = M._core.mpz_dd
+                    m_mpz_dd = M._core.mpz_dd
                     self._type = gso_mpz_dd
-                    self._core.mpz_dd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[dd_real]](m_dd[0],
-                                                                                        delta,
-                                                                                        eta, flags)
+                    self._core.mpz_dd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[dd_t]](m_mpz_dd[0],
+                                                                                     delta,
+                                                                                     eta, flags)
                 elif M._type == gso_mpz_qd:
-                    m_qd = M._core.mpz_qd
+                    m_mpz_qd = M._core.mpz_qd
                     self._type = gso_mpz_qd
-                    self._core.mpz_qd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[qd_real]](m_qd[0],
-                                                                                        delta,
-                                                                                        eta, flags)
+                    self._core.mpz_qd = new LLLReduction_c[Z_NR[mpz_t], FP_NR[qd_t]](m_mpz_qd[0],
+                                                                                     delta,
+                                                                                     eta, flags)
+                elif M._type == gso_long_dd:
+                    m_long_dd = M._core.long_dd
+                    self._type = gso_long_dd
+                    self._core.long_dd = new LLLReduction_c[Z_NR[long], FP_NR[dd_t]](m_long_dd[0],
+                                                                                     delta,
+                                                                                     eta, flags)
+                elif M._type == gso_long_qd:
+                    m_long_qd = M._core.long_qd
+                    self._type = gso_long_qd
+                    self._core.long_qd = new LLLReduction_c[Z_NR[long], FP_NR[qd_t]](m_long_qd[0],
+                                                                                     delta,
+                                                                                     eta, flags)
                 else:
                     raise RuntimeError("MatGSO object '%s' has no core."%self)
             ELSE:
@@ -136,6 +186,20 @@ cdef class LLLReduction:
                 del self._core.mpz_qd
         if self._type == gso_mpz_mpfr:
             del self._core.mpz_mpfr
+        if self._type == gso_long_d:
+            del self._core.long_d
+        IF HAVE_LONG_DOUBLE:
+            if self._type == gso_long_ld:
+                del self._core.long_ld
+        if self._type == gso_long_dpe:
+            del self._core.long_dpe
+        IF HAVE_QD:
+            if self._type == gso_long_dd:
+                del self._core.long_dd
+            if self._type == gso_long_qd:
+                del self._core.long_qd
+        if self._type == gso_long_mpfr:
+            del self._core.long_mpfr
 
     def __reduce__(self):
         """
@@ -182,6 +246,29 @@ cdef class LLLReduction:
             self._core.mpz_mpfr.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
             r = self._core.mpz_mpfr.status
             sig_off()
+        elif self._type == gso_long_d:
+            sig_on()
+            self._core.long_d.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
+            r = self._core.long_d.status
+            sig_off()
+        elif self._type == gso_long_ld:
+            IF HAVE_LONG_DOUBLE:
+                sig_on()
+                self._core.long_ld.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
+                r = self._core.long_ld.status
+                sig_off()
+            ELSE:
+                raise RuntimeError("LLLReduction object '%s' has no core."%self)
+        elif self._type == gso_long_dpe:
+            sig_on()
+            self._core.long_dpe.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
+            r = self._core.long_dpe.status
+            sig_off()
+        elif self._type == gso_long_mpfr:
+            sig_on()
+            self._core.long_mpfr.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
+            r = self._core.long_mpfr.status
+            sig_off()
         else:
             IF HAVE_QD:
                 if self._type == gso_mpz_dd:
@@ -193,6 +280,16 @@ cdef class LLLReduction:
                     sig_on()
                     self._core.mpz_qd.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
                     r = self._core.mpz_qd.status
+                    sig_off()
+                elif self._type == gso_long_dd:
+                    sig_on()
+                    self._core.long_dd.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
+                    r = self._core.long_dd.status
+                    sig_off()
+                elif self._type == gso_long_qd:
+                    sig_on()
+                    self._core.long_qd.lll(kappa_min, kappa_start, kappa_end, size_reduction_start)
+                    r = self._core.long_qd.status
                     sig_off()
                 else:
                     raise RuntimeError("LLLReduction object '%s' has no core."%self)
@@ -214,22 +311,61 @@ cdef class LLLReduction:
             kappa_end = self.M.d
 
         if self._type == gso_mpz_d:
+            sig_on()
             r = self._core.mpz_d.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
+        elif self._type == gso_long_d:
+            sig_on()
+            r = self._core.long_d.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
         elif self._type == gso_mpz_ld:
             IF HAVE_LONG_DOUBLE:
+                sig_on()
                 r = self._core.mpz_ld.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                sig_off()
+            ELSE:
+                raise RuntimeError("LLLReduction object '%s' has no core."%self)
+        elif self._type == gso_long_ld:
+            IF HAVE_LONG_DOUBLE:
+                sig_on()
+                r = self._core.long_ld.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                sig_off()
             ELSE:
                 raise RuntimeError("LLLReduction object '%s' has no core."%self)
         elif self._type == gso_mpz_dpe:
+            sig_on()
             r = self._core.mpz_dpe.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
         elif self._type == gso_mpz_mpfr:
+            sig_on()
             r = self._core.mpz_mpfr.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
+        elif self._type == gso_long_dpe:
+            sig_on()
+            r = self._core.long_dpe.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
+        elif self._type == gso_long_mpfr:
+            sig_on()
+            r = self._core.long_mpfr.size_reduction(kappa_min, kappa_end, size_reduction_start)
+            sig_off()
         else:
             IF HAVE_QD:
                 if self._type == gso_mpz_dd:
+                    sig_on()
                     r = self._core.mpz_dd.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                    sig_off()
                 elif self._type == gso_mpz_qd:
+                    sig_on()
                     r = self._core.mpz_qd.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                    sig_off()
+                elif self._type == gso_long_dd:
+                    sig_on()
+                    r = self._core.long_dd.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                    sig_off()
+                elif self._type == gso_long_qd:
+                    sig_on()
+                    r = self._core.long_qd.size_reduction(kappa_min, kappa_end, size_reduction_start)
+                    sig_off()
                 else:
                     raise RuntimeError("LLLReduction object '%s' has no core."%self)
             ELSE:
@@ -260,6 +396,21 @@ cdef class LLLReduction:
         if self._type == gso_mpz_mpfr:
             return self._core.mpz_mpfr.final_kappa
 
+        if self._type == gso_long_d:
+            return self._core.long_d.final_kappa
+        IF HAVE_LONG_DOUBLE:
+            if self._type == gso_long_ld:
+                return self._core.long_ld.final_kappa
+        if self._type == gso_long_dpe:
+            return self._core.long_dpe.final_kappa
+        IF HAVE_QD:
+            if self._type == gso_long_dd:
+                return self._core.long_dd.final_kappa
+            if self._type == gso_long_qd:
+                return self._core.long_qd.final_kappa
+        if self._type == gso_long_mpfr:
+            return self._core.long_mpfr.final_kappa
+
         raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
     @property
@@ -284,6 +435,21 @@ cdef class LLLReduction:
                 return self._core.mpz_qd.last_early_red
         if self._type == gso_mpz_mpfr:
             return self._core.mpz_mpfr.last_early_red
+
+        if self._type == gso_long_d:
+            return self._core.long_d.last_early_red
+        IF HAVE_LONG_DOUBLE:
+            if self._type == gso_long_ld:
+                return self._core.long_ld.last_early_red
+        if self._type == gso_long_dpe:
+            return self._core.long_dpe.last_early_red
+        IF HAVE_QD:
+            if self._type == gso_long_dd:
+                return self._core.long_dd.last_early_red
+            if self._type == gso_long_qd:
+                return self._core.long_qd.last_early_red
+        if self._type == gso_long_mpfr:
+            return self._core.long_mpfr.last_early_red
 
         raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
@@ -310,6 +476,21 @@ cdef class LLLReduction:
         if self._type == gso_mpz_mpfr:
             return self._core.mpz_mpfr.zeros
 
+        if self._type == gso_long_d:
+            return self._core.long_d.zeros
+        IF HAVE_LONG_DOUBLE:
+            if self._type == gso_long_ld:
+                return self._core.long_ld.zeros
+        if self._type == gso_long_dpe:
+            return self._core.long_dpe.zeros
+        IF HAVE_QD:
+            if self._type == gso_long_dd:
+                return self._core.long_dd.zeros
+            if self._type == gso_long_qd:
+                return self._core.long_qd.zeros
+        if self._type == gso_long_mpfr:
+            return self._core.long_mpfr.zeros
+
         raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
     @property
@@ -334,6 +515,21 @@ cdef class LLLReduction:
                 return self._core.mpz_qd.n_swaps
         if self._type == gso_mpz_mpfr:
             return self._core.mpz_mpfr.n_swaps
+
+        if self._type == gso_long_d:
+            return self._core.long_d.n_swaps
+        IF HAVE_LONG_DOUBLE:
+            if self._type == gso_long_ld:
+                return self._core.long_ld.n_swaps
+        if self._type == gso_long_dpe:
+            return self._core.long_dpe.n_swaps
+        IF HAVE_QD:
+            if self._type == gso_long_dd:
+                return self._core.long_dd.n_swaps
+            if self._type == gso_long_qd:
+                return self._core.long_qd.n_swaps
+        if self._type == gso_long_mpfr:
+            return self._core.long_mpfr.n_swaps
 
         raise RuntimeError("LLLReduction object '%s' has no core."%self)
 
@@ -363,6 +559,12 @@ def lll_reduction(IntegerMatrix B, U=None,
 
     :returns: modified matrix ``B``
     """
+
+    cdef IntegerMatrix B_
+    if B._type == ZT_MPZ:
+        B_ = B
+    else:
+        B_ = IntegerMatrix(B, int_type="mpz")
 
     check_delta(delta)
     check_eta(eta)
@@ -396,19 +598,22 @@ def lll_reduction(IntegerMatrix B, U=None,
 
     if U is not None and isinstance(U, IntegerMatrix):
         sig_on()
-        r = lll_reduction_c(B._core[0], (<IntegerMatrix>U)._core[0],
+        r = lll_reduction_c(B_._core.mpz[0], (<IntegerMatrix>U)._core.mpz[0],
                             delta, eta, method_, ft, precision, flags)
         sig_off()
 
     else:
         sig_on()
-        r = lll_reduction_c(B._core[0],
+        r = lll_reduction_c(B_._core.mpz[0],
                             delta, eta, method_,
                             ft, precision, flags)
         sig_off()
 
     if r:
         raise ReductionError( str(get_red_status_str(r)) )
+
+    if B != B_:
+        B.set_matrix(B_)
     return B
 
 def is_LLL_reduced(M, delta=LLL_DEF_DELTA, eta=LLL_DEF_ETA):
@@ -459,11 +664,25 @@ def is_LLL_reduced(M, delta=LLL_DEF_DELTA, eta=LLL_DEF_ETA):
             return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[longdouble]](M_._core.mpz_ld[0], delta, eta))
     IF HAVE_QD:
         if M_._type == gso_mpz_dd:
-            return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[dd_real]](M_._core.mpz_dd[0], delta, eta))
+            return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[dd_t]](M_._core.mpz_dd[0], delta, eta))
         if M_._type == gso_mpz_qd:
-            return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[qd_real]](M_._core.mpz_qd[0], delta, eta))
+            return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[qd_t]](M_._core.mpz_qd[0], delta, eta))
     if M_._type == gso_mpz_mpfr:
         return bool(is_lll_reduced[Z_NR[mpz_t], FP_NR[mpfr_t]](M_._core.mpz_mpfr[0], delta, eta))
+
+    if M_._type == gso_long_d:
+        return bool(is_lll_reduced[Z_NR[long], FP_NR[double]](M_._core.long_d[0], delta, eta))
+
+    IF HAVE_LONG_DOUBLE:
+        if M_._type == gso_long_ld:
+            return bool(is_lll_reduced[Z_NR[long], FP_NR[longdouble]](M_._core.long_ld[0], delta, eta))
+    IF HAVE_QD:
+        if M_._type == gso_long_dd:
+            return bool(is_lll_reduced[Z_NR[long], FP_NR[dd_t]](M_._core.long_dd[0], delta, eta))
+        if M_._type == gso_long_qd:
+            return bool(is_lll_reduced[Z_NR[long], FP_NR[qd_t]](M_._core.long_qd[0], delta, eta))
+    if M_._type == gso_long_mpfr:
+        return bool(is_lll_reduced[Z_NR[long], FP_NR[mpfr_t]](M_._core.long_mpfr[0], delta, eta))
 
     raise RuntimeError("MatGSO object '%s' has no core."%M)
 

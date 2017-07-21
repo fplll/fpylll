@@ -15,7 +15,8 @@ IF HAVE_QD:
 
 from fplll cimport dpe_t
 from fplll cimport Z_NR, FP_NR
-from fplll cimport MatGSO, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
+from fplll cimport ZZ_mat, MatGSO, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
+from fplll cimport GaussSieve
 from fplll cimport FastEvaluator, FastErrorBoundedEvaluator, Pruner
 
 from libcpp.vector cimport vector
@@ -31,18 +32,29 @@ IF HAVE_QD:
 
 IF HAVE_QD:
     ctypedef enum fplll_gso_type_t:
-        gso_mpz_d      =  1
-        gso_mpz_ld     =  2
-        gso_mpz_dpe    =  4
-        gso_mpz_dd     =  8
-        gso_mpz_qd     = 16
-        gso_mpz_mpfr   = 32
+        gso_mpz_d      =    1
+        gso_mpz_ld     =    2
+        gso_mpz_dpe    =    4
+        gso_mpz_dd     =    8
+        gso_mpz_qd     =   16
+        gso_mpz_mpfr   =   32
+        gso_long_d     =   64
+        gso_long_ld    =  128
+        gso_long_dpe   =  256
+        gso_long_dd    =  512
+        gso_long_qd    = 1024
+        gso_long_mpfr  = 2048
+
 ELSE:
     ctypedef enum fplll_gso_type_t:
-        gso_mpz_d      =  1
-        gso_mpz_ld     =  2
-        gso_mpz_dpe    =  4
-        gso_mpz_mpfr   = 32
+        gso_mpz_d      =    1
+        gso_mpz_ld     =    2
+        gso_mpz_dpe    =    4
+        gso_mpz_mpfr   =   32
+        gso_long_d     =   64
+        gso_long_ld    =  128
+        gso_long_dpe   =  256
+        gso_long_mpfr  = 2048
 
 IF HAVE_QD:
     ctypedef enum fplll_nr_type_t:
@@ -58,6 +70,18 @@ ELSE:
         nr_ld     =  2
         nr_dpe    =  4
         nr_mpfr   = 32
+
+ctypedef enum fplll_z_type_t:
+    z_long    =  1
+    z_mpz     =  2
+
+ctypedef union zz_mat_core_t:
+    ZZ_mat[mpz_t] *mpz
+    ZZ_mat[long]  *long
+
+ctypedef union gauss_sieve_core_t:
+    GaussSieve[mpz_t, FP_NR[double]]  *mpz_d
+    GaussSieve[long, FP_NR[double]]   *long_d
 
 IF HAVE_LONG_DOUBLE:
     IF HAVE_QD:
@@ -84,12 +108,22 @@ IF HAVE_LONG_DOUBLE:
             MatGSO[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
             MatGSO[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
             MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            MatGSO[Z_NR[long], FP_NR[d_t]] *long_d
+            MatGSO[Z_NR[long], FP_NR[ld_t]] *long_ld
+            MatGSO[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            MatGSO[Z_NR[long], FP_NR[dd_t]] *long_dd
+            MatGSO[Z_NR[long], FP_NR[qd_t]] *long_qd
+            MatGSO[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union mat_gso_core_t:
             MatGSO[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
             MatGSO[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
             MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            MatGSO[Z_NR[long], FP_NR[d_t]] *long_d
+            MatGSO[Z_NR[long], FP_NR[ld_t]] *long_ld
+            MatGSO[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            MatGSO[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union lll_reduction_core_t:
@@ -99,42 +133,72 @@ IF HAVE_LONG_DOUBLE:
             LLLReduction[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
             LLLReduction[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
             LLLReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            LLLReduction[Z_NR[long], FP_NR[d_t]] *long_d
+            LLLReduction[Z_NR[long], FP_NR[ld_t]] *long_ld
+            LLLReduction[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            LLLReduction[Z_NR[long], FP_NR[dd_t]] *long_dd
+            LLLReduction[Z_NR[long], FP_NR[qd_t]] *long_qd
+            LLLReduction[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union lll_reduction_core_t:
             LLLReduction[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
             LLLReduction[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
             LLLReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             LLLReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            LLLReduction[Z_NR[long], FP_NR[d_t]] *long_d
+            LLLReduction[Z_NR[long], FP_NR[ld_t]] *long_ld
+            LLLReduction[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            LLLReduction[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union bkz_auto_abort_core_t:
-            BKZAutoAbort[FP_NR[d_t]] *mpz_d
-            BKZAutoAbort[FP_NR[ld_t]] *mpz_ld
-            BKZAutoAbort[FP_NR[dpe_t]] *mpz_dpe
-            BKZAutoAbort[FP_NR[dd_t]] *mpz_dd
-            BKZAutoAbort[FP_NR[qd_t]] *mpz_qd
-            BKZAutoAbort[FP_NR[mpfr_t]] *mpz_mpfr
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            BKZAutoAbort[Z_NR[long], FP_NR[d_t]] *long_d
+            BKZAutoAbort[Z_NR[long], FP_NR[ld_t]] *long_ld
+            BKZAutoAbort[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            BKZAutoAbort[Z_NR[long], FP_NR[dd_t]] *long_dd
+            BKZAutoAbort[Z_NR[long], FP_NR[qd_t]] *long_qd
+            BKZAutoAbort[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union bkz_auto_abort_core_t:
-            BKZAutoAbort[FP_NR[d_t]] *mpz_d
-            BKZAutoAbort[FP_NR[ld_t]] *mpz_ld
-            BKZAutoAbort[FP_NR[dpe_t]] *mpz_dpe
-            BKZAutoAbort[FP_NR[mpfr_t]] *mpz_mpfr
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            BKZAutoAbort[Z_NR[long], FP_NR[d_t]] *long_d
+            BKZAutoAbort[Z_NR[long], FP_NR[ld_t]] *long_ld
+            BKZAutoAbort[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            BKZAutoAbort[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union bkz_reduction_core_t:
-            BKZReduction[FP_NR[d_t]] *mpz_d
-            BKZReduction[FP_NR[ld_t]] *mpz_ld
-            BKZReduction[FP_NR[dpe_t]] *mpz_dpe
-            BKZReduction[FP_NR[dd_t]] *mpz_dd
-            BKZReduction[FP_NR[qd_t]] *mpz_qd
-            BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
+            BKZReduction[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            BKZReduction[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
+            BKZReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            BKZReduction[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
+            BKZReduction[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
+            BKZReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            BKZReduction[Z_NR[long], FP_NR[d_t]] *long_d
+            BKZReduction[Z_NR[long], FP_NR[ld_t]] *long_ld
+            BKZReduction[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            BKZReduction[Z_NR[long], FP_NR[dd_t]] *long_dd
+            BKZReduction[Z_NR[long], FP_NR[qd_t]] *long_qd
+            BKZReduction[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union bkz_reduction_core_t:
-            BKZReduction[FP_NR[d_t]] *mpz_d
-            BKZReduction[FP_NR[ld_t]] *mpz_ld
-            BKZReduction[FP_NR[dpe_t]] *mpz_dpe
-            BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
+            BKZReduction[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            BKZReduction[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
+            BKZReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            BKZReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            BKZReduction[Z_NR[long], FP_NR[d_t]] *long_d
+            BKZReduction[Z_NR[long], FP_NR[ld_t]] *long_ld
+            BKZReduction[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            BKZReduction[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union fast_evaluator_core_t:
@@ -153,18 +217,28 @@ IF HAVE_LONG_DOUBLE:
 
     IF HAVE_QD:
         ctypedef union enumeration_core_t:
-            Enumeration[FP_NR[d_t]] *d
-            Enumeration[FP_NR[ld_t]] *ld
-            Enumeration[FP_NR[dpe_t]] *dpe
-            Enumeration[FP_NR[dd_t]] *dd
-            Enumeration[FP_NR[qd_t]] *qd
-            Enumeration[FP_NR[mpfr_t]] *mpfr
+            Enumeration[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            Enumeration[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
+            Enumeration[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            Enumeration[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
+            Enumeration[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
+            Enumeration[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            Enumeration[Z_NR[long], FP_NR[d_t]] *long_d
+            Enumeration[Z_NR[long], FP_NR[ld_t]] *long_ld
+            Enumeration[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            Enumeration[Z_NR[long], FP_NR[dd_t]] *long_dd
+            Enumeration[Z_NR[long], FP_NR[qd_t]] *long_qd
+            Enumeration[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union enumeration_core_t:
-            Enumeration[FP_NR[d_t]] *d
-            Enumeration[FP_NR[ld_t]] *ld
-            Enumeration[FP_NR[dpe_t]] *dpe
-            Enumeration[FP_NR[mpfr_t]] *mpfr
+            Enumeration[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            Enumeration[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
+            Enumeration[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            Enumeration[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            Enumeration[Z_NR[long], FP_NR[d_t]] *long_d
+            Enumeration[Z_NR[long], FP_NR[ld_t]] *long_ld
+            Enumeration[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            Enumeration[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union pruner_core_t:
@@ -218,11 +292,19 @@ ELSE:
             MatGSO[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
             MatGSO[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
             MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            MatGSO[Z_NR[long], FP_NR[d_t]] *long_d
+            MatGSO[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            MatGSO[Z_NR[long], FP_NR[dd_t]] *long_dd
+            MatGSO[Z_NR[long], FP_NR[qd_t]] *long_qd
+            MatGSO[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union mat_gso_core_t:
             MatGSO[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
             MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            MatGSO[Z_NR[long], FP_NR[d_t]] *long_d
+            MatGSO[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            MatGSO[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union lll_reduction_core_t:
@@ -231,37 +313,61 @@ ELSE:
             LLLReduction[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
             LLLReduction[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
             LLLReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            LLLReduction[Z_NR[long], FP_NR[d_t]] *long_d
+            LLLReduction[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            LLLReduction[Z_NR[long], FP_NR[dd_t]] *long_dd
+            LLLReduction[Z_NR[long], FP_NR[qd_t]] *long_qd
+            LLLReduction[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union lll_reduction_core_t:
             LLLReduction[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
             LLLReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
             LLLReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            LLLReduction[Z_NR[long], FP_NR[d_t]] *long_d
+            LLLReduction[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            LLLReduction[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union bkz_auto_abort_core_t:
-            BKZAutoAbort[FP_NR[d_t]] *mpz_d
-            BKZAutoAbort[FP_NR[dpe_t]] *mpz_dpe
-            BKZAutoAbort[FP_NR[dd_t]] *mpz_dd
-            BKZAutoAbort[FP_NR[qd_t]] *mpz_qd
-            BKZAutoAbort[FP_NR[mpfr_t]] *mpz_mpfr
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            BKZAutoAbort[Z_NR[long], FP_NR[d_t]] *long_d
+            BKZAutoAbort[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            BKZAutoAbort[Z_NR[long], FP_NR[dd_t]] *long_dd
+            BKZAutoAbort[Z_NR[long], FP_NR[qd_t]] *long_qd
+            BKZAutoAbort[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union bkz_auto_abort_core_t:
-            BKZAutoAbort[FP_NR[d_t]] *mpz_d
-            BKZAutoAbort[FP_NR[dpe_t]] *mpz_dpe
-            BKZAutoAbort[FP_NR[mpfr_t]] *mpz_mpfr
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            BKZAutoAbort[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            BKZAutoAbort[Z_NR[long], FP_NR[d_t]] *long_d
+            BKZAutoAbort[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            BKZAutoAbort[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union bkz_reduction_core_t:
-            BKZReduction[FP_NR[d_t]] *mpz_d
-            BKZReduction[FP_NR[dpe_t]] *mpz_dpe
-            BKZReduction[FP_NR[dd_t]] *mpz_dd
-            BKZReduction[FP_NR[qd_t]] *mpz_qd
-            BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
+            BKZReduction[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            BKZReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            BKZReduction[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
+            BKZReduction[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
+            BKZReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            BKZReduction[Z_NR[long], FP_NR[d_t]] *long_d
+            BKZReduction[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            BKZReduction[Z_NR[long], FP_NR[dd_t]] *long_dd
+            BKZReduction[Z_NR[long], FP_NR[qd_t]] *long_qd
+            BKZReduction[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union bkz_reduction_core_t:
-            BKZReduction[FP_NR[d_t]] *mpz_d
-            BKZReduction[FP_NR[dpe_t]] *mpz_dpe
-            BKZReduction[FP_NR[mpfr_t]] *mpz_mpfr
+            BKZReduction[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            BKZReduction[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            BKZReduction[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            BKZReduction[Z_NR[long], FP_NR[d_t]] *long_d
+            BKZReduction[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            BKZReduction[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union fast_evaluator_core_t:
@@ -278,16 +384,24 @@ ELSE:
 
     IF HAVE_QD:
         ctypedef union enumeration_core_t:
-            Enumeration[FP_NR[d_t]] *d
-            Enumeration[FP_NR[dpe_t]] *dpe
-            Enumeration[FP_NR[dd_t]] *dd
-            Enumeration[FP_NR[qd_t]] *qd
-            Enumeration[FP_NR[mpfr_t]] *mpfr
+            Enumeration[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            Enumeration[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            Enumeration[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
+            Enumeration[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
+            Enumeration[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            Enumeration[Z_NR[long], FP_NR[d_t]] *long_d
+            Enumeration[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            Enumeration[Z_NR[long], FP_NR[dd_t]] *long_dd
+            Enumeration[Z_NR[long], FP_NR[qd_t]] *long_qd
+            Enumeration[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union enumeration_core_t:
             Enumeration[FP_NR[d_t]] *d
             Enumeration[FP_NR[dpe_t]] *dpe
             Enumeration[FP_NR[mpfr_t]] *mpfr
+            Enumeration[Z_NR[long], FP_NR[d_t]] *long_d
+            Enumeration[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            Enumeration[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union pruner_core_t:

@@ -214,18 +214,20 @@ cdef class Strategy:
             raise ValueError("Block size must be ≥ 0")
         self._core.block_size = block_size
 
-        pruning_parameters_ = []
         for p in pruning_parameters:
             if not isinstance(p, Pruning):
                 p = Pruning(*p)
             self._core.pruning_parameters.push_back((<Pruning>p)._core)
 
-        if len(pruning_parameters_) == 0:
-            pruning_parameters_.append(Pruning(1.0, [1.0 for _ in range(self.block_size)], 1.0))
+        if len(pruning_parameters) == 0:
+            p = Pruning(1.0, [1.0 for _ in range(self.block_size)], 1.0)
+            self._core.pruning_parameters.push_back((<Pruning>p)._core)
 
         for p in preprocessing_block_sizes:
             if p<=2:
                 raise ValueError("Preprocessing block_size must be > 2, got %s", p)
+            if p >= block_size:
+                raise ValueError("Preprocessing block_size must be < block size, got %s", p)
             self._core.preprocessing_block_sizes.push_back(p)
 
     def get_pruning(self, radius, gh):
@@ -241,6 +243,7 @@ cdef class Strategy:
         for pruning in self.pruning_parameters:
             if abs(pruning.radius_factor - gh_factor) < closest_dist:
                 best = pruning
+                closest_dist = abs(pruning.radius_factor - gh_factor)
         assert(best is not None)
         return best
 

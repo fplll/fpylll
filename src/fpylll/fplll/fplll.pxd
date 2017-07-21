@@ -415,7 +415,7 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         void discover_all_rows() nogil
         void set_r(int i, int j, FT& f) nogil
         void move_row(int oldR, int newR) nogil
-        void swap_rows(int row1, int row2)
+        void row_swap(int row1, int row2)
 
         void row_addmul(int i, int j, const FT& x) nogil
         void row_addmul_we(int i, int j, const FT& x, long expoAdd) nogil
@@ -550,9 +550,9 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 # Enumeration
 
 cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
-    cdef cppclass Enumeration[FT]:
-        Enumeration(MatGSO[Z_NR[mpz_t], FT]& gso, FastEvaluator[FT]& evaluator)
-        Enumeration(MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]]& gso, FastErrorBoundedEvaluator& evaluator)
+    cdef cppclass Enumeration[ZT, FT]:
+        Enumeration(MatGSO[ZT, FT]& gso, FastEvaluator[FT]& evaluator)
+        Enumeration(MatGSO[ZT, FP_NR[mpfr_t]]& gso, FastErrorBoundedEvaluator& evaluator)
 
         void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
                        const vector[FT]& targetCoord,
@@ -658,13 +658,12 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
 
 cdef extern from "fplll/bkz.h" namespace "fplll":
 
-    cdef cppclass BKZReduction[FT]:
+    cdef cppclass BKZReduction[ZT, FT]:
 
-        BKZReduction(MatGSO[Z_NR[mpz_t], FT] &m, LLLReduction[Z_NR[mpz_t], FT] &lll_obj, const BKZParam &param) nogil
+        BKZReduction(MatGSO[ZT, FT] &m, LLLReduction[ZT, FT] &lll_obj, const BKZParam &param) nogil
 
         int svp_preprocessing(int kappa, int block_size, const BKZParam &param) nogil
         int svp_postprocessing(int kappa, int block_size, const vector[FT] &solution) nogil
-        int dsvp_postprocessing(int kappa, int block_size, const vector[FT] &solution) nogil
 
         int svp_reduction(int kappa, int block_size, const BKZParam &param, int dual) nogil except +
 
@@ -685,9 +684,9 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
         long nodes
 
 
-    cdef cppclass BKZAutoAbort[FT]:
-        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int num_rows) nogil
-        BKZAutoAbort(MatGSO[Z_NR[mpz_t], FT]& m, int num_rows, int start_row) nogil
+    cdef cppclass BKZAutoAbort[ZT, FT]:
+        BKZAutoAbort(MatGSO[ZT, FT]& m, int num_rows) nogil
+        BKZAutoAbort(MatGSO[ZT, FT]& m, int num_rows, int start_row) nogil
 
         int test_abort() nogil
         int test_abort(double scale) nogil
