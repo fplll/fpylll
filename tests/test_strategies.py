@@ -1,5 +1,5 @@
-from fpylll import IntegerMatrix, BKZ
-from fpylll.fplll.bkz_param import Pruning, Strategy
+from fpylll import IntegerMatrix, BKZ, Pruning
+from fpylll.fplll.bkz_param import Strategy
 
 
 def test_linear_pruning():
@@ -9,7 +9,7 @@ def test_linear_pruning():
     strategies = [Strategy(i) for i in range(5)]
 
     for b in range(5, block_size+1):
-        strategies.append(Strategy(b, [preprocessing], [Pruning.LinearPruning(b, 2)]))
+        strategies.append(Strategy(b, [preprocessing], [Pruning.LinearPruningParams(b, 2)]))
 
     param = BKZ.Param(block_size=block_size, strategies=strategies)
     BKZ.reduction(A, param)
