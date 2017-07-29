@@ -12,7 +12,7 @@ Example::
 
     >>> from fpylll import IntegerMatrix, GaussSieve, SVP, LLL, set_random_seed
     >>> set_random_seed(1337)
-    >>> A = IntegerMatrix.random(30, "qary", k=15, q=127); A = LLL.reduction(A)
+    >>> A = IntegerMatrix.random(20, "qary", k=10, q=127); A = LLL.reduction(A)
     >>> w = SVP.shortest_vector(A)
     >>> v = GaussSieve(A, algorithm=2)()
     >>> sum([w_**2 for w_ in w]) == sum([v_**2 for v_ in v])
