@@ -26,7 +26,7 @@ class BKZReduction(BKZBase):
             return radius, strategy.get_pruning(radius, 100 * radius)
 
         r = [self.M.get_r(i, i) for i in range(kappa, kappa+block_size)]
-        gh_radius = gaussian_heuristic(r)          
+        gh_radius = gaussian_heuristic(r)
         radius = min(radius, gh_radius * params.gh_factor)
         return radius, strategy.get_pruning(radius, gh_radius)
 
