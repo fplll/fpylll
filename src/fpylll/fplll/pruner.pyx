@@ -641,8 +641,8 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
 
     >>> pr0 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.GRADIENT, float_type="double")
     >>> pr1 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.NELDER_MEAD, float_type="long double")
-    >>> pr0.coefficients[10], pr1.coefficients[10]
-    (0.7135102661831587, 0.8242914753302696)
+    >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
+    (0.713510266183..., 0.82429147533...)
 
     .. note :: Preprocessing cost should be expressed in terms of nodes in an
        enumeration (~100 CPU cycles per node)
