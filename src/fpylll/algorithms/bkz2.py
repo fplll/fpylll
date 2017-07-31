@@ -22,12 +22,13 @@ class BKZReduction(BKZBase):
         radius = self.M.get_r(kappa, kappa) * self.lll_obj.delta
 
         # Don't bother computing expensive gh for small blacksizes
-        if not (params.flags & BKZ.GH_BND and block_size > 30):
-            return radius, strategy.get_pruning(radius, 100 * radius)
 
         r = [self.M.get_r(i, i) for i in range(kappa, kappa+block_size)]
         gh_radius = gaussian_heuristic(r)
-        radius = min(radius, gh_radius * params.gh_factor)
+        
+        if (params.flags & BKZ.GH_BND and block_size > 30):
+            radius = min(radius, gh_radius * params.gh_factor)
+        
         return radius, strategy.get_pruning(radius, gh_radius)
 
     def randomize_block(self, min_row, max_row, tracer=dummy_tracer, density=0):
@@ -101,7 +102,8 @@ class BKZReduction(BKZBase):
                 with tracer.context("reduction"):
                     self.svp_preprocessing(kappa, block_size, params, tracer=tracer)
 
-            radius, pruning = self.get_pruning(kappa, block_size, params, tracer)
+            with tracer.context("pruner"):
+                radius, pruning = self.get_pruning(kappa, block_size, params, tracer)
 
             try:
                 enum_obj = Enumeration(self.M)
