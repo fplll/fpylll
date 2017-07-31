@@ -25,10 +25,10 @@ class BKZReduction(BKZBase):
 
         r = [self.M.get_r(i, i) for i in range(kappa, kappa+block_size)]
         gh_radius = gaussian_heuristic(r)
-        
+
         if (params.flags & BKZ.GH_BND and block_size > 30):
             radius = min(radius, gh_radius * params.gh_factor)
-        
+
         return radius, strategy.get_pruning(radius, gh_radius)
 
     def randomize_block(self, min_row, max_row, tracer=dummy_tracer, density=0):
