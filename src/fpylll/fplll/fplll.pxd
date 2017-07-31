@@ -601,27 +601,27 @@ cdef extern from "fplll/svpcvp.h" namespace "fplll":
 
 cdef extern from "fplll/bkz_param.h" namespace "fplll":
 
-    cdef cppclass Pruning:
-        double radius_factor
+    cdef cppclass PruningParams:
+        double gh_factor
         vector[double] coefficients
         double expectation
         PrunerMetric metric
         vector[double] detailed_cost
 
-        Pruning()
+        PruningParams()
 
         @staticmethod
-        Pruning LinearPruning(int block_size, int level)
+        PruningParams LinearPruningParams(int block_size, int level)
 
     cdef cppclass Strategy:
         size_t block_size
-        vector[Pruning] pruning_parameters
+        vector[PruningParams] pruning_parameters
         vector[size_t] preprocessing_block_sizes
 
         @staticmethod
         Strategy EmptyStrategy()
 
-        Pruning get_pruning(double radius, double gh)
+        PruningParams get_pruning(double radius, double gh)
 
     cdef cppclass BKZParam:
         BKZParam() nogil
@@ -717,48 +717,56 @@ cdef extern from "fplll/util.h" namespace "fplll":
 
 cdef extern from "fplll/pruner.h" namespace "fplll":
 
-    cdef enum PrunerMethod:
-        PRUNER_METHOD_GREEDY
-        PRUNER_METHOD_GRADIENT
-        PRUNER_METHOD_NM
-        PRUNER_METHOD_HYBRID
+    cdef enum PrunerFlags:
+        PRUNER_CVP
+        PRUNER_START_FROM_INPUT
+        PRUNER_GRADIENT
+        PRUNER_NELDER_MEAD
+        PRUNER_VERBOSE
 
     cdef enum PrunerMetric:
         PRUNER_METRIC_PROBABILITY_OF_SHORTEST
         PRUNER_METRIC_EXPECTED_SOLUTIONS
 
     cdef cppclass Pruner[FT]:
-        FT enumeration_radius
-        FT preproc_cost
-        FT target
+        Pruner(const int n)
 
-        int verbosity
+        Pruner(const FT enumeration_radius, const FT preproc_cost, const vector[double] &gso_r)
 
-        PrunerMethod method
-        PrunerMetric metric
+        Pruner(const FT enumeration_radius, const FT preproc_cost, const vector[double] &gso_r,
+               const FT target, const PrunerMetric metric, int flags)
 
-        Pruner()
-        Pruner(FT enumeration_radius, FT preproc_cost, FT target)
-        Pruner(FT enumeration_radius, FT preproc_cost, FT target, PrunerMethod method,
-               PrunerMetric metric, size_t n, size_t d)
+        Pruner(const FT enumeration_radius, const FT preproc_cost, const vector[vector[double]] &gso_r)
 
-        void load_basis_shape(const vector[double] &gso_sq_norms, bool reset_renorm)
-        void load_basis_shapes(const vector[vector[double]] &gso_sq_norms_vec)
+        Pruner(const FT enumeration_radius, const FT preproc_cost, const vector[vector[double]] &gso_r,
+               const FT target, const PrunerMetric metric, int flags)
 
-        void optimize_coefficients(vector[double] &pr, bool reset)
+        void optimize_coefficients(vector[double] &pr)
 
-        double single_enum_cost(const vector[double] &pr)
         double single_enum_cost(const vector[double] &pr, vector[double] *detailed_cost)
+        double single_enum_cost(const vector[double] &pr)
+
         double repeated_enum_cost(const vector[double] &pr)
+
         double measure_metric(const vector[double] &pr)
 
-    void prune[FT](Pruning &pruning, double &enumeration_radius, const double preproc_cost, const double target,
-                   vector[double] &r, const PrunerMethod method, const PrunerMetric metric, bool reset)
+        FT gaussian_heuristic()
 
-    void prune[FT](Pruning &pruning, double &enumeration_radius, const double preproc_cost, const double target,
-                   vector[vector[double]] &rs, const PrunerMethod method, const PrunerMetric metric, bool reset);
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[double] &gso_r)
 
-    FT svp_probability[FT](const Pruning &pruning)
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[double] &gso_r,
+                   const double target, const PrunerMetric metric, const int flags)
+
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[vector[double]] &gso_r)
+
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[vector[double]] &gso_r,
+                   const double target, const PrunerMetric metric, const int flags)
+
+    FT svp_probability[FT](const PruningParams &pruning)
     FT svp_probability[FT](const vector[double] &pr)
 
 
