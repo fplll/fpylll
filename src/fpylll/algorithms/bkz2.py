@@ -35,8 +35,6 @@ class BKZReduction(BKZBase):
 
             2. apply lower triangular matrix with coefficients in -1,0,1
 
-            3. LLL reduce result
-
         :param min_row: start in this row
         :param max_row: stop at this row (exclusive)
         :param tracer: object for maintaining statistics
