@@ -60,7 +60,7 @@ class BKZReduction(BKZBase):
             preprocs = [last_preproc] + preprocs
 
         for preproc in preprocs:
-            prepar = params.__class__(block_size=preproc, flags=BKZ.GH_BND|BKZ.BOUNDED_LLL)
+            prepar = params.__class__(block_size=preproc, flags=BKZ.BOUNDED_LLL)
             clean &= self.tour(prepar, kappa, kappa + block_size, tracer=tracer)
 
         return clean
