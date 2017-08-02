@@ -235,13 +235,23 @@ def _parse_args():
 
 def _find_classes(class_names, filenames):
     import imp
+    import os
+    import re
 
     classes = class_names
     classes = [globals().get(clas, clas) for clas in classes]
 
     for i, fn in enumerate(filenames):
         tmp = imp.load_source("compare_module%03d"%i, fn)
+        # find the class by name in the module
         classes = [tmp.__dict__.get(clas, clas) for clas in classes]
+
+        # check if there's some BKZReduction implemented in bkz_foo.py, we match this with BKZ_FOO
+        if fn.startswith(os.path.basename(fn)) and "BKZReduction" in tmp.__dict__:
+            candidate = re.sub("bkz(.*)\.py", "BKZ\\1", os.path.basename(fn)).upper()
+            if candidate in classes:
+                tmp.BKZReduction.__name__ = candidate
+                classes[classes.index(candidate)] = tmp.BKZReduction
 
     for clas in classes:
         if isinstance(clas, str):
