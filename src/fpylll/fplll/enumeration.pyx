@@ -37,20 +37,20 @@ class EnumerationError(Exception):
     pass
 
 class EvaluatorStrategy:
-    """Strategies to update the enumeration radius and deal with multiple solutions.
-    Possible values are:
+    """
+    Strategies to update the enumeration radius and deal with multiple solutions.  Possible values
+    are:
 
-    EvaluatorStrategy.
-        BEST_N_SOLUTIONS
-            Starting with the nr_solutions-th solution, every time a new solution is found
-            the enumeration bound is updated to the length of the longest solution. If
-            more than nr_solutions were found, the longest is dropped.
-        OPPORTUNISTIC_N_SOLUTIONS
-            Every time a solution is found, update the enumeration distance to the length
-            of the solution. If more than nr_solutions were found, the longest is dropped.
-        FIRST_N_SOLUTIONS
-            The enumeration bound is not updated. As soon as nr_solutions are found,
-            enumeration stops.
+    - ``BEST_N_SOLUTIONS`` Starting with the nr_solutions-th solution, every time a new solution is
+      found the enumeration bound is updated to the length of the longest solution.  If more
+      than nr_solutions were found, the longest is dropped.
+
+    - ``OPPORTUNISTIC_N_SOLUTIONS`` Every time a solution is found, update the enumeration distance
+      to the length of the solution.  If more than nr_solutions were found, the longest is
+      dropped.
+
+    - ``FIRST_N_SOLUTIONS`` The enumeration bound is not updated.  As soon as nr_solutions are
+      found, enumeration stops.
     """
     BEST_N_SOLUTIONS = EVALSTRATEGY_BEST_N_SOLUTIONS
     OPPORTUNISTIC_N_SOLUTIONS = EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
