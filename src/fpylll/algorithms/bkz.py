@@ -15,7 +15,7 @@ from fpylll import BKZ
 from fpylll import Enumeration
 from fpylll import EnumerationError
 from fpylll.util import adjust_radius_to_gh_bound
-from fpylll.algorithms.bkz_stats import BKZTreeTracer, dummy_tracer
+from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer
 
 
 class BKZReduction(object):

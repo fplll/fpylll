@@ -37,20 +37,20 @@ class EnumerationError(Exception):
     pass
 
 class EvaluatorStrategy:
-    """Strategies to update the enumeration radius and deal with multiple solutions.
-    Possible values are:
+    """
+    Strategies to update the enumeration radius and deal with multiple solutions.  Possible values
+    are:
 
-    EvaluatorStrategy.
-        BEST_N_SOLUTIONS
-            Starting with the nr_solutions-th solution, every time a new solution is found
-            the enumeration bound is updated to the length of the longest solution. If
-            more than nr_solutions were found, the longest is dropped.
-        OPPORTUNISTIC_N_SOLUTIONS
-            Every time a solution is found, update the enumeration distance to the length
-            of the solution. If more than nr_solutions were found, the longest is dropped.
-        FIRST_N_SOLUTIONS
-            The enumeration bound is not updated. As soon as nr_solutions are found,
-            enumeration stops.
+    - ``BEST_N_SOLUTIONS`` Starting with the nr_solutions-th solution, every time a new solution is
+      found the enumeration bound is updated to the length of the longest solution.  If more
+      than nr_solutions were found, the longest is dropped.
+
+    - ``OPPORTUNISTIC_N_SOLUTIONS`` Every time a solution is found, update the enumeration distance
+      to the length of the solution.  If more than nr_solutions were found, the longest is
+      dropped.
+
+    - ``FIRST_N_SOLUTIONS`` The enumeration bound is not updated.  As soon as nr_solutions are
+      found, enumeration stops.
     """
     BEST_N_SOLUTIONS = EVALSTRATEGY_BEST_N_SOLUTIONS
     OPPORTUNISTIC_N_SOLUTIONS = EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
@@ -298,7 +298,7 @@ cdef class Enumeration:
                                             target_coord_d, sub_tree_, pruning_, dual)
             sig_off()
             if not self._fe_core.d.size():
-                raise EnumerationError("No vector found.")
+                raise EnumerationError("No solution found.")
 
             solutions_d = self._fe_core.d.begin()
             while solutions_d != self._fe_core.d.end():
@@ -324,7 +324,7 @@ cdef class Enumeration:
                                                  target_coord_ld, sub_tree_, pruning_, dual)
                 sig_off()
                 if not self._fe_core.ld.size():
-                    raise EnumerationError("No vector found.")
+                    raise EnumerationError("No solution found.")
 
                 solutions_ld = self._fe_core.ld.begin()
                 while solutions_ld != self._fe_core.ld.end():
@@ -349,7 +349,7 @@ cdef class Enumeration:
                                             target_coord_dpe, sub_tree_, pruning_, dual)
             sig_off()
             if not self._fe_core.dpe.size():
-                raise EnumerationError("No vector found.")
+                raise EnumerationError("No solution found.")
 
             solutions_dpe = self._fe_core.dpe.begin()
             while solutions_dpe != self._fe_core.dpe.end():
@@ -375,7 +375,7 @@ cdef class Enumeration:
                                                 target_coord_dd, sub_tree_, pruning_, dual)
                 sig_off()
                 if not self._fe_core.dd.size():
-                    raise EnumerationError("No vector found.")
+                    raise EnumerationError("No solution found.")
 
                 solutions_dd = self._fe_core.dd.begin()
                 while solutions_dd != self._fe_core.dd.end():
@@ -400,7 +400,7 @@ cdef class Enumeration:
                                                 target_coord_qd, sub_tree_, pruning_, dual)
                 sig_off()
                 if not self._fe_core.qd.size():
-                    raise EnumerationError("No vector found.")
+                    raise EnumerationError("No solution found.")
 
                 solutions_qd = self._fe_core.qd.begin()
                 while solutions_qd != self._fe_core.qd.end():
@@ -425,7 +425,7 @@ cdef class Enumeration:
                                             target_coord_mpfr, sub_tree_, pruning_, dual)
             sig_off()
             if not self._fe_core.mpfr.size():
-                raise EnumerationError("No vector found.")
+                raise EnumerationError("No solution found.")
 
             solutions_mpfr = self._fe_core.mpfr.begin()
             while solutions_mpfr != self._fe_core.mpfr.end():

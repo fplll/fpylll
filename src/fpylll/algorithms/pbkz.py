@@ -13,7 +13,7 @@ import multiprocessing
 from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZ1
 from fpylll.algorithms.bkz2 import BKZReduction as BKZ2
-from fpylll.algorithms.bkz_stats import BKZTreeTracer, dummy_tracer
+from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer
 from fpylll.util import adjust_radius_to_gh_bound
 
 

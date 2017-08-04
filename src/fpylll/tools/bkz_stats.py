@@ -12,6 +12,7 @@ import time
 import copy
 from collections import OrderedDict
 from math import log
+from fpylll.tools.quality import basis_quality
 
 
 def pretty_dict(d, keyword_width=None, round_bound=9999):
@@ -730,8 +731,12 @@ class BKZTreeTracer(Tracer):
                     pass
 
         if label[0] == "tour":
-            node.data["r_0"] = Statistic(self.instance.M.get_r(0, 0), repr="min")
-            node.data["/"] = Statistic(self.instance.M.get_current_slope(0, self.instance.A.nrows), repr="min")
+            data = basis_quality(self.instance.M)
+            for k, v in data.items():
+                if k == "/":
+                    node.data[k] = Statistic(v, repr="max")
+                else:
+                    node.data[k] = Statistic(v, repr="min")
 
         if self.verbosity and label[0] == "tour":
             report = OrderedDict()
@@ -746,6 +751,7 @@ class BKZTreeTracer(Tracer):
                 report["svp"] = node.find("enumeration", True)["cputime"]
             except KeyError:
                 pass
+            report["#enum"] = node.sum("#enum")
             report["lll"] = node.sum("cputime", label="lll")
             try:
                 report["pruner"] = node.find("pruner", True)["cputime"]
@@ -753,7 +759,6 @@ class BKZTreeTracer(Tracer):
                 pass
             report["r_0"] = node["r_0"]
             report["/"] = node["/"]
-            report["#enum"] = node.sum("#enum")
 
             print(pretty_dict(report))
 
