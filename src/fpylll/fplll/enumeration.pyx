@@ -308,7 +308,7 @@ cdef class Enumeration:
                 cur_sol = []
                 for j in range(deref(solutions_d).second.size()):
                     cur_sol.append(deref(solutions_d).second[j].get_d())
-                solutions.append([tuple(cur_sol), cur_dist])
+                solutions.append((cur_dist, tuple(cur_sol)))
                 inc(solutions_d)
 
         IF HAVE_LONG_DOUBLE:
@@ -334,7 +334,7 @@ cdef class Enumeration:
                     cur_sol = []
                     for j in range(deref(solutions_ld).second.size()):
                         cur_sol.append(deref(solutions_ld).second[j].get_d())
-                    solutions.append([tuple(cur_sol), cur_dist])
+                    solutions.append((cur_dist, tuple(cur_sol)))
                     inc(solutions_ld)
 
         if self.M._type == gso_mpz_dpe:
@@ -359,7 +359,7 @@ cdef class Enumeration:
                 cur_sol = []
                 for j in range(deref(solutions_dpe).second.size()):
                     cur_sol.append(deref(solutions_dpe).second[j].get_d())
-                solutions.append([tuple(cur_sol), cur_dist])
+                solutions.append((cur_dist, tuple(cur_sol)))
                 inc(solutions_dpe)
 
         IF HAVE_QD:
@@ -385,7 +385,7 @@ cdef class Enumeration:
                     cur_sol = []
                     for j in range(deref(solutions_dd).second.size()):
                         cur_sol.append(deref(solutions_dd).second[j].get_d())
-                    solutions.append([tuple(cur_sol), cur_dist])
+                    solutions.append((cur_dist, tuple(cur_sol)))
                     inc(solutions_dd)
 
             if self.M._type == gso_mpz_qd:
@@ -410,7 +410,7 @@ cdef class Enumeration:
                     cur_sol = []
                     for j in range(deref(solutions_qd).second.size()):
                         cur_sol.append(deref(solutions_qd).second[j].get_d())
-                    solutions.append([tuple(cur_sol), cur_dist])
+                    solutions.append((cur_dist, tuple(cur_sol)))
                     inc(solutions_qd)
 
         if self.M._type == gso_mpz_mpfr:
@@ -435,7 +435,7 @@ cdef class Enumeration:
                 cur_sol = []
                 for j in range(deref(solutions_mpfr).second.size()):
                     cur_sol.append(deref(solutions_mpfr).second[j].get_d())
-                solutions.append([tuple(cur_sol), cur_dist])
+                solutions.append((cur_dist, tuple(cur_sol)))
                 inc(solutions_mpfr)
 
         return solutions
