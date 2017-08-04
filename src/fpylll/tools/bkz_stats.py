@@ -12,7 +12,7 @@ import time
 import copy
 from collections import OrderedDict
 from math import log
-from .quality import basis_quality
+from fpylll.tools.quality import basis_quality
 
 
 def pretty_dict(d, keyword_width=None, round_bound=9999):
