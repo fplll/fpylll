@@ -56,7 +56,20 @@ def basis_quality(M):
     return OrderedDict([("rhf", rhf), ("ghr", gh_factor), ("hvr", half_volume_ratio)])
 
 
-def bkz_call(BKZ, A, block_size, tours, return_queue=None):
+def bkz_call(BKZ, A, block_size, tours, return_queue=None, tag=None):
+    """Call ``BKZ`` on ``A`` with ``block_size`` for the given number of ``tours``.
+
+    If ``return_queue`` is not ``None`` then the trace and the provided ``tag`` are put on the
+    queue.  Otherwise, they are returned.
+
+    :param BKZ:
+    :param A:
+    :param block_size:
+    :param tours:
+    :param return_queue:
+    :param tag:
+
+    """
     bkz = BKZ(copy.copy(A))
     tracer = BKZTreeTracer(bkz, start_clocks=True)
     for i in range(tours):
@@ -75,9 +88,9 @@ def bkz_call(BKZ, A, block_size, tours, return_queue=None):
         trace.data[k] = v
 
     if return_queue:
-        return_queue.put(trace)
+        return_queue.put((tag, trace))
     else:
-        return trace
+        return (tag, trace)
 
 
 class CompareBKZ:
@@ -129,7 +142,7 @@ class CompareBKZ:
 
                     for BKZ_ in self.classes:
                         L[BKZ_.__name__] = L.get(BKZ_.__name__, [])
-                        args = (BKZ_, A, block_size, tours, return_queue)
+                        args = (BKZ_, A, block_size, tours, return_queue, (BKZ_, seed))
                         task = Process(target=bkz_call, args=args)
                         tasks.append((BKZ_, task, args, seed))
 
@@ -142,12 +155,13 @@ class CompareBKZ:
                         else:
                             bkz_call(*args)
 
-                    for BKZ_, task, args, seed_ in chunk:
+                    for _ in chunk:
                         if threads > 1:
                             task.join()
-                        ret = return_queue.get()
-                        L[BKZ_.__name__].append((seed, ret))
-                        logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(ret.data)))
+
+                        (BKZ_, seed_), trace = return_queue.get()
+                        L[BKZ_.__name__].append((seed, trace))
+                        logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(trace.data)))
 
                 logging.info("")
                 for name, vals in L.items():
