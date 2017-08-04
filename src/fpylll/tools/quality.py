@@ -40,8 +40,8 @@ def basis_quality(M):
 
         >>> from fpylll.tools.quality import basis_quality
         >>> from fpylll.tools.bkz_stats import pretty_dict
-        >>> pretty_dict(basis_quality(M))
-        u'{"r_0":   2^34.0,  "r_0/gh": 9.389811,  "rhf": 1.020530,  "/": -0.08550,  "hv/hv": 2.940943}'
+        >>> str(pretty_dict(basis_quality(M)))
+        '{"r_0":   2^34.0,  "r_0/gh": 9.389811,  "rhf": 1.020530,  "/": -0.08550,  "hv/hv": 2.940943}'
 
     """
 
