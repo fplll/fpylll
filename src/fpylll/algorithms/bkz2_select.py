@@ -28,25 +28,24 @@ class BKZReduction(BKZBase):
         self.lll_obj()
 
 
-    def select_index(self, r, block_size):
-        d = len(r)
+    def select_index(self, block_size, min_row, max_row):
         maxv = 1.
-        for i in range(d - 1):
-            v = r[i] / r[min(i+block_size-1, d-1)]
+        r = self.M.r()
+        for i in range(min_row, max_row-block_size-1):
+            v = r[i] / r[min(i+block_size-1, max_row-1)]
             if v > maxv:
                 maxv, maxi = v, i
-        return i
+        return maxi
 
     def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
         if max_row == -1:
             max_row = self.A.nrows
         for i in range(min_row, max_row-1):
-            r = self.M.r()[min_row: max_row]
-            kappa = min_row + self.select_index(r, params.block_size)
+            self.lll_obj.size_reduction()
+            kappa = min_row + self.select_index(params.block_size,  min_row, max_row)
+
             block_size = min(params.block_size, max_row - kappa)
             self.svp_reduction(kappa, block_size, params, tracer)
-
-        self.lll_obj.size_reduction(max(0, max_row-1), max_row, max(0, max_row-2))
         return False
 
     def __call__(self, params, min_row=0, max_row=-1):
