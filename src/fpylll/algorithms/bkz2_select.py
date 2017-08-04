@@ -1,4 +1,15 @@
 # -*- coding: utf-8 -*-
+"""
+A variant of BKZ2 where tours apply svp_reduction selectively, namely, always choosing the block with 
+the largest local slope.
+
+..  moduleauthor:: Leo Ducas <ducas@cwi.nl>
+
+..  note :: This module is purely experimental, and is only meant to verify some conjecture from 
+Damien Sthele and Shi Bai. 
+
+"""
+
 
 from random import randint
 from fpylll import BKZ, Enumeration, EnumerationError
@@ -14,26 +25,26 @@ class BKZReduction(BKZBase):
         :param A: an integer matrix, a GSO object or an LLL object
         """
         BKZBase.__init__(self, A)
+        self.lll_obj()
 
-    def select_index(self, r, kappa):
+
+    def select_index(self, r, block_size):
         d = len(r)
         maxv = 1.
         for i in range(d - 1):
-            v = r[i] / r[min(i+kappa-1, d-1)]
+            v = r[i] / r[min(i+block_size-1, d-1)]
             if v > maxv:
                 maxv, maxi = v, i
         return i
 
-    def selective_tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
+    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
         if max_row == -1:
             max_row = self.A.nrows
-
         for i in range(min_row, max_row-1):
-            r = M.r()[min_row, max_row]
-            kappa = min_row + select_index(r, params.block_size)
-
+            r = self.M.r()[min_row: max_row]
+            kappa = min_row + self.select_index(r, params.block_size)
             block_size = min(params.block_size, max_row - kappa)
-            clean &= self.svp_reduction(kappa, block_size, params, tracer)
+            self.svp_reduction(kappa, block_size, params, tracer)
 
         self.lll_obj.size_reduction(max(0, max_row-1), max_row, max(0, max_row-2))
         return False
