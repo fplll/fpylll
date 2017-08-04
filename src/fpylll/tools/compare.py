@@ -16,7 +16,8 @@ from __future__ import absolute_import
 from collections import OrderedDict
 from fpylll import IntegerMatrix, BKZ
 from fpylll import set_random_seed
-from fpylll.algorithms.bkz_stats import BKZTreeTracer, dummy_tracer, pretty_dict
+from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer, pretty_dict
+from fpylll.tools.quality import basis_quality
 from fpylll.util import gaussian_heuristic
 from multiprocessing import Queue, Process
 from math import log, exp
@@ -40,22 +41,6 @@ def chunk_iterator(lst, step):
         yield tuple(lst[j] for j in range(i, min(i+step, len(lst))))
 
 
-def basis_quality(M):
-    n = M.d
-    r = [M.get_r(i, i) for i in range(n)]
-    log_volume = sum(log(r_)/2 for r_ in r)
-    rhf = exp((log(r[0])/2 - log_volume/n)/n)
-
-    if n%2 == 1:
-        half_volume_ratio = gaussian_heuristic(r[:n//2]) / gaussian_heuristic(r[n//2+1:])
-    else:
-        half_volume_ratio = gaussian_heuristic(r[:n//2]) / gaussian_heuristic(r[n//2:])
-
-    gh_factor = r[0] / gaussian_heuristic(r)
-
-    return OrderedDict([("rhf", rhf), ("ghr", gh_factor), ("hvr", half_volume_ratio)])
-
-
 def bkz_call(BKZ, A, block_size, tours, return_queue=None, tag=None):
     """Call ``BKZ`` on ``A`` with ``block_size`` for the given number of ``tours``.
 
@@ -75,10 +60,6 @@ def bkz_call(BKZ, A, block_size, tours, return_queue=None, tag=None):
     for i in range(tours):
         with tracer.context("tour", i):
             bkz.tour(block_size, tracer=tracer)
-
-        quality = basis_quality(bkz.M)
-        for k, v in quality.items():
-            tracer.trace.find(("tour", i)).data[k] = v
 
     tracer.exit()
     trace = tracer.trace
