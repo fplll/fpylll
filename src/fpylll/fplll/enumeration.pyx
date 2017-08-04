@@ -440,6 +440,42 @@ cdef class Enumeration:
 
         return solutions
 
+    @property
+    def sub_solutions(self):
+        """
+        Return sub-solutions computed in last enumeration call.
+
+        >>> from fpylll import *
+        >>> set_random_seed(1337)
+        >>> A = IntegerMatrix.random(80, "qary", bits=30, k=40)
+        >>> _ = LLL.reduction(A)
+        >>> M = GSO.Mat(A)
+        >>> _ = M.update_gso()
+        >>> pruning = Pruning.run(M.get_r(0, 0), 2**40, M.r()[:30], 0.2)
+        >>> enum = Enumeration(M, strategy=EvaluatorStrategy.BEST_N_SOLUTIONS, sub_solutions=True)
+        >>> _ = enum.enumerate(0, 30, 0.999*M.get_r(0, 0), 0, pruning=pruning.coefficients)
+        >>> [int(a) for a,b in enum.sub_solutions[:5]]
+        [5569754193, 5556022461, 5083806188, 5022873439, 4260865082]
+
+        """
+        cdef list sub_solutions = []
+
+        cdef vector[pair[FP_NR[d_t], vector[FP_NR[d_t]]]].iterator _sub_solutions_d
+
+        if self.M._type == gso_mpz_d or self.M._type == gso_long_d:
+            _sub_solutions_d = self._fe_core.d.sub_solutions.begin()
+            while _sub_solutions_d != self._fe_core.d.sub_solutions.end():
+                cur_dist = deref(_sub_solutions_d).first.get_d()
+                cur_sol = []
+                for j in range(deref(_sub_solutions_d).second.size()):
+                    cur_sol.append(deref(_sub_solutions_d).second[j].get_d())
+                sub_solutions.append(tuple([cur_dist, tuple(cur_sol)]))
+                inc(_sub_solutions_d)
+        else:
+            raise NotImplementedError
+
+        return tuple(sub_solutions)
+
     def get_nodes(self):
         """Return number of visited nodes in last enumeration call.
         """
