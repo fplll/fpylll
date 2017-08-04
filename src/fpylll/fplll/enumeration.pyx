@@ -58,12 +58,14 @@ class EvaluatorStrategy:
 
 
 cdef class Enumeration:
-    def __init__(self, MatGSO M, nr_solutions=1, strategy=EvaluatorStrategy.BEST_N_SOLUTIONS):
+    def __cinit__(self, MatGSO M, int nr_solutions=1,
+                  strategy=EvaluatorStrategy.BEST_N_SOLUTIONS, bool sub_solutions=False):
         """Create new enumeration object
 
-        :param MatGSO M:      GSO matrix
-        :param nr_solutions:  Number of solutions to be returned by enumeration
-        :param strategy:      EvaluatorStrategy to use when finding new solutions
+        :param MatGSO M:       GSO matrix
+        :param nr_solutions:   Number of solutions to be returned by enumeration
+        :param strategy:       EvaluatorStrategy to use when finding new solutions
+        :param sub_solutions:  Compute sub-solutions
         """
 
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[d_t]]  *m_mpz_d
@@ -89,21 +91,21 @@ cdef class Enumeration:
         if M._type == gso_mpz_d:
             m_mpz_d = M._core.mpz_d
             self._fe_core.d = new FastEvaluator_c[FP_NR[double]](nr_solutions,
-                                                                      strategy,
-                                                                      False)
+                                                                 strategy,
+                                                                 sub_solutions)
             self._core.mpz_d = new Enumeration_c[Z_NR[mpz_t], FP_NR[double]](m_mpz_d[0], self._fe_core.d[0])
         elif M._type == gso_long_d:
             m_l_d = M._core.long_d
             self._fe_core.d = new FastEvaluator_c[FP_NR[double]](nr_solutions,
                                                                       strategy,
-                                                                      False)
+                                                                      sub_solutions)
             self._core.long_d = new Enumeration_c[Z_NR[long], FP_NR[double]](m_l_d[0], self._fe_core.d[0])
         elif M._type == gso_mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 m_mpz_ld = M._core.mpz_ld
                 self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]](nr_solutions,
-                                                                      strategy,
-                                                                      False)
+                                                                          strategy,
+                                                                          sub_solutions)
                 self._core.mpz_ld = new Enumeration_c[Z_NR[mpz_t], FP_NR[ld_t]](m_mpz_ld[0], self._fe_core.ld[0])
             ELSE:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
@@ -111,8 +113,8 @@ cdef class Enumeration:
             IF HAVE_LONG_DOUBLE:
                 m_l_ld = M._core.long_ld
                 self._fe_core.ld = new FastEvaluator_c[FP_NR[longdouble]](nr_solutions,
-                                                                      strategy,
-                                                                      False)
+                                                                          strategy,
+                                                                          sub_solutions)
                 self._core.long_ld = new Enumeration_c[Z_NR[long], FP_NR[ld_t]](m_l_ld[0], self._fe_core.ld[0])
             ELSE:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
@@ -120,14 +122,14 @@ cdef class Enumeration:
             m_mpz_dpe = M._core.mpz_dpe
             self._fe_core.dpe = new FastEvaluator_c[FP_NR[dpe_t]](nr_solutions,
                                                                   strategy,
-                                                                  False)
+                                                                  sub_solutions)
             self._core.mpz_dpe = new Enumeration_c[Z_NR[mpz_t], FP_NR[dpe_t]](m_mpz_dpe[0], self._fe_core.dpe[0])
         elif M._type == gso_long_dpe:
-            m_long_dpe = M._core.long_dpe
+            m_l_dpe = M._core.long_dpe
             self._fe_core.dpe = new FastEvaluator_c[FP_NR[dpe_t]](nr_solutions,
                                                                   strategy,
-                                                                  False)
-            self._core.long_dpe = new Enumeration_c[Z_NR[long], FP_NR[dpe_t]](m_long_dpe[0], self._fe_core.dpe[0])
+                                                                  sub_solutions)
+            self._core.long_dpe = new Enumeration_c[Z_NR[long], FP_NR[dpe_t]](m_l_dpe[0], self._fe_core.dpe[0])
         elif M._type == gso_mpz_mpfr:
             m_mpz_mpfr = M._core.mpz_mpfr
             self._fe_core.mpfr = new FastErrorBoundedEvaluator_c(M.d,
@@ -136,44 +138,44 @@ cdef class Enumeration:
                                                                  EVALMODE_SV,
                                                                  nr_solutions,
                                                                  strategy,
-                                                                 False)
+                                                                 sub_solutions)
             self._core.mpz_mpfr = new Enumeration_c[Z_NR[mpz_t], FP_NR[mpfr_t]](m_mpz_mpfr[0], self._fe_core.mpfr[0])
         elif M._type == gso_long_mpfr:
-            m_long_mpfr = M._core.long_mpfr
+            m_l_mpfr = M._core.long_mpfr
             self._fe_core.mpfr = new FastErrorBoundedEvaluator_c(M.d,
                                                                  M._core.long_mpfr.get_mu_matrix(),
                                                                  M._core.long_mpfr.get_r_matrix(),
                                                                  EVALMODE_SV,
                                                                  nr_solutions,
                                                                  strategy,
-                                                                 False)
-            self._core.long_mpfr = new Enumeration_c[Z_NR[long], FP_NR[mpfr_t]](m_long_mpfr[0], self._fe_core.mpfr[0])
+                                                                 sub_solutions)
+            self._core.long_mpfr = new Enumeration_c[Z_NR[long], FP_NR[mpfr_t]](m_l_mpfr[0], self._fe_core.mpfr[0])
         else:
             IF HAVE_QD:
                 if M._type == gso_mpz_dd:
                     m_mpz_dd = M._core.mpz_dd
                     self._fe_core.dd = new FastEvaluator_c[FP_NR[dd_t]](nr_solutions,
                                                                         strategy,
-                                                                        False)
+                                                                        sub_solutions)
                     self._core.mpz_dd = new Enumeration_c[Z_NR[mpz_t], FP_NR[dd_t]](m_mpz_dd[0], self._fe_core.dd[0])
                 elif M._type == gso_mpz_qd:
                     m_mpz_qd = M._core.mpz_qd
                     self._fe_core.qd = new FastEvaluator_c[FP_NR[qd_t]](nr_solutions,
-                                                                           strategy,
-                                                                           False)
+                                                                        strategy,
+                                                                        sub_solutions)
                     self._core.mpz_qd = new Enumeration_c[Z_NR[mpz_t], FP_NR[qd_t]](m_mpz_qd[0], self._fe_core.qd[0])
                 elif M._type == gso_long_dd:
-                    m_long_dd = M._core.long_dd
+                    m_l_dd = M._core.long_dd
                     self._fe_core.dd = new FastEvaluator_c[FP_NR[dd_t]](nr_solutions,
                                                                         strategy,
-                                                                        False)
-                    self._core.long_dd = new Enumeration_c[Z_NR[long], FP_NR[dd_t]](m_long_dd[0], self._fe_core.dd[0])
+                                                                        sub_solutions)
+                    self._core.long_dd = new Enumeration_c[Z_NR[long], FP_NR[dd_t]](m_l_dd[0], self._fe_core.dd[0])
                 elif M._type == gso_long_qd:
-                    m_long_qd = M._core.long_qd
+                    m_l_qd = M._core.long_qd
                     self._fe_core.qd = new FastEvaluator_c[FP_NR[qd_t]](nr_solutions,
-                                                                           strategy,
-                                                                           False)
-                    self._core.long_qd = new Enumeration_c[Z_NR[long], FP_NR[qd_t]](m_long_qd[0], self._fe_core.qd[0])
+                                                                        strategy,
+                                                                        sub_solutions)
+                    self._core.long_qd = new Enumeration_c[Z_NR[long], FP_NR[qd_t]](m_l_qd[0], self._fe_core.qd[0])
                 else:
                     raise RuntimeError("MatGSO object '%s' has no core."%self)
             ELSE:
