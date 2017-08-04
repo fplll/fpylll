@@ -751,6 +751,7 @@ class BKZTreeTracer(Tracer):
                 report["svp"] = node.find("enumeration", True)["cputime"]
             except KeyError:
                 pass
+            report["#enum"] = node.sum("#enum")
             report["lll"] = node.sum("cputime", label="lll")
             try:
                 report["pruner"] = node.find("pruner", True)["cputime"]
@@ -758,7 +759,6 @@ class BKZTreeTracer(Tracer):
                 pass
             report["r_0"] = node["r_0"]
             report["/"] = node["/"]
-            report["#enum"] = node.sum("#enum")
 
             print(pretty_dict(report))
 
