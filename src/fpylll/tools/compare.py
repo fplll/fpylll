@@ -26,6 +26,7 @@ import copy
 import fpylll.algorithms.bkz
 import fpylll.algorithms.bkz2
 import fpylll.algorithms.bkz2_select
+import fpylll.algorithms.bkz2_select_gh
 
 
 # Utility Functions
@@ -183,6 +184,14 @@ class BKZ2s(fpylll.algorithms.bkz2_select.BKZReduction):
             params = BKZ.Param(block_size=params,
                                strategies=BKZ.DEFAULT_STRATEGY)
         return fpylll.algorithms.bkz2_select.BKZReduction.tour(self, params, tracer=dummy_tracer)
+
+
+class BKZ2sg(fpylll.algorithms.bkz2_select_gh.BKZReduction):
+    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
+        if isinstance(params, int):
+            params = BKZ.Param(block_size=params,
+                               strategies=BKZ.DEFAULT_STRATEGY)
+        return fpylll.algorithms.bkz2_select_gh.BKZReduction.tour(self, params, tracer=dummy_tracer)
 
 
 # Main
