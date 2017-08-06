@@ -10,7 +10,7 @@ from fpylll.algorithms.simple_bkz import BKZReduction as SimpleBKZ
 from fpylll.algorithms.simple_dbkz import DBKZReduction as SimpleDualBKZ
 from fpylll.algorithms.bkz import BKZReduction as BKZ
 from fpylll.algorithms.bkz2 import BKZReduction as BKZ2
-from fpylll.algorithms.bkz_stats import BKZTreeTracer
+from fpylll.tools.bkz_stats import BKZTreeTracer
 
 from fpylll import BKZ as fplll_bkz
 from fpylll.util import set_random_seed

@@ -3,7 +3,7 @@
 from random import randint
 from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZBase
-from fpylll.algorithms.bkz_stats import dummy_tracer
+from fpylll.tools.bkz_stats import dummy_tracer
 from fpylll.util import gaussian_heuristic
 
 
@@ -106,7 +106,7 @@ class BKZReduction(BKZBase):
                                     enum_obj=enum_obj,
                                     probability=pruning.expectation,
                                     full=block_size==params.block_size):
-                    solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, 0,
+                    max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, radius, 0,
                                                             pruning=pruning.coefficients)[0]
                 with tracer.context("postprocessing"):
                     self.svp_postprocessing(kappa, block_size, solution, tracer=tracer)

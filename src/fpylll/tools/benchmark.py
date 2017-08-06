@@ -4,7 +4,7 @@ from fpylll.fplll.gso import MatGSO
 from fpylll.fplll.integer_matrix import IntegerMatrix
 from fpylll.fplll.lll import LLLReduction
 from fpylll.fplll.enumeration import Enumeration
-from fpylll.fplll.pruner import prune
+from fpylll import Pruning
 from time import time
 
 
@@ -14,6 +14,9 @@ def bench_enumeration(n):
     :param n: dimension
     :returns: nodes, wall time
 
+    >>> import fpylll.tools.benchmark
+    >>> _ = fpylll.tools.benchmark.bench_enumeration(30)
+
     """
 
     A = IntegerMatrix.random(n, "qary", bits=5*n, k=1)
@@ -22,7 +25,7 @@ def bench_enumeration(n):
     L(0, 0, n)
 
     radius = M.get_r(0, 0) * .999
-    pruning = prune(radius, 2**30, 0.9, M.r())
+    pruning = Pruning.run(radius, 2.0**50, M.r(), 0.2)
 
     enum = Enumeration(M)
     t = time()

@@ -506,14 +506,18 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
 
-        int size()
 
         int max_sols
         EvaluatorStrategy strategy
         multimap[FT, vector[FT]] solutions
+        size_t sol_count
+        vector[pair[FT, vector[FT]]] sub_solutions
+
         multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator begin()
         multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator end()
 
+        int size()
+        bool empty()
 
     cdef cppclass FastEvaluator[FT]:
         FastEvaluator()
@@ -522,13 +526,17 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
 
-        int size()
-
         int max_sols
         EvaluatorStrategy strategy
         multimap[FT, vector[FT]] solutions
+        size_t sol_count
+        vector[pair[FT, vector[FT]]] sub_solutions
+
         multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator begin()
         multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator end()
+
+        int size()
+        bool empty()
 
 
     cdef cppclass FastErrorBoundedEvaluator:
@@ -537,7 +545,6 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
         void eval_sol(const vector[FP_NR[mpfr_t]]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
-
         int size()
 
         int max_sols
@@ -545,6 +552,7 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]] solutions
         multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator begin()
         multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator end()
+
 
 
 # Enumeration

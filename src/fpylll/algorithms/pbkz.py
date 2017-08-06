@@ -13,7 +13,7 @@ import multiprocessing
 from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZ1
 from fpylll.algorithms.bkz2 import BKZReduction as BKZ2
-from fpylll.algorithms.bkz_stats import BKZTreeTracer, dummy_tracer
+from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer
 from fpylll.util import adjust_radius_to_gh_bound
 
 
@@ -107,7 +107,7 @@ class BKZReduction(BKZ2):
                                 enum_obj=enum_obj,
                                 probability=pruning.expectation,
                                 full=block_size==params.block_size):
-                solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
+                max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
                                                         pruning=pruning.coefficients)[0]
             with tracer.context("postprocessing"):
                 # we translate our solution to the canonical basis because our basis is not
