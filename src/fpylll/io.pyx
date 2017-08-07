@@ -9,7 +9,7 @@ from gmp.mpz cimport mpz_t, mpz_set_si, mpz_set
 try:
     from sage.all import ZZ
     have_sage = True
-except ImportError:
+except Exception:
     have_sage = False
 
 cdef int assign_Z_NR_mpz(Z_NR[mpz_t]& t, value) except -1:
