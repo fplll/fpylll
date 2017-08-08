@@ -286,6 +286,7 @@ def _find_classes(class_names, filenames):
 
     return classes
 
+
 if __name__ == '__main__':
     import pickle
 
