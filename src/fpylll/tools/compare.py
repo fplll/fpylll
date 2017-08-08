@@ -203,12 +203,6 @@ def _setup_logging():
     console.setFormatter(logging.Formatter('%(name)s: %(message)s',))
     logging.getLogger('').addHandler(console)
 
-    # # define a Handler which writes DEBUG messages or higher to the log fil
-    # extra = logging.FileHandler(log_name + ".log")
-    # extra.setLevel(logging.DEBUG)
-    # extra.setFormatter(logging.Formatter('%(name)s: %(message)s',))
-    # logging.getLogger('').addHandler(extra)
-
     return log_name
 
 
