@@ -157,9 +157,6 @@ class CompareBKZ:
                             bkz_call(*args)
 
                     for _ in chunk:
-                        if threads > 1:
-                            task.join()
-
                         (BKZ_, seed_), trace = return_queue.get()
                         L[BKZ_.__name__].append((seed, trace))
                         logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(trace.data)))
@@ -205,20 +202,8 @@ def BKZFactory(name, BKZBase, **kwds):
     return NEW_BKZ
 
 
-# Not using glue above to avoid pollution of global namespace
-class BKZ1(fpylll.algorithms.bkz.BKZReduction):
-    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
-        if isinstance(params, int):
-            params = BKZ.Param(block_size=params)
-        return fpylll.algorithms.bkz.BKZReduction.tour(self, params, tracer=tracer)
-
-
-class BKZ2(fpylll.algorithms.bkz2.BKZReduction):
-    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
-        if isinstance(params, int):
-            params = BKZ.Param(block_size=params,
-                               strategies=BKZ.DEFAULT_STRATEGY)
-        return fpylll.algorithms.bkz2.BKZReduction.tour(self, params, tracer=tracer)
+BKZ1 = BKZFactory("BKZ1", fpylll.algorithms.bkz.BKZReduction)
+BKZ2 = BKZFactory("BKZ2", fpylll.algorithms.bkz2.BKZReduction, strategies=BKZ.DEFAULT_STRATEGY)
 
 
 class BKZ2_otf(fpylll.algorithms.bkz2_otf.BKZReduction):
@@ -318,6 +303,7 @@ def _find_classes(class_names, filenames):
             raise ValueError("Cannot find '%s'"%clas)
 
     return classes
+
 
 if __name__ == '__main__':
     import pickle
