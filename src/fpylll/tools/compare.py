@@ -174,6 +174,36 @@ class CompareBKZ:
 
 # Example
 
+class BKZGlue(object):
+    "Base class for producing new BKZ classes with some parameters fixed."
+    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
+        if isinstance(params, int):
+            params = BKZ.Param(block_size=params, **self.kwds)
+        return self.base.tour(self, params, tracer=tracer)
+
+
+def BKZFactory(name, BKZBase, **kwds):
+    """
+    Return a new BKZ class, derived from ``BKZBase`` with given ``name``.  The resulting class
+    accepts a single ``block_size`` parameter for ``tour`` and substitutes it with a ``BKZ.Param```
+    object where the keyword parameters provided to this function are fixed the values provided to
+    this function ::
+
+        >>> from fpylll.algorithms.bkz2 import BKZReduction as BKZ2
+        >>> from fpylll import BKZ
+        >>> from fpylll.tools.compare import BKZFactory
+        >>> BKZ2_LOW = BKZFactory('BKZ2_LOW', BKZ2, strategies=BKZ.DEFAULT_STRATEGY, min_success_probability=0.1)
+
+    :param name: name for output class
+    :param BKZBase: base class to base this class on
+
+    """
+    NEW_BKZ = type(name, (BKZGlue, BKZBase), {"kwds": kwds, "base": BKZBase})
+    globals()[name] = NEW_BKZ  # this is a HACK to enable pickling
+    return NEW_BKZ
+
+
+# Not using glue above to avoid pollution of global namespace
 class BKZ1(fpylll.algorithms.bkz.BKZReduction):
     def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
         if isinstance(params, int):
