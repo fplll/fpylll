@@ -29,6 +29,7 @@ class BKZReduction(BKZBase):
     def get_pruning(self, kappa, block_size, params, target, preproc_cost, tracer=dummy_tracer):
         radius = self.M.get_r(kappa, kappa) * self.lll_obj.delta
 
+
         r = [self.M.get_r(i, i) for i in range(kappa, kappa+block_size)]
         gh_radius = gaussian_heuristic(r)          
         if (params.flags & BKZ.GH_BND and block_size > 30):
@@ -37,7 +38,7 @@ class BKZReduction(BKZBase):
         if not (block_size > GRADIENT_BLOCKSIZE):
             pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target, flags=0)
         else: 
-            pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target)
+            pruning = prune(radius, NPS[block_size] * (preproc_cost + 0.01), [r], target)
 
         return radius, pruning
 
