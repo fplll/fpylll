@@ -164,7 +164,7 @@ class BKZ1(fpylll.algorithms.bkz.BKZReduction):
     def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
         if isinstance(params, int):
             params = BKZ.Param(block_size=params)
-        return fpylll.algorithms.bkz.BKZReduction.tour(self, params, tracer=dummy_tracer)
+        return fpylll.algorithms.bkz.BKZReduction.tour(self, params, tracer=tracer)
 
 
 class BKZ2(fpylll.algorithms.bkz2.BKZReduction):
@@ -172,7 +172,7 @@ class BKZ2(fpylll.algorithms.bkz2.BKZReduction):
         if isinstance(params, int):
             params = BKZ.Param(block_size=params,
                                strategies=BKZ.DEFAULT_STRATEGY)
-        return fpylll.algorithms.bkz2.BKZReduction.tour(self, params, tracer=dummy_tracer)
+        return fpylll.algorithms.bkz2.BKZReduction.tour(self, params, tracer=tracer)
 
 
 # Main
