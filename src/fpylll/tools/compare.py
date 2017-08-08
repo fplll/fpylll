@@ -203,20 +203,8 @@ def BKZFactory(name, BKZBase, **kwds):
     return NEW_BKZ
 
 
-# Not using glue above to avoid pollution of global namespace
-class BKZ1(fpylll.algorithms.bkz.BKZReduction):
-    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
-        if isinstance(params, int):
-            params = BKZ.Param(block_size=params)
-        return fpylll.algorithms.bkz.BKZReduction.tour(self, params, tracer=tracer)
-
-
-class BKZ2(fpylll.algorithms.bkz2.BKZReduction):
-    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
-        if isinstance(params, int):
-            params = BKZ.Param(block_size=params,
-                               strategies=BKZ.DEFAULT_STRATEGY)
-        return fpylll.algorithms.bkz2.BKZReduction.tour(self, params, tracer=tracer)
+BKZ1 = BKZFactory("BKZ1", fpylll.algorithms.bkz.BKZReduction)
+BKZ2 = BKZFactory("BKZ2", fpylll.algorithms.bkz2.BKZReduction, strategies=BKZ.DEFAULT_STRATEGY)
 
 
 # Main
