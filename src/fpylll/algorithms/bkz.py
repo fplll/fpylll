@@ -18,7 +18,7 @@ from fpylll.util import adjust_radius_to_gh_bound
 from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer
 
 
-class BKZReduction:
+class BKZReduction(object):
     """
     An implementation of the BKZ algorithm in Python.
 
