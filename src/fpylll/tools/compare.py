@@ -175,7 +175,9 @@ class BKZ2_otf(fpylll.algorithms.bkz2.BKZReduction):
         if isinstance(params, int):
             params = BKZ.Param(block_size=params,
                                strategies=BKZ.DEFAULT_STRATEGY)
-        return fpylll.algorithms.bkz2_otf.BKZReduction.tour(self, params, tracer=dummy_tracer)
+        res = fpylll.algorithms.bkz2_otf.BKZReduction.tour(self, params, tracer=dummy_tracer)
+        self.M.update_GSO()
+        return res
 
 
 
