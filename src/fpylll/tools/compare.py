@@ -18,9 +18,7 @@ from fpylll import IntegerMatrix, BKZ
 from fpylll import set_random_seed
 from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer, pretty_dict
 from fpylll.tools.quality import basis_quality
-from fpylll.util import gaussian_heuristic
 from multiprocessing import Queue, Process
-from math import log, exp
 
 import logging
 import copy
