@@ -25,6 +25,7 @@ import copy
 import fpylll.algorithms.bkz
 import fpylll.algorithms.bkz2
 import fpylll.algorithms.bkz2_otf
+import fpylll.algorithms.bkz2_otf_subsol
 
 
 # Utility Functions
@@ -176,6 +177,15 @@ class BKZ2_otf(fpylll.algorithms.bkz2_otf.BKZReduction):
             params = BKZ.Param(block_size=params,
                                strategies=BKZ.DEFAULT_STRATEGY)
         res = fpylll.algorithms.bkz2_otf.BKZReduction.tour(self, params, tracer=dummy_tracer)
+        return res
+
+
+class BKZ2_otf_subsol(fpylll.algorithms.bkz2_otf_subsol.BKZReduction):
+    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
+        if isinstance(params, int):
+            params = BKZ.Param(block_size=params,
+                               strategies=BKZ.DEFAULT_STRATEGY)
+        res = fpylll.algorithms.bkz2_otf_subsol.BKZReduction.tour(self, params, tracer=dummy_tracer)
         return res
 
 
