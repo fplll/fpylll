@@ -41,7 +41,7 @@ def chunk_iterator(lst, step):
         yield tuple(lst[j] for j in range(i, min(i+step, len(lst))))
 
 
-def bkz_call(BKZ, A, block_size, tours, return_queue=None, tag=None):
+def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None, return_queue=None, tag=None):
     """Call ``BKZ`` on ``A`` with ``block_size`` for the given number of ``tours``.
 
     If ``return_queue`` is not ``None`` then the trace and the provided ``tag`` are put on the
@@ -51,8 +51,11 @@ def bkz_call(BKZ, A, block_size, tours, return_queue=None, tag=None):
     :param A:
     :param block_size:
     :param tours:
+    :param progressive_step_size:
     :param return_queue:
     :param tag:
+
+    .. note :: This function essentially reimplements ``BKZ.__call__``.
 
     """
     bkz = BKZ(copy.copy(A))
@@ -63,10 +66,19 @@ def bkz_call(BKZ, A, block_size, tours, return_queue=None, tag=None):
     with tracer.context("lll"):
         bkz.lll_obj()
 
-    for i in range(tours):
-        with tracer.context("tour", i):
-            bkz.tour(block_size, tracer=tracer)
+    if progressive_step_size is None:
+        block_sizes = (block_size,)
+    elif int(progressive_step_size) > 0:
+        block_sizes = range(2, block_size+1, progressive_step_size)
+        if block_sizes[-1] != block_size:
+            block_sizes.append(block_size)
+    else:
+        raise ValueError("Progressive step size of %s not understood."%progressive_step_size)
 
+    for block_size in block_sizes:
+        for i in range(tours):
+            with tracer.context("tour", (block_size, i)):
+                bkz.tour(block_size, tracer=tracer)
     tracer.exit()
     trace = tracer.trace
 
@@ -81,20 +93,21 @@ def bkz_call(BKZ, A, block_size, tours, return_queue=None, tag=None):
 
 
 class CompareBKZ:
-    def __init__(self, classes, matrixf, dimensions, block_sizes):
+    def __init__(self, classes, matrixf, dimensions, block_sizes, progressive_step_size):
         """
-
-        :param classes: a list of BKZ classes to test. See caveat above.
+        :param classes: a list of BKZ classes to test.  See caveat above.
         :param matrixf: A function to create matrices for a given dimension and block size
         :param dimensions: a list of dimensions to test
         :param block_sizes: a list of block sizes to test
-
+        :param progressive_step_size: step size for the progressive strategy, or ``None`` to disable
+            it
         """
 
         self.classes = tuple(classes)
         self.matrixf = matrixf
         self.dimensions = tuple(dimensions)
         self.block_sizes = tuple(block_sizes)
+        self.progressive_step_size = progressive_step_size
 
     def __call__(self, seed, threads=2, samples=2, tours=1):
         """
@@ -129,7 +142,8 @@ class CompareBKZ:
 
                     for BKZ_ in self.classes:
                         L[BKZ_.__name__] = L.get(BKZ_.__name__, [])
-                        args = (BKZ_, A, block_size, tours, return_queue, (BKZ_, seed))
+                        args = (BKZ_, A, block_size, tours, self.progressive_step_size,
+                                return_queue, (BKZ_, seed))
                         task = Process(target=bkz_call, args=args)
                         tasks.append((BKZ_, task, args, seed))
 
@@ -162,11 +176,41 @@ class CompareBKZ:
 
 # Example
 
+class BKZGlue(object):
+    "Base class for producing new BKZ classes with some parameters fixed."
+    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
+        if isinstance(params, int):
+            params = BKZ.Param(block_size=params, **self.kwds)
+        return self.base.tour(self, params, tracer=tracer)
+
+
+def BKZFactory(name, BKZBase, **kwds):
+    """
+    Return a new BKZ class, derived from ``BKZBase`` with given ``name``.  The resulting class
+    accepts a single ``block_size`` parameter for ``tour`` and substitutes it with a ``BKZ.Param```
+    object where the keyword parameters provided to this function are fixed the values provided to
+    this function ::
+
+        >>> from fpylll.algorithms.bkz2 import BKZReduction as BKZ2
+        >>> from fpylll import BKZ
+        >>> from fpylll.tools.compare import BKZFactory
+        >>> BKZ2_LOW = BKZFactory('BKZ2_LOW', BKZ2, strategies=BKZ.DEFAULT_STRATEGY, min_success_probability=0.1)
+
+    :param name: name for output class
+    :param BKZBase: base class to base this class on
+
+    """
+    NEW_BKZ = type(name, (BKZGlue, BKZBase), {"kwds": kwds, "base": BKZBase})
+    globals()[name] = NEW_BKZ  # this is a HACK to enable pickling
+    return NEW_BKZ
+
+
+# Not using glue above to avoid pollution of global namespace
 class BKZ1(fpylll.algorithms.bkz.BKZReduction):
     def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
         if isinstance(params, int):
             params = BKZ.Param(block_size=params)
-        return fpylll.algorithms.bkz.BKZReduction.tour(self, params, tracer=dummy_tracer)
+        return fpylll.algorithms.bkz.BKZReduction.tour(self, params, tracer=tracer)
 
 
 class BKZ2(fpylll.algorithms.bkz2.BKZReduction):
@@ -174,7 +218,7 @@ class BKZ2(fpylll.algorithms.bkz2.BKZReduction):
         if isinstance(params, int):
             params = BKZ.Param(block_size=params,
                                strategies=BKZ.DEFAULT_STRATEGY)
-        return fpylll.algorithms.bkz2.BKZReduction.tour(self, params, tracer=dummy_tracer)
+        return fpylll.algorithms.bkz2.BKZReduction.tour(self, params, tracer=tracer)
 
 
 class BKZ2_otf(fpylll.algorithms.bkz2_otf.BKZReduction):
@@ -224,12 +268,6 @@ def _setup_logging():
     console.setFormatter(logging.Formatter('%(name)s: %(message)s',))
     logging.getLogger('').addHandler(console)
 
-    # # define a Handler which writes DEBUG messages or higher to the log fil
-    # extra = logging.FileHandler(log_name + ".log")
-    # extra.setLevel(logging.DEBUG)
-    # extra.setFormatter(logging.Formatter('%(name)s: %(message)s',))
-    # logging.getLogger('').addHandler(extra)
-
     return log_name
 
 
@@ -247,6 +285,8 @@ def _parse_args():
     parser.add_argument('-z', '--seed', help="random seed", type=int, default=0x1337)
     parser.add_argument('-b', '--block-sizes', help='block sizes',
                         type=int,  nargs='+', default=(10, 20, 30, 40))
+    parser.add_argument('-p', '--progressive-step-size', help='step size for progressive strategy, None for disabled',
+                        default=None, type=int)
     parser.add_argument('-d', '--dimensions', help='lattice dimensions',
                         type=int, nargs='+', default=(60, 80, 100, 120))
 
@@ -292,6 +332,7 @@ if __name__ == '__main__':
     compare_bkz = CompareBKZ(classes=classes,
                              matrixf=qary30,
                              block_sizes=args.block_sizes,
+                             progressive_step_size=args.progressive_step_size,
                              dimensions=args.dimensions)
 
     results = compare_bkz(seed=args.seed,
