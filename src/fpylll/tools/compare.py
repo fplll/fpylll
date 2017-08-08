@@ -155,9 +155,6 @@ class CompareBKZ:
                             bkz_call(*args)
 
                     for _ in chunk:
-                        if threads > 1:
-                            task.join()
-
                         (BKZ_, seed_), trace = return_queue.get()
                         L[BKZ_.__name__].append((seed, trace))
                         logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(trace.data)))
