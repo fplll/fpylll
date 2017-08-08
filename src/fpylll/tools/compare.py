@@ -55,6 +55,12 @@ def bkz_call(BKZ, A, block_size, tours, return_queue=None, tag=None):
     """
     bkz = BKZ(copy.copy(A))
     tracer = BKZTreeTracer(bkz, start_clocks=True)
+
+    # this essentially initialises the GSO object, LLL was already run by the constructor, so this
+    # is quick.
+    with tracer.context("lll"):
+        bkz.lll_obj()
+
     for i in range(tours):
         with tracer.context("tour", i):
             bkz.tour(block_size, tracer=tracer)
