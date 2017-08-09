@@ -18,11 +18,13 @@ from fpylll import IntegerMatrix, BKZ
 from fpylll import set_random_seed
 from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer, pretty_dict
 from fpylll.tools.quality import basis_quality
-from multiprocessing import Pool
+from fpylll.util import ReductionError
 
+from multiprocessing import Pool
 import logging
 import copy
 import time
+
 import fpylll.algorithms.bkz
 import fpylll.algorithms.bkz2
 
@@ -102,7 +104,11 @@ class CompareBKZ:
 
         """
 
+        logger = logging.getLogger("compare")
+
         results = OrderedDict()
+
+        fmtstring = "  %%%ds"%max([len(BKZ_.__name__) for BKZ_ in self.classes])
 
         for dimension in self.dimensions:
             results[dimension] = OrderedDict()
@@ -112,7 +118,7 @@ class CompareBKZ:
 
                 L = OrderedDict([(BKZ_.__name__, []) for BKZ_ in self.classes])
 
-                logging.info("dimension: %3d, block_size: %2d"%(dimension, block_size))
+                logger.info("dimension: %3d, block_size: %2d"%(dimension, block_size))
 
                 tasks = []
 
@@ -137,27 +143,35 @@ class CompareBKZ:
                         ready = [key for key in tasks if tasks[key].ready()]
                         for key in ready:
                             seed_, BKZ_ = key
-                            trace_ = tasks[key].get()
-                            L[BKZ_.__name__].append((seed_, trace_))
-
-                            logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(trace_.data)))
+                            try:
+                                trace_ = tasks[key].get()
+                                L[BKZ_.__name__].append((seed_, trace_))
+                                logger.debug(fmtstring%(BKZ_.__name__) +
+                                             " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
+                            except ReductionError:
+                                logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ.__name__, seed_))
                             del tasks[key]
 
                         time.sleep(1)
                 else:
                     for key, args_ in tasks:
                         seed_, BKZ_ = key
-                        trace_ = apply(bkz_call, args_)
-                        L[BKZ_.__name__].append((seed_, trace_))
-                        logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(trace_.data)))
+                        try:
+                            trace_ = apply(bkz_call, args_)
+                            L[BKZ_.__name__].append((seed_, trace_))
+                            logger.debug(fmtstring%(BKZ_.__name__) +
+                                         " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
+                        except ReductionError:
+                            logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ.__name__, seed_))
 
-                logging.info("")
+                logger.debug("")
                 for name, vals in L.items():
-                    vals = OrderedDict(zip(vals[0][1].data, zip(*[d[1].data.values() for d in vals])))
-                    vals = OrderedDict((k, float(sum(v))/len(v)) for k, v in vals.items())
-                    logging.info("  %16s    average %s"%(name[:16], pretty_dict(vals)))
+                    if vals:
+                        vals = OrderedDict(zip(vals[0][1].data, zip(*[d[1].data.values() for d in vals])))
+                        vals = OrderedDict((k, float(sum(v))/len(v)) for k, v in vals.items())
+                        logger.info(fmtstring%(BKZ_.__name__) + "    average %s"%(pretty_dict(vals)))
 
-                logging.info("")
+                logger.info("")
                 results[dimension][block_size] = L
 
         return results
@@ -207,7 +221,7 @@ def qary30(dimension, block_size):
             "int_type": "long"}
 
 
-def _setup_logging():
+def _setup_logging(verbose=False):
     import subprocess
     import datetime
 
@@ -216,15 +230,15 @@ def _setup_logging():
     log_name = "compare-{hostname}-{now}".format(hostname=hostname, now=now)
 
     logging.basicConfig(level=logging.DEBUG,
-                        format='%(levelname)s:%(name)s:%(asctime)s: %(message)s',
+                        format='%(levelname)5s:%(name)s:%(asctime)s: %(message)s',
                         datefmt='%Y/%m/%d %H:%M:%S %Z',
                         filename=log_name + ".log")
 
     # define a Handler which writes INFO messages or higher to the sys.stderr
     console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
+    console.setLevel(logging.INFO if not verbose else logging.DEBUG)
     console.setFormatter(logging.Formatter('%(name)s: %(message)s',))
-    logging.getLogger('').addHandler(console)
+    logging.getLogger('compare').addHandler(console)
 
     return log_name
 
@@ -247,6 +261,7 @@ def _parse_args():
                         default=None, type=int)
     parser.add_argument('-d', '--dimensions', help='lattice dimensions',
                         type=int, nargs='+', default=(60, 80, 100, 120))
+    parser.add_argument('-v', '--verbose', help='print more details by default', action='store_true')
 
     return parser.parse_args()
 
@@ -283,10 +298,10 @@ if __name__ == '__main__':
 
     args = _parse_args()
     classes = _find_classes(args.classes, args.files)
-    log_name = _setup_logging()
+    log_name = _setup_logging(args.verbose)
 
     for k, v in sorted(vars(args).items()):
-        logging.debug("%s: %s"%(k, v))
+        logging.getLogger('compare').debug("%s: %s"%(k, v))
 
     compare_bkz = CompareBKZ(classes=classes,
                              matrixf=qary30,
