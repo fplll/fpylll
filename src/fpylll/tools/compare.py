@@ -18,28 +18,18 @@ from fpylll import IntegerMatrix, BKZ
 from fpylll import set_random_seed
 from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer, pretty_dict
 from fpylll.tools.quality import basis_quality
-from multiprocessing import Queue, Process
+from multiprocessing import Pool
 
 import logging
 import copy
+import time
 import fpylll.algorithms.bkz
 import fpylll.algorithms.bkz2
 
 
 # Utility Functions
 
-def chunk_iterator(lst, step):
-    """Return up to ``step`` entries from ``lst`` each time this function is called.
-
-    :param lst: a list
-    :param step: number of elements to return
-
-    """
-    for i in range(0, len(lst), step):
-        yield tuple(lst[j] for j in range(i, min(i+step, len(lst))))
-
-
-def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None, return_queue=None, tag=None):
+def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None):
     """Call ``BKZ`` on ``A`` with ``block_size`` for the given number of ``tours``.
 
     If ``return_queue`` is not ``None`` then the trace and the provided ``tag`` are put on the
@@ -50,10 +40,8 @@ def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None, return_queue
     :param block_size:
     :param tours:
     :param progressive_step_size:
-    :param return_queue:
-    :param tag:
 
-    .. note :: This function essentially reimplements ``BKZ.__call__``.
+    .. note :: This function essentially reimplements ``BKZ.__call__`` but supports the progressive strategy.
 
     """
     bkz = BKZ(copy.copy(A))
@@ -84,10 +72,7 @@ def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None, return_queue
     for k, v in quality.items():
         trace.data[k] = v
 
-    if return_queue:
-        return_queue.put((tag, trace))
-    else:
-        return (tag, trace)
+    return trace
 
 
 class CompareBKZ:
@@ -125,12 +110,11 @@ class CompareBKZ:
                 if dimension < block_size:
                     continue
 
-                results[dimension][block_size] = OrderedDict()
-                L = results[dimension][block_size]
+                L = OrderedDict([(BKZ_.__name__, []) for BKZ_ in self.classes])
+
                 logging.info("dimension: %3d, block_size: %2d"%(dimension, block_size))
 
                 tasks = []
-                return_queue = Queue()
 
                 matrixf = self.matrixf(dimension=dimension, block_size=block_size)
 
@@ -139,25 +123,33 @@ class CompareBKZ:
                     A = IntegerMatrix.random(dimension, **matrixf)
 
                     for BKZ_ in self.classes:
-                        L[BKZ_.__name__] = L.get(BKZ_.__name__, [])
-                        args = (BKZ_, A, block_size, tours, self.progressive_step_size,
-                                return_queue, (BKZ_, seed))
-                        task = Process(target=bkz_call, args=args)
-                        tasks.append((BKZ_, task, args, seed))
+                        args = (BKZ_, A, block_size, tours, self.progressive_step_size)
+                        tasks.append(((seed, BKZ_), args))
 
                     seed += 1
 
-                for chunk in chunk_iterator(tasks, threads):
-                    for BKZ_, task, args, seed_ in chunk:
-                        if threads > 1:
-                            task.start()
-                        else:
-                            bkz_call(*args)
+                if threads > 1:
+                    pool = Pool(processes=threads)
+                    tasks = dict([(key, pool.apply_async(bkz_call, args_)) for key, args_ in tasks])
+                    pool.close()
 
-                    for _ in chunk:
-                        (BKZ_, seed_), trace = return_queue.get()
-                        L[BKZ_.__name__].append((seed, trace))
-                        logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(trace.data)))
+                    while tasks:
+                        ready = [key for key in tasks if tasks[key].ready()]
+                        for key in ready:
+                            seed_, BKZ_ = key
+                            trace_ = tasks[key].get()
+                            L[BKZ_.__name__].append((seed_, trace_))
+
+                            logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(trace_.data)))
+                            del tasks[key]
+
+                        time.sleep(1)
+                else:
+                    for key, args_ in tasks:
+                        seed_, BKZ_ = key
+                        trace_ = apply(bkz_call, args_)
+                        L[BKZ_.__name__].append((seed_, trace_))
+                        logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(trace_.data)))
 
                 logging.info("")
                 for name, vals in L.items():
@@ -166,6 +158,8 @@ class CompareBKZ:
                     logging.info("  %16s    average %s"%(name[:16], pretty_dict(vals)))
 
                 logging.info("")
+                results[dimension][block_size] = L
+
         return results
 
 
