@@ -217,24 +217,13 @@ def BKZFactory(name, BKZBase, **kwds):
 BKZ1 = BKZFactory("BKZ1", fpylll.algorithms.bkz.BKZReduction)
 BKZ2 = BKZFactory("BKZ2", fpylll.algorithms.bkz2.BKZReduction, strategies=BKZ.DEFAULT_STRATEGY)
 BKZ2r = BKZFactory("BKZ2r", fpylll.algorithms.bkz2.BKZReduction, strategies=BKZ.DEFAULT_STRATEGY, rerandomization_density=2)
+BKZ2_otf = BKZFactory("BKZ2_otf",
+                      fpylll.algorithms.bkz2_otf.BKZReduction,
+                      strategies=BKZ.DEFAULT_STRATEGY)
 
-
-class BKZ2_otf(fpylll.algorithms.bkz2_otf.BKZReduction):
-    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
-        if isinstance(params, int):
-            params = BKZ.Param(block_size=params,
-                               strategies=BKZ.DEFAULT_STRATEGY)
-        res = fpylll.algorithms.bkz2_otf.BKZReduction.tour(self, params, tracer=dummy_tracer)
-        return res
-
-
-class BKZ2_otf_subsol(fpylll.algorithms.bkz2_otf_subsol.BKZReduction):
-    def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
-        if isinstance(params, int):
-            params = BKZ.Param(block_size=params,
-                               strategies=BKZ.DEFAULT_STRATEGY)
-        res = fpylll.algorithms.bkz2_otf_subsol.BKZReduction.tour(self, params, tracer=dummy_tracer)
-        return res
+BKZ2_otf_subsol = BKZFactory("BKZ2_otf_subsol",
+                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
+                             strategies=BKZ.DEFAULT_STRATEGY)
 
 
 # Main
