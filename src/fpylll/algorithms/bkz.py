@@ -143,7 +143,7 @@ class BKZReduction(object):
 
         return clean
 
-    def svp_call(self, kappa, block_size, params, tracer=None):
+    def svp_call(self, kappa, block_size, params, tracer=dummy_tracer):
         """Call SVP oracle
 
         :param kappa: current index
