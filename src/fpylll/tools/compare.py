@@ -169,7 +169,7 @@ class CompareBKZ:
                     if vals:
                         vals = OrderedDict(zip(vals[0][1].data, zip(*[d[1].data.values() for d in vals])))
                         vals = OrderedDict((k, float(sum(v))/len(v)) for k, v in vals.items())
-                        logger.info(fmtstring%(BKZ_.__name__) + "    average %s"%(pretty_dict(vals)))
+                        logger.info(fmtstring%(name) + "    average %s"%(pretty_dict(vals)))
 
                 logger.info("")
                 results[dimension][block_size] = L
