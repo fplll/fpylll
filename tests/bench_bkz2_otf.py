@@ -7,16 +7,13 @@ from time import time
 import sys
 from fpylll.util import gaussian_heuristic
 
-PROBA = float(sys.argv[1])
-
 def benchmark_one(A, b):
     global START, PROBA
     # print
     # print "BLOCKSIZE ", b
     root_vol = 2**(bits/2)
     params = fplll_bkz.Param(block_size=b, strategies="default.json", 
-                             flags=0, max_loops=1, 
-                             min_success_probability=PROBA)
+                             flags=0, max_loops=1)
     bkz = BKZReduction(A)
       
     bkz(params=params)
@@ -38,7 +35,7 @@ def benchmark_one(A, b):
     print
 
 
-n = 160
+n = 140
 bits = 40
 A = IntegerMatrix.random(n, "qary", bits=bits, k=n/2, int_type="long")
 LLL.reduction(A)
