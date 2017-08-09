@@ -29,7 +29,6 @@ class BKZReduction(BKZBase):
     def get_pruning(self, kappa, block_size, params, target, preproc_cost, tracer=dummy_tracer):
         radius = self.M.get_r(kappa, kappa) * self.lll_obj.delta
 
-
         r = [self.M.get_r(i, i) for i in range(kappa, kappa+block_size)]
         gh_radius = gaussian_heuristic(r)          
         if (params.flags & BKZ.GH_BND and block_size > 30):
