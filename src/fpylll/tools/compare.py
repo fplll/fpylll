@@ -112,7 +112,11 @@ class CompareBKZ:
 
         for dimension in self.dimensions:
             results[dimension] = OrderedDict()
+
             for block_size in self.block_sizes:
+
+                seed_ = seed
+
                 if dimension < block_size:
                     continue
 
@@ -125,14 +129,14 @@ class CompareBKZ:
                 matrixf = self.matrixf(dimension=dimension, block_size=block_size)
 
                 for i in range(samples):
-                    set_random_seed(seed)
+                    set_random_seed(seed_)
                     A = IntegerMatrix.random(dimension, **matrixf)
 
                     for BKZ_ in self.classes:
                         args = (BKZ_, A, block_size, tours, self.progressive_step_size)
-                        tasks.append(((seed, BKZ_), args))
+                        tasks.append(((seed_, BKZ_), args))
 
-                    seed += 1
+                    seed_ += 1
 
                 if threads > 1:
                     pool = Pool(processes=threads)
