@@ -78,7 +78,7 @@ def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None):
 
 
 class CompareBKZ:
-    def __init__(self, classes, matrixf, dimensions, block_sizes, progressive_step_size):
+    def __init__(self, classes, matrixf, dimensions, block_sizes, progressive_step_size, log_filename=None):
         """
         :param classes: a list of BKZ classes to test.  See caveat above.
         :param matrixf: A function to create matrices for a given dimension and block size
@@ -86,6 +86,7 @@ class CompareBKZ:
         :param block_sizes: a list of block sizes to test
         :param progressive_step_size: step size for the progressive strategy, or ``None`` to disable
             it
+        :param log_filename: log to this file if not ``None``
         """
 
         self.classes = tuple(classes)
@@ -93,6 +94,7 @@ class CompareBKZ:
         self.dimensions = tuple(dimensions)
         self.block_sizes = tuple(block_sizes)
         self.progressive_step_size = progressive_step_size
+        self.log_filename = log_filename
 
     def __call__(self, seed, threads=2, samples=2, tours=1):
         """
@@ -120,7 +122,7 @@ class CompareBKZ:
                 if dimension < block_size:
                     continue
 
-                L = OrderedDict([(BKZ_.__name__, []) for BKZ_ in self.classes])
+                L = OrderedDict([(BKZ_.__name__, OrderedDict()) for BKZ_ in self.classes])
 
                 logger.info("dimension: %3d, block_size: %2d"%(dimension, block_size))
 
@@ -149,7 +151,7 @@ class CompareBKZ:
                             seed_, BKZ_ = key
                             try:
                                 trace_ = tasks[key].get()
-                                L[BKZ_.__name__].append((seed_, trace_))
+                                L[BKZ_.__name__][seed_] = trace_
                                 logger.debug(fmtstring%(BKZ_.__name__) +
                                              " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
                             except ReductionError:
@@ -162,7 +164,7 @@ class CompareBKZ:
                         seed_, BKZ_ = key
                         try:
                             trace_ = apply(bkz_call, args_)
-                            L[BKZ_.__name__].append((seed_, trace_))
+                            L[BKZ_.__name__][seed_] = trace_
                             logger.debug(fmtstring%(BKZ_.__name__) +
                                          " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
                         except ReductionError:
@@ -171,14 +173,20 @@ class CompareBKZ:
                 logger.debug("")
                 for name, vals in L.items():
                     if vals:
-                        vals = OrderedDict(zip(vals[0][1].data, zip(*[d[1].data.values() for d in vals])))
+                        vals = OrderedDict(zip(vals.items()[0][1].data, zip(*[d[1].data.values() for d in vals.items()])))
                         vals = OrderedDict((k, float(sum(v))/len(v)) for k, v in vals.items())
                         logger.info(fmtstring%(name) + "    average %s"%(pretty_dict(vals)))
 
                 logger.info("")
                 results[dimension][block_size] = L
 
+                self.write_log(results)
+
         return results
+
+    def write_log(self, data):
+        if self.log_filename is not None:
+            pickle.dump(data, open(self.log_filename, "wb"))
 
 
 # Example
@@ -302,7 +310,7 @@ if __name__ == '__main__':
 
     args = _parse_args()
     classes = _find_classes(args.classes, args.files)
-    log_name = _setup_logging(args.verbose)
+    log_filename = _setup_logging(args.verbose)
 
     for k, v in sorted(vars(args).items()):
         logging.getLogger('compare').debug("%s: %s"%(k, v))
@@ -311,10 +319,10 @@ if __name__ == '__main__':
                              matrixf=qary30,
                              block_sizes=args.block_sizes,
                              progressive_step_size=args.progressive_step_size,
-                             dimensions=args.dimensions)
+                             dimensions=args.dimensions,
+                             log_filename=log_filename + ".sobj")
 
     results = compare_bkz(seed=args.seed,
                           threads=args.threads,
                           samples=args.samples,
                           tours=args.tours)
-    pickle.dump(results, open(log_name + ".sobj", "wb"))
