@@ -176,7 +176,7 @@ class BKZGlue(object):
     def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
         if isinstance(params, int):
             params = BKZ.Param(block_size=params, **self.kwds)
-        return self.base.tour(self, params, tracer=tracer)
+        return self.base.tour(self, params, min_row=min_row, max_row=max_row, tracer=tracer)
 
 
 def BKZFactory(name, BKZBase, **kwds):
