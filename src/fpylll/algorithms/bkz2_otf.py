@@ -3,7 +3,7 @@
 from random import randint
 from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz2 import BKZReduction as BKZBase
-from fpylll.algorithms.bkz_stats import dummy_tracer
+from fpylll.tools.bkz_stats import dummy_tracer
 from fpylll.util import gaussian_heuristic
 from fpylll.fplll.pruner import prune
 from fpylll.fplll.pruner import Pruning
