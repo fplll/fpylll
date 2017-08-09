@@ -149,7 +149,7 @@ class CompareBKZ:
                                 logger.debug(fmtstring%(BKZ_.__name__) +
                                              " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
                             except ReductionError:
-                                logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ.__name__, seed_))
+                                logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ_.__name__, seed_))
                             del tasks[key]
 
                         time.sleep(1)
@@ -162,7 +162,7 @@ class CompareBKZ:
                             logger.debug(fmtstring%(BKZ_.__name__) +
                                          " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
                         except ReductionError:
-                            logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ.__name__, seed_))
+                            logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ_.__name__, seed_))
 
                 logger.debug("")
                 for name, vals in L.items():
