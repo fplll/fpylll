@@ -18,10 +18,13 @@ from fpylll import IntegerMatrix, BKZ
 from fpylll import set_random_seed
 from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer, pretty_dict
 from fpylll.tools.quality import basis_quality
-from multiprocessing import Queue, Process
+from fpylll.util import ReductionError
 
+from multiprocessing import Pool
 import logging
 import copy
+import time
+
 import fpylll.algorithms.bkz
 import fpylll.algorithms.bkz2
 import fpylll.algorithms.bkz2_otf
@@ -30,18 +33,7 @@ import fpylll.algorithms.bkz2_otf_subsol
 
 # Utility Functions
 
-def chunk_iterator(lst, step):
-    """Return up to ``step`` entries from ``lst`` each time this function is called.
-
-    :param lst: a list
-    :param step: number of elements to return
-
-    """
-    for i in range(0, len(lst), step):
-        yield tuple(lst[j] for j in range(i, min(i+step, len(lst))))
-
-
-def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None, return_queue=None, tag=None):
+def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None):
     """Call ``BKZ`` on ``A`` with ``block_size`` for the given number of ``tours``.
 
     If ``return_queue`` is not ``None`` then the trace and the provided ``tag`` are put on the
@@ -52,10 +44,8 @@ def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None, return_queue
     :param block_size:
     :param tours:
     :param progressive_step_size:
-    :param return_queue:
-    :param tag:
 
-    .. note :: This function essentially reimplements ``BKZ.__call__``.
+    .. note :: This function essentially reimplements ``BKZ.__call__`` but supports the progressive strategy.
 
     """
     bkz = BKZ(copy.copy(A))
@@ -86,10 +76,7 @@ def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None, return_queue
     for k, v in quality.items():
         trace.data[k] = v
 
-    if return_queue:
-        return_queue.put((tag, trace))
-    else:
-        return (tag, trace)
+    return trace
 
 
 class CompareBKZ:
@@ -119,55 +106,80 @@ class CompareBKZ:
 
         """
 
+        logger = logging.getLogger("compare")
+
         results = OrderedDict()
+
+        fmtstring = "  %%%ds"%max([len(BKZ_.__name__) for BKZ_ in self.classes])
 
         for dimension in self.dimensions:
             results[dimension] = OrderedDict()
+
             for block_size in self.block_sizes:
+
+                seed_ = seed
+
                 if dimension < block_size:
                     continue
 
-                results[dimension][block_size] = OrderedDict()
-                L = results[dimension][block_size]
-                logging.info("dimension: %3d, block_size: %2d"%(dimension, block_size))
+                L = OrderedDict([(BKZ_.__name__, []) for BKZ_ in self.classes])
+
+                logger.info("dimension: %3d, block_size: %2d"%(dimension, block_size))
 
                 tasks = []
-                return_queue = Queue()
 
                 matrixf = self.matrixf(dimension=dimension, block_size=block_size)
 
                 for i in range(samples):
-                    set_random_seed(seed)
+                    set_random_seed(seed_)
                     A = IntegerMatrix.random(dimension, **matrixf)
 
                     for BKZ_ in self.classes:
-                        L[BKZ_.__name__] = L.get(BKZ_.__name__, [])
-                        args = (BKZ_, A, block_size, tours, self.progressive_step_size,
-                                return_queue, (BKZ_, seed))
-                        task = Process(target=bkz_call, args=args)
-                        tasks.append((BKZ_, task, args, seed))
+                        args = (BKZ_, A, block_size, tours, self.progressive_step_size)
+                        tasks.append(((seed_, BKZ_), args))
 
-                    seed += 1
+                    seed_ += 1
 
-                for chunk in chunk_iterator(tasks, threads):
-                    for BKZ_, task, args, seed_ in chunk:
-                        if threads > 1:
-                            task.start()
-                        else:
-                            bkz_call(*args)
+                if threads > 1:
+                    pool = Pool(processes=threads)
+                    tasks = dict([(key, pool.apply_async(bkz_call, args_)) for key, args_ in tasks])
+                    pool.close()
 
-                    for _ in chunk:
-                        (BKZ_, seed_), trace = return_queue.get()
-                        L[BKZ_.__name__].append((seed, trace))
-                        logging.info("  %16s 0x%08x %s"%(BKZ_.__name__[:16], seed_, pretty_dict(trace.data)))
+                    while tasks:
+                        ready = [key for key in tasks if tasks[key].ready()]
+                        for key in ready:
+                            seed_, BKZ_ = key
+                            try:
+                                trace_ = tasks[key].get()
+                                L[BKZ_.__name__].append((seed_, trace_))
+                                logger.debug(fmtstring%(BKZ_.__name__) +
+                                             " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
+                            except ReductionError:
+                                logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ_.__name__, seed_))
+                            del tasks[key]
 
-                logging.info("")
+                        time.sleep(1)
+                else:
+                    for key, args_ in tasks:
+                        seed_, BKZ_ = key
+                        try:
+                            trace_ = apply(bkz_call, args_)
+                            L[BKZ_.__name__].append((seed_, trace_))
+                            logger.debug(fmtstring%(BKZ_.__name__) +
+                                         " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
+                        except ReductionError:
+                            logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ_.__name__, seed_))
+
+                logger.debug("")
                 for name, vals in L.items():
-                    vals = OrderedDict(zip(vals[0][1].data, zip(*[d[1].data.values() for d in vals])))
-                    vals = OrderedDict((k, float(sum(v))/len(v)) for k, v in vals.items())
-                    logging.info("  %16s    average %s"%(name[:16], pretty_dict(vals)))
+                    if vals:
+                        vals = OrderedDict(zip(vals[0][1].data, zip(*[d[1].data.values() for d in vals])))
+                        vals = OrderedDict((k, float(sum(v))/len(v)) for k, v in vals.items())
+                        logger.info(fmtstring%(name) + "    average %s"%(pretty_dict(vals)))
 
-                logging.info("")
+                logger.info("")
+                results[dimension][block_size] = L
+
         return results
 
 
@@ -235,7 +247,7 @@ def qary30(dimension, block_size):
             "int_type": "long"}
 
 
-def _setup_logging():
+def _setup_logging(verbose=False):
     import subprocess
     import datetime
 
@@ -244,15 +256,15 @@ def _setup_logging():
     log_name = "compare-{hostname}-{now}".format(hostname=hostname, now=now)
 
     logging.basicConfig(level=logging.DEBUG,
-                        format='%(levelname)s:%(name)s:%(asctime)s: %(message)s',
+                        format='%(levelname)5s:%(name)s:%(asctime)s: %(message)s',
                         datefmt='%Y/%m/%d %H:%M:%S %Z',
                         filename=log_name + ".log")
 
     # define a Handler which writes INFO messages or higher to the sys.stderr
     console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
+    console.setLevel(logging.INFO if not verbose else logging.DEBUG)
     console.setFormatter(logging.Formatter('%(name)s: %(message)s',))
-    logging.getLogger('').addHandler(console)
+    logging.getLogger('compare').addHandler(console)
 
     return log_name
 
@@ -275,6 +287,7 @@ def _parse_args():
                         default=None, type=int)
     parser.add_argument('-d', '--dimensions', help='lattice dimensions',
                         type=int, nargs='+', default=(60, 80, 100, 120))
+    parser.add_argument('-v', '--verbose', help='print more details by default', action='store_true')
 
     return parser.parse_args()
 
@@ -311,10 +324,10 @@ if __name__ == '__main__':
 
     args = _parse_args()
     classes = _find_classes(args.classes, args.files)
-    log_name = _setup_logging()
+    log_name = _setup_logging(args.verbose)
 
     for k, v in sorted(vars(args).items()):
-        logging.debug("%s: %s"%(k, v))
+        logging.getLogger('compare').debug("%s: %s"%(k, v))
 
     compare_bkz = CompareBKZ(classes=classes,
                              matrixf=qary30,
