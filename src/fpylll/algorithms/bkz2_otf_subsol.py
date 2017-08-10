@@ -37,15 +37,11 @@ class BKZReduction(BKZBase):
         if not (block_size > GRADIENT_BLOCKSIZE):
             pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target, flags=0)
         else: 
-            cc = 0
-            while True:
-                try: 
-                    pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target)
-                    break
-                except:
-                    cc += 1                    
-                    preproc_cost = 2*preproc_cost + .01
-                    print "pruner error caught", cc, preproc_cost
+            try: 
+                pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target)
+            except:
+                pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target, flags=0)
+
         return radius, pruning
 
     def svp_preprocessing(self, kappa, block_size, params, trials, tracer=dummy_tracer):
