@@ -9,7 +9,7 @@ from fpylll.fplll.pruner import prune
 from fpylll.fplll.pruner import Pruning
 from time import time
 
-GRADIENT_BLOCKSIZE = 31
+GRADIENT_BLOCKSIZE = 51
 SUBSOL_BLOCKSIZE = 41
 
 strenghts = range(10, 40, 2) + range(40, 120)
@@ -37,8 +37,15 @@ class BKZReduction(BKZBase):
         if not (block_size > GRADIENT_BLOCKSIZE):
             pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target, flags=0)
         else: 
-            pruning = prune(radius, NPS[block_size] * (preproc_cost + 0.01), [r], target)
-
+            cc = 0
+            while True:
+                try: 
+                    pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target)
+                    break
+                except:
+                    cc += 1                    
+                    preproc_cost = 2*preproc_cost + .01
+                    print "pruner error caught", cc, preproc_cost
         return radius, pruning
 
     def svp_preprocessing(self, kappa, block_size, params, trials, tracer=dummy_tracer):

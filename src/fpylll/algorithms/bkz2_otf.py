@@ -34,8 +34,13 @@ class BKZReduction(BKZBase):
 
         if not (block_size > GRADIENT_BLOCKSIZE):
             pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target, flags=0)
-        else: 
-            pruning = prune(radius, NPS[block_size] * (preproc_cost + 0.01), [r], target)
+        else:
+            while True:
+                try: 
+                    pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target)
+                    break
+                except:
+                    preproc_cost = 2*preproc_cost + .01
 
         return radius, pruning
 
