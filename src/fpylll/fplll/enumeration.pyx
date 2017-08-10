@@ -466,6 +466,8 @@ cdef class Enumeration:
             _sub_solutions_d = self._fe_core.d.sub_solutions.begin()
             while _sub_solutions_d != self._fe_core.d.sub_solutions.end():
                 cur_dist = deref(_sub_solutions_d).first.get_d()
+                if cur_dist == 0.0:
+                    cur_dist = None
                 cur_sol = []
                 for j in range(deref(_sub_solutions_d).second.size()):
                     cur_sol.append(deref(_sub_solutions_d).second[j].get_d())
