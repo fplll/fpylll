@@ -228,42 +228,34 @@ BKZ2r = BKZFactory("BKZ2r", fpylll.algorithms.bkz2.BKZReduction, strategies=BKZ.
 BKZ2_otf = BKZFactory("BKZ2_otf", fpylll.algorithms.bkz2_otf.BKZReduction)
 
 BKZ2_otf_subsol = BKZFactory("BKZ2_otf_subsol",
-                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
-                             strategies=BKZ.DEFAULT_STRATEGY)
+                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction)
 
 BKZ2_otf_ss_p1 = BKZFactory("BKZ2_otf_ss_p1",
                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
-                            strategies=BKZ.DEFAULT_STRATEGY,
                             min_success_probability=.5**1)
 
 BKZ2_otf_ss_p2 = BKZFactory("BKZ2_otf_ss_p2",
                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
-                            strategies=BKZ.DEFAULT_STRATEGY,
                             min_success_probability=.5**2)
 
 BKZ2_otf_ss_p3 = BKZFactory("BKZ2_otf_ss_p3",
                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
-                            strategies=BKZ.DEFAULT_STRATEGY,
                             min_success_probability=.5**3)
 
 BKZ2_otf_ss_p4 = BKZFactory("BKZ2_otf_ss_p4",
                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
-                            strategies=BKZ.DEFAULT_STRATEGY,
                             min_success_probability=.5**4)
 
 BKZ2_otf_ss_p5 = BKZFactory("BKZ2_otf_ss_p5",
                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
-                            strategies=BKZ.DEFAULT_STRATEGY,
                             min_success_probability=.5**5)
 
 BKZ2_otf_ss_p6 = BKZFactory("BKZ2_otf_ss_p6",
                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
-                            strategies=BKZ.DEFAULT_STRATEGY,
                             min_success_probability=.5**6)
 
 BKZ2_otf_ss_p7 = BKZFactory("BKZ2_otf_ss_p7",
                             fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
-                            strategies=BKZ.DEFAULT_STRATEGY,
                             min_success_probability=.5**7)
 
 
