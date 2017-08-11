@@ -194,8 +194,8 @@ class Conductor(object):
             if isinstance(job[0], (list, tuple)):
                 self.logger.info("")
                 self.logger.info("# %s (size: %d) #"%(tag, len(job)))
-                self.outputs[tag] = OrderedDict()
-                self(job, current=self.outputs[tag])
+                current[tag] = OrderedDict()
+                self(job, current=current[tag])
             else:
                 major, minor = tag
                 self._update_strlens(major, minor)
@@ -261,6 +261,9 @@ def compare_bkz(classes, matrixf, dimensions, block_sizes, progressive_step_size
         jobs = []
 
         for dimension in dimensions:
+
+            jobs.append((dimension, []))
+
             for block_size in block_sizes:
                 if dimension < block_size:
                     continue
@@ -279,7 +282,7 @@ def compare_bkz(classes, matrixf, dimensions, block_sizes, progressive_step_size
                         jobs_.append(((BKZ_.__name__, seed_), args))
                     seed_ += 1
 
-            jobs.append(((dimension, block_size), jobs_))
+                jobs[-1][1].append((block_size, jobs_))
 
         conductor = Conductor(threads=threads, pickle_jar=pickle_jar, logger=logger)
         return conductor(jobs)
