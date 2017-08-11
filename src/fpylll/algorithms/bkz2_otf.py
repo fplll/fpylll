@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 from random import randint
 from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZBase
 from fpylll.tools.bkz_stats import dummy_tracer
 from fpylll.util import gaussian_heuristic
 from fpylll.fplll.pruner import prune
-from fpylll.fplll.pruner import Pruning
+from fpylll.fplll.pruner import Pruning, PruningParams
 from time import time
 
 GRADIENT_BLOCKSIZE = 31
@@ -18,17 +16,14 @@ class BKZReduction(BKZBase):
 
     def __init__(self, A):
         """Create new BKZ object.
-
         :param A: an integer matrix, a GSO object or an LLL object
-
         """
         BKZBase.__init__(self, A)
 
     def get_pruning(self, kappa, block_size, params, target, preproc_cost, tracer=dummy_tracer):
-        assert False
-
-
         radius = self.M.get_r(kappa, kappa) * self.lll_obj.delta
+        if block_size<30:
+            return radius, PruningParams(4., ())
 
         r = [self.M.get_r(i, i) for i in range(kappa, kappa+block_size)]
         gh_radius = gaussian_heuristic(r)          
@@ -47,13 +42,12 @@ class BKZReduction(BKZBase):
 
         return radius, pruning
 
-    def svp_preprocessing(self, kappa, block_size, params, trials, tracer=dummy_tracer):
-        clean = BKZBase.svp_preprocessing(self, kappa, block_size, params, tracer)
+    def svp_preprocessing(self, kappa, block_size, params, tracer=dummy_tracer, trials=0):
+        clean = True
 
-        if block_size < GRADIENT_BLOCKSIZE:
+        BKZBase.svp_preprocessing(self, kappa, block_size, params, tracer=tracer)
+        if trials == 0:
             return clean
-
-        assert False
 
         last_preproc = 2*(block_size/6) + trials + min(trials, 5)
         last_preproc = min(last_preproc, block_size - 10)
@@ -71,18 +65,14 @@ class BKZReduction(BKZBase):
 
     def svp_reduction(self, kappa, block_size, params, tracer=dummy_tracer):
         """
-
         :param kappa:
         :param block_size:
         :param params:
         :param tracer:
-
         """
 
-        if block_size < GRADIENT_BLOCKSIZE:
-            return BKZBase.svp_reduction(self, kappa, block_size, params, tracer=tracer)
-
-        assert False
+        #if block_size < 30:
+        #    return BKZBase.svp_reduction(self, kappa, block_size, params, tracer=tracer)
 
         self.lll_obj.size_reduction(0, kappa+1)
         old_first, old_first_expo = self.M.get_r_exp(kappa, kappa)
@@ -95,7 +85,7 @@ class BKZReduction(BKZBase):
                 if False: # ((trials%5)==4):
                     print "R", kappa, 
                     self.randomize_block(kappa+1, kappa+block_size, density=1, tracer=tracer)
-                self.svp_preprocessing(kappa, block_size, params, trials, tracer=tracer)
+                self.svp_preprocessing(kappa, block_size, params, tracer=tracer, trials=trials)
             preproc_cost = time() - preproc_start
 
             with tracer.context("pruner"):
