@@ -225,9 +225,7 @@ def BKZFactory(name, BKZBase, **kwds):
 BKZ1 = BKZFactory("BKZ1", fpylll.algorithms.bkz.BKZReduction)
 BKZ2 = BKZFactory("BKZ2", fpylll.algorithms.bkz2.BKZReduction, strategies=BKZ.DEFAULT_STRATEGY)
 BKZ2r = BKZFactory("BKZ2r", fpylll.algorithms.bkz2.BKZReduction, strategies=BKZ.DEFAULT_STRATEGY, rerandomization_density=2)
-BKZ2_otf = BKZFactory("BKZ2_otf",
-                      fpylll.algorithms.bkz2_otf.BKZReduction,
-                      strategies=BKZ.DEFAULT_STRATEGY)
+BKZ2_otf = BKZFactory("BKZ2_otf", fpylll.algorithms.bkz2_otf.BKZReduction)
 
 BKZ2_otf_subsol = BKZFactory("BKZ2_otf_subsol",
                              fpylll.algorithms.bkz2_otf_subsol.BKZReduction,
