@@ -2,7 +2,7 @@
 
 from random import randint
 from fpylll import BKZ, Enumeration, EnumerationError
-from fpylll.algorithms.bkz2 import BKZReduction as BKZBase
+from fpylll.algorithms.bkz import BKZReduction as BKZBase
 from fpylll.tools.bkz_stats import dummy_tracer
 from fpylll.util import gaussian_heuristic
 from fpylll.fplll.pruner import prune
@@ -25,6 +25,9 @@ class BKZReduction(BKZBase):
         BKZBase.__init__(self, A)
 
     def get_pruning(self, kappa, block_size, params, target, preproc_cost, tracer=dummy_tracer):
+        assert False
+
+
         radius = self.M.get_r(kappa, kappa) * self.lll_obj.delta
 
         r = [self.M.get_r(i, i) for i in range(kappa, kappa+block_size)]
@@ -45,16 +48,12 @@ class BKZReduction(BKZBase):
         return radius, pruning
 
     def svp_preprocessing(self, kappa, block_size, params, trials, tracer=dummy_tracer):
-        clean = True
+        clean = BKZBase.svp_preprocessing(self, kappa, block_size, params, tracer)
 
-        lll_start = kappa if ((params.flags & BKZ.BOUNDED_LLL) or trials>0) else 0
-        with tracer.context("lll"):
-            self.lll_obj(lll_start, lll_start, kappa + block_size)
-            if self.lll_obj.nswaps > 0:
-                clean = False
+        if block_size < GRADIENT_BLOCKSIZE:
+            return clean
 
-        if trials == 0:
-            return
+        assert False
 
         last_preproc = 2*(block_size/6) + trials + min(trials, 5)
         last_preproc = min(last_preproc, block_size - 10)
@@ -79,6 +78,11 @@ class BKZReduction(BKZBase):
         :param tracer:
 
         """
+
+        if block_size < GRADIENT_BLOCKSIZE:
+            return BKZBase.svp_reduction(self, kappa, block_size, params, tracer=tracer)
+
+        assert False
 
         self.lll_obj.size_reduction(0, kappa+1)
         old_first, old_first_expo = self.M.get_r_exp(kappa, kappa)
