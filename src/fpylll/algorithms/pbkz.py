@@ -107,7 +107,7 @@ class BKZReduction(BKZ2):
                                 enum_obj=enum_obj,
                                 probability=pruning.expectation,
                                 full=block_size==params.block_size):
-                solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
+                max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
                                                         pruning=pruning.coefficients)[0]
             with tracer.context("postprocessing"):
                 # we translate our solution to the canonical basis because our basis is not

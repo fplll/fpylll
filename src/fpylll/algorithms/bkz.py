@@ -167,7 +167,7 @@ class BKZReduction(object):
         try:
             enum_obj = Enumeration(self.M)
             with tracer.context("enumeration", enum_obj=enum_obj, probability=1.0):
-                solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, max_dist, expo)[0]
+                max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, max_dist, expo)[0]
 
         except EnumerationError as msg:
             if params.flags & BKZ.GH_BND:
