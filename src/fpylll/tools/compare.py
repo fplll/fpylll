@@ -24,6 +24,7 @@ from multiprocessing import Pool
 import logging
 import copy
 import time
+import pickle
 
 import fpylll.algorithms.bkz
 import fpylll.algorithms.bkz2
@@ -31,20 +32,21 @@ import fpylll.algorithms.bkz2
 
 # Utility Functions
 
-def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None):
+def play(BKZ, A, block_size, tours, progressive_step_size=None):
     """Call ``BKZ`` on ``A`` with ``block_size`` for the given number of ``tours``.
 
-    If ``return_queue`` is not ``None`` then the trace and the provided ``tag`` are put on the
-    queue.  Otherwise, they are returned.
+    The given number of tours is used for all block sizes from 2 up to ``block_size`` in increments of
+    ``progressive_step_size``. Providing ``None`` for this parameter disables the progressive strategy.
 
-    :param BKZ:
-    :param A:
-    :param block_size:
-    :param tours:
-    :param progressive_step_size:
+    :param BKZ: a BKZ class whose ``__call__`` accepts a single block size as parameter
+    :param A: an integer matrix
+    :param block_size: a block size >= 2
+    :param tours: number of tours >= 1
+    :param progressive_step_size: step size for progressive strategy
+    :returns: a trace of the execution using ``BKZTreeTracer``
 
-    .. note :: This function essentially reimplements ``BKZ.__call__`` but supports the progressive strategy.
-
+    ..  note :: This function essentially reimplements ``BKZ.__call__`` but supports the
+        progressive strategy.
     """
     bkz = BKZ(copy.copy(A))
     tracer = BKZTreeTracer(bkz, start_clocks=True)
@@ -77,116 +79,210 @@ def bkz_call(BKZ, A, block_size, tours, progressive_step_size=None):
     return trace
 
 
-class CompareBKZ:
-    def __init__(self, classes, matrixf, dimensions, block_sizes, progressive_step_size, log_filename=None):
+class Conductor(object):
+    """
+    A conductor is our main class for launching block-wise lattice reductions and collecting the outputs.
+    """
+    def __init__(self, threads=1, pickle_jar=None, logger="."):
+        """Create a new conductor object.
+
+        :param threads: number of threads
+        :param pickle_jar: dump traces to this file continuously
+
         """
+        self.pool = Pool(processes=threads)
+        self.threads = threads
+        self.pickle_jar = pickle_jar
+        self.logger = logging.getLogger(logger)
+        self.outputs = OrderedDict()
+        self._major_strlen = 0
+        self._minor_strlen = 0
+
+    def _majorminor_format_str(self):
+        "Used to align log files"
+        return "%%%ds(%%%ds) :: %%s"%(self._major_strlen, self._minor_strlen)
+
+    def _update_strlens(self, major, minor):
+        "Update string lengths of major/minor tags"
+        self._major_strlen = max(len(str(major)), self._major_strlen)
+        self._minor_strlen = max(len(str(minor)), self._minor_strlen)
+
+    @staticmethod
+    def dump(data, filename):
+        "Pickle ``data`` to ``filename``"
+        pickle.dump(data, open(filename, "wb"))
+
+    def wait_on(self, outputs, todo, sleep=1):
+        """Wait for jobs in ``todo`` to return and store results in ``outputs``.
+
+        :param outputs: store results here
+        :param todo: these are running jobs
+        :param sleep: seconds to sleep before checking if new results are availabl.
+
+        """
+
+        fmtstr = self._majorminor_format_str()
+
+        while todo:
+            collect = [(tag, res) for (tag, res) in todo if res.ready()]
+
+            for tag, res in collect:
+                major, minor = tag
+                try:
+                    res = res.get()
+                    if major not in outputs:
+                        outputs[major] = []
+                    outputs[major].append((minor, res))
+                    self.logger.debug(fmtstr%(major, minor, pretty_dict(res.data)))
+
+                    if self.pickle_jar is not None:
+                        Conductor.dump(self.outputs, self.pickle_jar)
+
+                except ReductionError:
+                    self.logger.debug("ReductionError for %s(%s)."%(major, minor))
+
+            todo = todo.difference(collect)
+            time.sleep(sleep)
+
+        return outputs
+
+    def log_averages(self, tags, outputs):
+        """
+        Log average values for all entries tagged as ``tags`` in ``outputs``.
+        """
+        fmtstr = self._majorminor_format_str()
+        avg = OrderedDict()
+
+        for major, minor in tags:
+            if major in avg:
+                continue
+            avg[major] = OrderedDict()
+            n = len(outputs[major])
+            for minor, output in outputs[major]:
+                for k, v in output.data.items():
+                    avg[major][k] =  avg[major].get(k, 0.0) + float(v)/n
+
+            self.logger.info(fmtstr%(major, "avg", pretty_dict(avg[major])))
+
+    def __call__(self, jobs, current=None):
+        """
+        Call ``jobs`` in parallel.
+
+        The parameter jobs is a list with the following format.  Each entry is one of the following:
+
+            - a tuple ``((major, minor), (BKZ, A, block_size, tours, progressive_step_size))``,
+              where ``major`` and ``minor`` are arbitrary hashable tags and the rest are valid
+              inputs to ``play``.
+
+            - A list with elements of the same format as above.
+
+        Entries at the same level are considered to be a group.  All jobs in the same group go into
+        the same execution pool.  At the end of the execution of a group the average across all
+        ``minor`` tags of a ``major`` tag are shown.
+
+        ..  note :: Recursive jobs, i.e. those in a sub-list are run first, this is an
+            implementation artefact.  Typically, we don't expect jobs and lists of jobs to be mixed at
+            the same level, though, this is supported.
+
+        """
+        inputs = OrderedDict()
+        if current is None:
+            current = self.outputs
+
+        # filter out sub-jobs that should be grouped and call recursively
+        for tag, job in jobs:
+            if isinstance(job[0], (list, tuple)):
+                self.logger.info("")
+                self.logger.info("# %s (size: %d) #"%(tag, len(job)))
+                self.outputs[tag] = OrderedDict()
+                self(job, current=self.outputs[tag])
+            else:
+                major, minor = tag
+                self._update_strlens(major, minor)
+                if major not in current:
+                    current[major] = list()
+                inputs[tag] = job
+
+        self.logger.debug("")
+
+        # base case
+        if self.threads > 1:
+            todo = set()
+            for tag in inputs:
+                todo.add((tag, self.pool.apply_async(play, inputs[tag])))
+
+            current = self.wait_on(current, todo)
+
+        else:
+            fmtstr = self._majorminor_format_str()
+            for tag in inputs:
+                major, minor = tag
+                try:
+                    res = apply(play, inputs[tag])
+                    current[major].append((minor, res))
+                    self.logger.debug(fmtstr%(major, minor, pretty_dict(res.data)))
+
+                    if self.pickle_jar is not None:
+                        Conductor.dump(self.outputs, self.pickle_jar)
+
+                except ReductionError:
+                    self.logger.debug("ReductionError for %s(%s)."%(major, minor))
+
+        self.logger.debug("")
+
+        # print averages per major tag
+        self.log_averages(inputs.keys(), current)
+
+        if self.pickle_jar is not None:
+            Conductor.dump(self.outputs, self.pickle_jar)
+
+        return self.outputs
+
+
+def compare_bkz(classes, matrixf, dimensions, block_sizes, progressive_step_size,
+                seed, threads=2, samples=2, tours=1,
+                pickle_jar=None, logger="compare"):
+        """
+        Compare BKZ-style lattice reduction.
+
         :param classes: a list of BKZ classes to test.  See caveat above.
         :param matrixf: A function to create matrices for a given dimension and block size
         :param dimensions: a list of dimensions to test
         :param block_sizes: a list of block sizes to test
-        :param progressive_step_size: step size for the progressive strategy, or ``None`` to disable
-            it
-        :param log_filename: log to this file if not ``None``
-        """
-
-        self.classes = tuple(classes)
-        self.matrixf = matrixf
-        self.dimensions = tuple(dimensions)
-        self.block_sizes = tuple(block_sizes)
-        self.progressive_step_size = progressive_step_size
-        self.log_filename = log_filename
-
-    def __call__(self, seed, threads=2, samples=2, tours=1):
-        """
-
+        :param progressive_step_size: step size for the progressive strategy; ``None`` to disable it
         :param seed: A random seed, each matrix will be created with seed increased by one
         :param threads: number of threads to use
         :param samples: number of reductions to perform
         :param tours: number of BKZ tours to run
+        :param log_filename: log to this file if not ``None``
 
         """
 
-        logger = logging.getLogger("compare")
+        jobs = []
 
-        results = OrderedDict()
-
-        fmtstring = "  %%%ds"%max([len(BKZ_.__name__) for BKZ_ in self.classes])
-
-        for dimension in self.dimensions:
-            results[dimension] = OrderedDict()
-
-            for block_size in self.block_sizes:
-
-                seed_ = seed
-
+        for dimension in dimensions:
+            for block_size in block_sizes:
                 if dimension < block_size:
                     continue
 
-                L = OrderedDict([(BKZ_.__name__, OrderedDict()) for BKZ_ in self.classes])
+                seed_ = seed
+                jobs_ = []
 
-                logger.info("dimension: %3d, block_size: %2d"%(dimension, block_size))
-
-                tasks = []
-
-                matrixf = self.matrixf(dimension=dimension, block_size=block_size)
+                matrixf_ = matrixf(dimension=dimension, block_size=block_size)
 
                 for i in range(samples):
                     set_random_seed(seed_)
-                    A = IntegerMatrix.random(dimension, **matrixf)
+                    A = IntegerMatrix.random(dimension, **matrixf_)
 
-                    for BKZ_ in self.classes:
-                        args = (BKZ_, A, block_size, tours, self.progressive_step_size)
-                        tasks.append(((seed_, BKZ_), args))
-
+                    for BKZ_ in classes:
+                        args = (BKZ_, A, block_size, tours, progressive_step_size)
+                        jobs_.append(((BKZ_.__name__, seed_), args))
                     seed_ += 1
 
-                if threads > 1:
-                    pool = Pool(processes=threads)
-                    tasks = dict([(key, pool.apply_async(bkz_call, args_)) for key, args_ in tasks])
-                    pool.close()
+            jobs.append(((dimension, block_size), jobs_))
 
-                    while tasks:
-                        ready = [key for key in tasks if tasks[key].ready()]
-                        for key in ready:
-                            seed_, BKZ_ = key
-                            try:
-                                trace_ = tasks[key].get()
-                                L[BKZ_.__name__][seed_] = trace_
-                                logger.debug(fmtstring%(BKZ_.__name__) +
-                                             " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
-                            except ReductionError:
-                                logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ_.__name__, seed_))
-                            del tasks[key]
-
-                        time.sleep(1)
-                else:
-                    for key, args_ in tasks:
-                        seed_, BKZ_ = key
-                        try:
-                            trace_ = apply(bkz_call, args_)
-                            L[BKZ_.__name__][seed_] = trace_
-                            logger.debug(fmtstring%(BKZ_.__name__) +
-                                         " 0x%08x %s"%(seed_, pretty_dict(trace_.data)))
-                        except ReductionError:
-                            logger.debug("ReductionError in %s with seed 0x%08x"%(BKZ_.__name__, seed_))
-
-                logger.debug("")
-                for name, vals in L.items():
-                    if vals:
-                        vals = OrderedDict(zip(vals.items()[0][1].data, zip(*[d[1].data.values() for d in vals.items()])))
-                        vals = OrderedDict((k, float(sum(v))/len(v)) for k, v in vals.items())
-                        logger.info(fmtstring%(name) + "    average %s"%(pretty_dict(vals)))
-
-                logger.info("")
-                results[dimension][block_size] = L
-
-                self.write_log(results)
-
-        return results
-
-    def write_log(self, data):
-        if self.log_filename is not None:
-            pickle.dump(data, open(self.log_filename, "wb"))
+        conductor = Conductor(threads=threads, pickle_jar=pickle_jar, logger=logger)
+        return conductor(jobs)
 
 
 # Example
@@ -233,13 +329,13 @@ def qary30(dimension, block_size):
             "int_type": "long"}
 
 
-def _setup_logging(verbose=False):
+def setup_logging(name, verbose=False):
     import subprocess
     import datetime
 
     hostname = str(subprocess.check_output("hostname").rstrip())
     now = datetime.datetime.today().strftime("%Y-%m-%d-%H:%M")
-    log_name = "compare-{hostname}-{now}".format(hostname=hostname, now=now)
+    log_name = "{name}-{hostname}-{now}".format(name=name, hostname=hostname, now=now)
 
     logging.basicConfig(level=logging.DEBUG,
                         format='%(levelname)5s:%(name)s:%(asctime)s: %(message)s',
@@ -250,35 +346,27 @@ def _setup_logging(verbose=False):
     console = logging.StreamHandler()
     console.setLevel(logging.INFO if not verbose else logging.DEBUG)
     console.setFormatter(logging.Formatter('%(name)s: %(message)s',))
-    logging.getLogger('compare').addHandler(console)
+    logging.getLogger(name).addHandler(console)
 
     return log_name
 
 
-def _parse_args():
-    import argparse
+def names_to_classes(class_names, filenames):
+    """
+    Try to find a class for each name in ``class_names``.  Classes implemented in one of the
+    ``filenames`` are also considered.
 
-    parser = argparse.ArgumentParser(description='Measure Pressure')
-    parser.add_argument('-c', '--classes', help='BKZ classes',
-                        type=str, nargs='+', default=["BKZ2"])
-    parser.add_argument('-f', '--files', help='additional files to load for BKZ classes',
-                        type=str, nargs='+', default=list())
-    parser.add_argument('-t', '--threads', help='number of threads to use', type=int, default=1)
-    parser.add_argument('-r', '--tours',   help='number of BKZ tours', type=int, default=1)
-    parser.add_argument('-s', '--samples', help='number of samples to try', type=int, default=4)
-    parser.add_argument('-z', '--seed', help="random seed", type=int, default=0x1337)
-    parser.add_argument('-b', '--block-sizes', help='block sizes',
-                        type=int,  nargs='+', default=(10, 20, 30, 40))
-    parser.add_argument('-p', '--progressive-step-size', help='step size for progressive strategy, None for disabled',
-                        default=None, type=int)
-    parser.add_argument('-d', '--dimensions', help='lattice dimensions',
-                        type=int, nargs='+', default=(60, 80, 100, 120))
-    parser.add_argument('-v', '--verbose', help='print more details by default', action='store_true')
+    The following mapping logic is used:
 
-    return parser.parse_args()
+        - if a class with ``name`` exists, it is used
 
+        - if ``name`` is ``BKZ_FOO`` and a class called ``BKZReduction`` is implemented in a file
+          ``bkz_foo`` it is used.
 
-def _find_classes(class_names, filenames):
+    :param class_names:
+    :param filenames:
+
+    """
     import imp
     import os
     import re
@@ -306,23 +394,43 @@ def _find_classes(class_names, filenames):
 
 
 if __name__ == '__main__':
-    import pickle
+    import argparse
 
-    args = _parse_args()
-    classes = _find_classes(args.classes, args.files)
-    log_filename = _setup_logging(args.verbose)
+    parser = argparse.ArgumentParser(description='Measure Pressure')
+    parser.add_argument('-c', '--classes', help='BKZ classes',
+                        type=str, nargs='+', default=["BKZ2"])
+    parser.add_argument('-f', '--files', help='additional files to load for BKZ classes',
+                        type=str, nargs='+', default=list())
+    parser.add_argument('-t', '--threads', help='number of threads to use', type=int, default=1)
+    parser.add_argument('-r', '--tours',   help='number of BKZ tours', type=int, default=1)
+    parser.add_argument('-s', '--samples', help='number of samples to try', type=int, default=4)
+    parser.add_argument('-z', '--seed', help="random seed", type=int, default=0x1337)
+    parser.add_argument('-b', '--block-sizes', help='block sizes',
+                        type=int,  nargs='+', default=(10, 20, 30, 40))
+    parser.add_argument('-p', '--progressive-step-size', help='step size for progressive strategy, None for disabled',
+                        default=None, type=int)
+    parser.add_argument('-d', '--dimensions', help='lattice dimensions',
+                        type=int, nargs='+', default=(60, 80, 100, 120))
+    parser.add_argument('-v', '--verbose', help='print more details by default', action='store_true')
+
+    args =  parser.parse_args()
+
+    name = "compare"
+
+    classes = names_to_classes(args.classes, args.files)
+    log_filename = setup_logging(name, args.verbose)
 
     for k, v in sorted(vars(args).items()):
-        logging.getLogger('compare').debug("%s: %s"%(k, v))
+        logging.getLogger(name).debug("%s: %s"%(k, v))
 
-    compare_bkz = CompareBKZ(classes=classes,
-                             matrixf=qary30,
-                             block_sizes=args.block_sizes,
-                             progressive_step_size=args.progressive_step_size,
-                             dimensions=args.dimensions,
-                             log_filename=log_filename + ".sobj")
-
-    results = compare_bkz(seed=args.seed,
+    results = compare_bkz(classes=classes,
+                          matrixf=qary30,
+                          block_sizes=args.block_sizes,
+                          progressive_step_size=args.progressive_step_size,
+                          dimensions=args.dimensions,
+                          logger=name,
+                          pickle_jar=log_filename + ".sobj",
+                          seed=args.seed,
                           threads=args.threads,
                           samples=args.samples,
                           tours=args.tours)
