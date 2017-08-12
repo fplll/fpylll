@@ -56,7 +56,7 @@ class BKZReduction(BKZBase):
         if trials == 0:
             return
 
-        last_preproc = 2*(block_size/6) + trials + min(trials, 5)
+        last_preproc = 2*(block_size/4) + trials + min(trials, 5)
         last_preproc = min(last_preproc, block_size - 10)
         preprocs = [last_preproc]
 
