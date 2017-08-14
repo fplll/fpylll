@@ -1,34 +1,38 @@
-python -u bench_svpchallenge.py .50 4 > core00.log &
-python -u bench_svpchallenge.py .55 4 > core01.log &
-python -u bench_svpchallenge.py .60 4 > core02.log &
-python -u bench_svpchallenge.py .65 4 > core03.log &
-python -u bench_svpchallenge.py .70 4 > core04.log &
-python -u bench_svpchallenge.py .75 4 > core05.log &
-python -u bench_svpchallenge.py .80 4 > core06.log &
+python -u bench_svpchallenge.py 34 32 > core00.log &
+python -u bench_svpchallenge.py 38 32 > core01.log &
+python -u bench_svpchallenge.py 42 32 > core02.log &
+python -u bench_svpchallenge.py 46 32 > core03.log &
+python -u bench_svpchallenge.py 48 32 > core04.log &
 
-python -u bench_svpchallenge.py .50 4 > core10.log &
-python -u bench_svpchallenge.py .55 4 > core11.log &
-python -u bench_svpchallenge.py .60 4 > core12.log &
-python -u bench_svpchallenge.py .65 4 > core13.log &
-python -u bench_svpchallenge.py .70 4 > core14.log &
-python -u bench_svpchallenge.py .75 4 > core15.log &
-python -u bench_svpchallenge.py .80 4 > core16.log &
+python -u bench_svpchallenge.py 50 32 > core05.log &
+python -u bench_svpchallenge.py 52 32 > core06.log &
+python -u bench_svpchallenge.py 54 32 > core07.log &
+python -u bench_svpchallenge.py 56 32 > core08.log &
+python -u bench_svpchallenge.py 58 32 > core09.log &
 
-python -u bench_svpchallenge.py .50 4 > core20.log &
-python -u bench_svpchallenge.py .55 4 > core21.log &
-python -u bench_svpchallenge.py .60 4 > core22.log &
-python -u bench_svpchallenge.py .65 4 > core23.log &
-python -u bench_svpchallenge.py .70 4 > core24.log &
-python -u bench_svpchallenge.py .75 4 > core25.log &
-python -u bench_svpchallenge.py .80 4 > core26.log &
+python -u bench_svpchallenge.py 60 32 > core10.log &
+python -u bench_svpchallenge.py 62 32 > core11.log &
+python -u bench_svpchallenge.py 66 32 > core12.log &
+python -u bench_svpchallenge.py 70 32 > core13.log &
 
-python -u bench_svpchallenge.py .50 4 > core30.log &
-python -u bench_svpchallenge.py .55 4 > core31.log &
-python -u bench_svpchallenge.py .60 4 > core32.log &
-python -u bench_svpchallenge.py .65 4 > core33.log &
-python -u bench_svpchallenge.py .70 4 > core34.log &
-python -u bench_svpchallenge.py .75 4 > core35.log &
-python -u bench_svpchallenge.py .80 4 > core36.log &
+python -u bench_svpchallenge.py 34 32 > core20.log &
+python -u bench_svpchallenge.py 38 32 > core21.log &
+python -u bench_svpchallenge.py 42 32 > core22.log &
+python -u bench_svpchallenge.py 46 32 > core23.log &
+python -u bench_svpchallenge.py 48 32 > core24.log &
+
+python -u bench_svpchallenge.py 50 32 > core25.log &
+python -u bench_svpchallenge.py 52 32 > core26.log &
+python -u bench_svpchallenge.py 54 32 > core27.log &
+python -u bench_svpchallenge.py 56 32 > core28.log &
+python -u bench_svpchallenge.py 58 32 > core29.log &
+
+python -u bench_svpchallenge.py 60 32 > core20.log &
+python -u bench_svpchallenge.py 62 32 > core21.log &
+python -u bench_svpchallenge.py 66 32 > core22.log &
+python -u bench_svpchallenge.py 70 32 > core23.log &
+
+
 
 sleep 2
 
