@@ -17,7 +17,7 @@ import sys
 from fpylll.util import gaussian_heuristic
 
 start_dim = 80
-bs = float(sys.argv[1])
+bs = int(sys.argv[1])
 
 try:
     repeat = int(sys.argv[2])
@@ -125,8 +125,8 @@ def asvp(A, bs, gh_factor=1.1):
         print
         BKZ_START = time()
         # print_basis_stats(bkz.M, n)
-        print "BKZ-[20..%d]  ... \t\t "%(bs), 
-        for lbs in range(20 + (bs % 4), bs+1, 4):
+        print "BKZ-[20..%d]  ... \t\t "%(bs),
+        for lbs in [bs - 20, bs - 10, bs]:
             params = fplll_bkz.Param(block_size=lbs, max_loops=1, min_success_probability=.01)
             bkz(params=params)
             bkz.lll_obj()
