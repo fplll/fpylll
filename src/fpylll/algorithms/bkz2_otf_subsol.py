@@ -9,10 +9,9 @@ from fpylll.fplll.pruner import prune
 from fpylll.fplll.pruner import Pruning
 from time import time
 
-GRADIENT_BLOCKSIZE = 51
+GRADIENT_BLOCKSIZE = 31
 SUBSOL_BLOCKSIZE = 41
 
-strenghts = range(10, 40, 2) + range(40, 120)
 NPS = 60*[2.**29] + 5 * [2.**27] + 5 * [2.**26] + 1000 * [2.**25]
 
 
@@ -53,10 +52,12 @@ class BKZReduction(BKZBase):
             if self.lll_obj.nswaps > 0:
                 clean = False
 
-        if trials == 0:
+        if trials < 3:
             return
 
-        last_preproc = 2*(block_size/4) + trials + min(trials, 5)
+        shift = trials - 3 
+
+        last_preproc = 2*(block_size/5) + shift + min(shift, 5)
         last_preproc = min(last_preproc, block_size - 10)
         preprocs = [last_preproc]
 
