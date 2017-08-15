@@ -33,6 +33,7 @@ class BKZReduction(BKZBase):
         if (params.flags & BKZ.GH_BND and block_size > 30):
             radius = min(radius, gh_radius * params.gh_factor)
 
+        preproc_cost += .001
         if not (block_size > GRADIENT_BLOCKSIZE):
             pruning = prune(radius, NPS[block_size] * preproc_cost, [r], target, flags=0)
         else: 
@@ -53,17 +54,13 @@ class BKZReduction(BKZBase):
                 clean = False
 
         if trials < 3:
-            return
+            return clean
 
         shift = trials - 3 
 
         last_preproc = 2*(block_size/5) + shift + min(shift, 5)
         last_preproc = min(last_preproc, block_size - 10)
         preprocs = [last_preproc]
-
-        while last_preproc > 30:
-            last_preproc -= 8
-            preprocs = [last_preproc] + preprocs
 
         for preproc in preprocs:
             prepar = params.__class__(block_size=preproc, flags=BKZ.BOUNDED_LLL)
@@ -114,24 +111,20 @@ class BKZReduction(BKZBase):
         remaining_probability, rerandomize, trials = 1.0, False, 0
 
         sub_solutions = block_size > SUBSOL_BLOCKSIZE
+        preproc_start = time()
 
         while remaining_probability > 1. - params.min_success_probability:
-            preproc_start = time()    
             with tracer.context("preprocessing"):
-                if False: # ((trials%5)==4):
-                    print "R", kappa, 
-                    self.randomize_block(kappa+1, kappa+block_size, density=1, tracer=tracer)
                 self.svp_preprocessing(kappa, block_size, params, trials, tracer=tracer)
             preproc_cost = time() - preproc_start
 
             with tracer.context("pruner"):
                 target = 1 - ((1. - params.min_success_probability) / remaining_probability)
-                target =  min(target, .5)
-                # target = params.min_success_probability
-                radius, pruning = self.get_pruning(kappa, block_size, params, target*1.01, preproc_cost, tracer)
+                radius, pruning = self.get_pruning(kappa, block_size, params, target*1.01, 
+                                                   preproc_cost, tracer)
 
+            enum_obj = Enumeration(self.M, sub_solutions=sub_solutions)
             try:
-                enum_obj = Enumeration(self.M, sub_solutions=sub_solutions)
                 with tracer.context("enumeration",
                                     enum_obj=enum_obj,
                                     probability=pruning.expectation,
@@ -139,15 +132,14 @@ class BKZReduction(BKZBase):
                     max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, radius, 0,
                                                             pruning=pruning.coefficients)[0]
                 with tracer.context("postprocessing"):
-                    rerandomize = True
+                    preproc_start = time() # Include post_processing time as the part of the next pre_processing
                     if not sub_solutions:
                         self.svp_postprocessing(kappa, block_size, solution, tracer=tracer)
+                    if sub_solutions:
+                        self.insert_sub_solutions(kappa, block_size, enum_obj.sub_solutions[:1+block_size/4])
 
             except EnumerationError:
-                rerandomize = False
-
-            if sub_solutions:
-                self.insert_sub_solutions(kappa, block_size, enum_obj.sub_solutions[:1+block_size/4])
+                preproc_start = time()
 
             remaining_probability *= (1 - pruning.expectation)
             trials += 1

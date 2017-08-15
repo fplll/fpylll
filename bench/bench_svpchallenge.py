@@ -125,9 +125,10 @@ def asvp(A, bs, gh_factor=1.1):
         print
         BKZ_START = time()
         # print_basis_stats(bkz.M, n)
-        print "BKZ-[20..%d]  ... \t\t "%(bs),
+        print "BKZ-[%d .. %d]  ... \t\t "%(bs-20, bs),
         for lbs in [bs - 20, bs - 10, bs]:
-            params = fplll_bkz.Param(block_size=lbs, max_loops=1, min_success_probability=.01)
+            params = fplll_bkz.Param(block_size=lbs, max_loops=1,
+                                     min_success_probability=.01) #, flags=fplll_bkz.BOUNDED_LLL)
             bkz(params=params)
             bkz.lll_obj()
         r = [bkz.M.get_r(i, i) for i in range(n)]
