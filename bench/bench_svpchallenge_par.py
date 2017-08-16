@@ -108,8 +108,9 @@ def enum_trial(bkz_obj, preproc_cost, gh_factor=1.1):
     return 
 
 
-def asvp(AA, bs, gh_factor):
+def asvp(AA, max_bs, gh_factor):
     n = AA.nrows
+    bs = 40
     A = IntegerMatrix_to_long(AA)
     bkz = BKZReduction(A)
     bkz.lll_obj()
@@ -128,7 +129,7 @@ def asvp(AA, bs, gh_factor):
         print "BKZ-[%d .. %d]  ... \t\t "%(bs-20, bs),
         for lbs in [bs - 20, bs - 10, bs]:
             params = fplll_bkz.Param(block_size=lbs, max_loops=1,
-                                     min_success_probability=.01) #, flags=fplll_bkz.BOUNDED_LLL)
+                                     min_success_probability=.005) #, flags=fplll_bkz.BOUNDED_LLL)
             bkz(params=params)
             bkz.lll_obj()
         r = [bkz.M.get_r(i, i) for i in range(n)]
@@ -141,6 +142,7 @@ def asvp(AA, bs, gh_factor):
         r = [bkz.M.get_r(i, i) for i in range(n)]
         gh = gaussian_heuristic(r)
         trials += 1
+        bs = min(bs+2, max_bs)
 
     print "Finished !"
     print_basis_stats(bkz.M, n)
