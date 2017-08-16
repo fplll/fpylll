@@ -142,7 +142,7 @@ def asvp(AA, max_bs, gh_factor):
         r = [bkz.M.get_r(i, i) for i in range(n)]
         gh = gaussian_heuristic(r)
         trials += 1
-        bs = min(bs+2, max_bs)
+        bs = min(bs+1, max_bs)
 
     print "Finished !"
     print_basis_stats(bkz.M, n)
