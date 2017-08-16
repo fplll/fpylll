@@ -3,6 +3,7 @@
 from copy import copy
 from multiprocessing import Process
 from time import sleep, clock, time
+from random import randint
 
 from fpylll import IntegerMatrix, LLL, GSO
 from fpylll import BKZ as fplll_bkz
@@ -68,12 +69,6 @@ def insert_sub_solutions(bkz_obj, sub_solutions):
 
     return
 
-def save_buggy_instance(a,b,c):
-    pickle.dump((a, b, c), open( "buugy_inst.pkl", "wb" ) )
-    for i in range(20):
-        print "TOTAL_TIME -- BUUUUG"
-    exit(1)
-
 
 def enum_trial(bkz_obj, preproc_cost, gh_factor=1.1):
     n = bkz_obj.A.nrows
@@ -85,16 +80,16 @@ def enum_trial(bkz_obj, preproc_cost, gh_factor=1.1):
     pruning = prune(radius, NPS * preproc_cost, [r], 10, 
                     metric="solutions", float_type="dd",
                     flags=Pruning.GRADIENT)
-    PRUNE_TIME = time() - PRUNE_START
-    print "Pruning time %.4f"%PRUNE_TIME
+    PRUNE_TIME = time() - PRUNE_START    
     ENUM_START = time()
     enum_obj = Enumeration(bkz_obj.M, sub_solutions=True)
 
-    try:
-        print "Enum  ... (Expecting %.5f solutions)"%(pruning.expectation), 
+    try:        
         enum_obj.enumerate(0, n, radius, 0, pruning=pruning.coefficients)
     except EnumerationError:
         pass
+    print "Pruning time %.4f"%PRUNE_TIME
+    print "Enum  ... (Expecting %.5f solutions)"%(pruning.expectation), 
 
     ENUM_TIME = time() - ENUM_START
     print " \t\t\t\t\t\t TIME = %.2f"%ENUM_TIME
@@ -108,9 +103,8 @@ def enum_trial(bkz_obj, preproc_cost, gh_factor=1.1):
     return 
 
 
-def asvp(AA, max_bs, gh_factor):
+def asvp(AA, bs, gh_factor):
     n = AA.nrows
-    bs = 40
     A = IntegerMatrix_to_long(AA)
     bkz = BKZReduction(A)
     bkz.lll_obj()
@@ -119,6 +113,7 @@ def asvp(AA, max_bs, gh_factor):
     r = [bkz.M.get_r(i, i) for i in range(n)]
     gh = gaussian_heuristic(r)
 
+    bs -= 2*randint(0, 4)
     trials = 0
     while r[0] > gh * gh_factor:
         r = [bkz.M.get_r(i, i) for i in range(n)]
@@ -126,14 +121,14 @@ def asvp(AA, max_bs, gh_factor):
         print
         BKZ_START = time()
         # print_basis_stats(bkz.M, n)
-        print "BKZ-[%d .. %d]  ... \t\t "%(bs-20, bs),
-        for lbs in [bs - 20, bs - 10, bs]:
+        for lbs in range(30, bs - 10, 2) + [bs]:
             params = fplll_bkz.Param(block_size=lbs, max_loops=1,
-                                     min_success_probability=.005) #, flags=fplll_bkz.BOUNDED_LLL)
+                                     min_success_probability=.01) #, flags=fplll_bkz.BOUNDED_LLL)
             bkz(params=params)
             bkz.lll_obj()
         r = [bkz.M.get_r(i, i) for i in range(n)]
         BKZ_TIME = time() - BKZ_START
+        print "BKZ-[%d .. %d]  ... \t\t "%(30, bs),
         print "  \t\t\t\t\t\t\t TIME = %.2f"%BKZ_TIME
         print_basis_stats(bkz.M, n)
 
@@ -142,7 +137,6 @@ def asvp(AA, max_bs, gh_factor):
         r = [bkz.M.get_r(i, i) for i in range(n)]
         gh = gaussian_heuristic(r)
         trials += 1
-        bs = min(bs+1, max_bs)
 
     print "Finished !"
     print_basis_stats(bkz.M, n)
@@ -171,7 +165,6 @@ def proudly_parrallel(cores, f, args):
             some_alive |= proc.is_alive()
         if not some_alive:
             return
-
 
 START = time()
 for dim in range(start_dim, 130, 2):
