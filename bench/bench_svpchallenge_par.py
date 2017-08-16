@@ -184,5 +184,5 @@ for dim in range(start_dim, 130, 2):
     proudly_parrallel(cores, asvp, (A, bs, 1.05**2))
     ASVP_TIME = time() - ASVP_START
 
-    print "SUMMARY", {"dim": dim, "bs": bs, "time": ASVP_TIME}
+    print "\nSUMMARY", {"dim": dim, "bs": bs, "time": ASVP_TIME}
 
