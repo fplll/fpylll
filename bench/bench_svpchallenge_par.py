@@ -79,7 +79,7 @@ def enum_trial(bkz_obj, preproc_cost, gh_factor=1.1):
     PRUNE_START = time()
     pruning = prune(radius, NPS * preproc_cost, [r], 10, 
                     metric="solutions", float_type="dd",
-                    flags=Pruning.GRADIENT)
+                    flags=Pruning.GRADIENT|Pruning.NELDER_MEAD)
     PRUNE_TIME = time() - PRUNE_START    
     ENUM_START = time()
     enum_obj = Enumeration(bkz_obj.M, sub_solutions=True)
@@ -103,7 +103,7 @@ def enum_trial(bkz_obj, preproc_cost, gh_factor=1.1):
     return 
 
 
-def asvp(AA, bs, gh_factor):
+def asvp(AA, max_bs, gh_factor):
     n = AA.nrows
     A = IntegerMatrix_to_long(AA)
     bkz = BKZReduction(A)
@@ -113,7 +113,9 @@ def asvp(AA, bs, gh_factor):
     r = [bkz.M.get_r(i, i) for i in range(n)]
     gh = gaussian_heuristic(r)
 
-    bs -= 2*randint(0, 4)
+    max_bs -= 2*randint(0, 4)
+    bs = max_bs - 20
+
     trials = 0
     while r[0] > gh * gh_factor:
         r = [bkz.M.get_r(i, i) for i in range(n)]
@@ -137,6 +139,7 @@ def asvp(AA, bs, gh_factor):
         r = [bkz.M.get_r(i, i) for i in range(n)]
         gh = gaussian_heuristic(r)
         trials += 1
+        bs = min(bs + 2, max_bs)
 
     print "Finished !"
     print_basis_stats(bkz.M, n)
