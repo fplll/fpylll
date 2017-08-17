@@ -127,13 +127,14 @@ def svp_improve_trial(filename, bs):
     A, _ = pickle.load(open(filename, 'rb'))
     n = A.nrows
     bkz = BKZReduction(A)
+
+    BKZ_START = time()
     bkz.lll_obj()
     r = [bkz.M.get_r(i, i) for i in range(n)]
     print filename, "before BKZ",
     print_basis_stats(bkz.M, n)
     gh = gaussian_heuristic(r)
 
-    BKZ_START = time()
     for lbs in range(30, bs - 10, 2) + [bs]:
         params = fplll_bkz.Param(block_size=lbs, max_loops=1,
                                  min_success_probability=.01)
@@ -177,7 +178,6 @@ class SVPool:
 
 POOL_SIZE = 8 * cores
 POOL_COPIES = 1 + cores/4
-POOL_INSERT = 2
 
 def interacting_parrallel_asvp(A, bs_max, goal, cores):
     n = A.nrows
@@ -196,7 +196,7 @@ def interacting_parrallel_asvp(A, bs_max, goal, cores):
     over = False
 
     while not over:
-        sleep(.1)
+        sleep(.01)
         for i in range(cores):
 
             if workers[i] is None:
@@ -231,7 +231,7 @@ def interacting_parrallel_asvp(A, bs_max, goal, cores):
         w.terminate()
 
     while True:
-        sleep(.1)
+        sleep(.01)
         some_alive = False
         for w in [w for w in workers if w is not None]:
             some_alive |= w.is_alive()
