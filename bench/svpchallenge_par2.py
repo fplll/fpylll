@@ -14,7 +14,7 @@ from fpylll.fplll.pruner import prune
 from fpylll.fplll.pruner import Pruning
 from math import log, sqrt
 import pickle
-
+import os
 from math import floor 
 
 import sys
@@ -208,12 +208,12 @@ def interacting_parrallel_asvp(A, bs_max, goal, cores):
                 bsi = bs_max - 20
                 bsi += min(20, 2*trials[i])
                 bsi -= 2*randint(0, BS_RANGE/2)
-                pickle.dump((As[i], False), open("%d.tmp"%i, 'wb'))
-                workers[i] = Process(target=svp_improve_trial, args=("%d.tmp"%i, bsi))
+                pickle.dump((As[i], False), open("%d.%d.tmp"%(os.getpid(),i), 'wb'))
+                workers[i] = Process(target=svp_improve_trial, args=("%d.%d.tmp"%(os.getpid(),i), bsi))
                 workers[i].start()
 
             if (workers[i] is not None) and (not workers[i].is_alive()):
-                As[i], success = pickle.load(open("%d.tmp"%i, 'rb'))
+                As[i], success = pickle.load("%d.%d.tmp"%(os.getpid(),i), 'rb'))
                 print "SUCC: ", success
                 print
                 if success:
