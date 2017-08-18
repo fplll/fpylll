@@ -213,7 +213,7 @@ def interacting_parrallel_asvp(A, bs_max, goal, cores):
                 workers[i].start()
 
             if (workers[i] is not None) and (not workers[i].is_alive()):
-                As[i], success = pickle.load("%d.%d.tmp"%(os.getpid(),i), 'rb')
+                As[i], success = pickle.load(open("%d.%d.tmp"%(os.getpid(),i), 'rb'))
                 print "SUCC: ", success
                 print
                 if success:
