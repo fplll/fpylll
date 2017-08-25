@@ -10,6 +10,7 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.pair cimport pair
 from libcpp cimport bool
+from libcpp.functional cimport function
 
 
 cdef extern from "<map>" namespace "std":
@@ -582,6 +583,22 @@ cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
 
         long get_nodes()
 
+cdef extern from "fplll/enum/enumerate_ext.h" namespace "fplll":
+
+    ctypedef void extenum_cb_set_config (double *mu, size_t mudim, bool mutranspose, double *rdiag,
+                                         double *pruning)
+
+    ctypedef double extenum_cb_process_sol(double dist, double *sol);
+
+    ctypedef void extenum_cb_process_subsol(double dist, double *subsol, int offset);
+
+    ctypedef unsigned long extenum_fc_enumerate(int dim, enumf maxdist,
+                                                function[extenum_cb_set_config] cbfunc,
+                                                function[extenum_cb_process_sol] cbsol,
+                                                function[extenum_cb_process_subsol] cbsubsol,
+                                                bool dual, bool findsubsols)
+
+    void set_external_enumerator(function[extenum_fc_enumerate] extenum)
 
 
 # SVP
