@@ -116,7 +116,7 @@ cdef class MatGSO:
 
         :param float_type: A floating point type, i.e. an element of ``fpylll.fpylll.float_types``.
 
-        ..  note:: If ``float_type="mpfr"`` set precision with ``set_precision()`` before
+        ..  note:: If ``float_type="mpfr"`` set precision with ``FPLLL.set_precision()`` before
             constructing this object and do not change the precision during the lifetime of this
             object.
         """
@@ -245,12 +245,12 @@ cdef class MatGSO:
     @property
     def float_type(self):
         """
-        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> from fpylll import IntegerMatrix, GSO, FPLLL
         >>> A = IntegerMatrix(10, 10)
         >>> M = GSO.Mat(A)
         >>> M.float_type
         'double'
-        >>> set_precision(100)
+        >>> FPLLL.set_precision(100)
         53
         >>> M = GSO.Mat(A, float_type='mpfr')
         >>> M.float_type
@@ -301,7 +301,7 @@ cdef class MatGSO:
         """
         Number of rows of ``B`` (dimension of the lattice).
 
-        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> from fpylll import IntegerMatrix, GSO, FPLLL
         >>> A = IntegerMatrix(11, 11)
         >>> M = GSO.Mat(A)
         >>> M.d
@@ -345,7 +345,7 @@ cdef class MatGSO:
         """
         Exact computation of dot products.
 
-        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> from fpylll import IntegerMatrix, GSO, FPLLL
         >>> A = IntegerMatrix(11, 11)
         >>> M = GSO.Mat(A)
         >>> M.int_gram_enabled
@@ -393,7 +393,7 @@ cdef class MatGSO:
         """
         Normalization of each row of b by a power of 2.
 
-        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> from fpylll import IntegerMatrix, GSO, FPLLL
         >>> A = IntegerMatrix(11, 11)
         >>> M = GSO.Mat(A)
         >>> M.row_expo_enabled
@@ -441,7 +441,7 @@ cdef class MatGSO:
         """
         Computation of the transform matrix.
 
-        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> from fpylll import IntegerMatrix, GSO, FPLLL
         >>> A = IntegerMatrix(11, 11)
         >>> M = GSO.Mat(A)
         >>> M.transform_enabled
@@ -491,7 +491,7 @@ cdef class MatGSO:
         """
         Computation of the inverse transform matrix (transposed).
 
-        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> from fpylll import IntegerMatrix, GSO, FPLLL
         >>> A = IntegerMatrix(11, 11)
         >>> M = GSO.Mat(A)
         >>> M.inverse_transform_enabled
@@ -541,7 +541,7 @@ cdef class MatGSO:
         """
         Changes the behaviour of ``row_addmul``, see its documentation.
 
-        >>> from fpylll import IntegerMatrix, GSO, set_precision
+        >>> from fpylll import IntegerMatrix, GSO, FPLLL
         >>> A = IntegerMatrix(11, 11)
         >>> M = GSO.Mat(A)
         >>> M.row_op_force_long
@@ -1174,7 +1174,7 @@ cdef class MatGSO:
         Example::
 
             >>> from fpylll import *
-            >>> set_random_seed(42)
+            >>> FPLLL.set_random_seed(42)
             >>> A = IntegerMatrix(6, 6)
             >>> A.randomize("ntrulike", bits=6, q=31)
             >>> print(A)

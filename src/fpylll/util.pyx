@@ -125,22 +125,22 @@ def get_precision(float_type="mpfr"):
 
     This function returns the precision per type::
 
-        >>> from fpylll import get_precision, set_precision
-        >>> get_precision('double')
+        >>> from fpylll import FPLLL
+        >>> FPLLL.get_precision('double')
         53
-        >>> get_precision('long double')
+        >>> FPLLL.get_precision('long double')
         64
-        >>> get_precision('dpe')
+        >>> FPLLL.get_precision('dpe')
         53
 
     For the MPFR type different precisions are supported::
 
-        >>> _ = set_precision(212)
-        >>> get_precision('mpfr')
+        >>> _ = FPLLL.set_precision(212)
+        >>> FPLLL.get_precision('mpfr')
         212
-        >>> get_precision()
+        >>> FPLLL.get_precision()
         212
-        >>> _ = set_precision(53)
+        >>> _ = FPLLL.set_precision(53)
 
     """
     cdef FloatType float_type_ = check_float_type(float_type)
@@ -228,3 +228,8 @@ def gaussian_heuristic(r):
     log_vol = sum([log(x) for x in r])
     log_gh =  1./n * (log_vol - 2 * ball_log_vol(n))
     return exp(log_gh)
+
+class FPLLL:
+    set_precision = staticmethod(set_precision)
+    get_precision = staticmethod(get_precision)
+    set_random_seed = staticmethod(set_random_seed)

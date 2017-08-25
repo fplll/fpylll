@@ -124,7 +124,7 @@ def closest_vector(IntegerMatrix B, target, int flags=CVP_DEFAULT):
     :rtype tuple:
 
     >>> from fpylll import *
-    >>> set_random_seed(42)
+    >>> FPLLL.set_random_seed(42)
     >>> A = IntegerMatrix.random(5, 'uniform', bits=10)
     >>> lll = LLL.reduction(A)
     >>> t = (94, -42, 123, 512, -1337)

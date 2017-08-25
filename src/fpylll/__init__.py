@@ -11,5 +11,5 @@ from .fplll.svpcvp import CVP
 from .fplll.pruner import Pruning
 from .fplll.sieve_gauss import GaussSieve
 from .util import ReductionError
-from .util import set_random_seed, set_precision, get_precision
+from .util import FPLLL
 __version__ = "0.2.4dev"
