@@ -221,9 +221,21 @@ class ReductionError(RuntimeError):
 
 
 def ball_log_vol(n):
+    """
+    Return volume of `n`-dimensional unit ball
+
+    :param n: dimension
+
+    """
     return (n/2.) * log(pi) - lgamma(n/2. + 1)
 
 def gaussian_heuristic(r):
+    """
+    Return squared norm of shortest vector as predicted by the Gaussian heuristic.
+
+    :param r: vector of squared Gram-Schmidt norms
+
+    """
     n = len(list(r))
     log_vol = sum([log(x) for x in r])
     log_gh =  1./n * (log_vol - 2 * ball_log_vol(n))
