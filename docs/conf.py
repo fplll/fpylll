@@ -307,3 +307,11 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+# Monkey-patch inspect with Cython support
+# See http://opendreamkit.org/2017/06/09/CythonSphinx/
+def isfunction(obj):
+    return hasattr(type(obj), "__code__")
+
+import inspect
+inspect.isfunction = isfunction
