@@ -84,6 +84,8 @@ We recommend `virtualenv <https://virtualenv.readthedocs.org/>`__ for isolating 
 
      $ (fpylll) ./install-dependencies.sh $VIRTUAL_ENV
 
+   Some OSX users report that they required ``export CXXFLAGS="-stdlib=lic++ -mmacosx-version-min=10.7`` and ``export CXX=clang++`` (after installing a recent clang with `brew <https://brew.sh>`__) since the default GCC installed by Apple does not have full C++11 support.
+    
 4. Then, execute:
 
    .. code-block:: bash
