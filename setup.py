@@ -28,7 +28,7 @@ from copy import copy
 try:
     FileNotFoundError
 except NameError:
-    FileNotFoundError = IOError  # Python 2 workaround
+    FileNotFoundError = OSError  # Python 2 workaround
 
 
 # CONFIG VARIABLES
