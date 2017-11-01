@@ -115,10 +115,22 @@ cdef class MatGSO:
                   documentation.
 
         :param float_type: A floating point type, i.e. an element of ``fpylll.fpylll.float_types``.
+            If ``float_type="mpfr"`` set precision with ``set_precision()`` before constructing this
+            object and do not change the precision during the lifetime of this object.
 
-        ..  note:: If ``float_type="mpfr"`` set precision with ``set_precision()`` before
-            constructing this object and do not change the precision during the lifetime of this
-            object.
+        Note that matching integer types for ``B``, ``U`` and ``UinvT`` are enforced::
+
+            >>> from fpylll import IntegerMatrix, LLL, GSO
+            >>> B = IntegerMatrix.random(5, 'uniform', bits = 8, int_type = "long")
+            >>> M = GSO.Mat(B, U = IntegerMatrix.identity(B.nrows))
+            Traceback (most recent call last):
+            ...
+            TypeError: U.int_type != B.int_type
+
+            >>> from fpylll import IntegerMatrix, LLL, GSO
+            >>> B = IntegerMatrix.random(5, 'uniform', bits=8, int_type="long")
+            >>> M = GSO.Mat(B, U = IntegerMatrix.identity(B.nrows, int_type="long"))
+
         """
 
         if U is None:
@@ -126,16 +138,24 @@ cdef class MatGSO:
         elif isinstance(U, IntegerMatrix):
             if U.nrows != B.nrows:
                 raise ValueError("U.nrows != B.nrows")
+            if U.int_type != B.int_type:
+                raise TypeError("U.int_type != B.int_type")
             self.U = U
+        else:
+            raise TypeError("type of U (%s) not supported"%type(U))
 
         if UinvT is None:
             self.UinvT = IntegerMatrix(0, 0)
         elif isinstance(UinvT, IntegerMatrix):
             if U is None:
-                raise ValueError("Uinvt != None but U != None.")
+                raise ValueError("Uinvt != None but U == None.")
             if UinvT.nrows != B.nrows:
                 raise ValueError("UinvT.nrows != B.nrows")
             self.UinvT = UinvT
+            if UinvT.int_type != B.int_type:
+                raise TypeError("UinvT.int_type != B.int_type")
+        else:
+            raise TypeError("type of UinvT (%s) not supported"%type(UinvT))
 
         cdef Matrix[Z_NR[mpz_t]] *b_m = <Matrix[Z_NR[mpz_t]]*>B._core.mpz
         cdef Matrix[Z_NR[mpz_t]] *u_m = <Matrix[Z_NR[mpz_t]]*>self.U._core.mpz
@@ -737,7 +757,7 @@ cdef class MatGSO:
         >>> M.update_gso()
         True
         >>> M.get_r(1, 0)
-        890.0
+        483.0
 
         """
         preprocess_indices(i, j, self.d, self.d)
