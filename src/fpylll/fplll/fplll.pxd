@@ -874,7 +874,7 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
 
 cdef extern from "fplll/sieve/sieve_gauss.h" namespace "fplll":
     cdef cppclass GaussSieve[ZT, FT]:
-        GaussSieve(ZZ_mat[ZT] &B, int algorithm, bool verbose, int seed);
+        GaussSieve(ZZ_mat[ZT] &B, int algorithm, bool verbose, int seed)
 
         bool sieve(Z_NR[ZT] target_norm)
 
