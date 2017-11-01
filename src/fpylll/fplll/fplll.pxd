@@ -450,6 +450,97 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         const int enable_inverse_transform
         const int row_op_force_long
 
+cdef extern from "fplll/gso_gram.h" namespace "fplll":
+
+    cdef cppclass MatGSOGram[ZT, FT]:
+        MatGSOGram(Matrix[ZT] B, Matrix[ZT] U, Matrix[ZT] UinvT, int flags)
+
+        long get_max_exp_of_b() nogil
+        bool b_row_is_zero(int i) nogil
+        int get_cols_of_b() nogil
+        int get_rows_of_b() nogil
+        void negate_row_of_b(int i) nogil
+
+        void set_g(Matrix[ZT] arg_g)
+        void create_rows(int n_new_rows) nogil
+        void remove_last_rows(int n_removed_rows) nogil
+
+        void move_row(int old_r, int new_r) nogil
+
+        void row_addmul_we(int i, int j, const FT &x, long expo_add) nogil
+
+        void row_add(int i, int j) nogil
+        void row_sub(int i, int j) nogil
+
+        FT &get_gram(FT &f, int i, int j) nogil
+
+
+cdef extern from "fplll/gso_interface.h" namespace "fplll":
+
+    cdef cppclass MatGSOInterface[ZT, FT]:
+        MatGSOInterface(Matrix[ZT] B, Matrix[ZT] U, Matrix[ZT] UinvT, int flags)
+
+        int d
+
+        long get_max_exp_of_b() nogil
+        bool b_row_is_zero(int i) nogil
+
+        int get_cols_of_b() nogil
+        int get_rows_of_b() nogil
+        void negate_row_of_b(int i) nogil
+        vector[long] row_expo
+        inline void row_op_begin(int first, int last) nogil
+        void row_op_end(int first, int last) nogil
+        FT &get_gram(FT &f, int i, int j) nogil
+        const Matrix[FT] &get_mu_matrix() nogil
+        const Matrix[FT] &get_r_matrix() nogil
+        const Matrix[ZT] &get_g_matrix() nogil
+        inline const FT &get_mu_exp(int i, int j, long &expo) nogil
+        inline const FT &get_mu_exp(int i, int j) nogil
+        inline FT &get_mu(FT &f, int i, int j) nogil
+        ZT get_max_gram() nogil
+        FT get_max_bstar() nogil
+        inline const FT &get_r_exp(int i, int j, long &expo) nogil
+        inline const FT &get_r_exp(int i, int j) nogil
+        inline FT &get_r(FT &f, int i, int j) nogil
+        long get_max_mu_exp(int i, int n_columns) nogil
+        bool update_gso_row(int i, int last_j) nogil
+        inline bool update_gso_row(int i) nogil
+        inline bool update_gso() nogil
+        inline void discover_all_rows() nogil
+        void set_r(int i, int j, FT &f) nogil
+        void move_row(int old_r, int new_r) nogil
+        inline void row_addmul(int i, int j, const FT &x) nogil
+        void row_addmul_we(int i, int j, const FT &x, long expo_add) nogil
+        void row_add(int i, int j) nogil
+        void row_sub(int i, int j) nogil
+        void lock_cols() nogil
+        void unlock_cols() nogil
+        inline void create_row() nogil
+        void create_rows(int n_new_rows) nogil
+        inline void remove_last_row() nogil
+        void remove_last_rows(int n_removed_rows) nogil
+
+        void apply_transform(const Matrix[FT] &transform, int src_base, int target_base) nogil
+        void apply_transform(const Matrix[FT] &transform, int src_base) nogil
+
+        void dump_mu_d(double* mu, int offset, int block_size) nogil
+        void dump_mu_d(vector[double] mu, int offset, int block_size) nogil
+
+        void dump_r_d(double* r, int offset, int block_size) nogil
+        void dump_r_d(vector[double] r, int offset, int block_size) nogil
+
+        double get_current_slope(int start_row, int stop_row) nogil
+        FT get_root_det(int start_row, int end_row) nogil
+        FT get_log_det(int start_row, int end_row) nogil
+        FT get_slide_potential(int start_row, int end_row, int block_size) nogil
+
+        const bool enable_int_gram
+        const bool enable_row_expo
+        const bool enable_transform
+        const bool enable_inverse_transform
+        const bool row_op_force_long
+
 
 
 # LLL
