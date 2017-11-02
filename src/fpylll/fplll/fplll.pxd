@@ -415,7 +415,7 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         void discover_all_rows() nogil
         void set_r(int i, int j, FT& f) nogil
         void move_row(int oldR, int newR) nogil
-        void row_swap(int row1, int row2)
+        void row_swap(int row1, int row2) nogil
 
         void row_addmul(int i, int j, const FT& x) nogil
         void row_addmul_we(int i, int j, const FT& x, long expoAdd) nogil
@@ -487,8 +487,10 @@ cdef extern from "fplll/gso_interface.h" namespace "fplll":
 
         int get_cols_of_b() nogil
         int get_rows_of_b() nogil
+
         void negate_row_of_b(int i) nogil
         vector[long] row_expo
+
         inline void row_op_begin(int first, int last) nogil
         void row_op_end(int first, int last) nogil
         FT &get_gram(FT &f, int i, int j) nogil
@@ -505,11 +507,17 @@ cdef extern from "fplll/gso_interface.h" namespace "fplll":
         inline FT &get_r(FT &f, int i, int j) nogil
         long get_max_mu_exp(int i, int n_columns) nogil
         bool update_gso_row(int i, int last_j) nogil
+
         inline bool update_gso_row(int i) nogil
         inline bool update_gso() nogil
+
         inline void discover_all_rows() nogil
         void set_r(int i, int j, FT &f) nogil
+
         void move_row(int old_r, int new_r) nogil
+        void row_swap(int row1, int row2) nogil
+
+
         inline void row_addmul(int i, int j, const FT &x) nogil
         void row_addmul_we(int i, int j, const FT &x, long expo_add) nogil
         void row_add(int i, int j) nogil
@@ -548,7 +556,7 @@ cdef extern from "fplll/gso_interface.h" namespace "fplll":
 cdef extern from "fplll/lll.h" namespace "fplll":
 
     cdef cppclass LLLReduction[ZT,FT]:
-        LLLReduction(MatGSO[ZT, FT]& m, double delta, double eta, int flags)
+        LLLReduction(MatGSOInterface[ZT, FT]& m, double delta, double eta, int flags)
 
         int lll() nogil
         int lll(int kappa_min) nogil
@@ -566,7 +574,7 @@ cdef extern from "fplll/lll.h" namespace "fplll":
         int zeros
         int n_swaps
 
-    int is_lll_reduced[ZT, FT](MatGSO[ZT, FT]& m, double delta, double eta) nogil
+    int is_lll_reduced[ZT, FT](MatGSOInterface[ZT, FT]& m, double delta, double eta) nogil
 
 
 # LLL Wrapper

@@ -46,11 +46,9 @@ from fpylll.util cimport check_float_type, check_precision, check_pruner_metric
 
 IF HAVE_LONG_DOUBLE:
     from fplll cimport FT_LONG_DOUBLE
-    from decl cimport gso_mpz_ld
     from decl cimport nr_ld
 
 IF HAVE_QD:
-    from decl cimport gso_mpz_dd, gso_mpz_qd
     from decl cimport nr_dd, nr_qd, dd_t, qd_t
     from fplll cimport FT_DD, FT_QD
 
