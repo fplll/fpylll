@@ -9,6 +9,6 @@ cdef class MatGSO:
     cdef mat_gso_core_t _core
 
     cdef readonly IntegerMatrix B
-    cdef readonly IntegerMatrix G
+    cdef readonly IntegerMatrix _G
     cdef readonly IntegerMatrix U
     cdef readonly IntegerMatrix UinvT

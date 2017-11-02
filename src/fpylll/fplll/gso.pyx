@@ -38,6 +38,7 @@ from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.util cimport preprocess_indices, check_float_type
 from integer_matrix cimport IntegerMatrix
+from fpylll.io cimport mpz_get_python
 
 IF HAVE_QD:
     from decl cimport mat_gso_mpz_dd, mat_gso_mpz_qd, mat_gso_long_dd, mat_gso_long_qd, dd_t, qd_t
@@ -289,7 +290,7 @@ cdef class MatGSO:
                             raise ValueError("Float type '%s' not understood."%float_type)
                     ELSE:
                         raise ValueError("Float type '%s' not understood."%float_type)
-            self.G = B
+            self._G = B
 
     def __dealloc__(self):
         # We are making sure the correct destructor is called, even when it's not virtual, by explicit casting
@@ -420,6 +421,120 @@ cdef class MatGSO:
         Make sure attempts at pickling raise an error until proper pickling is implemented.
         """
         raise NotImplementedError
+
+    @property
+    def G(self):
+        """
+        Return the Gram matrix.
+
+        - If this GSO object operates on a Gram matrix, return that.
+        - If this GSO object operates on a basis with ``GSO.INT_GRAM`` set,
+          construct the Gram matrix and return it
+        - Otherwise, a ``NotImplementedError`` is raised
+
+        >>> from fpylll import IntegerMatrix, GSO
+        >>> A = IntegerMatrix.random(10, "qary", k=5, bits=10)
+        >>> M = GSO.Mat(A, flags=GSO.INT_GRAM); _ = M.update_gso()
+        >>> G = M.G; print G
+        [ 67  0  0  0  0  0  0  0  0  0 ]
+        [ 45 63  0  0  0  0  0  0  0  0 ]
+        [ 14 17 15  0  0  0  0  0  0  0 ]
+        [ 66 47 10 71  0  0  0  0  0  0 ]
+        [ 72 58 20 74 89  0  0  0  0  0 ]
+        [ 28 21 14 21 21 49  0  0  0  0 ]
+        [ 42 14  0 42 42  0 49  0  0  0 ]
+        [ 21 14  7 28 35  0  0 49  0  0 ]
+        [ 14 42  0 21 21  0  0  0 49  0 ]
+        [  7 21 21  0 21  0  0  0  0 49 ]
+
+        >>> A[0].norm()**2
+        67.0
+
+        >>> M = GSO.Mat(G, gram=True); _ = M.update_gso()
+        >>> G == M.G
+        True
+
+        >>> M = GSO.Mat(A)
+        >>> M.G
+        Traceback (most recent call last):
+        ...
+        NotImplementedError: Computing the Gram Matrix currently requires GSO.INT_GRAM
+
+        """
+
+        cdef long i, j
+        if self._alg == mat_gso_gram_t:
+            return self._G
+        elif self.int_gram_enabled:
+            if self.int_type == "mpz":
+                G = IntegerMatrix(self.d, self.d, int_type="mpz")
+                if self._type == mat_gso_mpz_d:
+                    for i in range(self.d):
+                        for j in range(self.d):
+                            G[i, j] = mpz_get_python(self._core.mpz_d.get_g_matrix()[i][j].get_data())
+                elif self._type == mat_gso_mpz_ld:
+                    for i in range(self.d):
+                        for j in range(self.d):
+                            G[i, j] = mpz_get_python(self._core.mpz_ld.get_g_matrix()[i][j].get_data())
+                elif self._type == mat_gso_mpz_dpe:
+                    for i in range(self.d):
+                        for j in range(self.d):
+                            G[i, j] = mpz_get_python(self._core.mpz_dpe.get_g_matrix()[i][j].get_data())
+                elif self._type == mat_gso_mpz_mpfr:
+                    for i in range(self.d):
+                        for j in range(self.d):
+                            G[i, j] = mpz_get_python(self._core.mpz_mpfr.get_g_matrix()[i][j].get_data())
+                else:
+                    IF HAVE_QD:
+                        if self._type == mat_gso_mpz_dd:
+                            for i in range(self.d):
+                                for j in range(self.d):
+                                    G[i, j] = mpz_get_python(self._core.mpz_dd.get_g_matrix()[i][j].get_data())
+                        elif self._type == mat_gso_mpz_qd:
+                            for i in range(self.d):
+                                for j in range(self.d):
+                                    G[i, j] = mpz_get_python(self._core.mpz_qd.get_g_matrix()[i][j].get_data())
+                        else:
+                            raise RuntimeError("MatGSO object '%s' has no core."%self)
+                    ELSE:
+                        raise RuntimeError("MatGSO object '%s' has no core."%self)
+                return G
+            elif self.int_type == "long":
+                G = IntegerMatrix(self.d, self.d, int_type="long")
+                if self._type == mat_gso_long_d:
+                    for i in range(self.d):
+                        for j in range(self.d):
+                            G[i, j] = self._core.long_d.get_g_matrix()[i][j].get_data()
+                elif self._type == mat_gso_long_ld:
+                    for i in range(self.d):
+                        for j in range(self.d):
+                            G[i, j] = self._core.long_ld.get_g_matrix()[i][j].get_data()
+                elif self._type == mat_gso_long_dpe:
+                    for i in range(self.d):
+                        for j in range(self.d):
+                            G[i, j] = self._core.long_dpe.get_g_matrix()[i][j].get_data()
+                elif self._type == mat_gso_long_mpfr:
+                    for i in range(self.d):
+                        for j in range(self.d):
+                            G[i, j] = self._core.long_mpfr.get_g_matrix()[i][j].get_data()
+                else:
+                    IF HAVE_QD:
+                        if self._type == mat_gso_long_dd:
+                            for i in range(self.d):
+                                for j in range(self.d):
+                                    G[i, j] = self._core.long_dd.get_g_matrix()[i][j].get_data()
+                        elif self._type == mat_gso_long_qd:
+                            for i in range(self.d):
+                                for j in range(self.d):
+                                    G[i, j] = self._core.long_qd.get_g_matrix()[i][j].get_data()
+                        else:
+                            raise RuntimeError("MatGSO object '%s' has no core."%self)
+                    ELSE:
+                        raise RuntimeError("MatGSO object '%s' has no core."%self)
+                return G
+
+        else:
+            raise NotImplementedError("Computing the Gram Matrix currently requires GSO.INT_GRAM")
 
     @property
     def float_type(self):
@@ -916,7 +1031,7 @@ cdef class MatGSO:
         >>> M.update_gso()
         True
         >>> M.get_r(1, 0)
-        483.0
+        1669.0
 
         """
         preprocess_indices(i, j, self.d, self.d)
