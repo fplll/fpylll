@@ -31,7 +31,7 @@ from fplll cimport GSO_INT_GRAM
 from fplll cimport GSO_OP_FORCE_LONG
 from fplll cimport GSO_ROW_EXPO
 from fplll cimport Z_NR, FP_NR, Matrix
-from fplll cimport MatGSO as MatGSO_c, MatGSOInterface as MatGSOInterface_c
+from fplll cimport MatGSO as MatGSO_c, MatGSOGram as MatGSOGram_c, MatGSOInterface as MatGSOInterface_c
 from fplll cimport dpe_t
 from fplll cimport get_current_slope
 from fpylll.gmp.mpz cimport mpz_t
@@ -89,7 +89,7 @@ cdef class MatGSO:
     """
 
     def __init__(self, IntegerMatrix B, U=None, UinvT=None,
-                 int flags=GSO_DEFAULT, float_type="double"):
+                 int flags=GSO_DEFAULT, float_type="double", gram=False):
         """
         :param IntegerMatrix B: The matrix on which row operations are performed.  It must not be
             empty.
@@ -119,6 +119,8 @@ cdef class MatGSO:
         :param float_type: A floating point type, i.e. an element of ``fpylll.fpylll.float_types``.
             If ``float_type="mpfr"`` set precision with ``set_precision()`` before constructing this
             object and do not change the precision during the lifetime of this object.
+
+        :param gram: The input ``B`` is a Gram matrix of the lattice, rather than a basis.
 
         Note that matching integer types for ``B``, ``U`` and ``UinvT`` are enforced::
 
@@ -168,66 +170,126 @@ cdef class MatGSO:
 
         cdef FloatType float_type_ = check_float_type(float_type)
 
-        self._alg = mat_gso_gso_t
+        if not gram:
+            self._alg = mat_gso_gso_t
 
-        if B._type == ZT_MPZ:
-            if float_type_ == FT_DOUBLE:
-                self._type = mat_gso_mpz_d
-                self._core.mpz_d = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[d_t]]*>new MatGSO_c[Z_NR[mpz_t],FP_NR[d_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
-            elif float_type_ == FT_LONG_DOUBLE:
-                IF HAVE_LONG_DOUBLE:
-                    self._type = mat_gso_mpz_ld
-                    self._core.mpz_ld = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[ld_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
-                ELSE:
-                    raise ValueError("Float type '%s' not understood." % float_type)
-            elif float_type_ == FT_DPE:
-                self._type = mat_gso_mpz_dpe
-                self._core.mpz_dpe = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[dpe_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[dpe_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
-            elif float_type_ == FT_MPFR:
-                self._type = mat_gso_mpz_mpfr
-                self._core.mpz_mpfr = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[mpfr_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[mpfr_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
-            else:
-                IF HAVE_QD:
-                    if float_type_ == FT_DD:
-                        self._type = mat_gso_mpz_dd
-                        self._core.mpz_dd = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[dd_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[dd_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
-                    elif float_type_ == FT_QD:
-                        self._type = mat_gso_mpz_qd
-                        self._core.mpz_qd = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[qd_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[qd_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
-                    else:
+            if B._type == ZT_MPZ:
+                if float_type_ == FT_DOUBLE:
+                    self._type = mat_gso_mpz_d
+                    self._core.mpz_d = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[d_t]]*>new MatGSO_c[Z_NR[mpz_t],FP_NR[d_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                elif float_type_ == FT_LONG_DOUBLE:
+                    IF HAVE_LONG_DOUBLE:
+                        self._type = mat_gso_mpz_ld
+                        self._core.mpz_ld = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[ld_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                    ELSE:
+                        raise ValueError("Float type '%s' not understood." % float_type)
+                elif float_type_ == FT_DPE:
+                    self._type = mat_gso_mpz_dpe
+                    self._core.mpz_dpe = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[dpe_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[dpe_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                elif float_type_ == FT_MPFR:
+                    self._type = mat_gso_mpz_mpfr
+                    self._core.mpz_mpfr = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[mpfr_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[mpfr_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                else:
+                    IF HAVE_QD:
+                        if float_type_ == FT_DD:
+                            self._type = mat_gso_mpz_dd
+                            self._core.mpz_dd = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[dd_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[dd_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                        elif float_type_ == FT_QD:
+                            self._type = mat_gso_mpz_qd
+                            self._core.mpz_qd = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[qd_t]]*> new MatGSO_c[Z_NR[mpz_t],FP_NR[qd_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                        else:
+                            raise ValueError("Float type '%s' not understood."%float_type)
+                    ELSE:
                         raise ValueError("Float type '%s' not understood."%float_type)
-                ELSE:
-                    raise ValueError("Float type '%s' not understood."%float_type)
-        elif B._type == ZT_LONG:
-            if float_type_ == FT_DOUBLE:
-                self._type = mat_gso_long_d
-                self._core.long_d = <MatGSOInterface_c[Z_NR[long],FP_NR[d_t]]*> new MatGSO_c[Z_NR[long],FP_NR[d_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
-            elif float_type_ == FT_LONG_DOUBLE:
-                IF HAVE_LONG_DOUBLE:
-                    self._type = mat_gso_long_ld
-                    self._core.long_ld = <MatGSOInterface_c[Z_NR[long],FP_NR[ld_t]]*> new MatGSO_c[Z_NR[long],FP_NR[ld_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
-                ELSE:
-                    raise ValueError("Float type '%s' not understood." % float_type)
-            elif float_type_ == FT_DPE:
-                self._type = mat_gso_long_dpe
-                self._core.long_dpe = <MatGSOInterface_c[Z_NR[long],FP_NR[dpe_t]]*> new MatGSO_c[Z_NR[long],FP_NR[dpe_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
-            elif float_type_ == FT_MPFR:
-                self._type = mat_gso_long_mpfr
-                self._core.long_mpfr = <MatGSOInterface_c[Z_NR[long],FP_NR[mpfr_t]]*>new MatGSO_c[Z_NR[long],FP_NR[mpfr_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
-            else:
-                IF HAVE_QD:
-                    if float_type_ == FT_DD:
-                        self._type = mat_gso_long_dd
-                        self._core.long_dd = <MatGSOInterface_c[Z_NR[long],FP_NR[dd_t]]*>new MatGSO_c[Z_NR[long],FP_NR[dd_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
-                    elif float_type_ == FT_QD:
-                        self._type = mat_gso_long_qd
-                        self._core.long_qd = <MatGSOInterface_c[Z_NR[long],FP_NR[qd_t]]*>new MatGSO_c[Z_NR[long],FP_NR[qd_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
-                    else:
+            elif B._type == ZT_LONG:
+                if float_type_ == FT_DOUBLE:
+                    self._type = mat_gso_long_d
+                    self._core.long_d = <MatGSOInterface_c[Z_NR[long],FP_NR[d_t]]*> new MatGSO_c[Z_NR[long],FP_NR[d_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                elif float_type_ == FT_LONG_DOUBLE:
+                    IF HAVE_LONG_DOUBLE:
+                        self._type = mat_gso_long_ld
+                        self._core.long_ld = <MatGSOInterface_c[Z_NR[long],FP_NR[ld_t]]*> new MatGSO_c[Z_NR[long],FP_NR[ld_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                    ELSE:
+                        raise ValueError("Float type '%s' not understood." % float_type)
+                elif float_type_ == FT_DPE:
+                    self._type = mat_gso_long_dpe
+                    self._core.long_dpe = <MatGSOInterface_c[Z_NR[long],FP_NR[dpe_t]]*> new MatGSO_c[Z_NR[long],FP_NR[dpe_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                elif float_type_ == FT_MPFR:
+                    self._type = mat_gso_long_mpfr
+                    self._core.long_mpfr = <MatGSOInterface_c[Z_NR[long],FP_NR[mpfr_t]]*>new MatGSO_c[Z_NR[long],FP_NR[mpfr_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                else:
+                    IF HAVE_QD:
+                        if float_type_ == FT_DD:
+                            self._type = mat_gso_long_dd
+                            self._core.long_dd = <MatGSOInterface_c[Z_NR[long],FP_NR[dd_t]]*>new MatGSO_c[Z_NR[long],FP_NR[dd_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                        elif float_type_ == FT_QD:
+                            self._type = mat_gso_long_qd
+                            self._core.long_qd = <MatGSOInterface_c[Z_NR[long],FP_NR[qd_t]]*>new MatGSO_c[Z_NR[long],FP_NR[qd_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                        else:
+                            raise ValueError("Float type '%s' not understood."%float_type)
+                    ELSE:
                         raise ValueError("Float type '%s' not understood."%float_type)
-                ELSE:
-                    raise ValueError("Float type '%s' not understood."%float_type)
+            self.B = B
+        else:
+            self._alg = mat_gso_gram_t
 
-        self.B = B
+            if B._type == ZT_MPZ:
+                if float_type_ == FT_DOUBLE:
+                    self._type = mat_gso_mpz_d
+                    self._core.mpz_d = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[d_t]]*>new MatGSOGram_c[Z_NR[mpz_t],FP_NR[d_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                elif float_type_ == FT_LONG_DOUBLE:
+                    IF HAVE_LONG_DOUBLE:
+                        self._type = mat_gso_mpz_ld
+                        self._core.mpz_ld = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[ld_t]]*> new MatGSOGram_c[Z_NR[mpz_t],FP_NR[ld_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                    ELSE:
+                        raise ValueError("Float type '%s' not understood." % float_type)
+                elif float_type_ == FT_DPE:
+                    self._type = mat_gso_mpz_dpe
+                    self._core.mpz_dpe = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[dpe_t]]*> new MatGSOGram_c[Z_NR[mpz_t],FP_NR[dpe_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                elif float_type_ == FT_MPFR:
+                    self._type = mat_gso_mpz_mpfr
+                    self._core.mpz_mpfr = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[mpfr_t]]*> new MatGSOGram_c[Z_NR[mpz_t],FP_NR[mpfr_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                else:
+                    IF HAVE_QD:
+                        if float_type_ == FT_DD:
+                            self._type = mat_gso_mpz_dd
+                            self._core.mpz_dd = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[dd_t]]*> new MatGSOGram_c[Z_NR[mpz_t],FP_NR[dd_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                        elif float_type_ == FT_QD:
+                            self._type = mat_gso_mpz_qd
+                            self._core.mpz_qd = <MatGSOInterface_c[Z_NR[mpz_t],FP_NR[qd_t]]*> new MatGSOGram_c[Z_NR[mpz_t],FP_NR[qd_t]](b_m[0], u_m[0], u_inv_t_m[0], flags)
+                        else:
+                            raise ValueError("Float type '%s' not understood."%float_type)
+                    ELSE:
+                        raise ValueError("Float type '%s' not understood."%float_type)
+            elif B._type == ZT_LONG:
+                if float_type_ == FT_DOUBLE:
+                    self._type = mat_gso_long_d
+                    self._core.long_d = <MatGSOInterface_c[Z_NR[long],FP_NR[d_t]]*> new MatGSOGram_c[Z_NR[long],FP_NR[d_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                elif float_type_ == FT_LONG_DOUBLE:
+                    IF HAVE_LONG_DOUBLE:
+                        self._type = mat_gso_long_ld
+                        self._core.long_ld = <MatGSOInterface_c[Z_NR[long],FP_NR[ld_t]]*> new MatGSOGram_c[Z_NR[long],FP_NR[ld_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                    ELSE:
+                        raise ValueError("Float type '%s' not understood." % float_type)
+                elif float_type_ == FT_DPE:
+                    self._type = mat_gso_long_dpe
+                    self._core.long_dpe = <MatGSOInterface_c[Z_NR[long],FP_NR[dpe_t]]*> new MatGSOGram_c[Z_NR[long],FP_NR[dpe_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                elif float_type_ == FT_MPFR:
+                    self._type = mat_gso_long_mpfr
+                    self._core.long_mpfr = <MatGSOInterface_c[Z_NR[long],FP_NR[mpfr_t]]*>new MatGSOGram_c[Z_NR[long],FP_NR[mpfr_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                else:
+                    IF HAVE_QD:
+                        if float_type_ == FT_DD:
+                            self._type = mat_gso_long_dd
+                            self._core.long_dd = <MatGSOInterface_c[Z_NR[long],FP_NR[dd_t]]*>new MatGSOGram_c[Z_NR[long],FP_NR[dd_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                        elif float_type_ == FT_QD:
+                            self._type = mat_gso_long_qd
+                            self._core.long_qd = <MatGSOInterface_c[Z_NR[long],FP_NR[qd_t]]*>new MatGSOGram_c[Z_NR[long],FP_NR[qd_t]](b_l[0], u_l[0], u_inv_t_l[0], flags)
+                        else:
+                            raise ValueError("Float type '%s' not understood."%float_type)
+                    ELSE:
+                        raise ValueError("Float type '%s' not understood."%float_type)
+            self.G = B
 
     def __dealloc__(self):
         # TODO check if we need to cast before delete
@@ -1718,6 +1780,9 @@ cdef class MatGSO:
         """
         cdef Py_ssize_t i, j, d
 
+        if self._alg != mat_gso_gram_t:
+            raise TypeError("This function is only defined for GSO objects over a basis")
+
         if dimension == -1:
             d = self.d - start
         else:
@@ -1749,6 +1814,8 @@ cdef class MatGSO:
         :returns: a tuple of dimension ``M.B.ncols``
 
         """
+        if self._alg != mat_gso_gram_t:
+            raise TypeError("This function is only defined for GSO objects over a basis")
 
         cdef list vv = list(v)
         cdef Py_ssize_t i, j
