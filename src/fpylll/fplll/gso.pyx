@@ -292,36 +292,128 @@ cdef class MatGSO:
             self.G = B
 
     def __dealloc__(self):
-        # TODO check if we need to cast before delete
-        if self._type == mat_gso_long_d:
-            del self._core.long_d
+        # We are making sure the correct destructor is called, even when it's not virtual, by explicit casting
+        cdef MatGSO_c[Z_NR[long], FP_NR[double]]* gso_long_d
         IF HAVE_LONG_DOUBLE:
-            if self._type == mat_gso_long_ld:
-                del self._core.long_ld
-        if self._type == mat_gso_long_dpe:
-            del self._core.long_dpe
+            cdef MatGSO_c[Z_NR[long], FP_NR[ld_t]]* gso_long_ld
+        cdef MatGSO_c[Z_NR[long], FP_NR[dpe_t]]* gso_long_dpe
         IF HAVE_QD:
-            if self._type == mat_gso_long_dd:
-                del self._core.long_dd
-            if self._type == mat_gso_long_qd:
-                del self._core.long_qd
-        if self._type == mat_gso_long_mpfr:
-            del self._core.long_mpfr
+            cdef MatGSO_c[Z_NR[long], FP_NR[dd_t]]* gso_long_dd
+            cdef MatGSO_c[Z_NR[long], FP_NR[qd_t]]* gso_long_qd
+        cdef MatGSO_c[Z_NR[long], FP_NR[mpfr_t]]* gso_long_mpfr
 
-        if self._type == mat_gso_mpz_d:
-            del self._core.mpz_d
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[double]]* gso_mpz_d
         IF HAVE_LONG_DOUBLE:
-            if self._type == mat_gso_mpz_ld:
-                del self._core.mpz_ld
-        if self._type == mat_gso_mpz_dpe:
-            del self._core.mpz_dpe
+            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[ld_t]]* gso_mpz_ld
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]]* gso_mpz_dpe
         IF HAVE_QD:
-            if self._type == mat_gso_mpz_dd:
-                del self._core.mpz_dd
-            if self._type == mat_gso_mpz_qd:
-                del self._core.mpz_qd
-        if self._type == mat_gso_mpz_mpfr:
-            del self._core.mpz_mpfr
+            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_t]]* gso_mpz_dd
+            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_t]]* gso_mpz_qd
+        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]* gso_mpz_mpfr
+
+        cdef MatGSOGram_c[Z_NR[long], FP_NR[double]]* gram_long_d
+        IF HAVE_LONG_DOUBLE:
+            cdef MatGSOGram_c[Z_NR[long], FP_NR[ld_t]]* gram_long_ld
+        cdef MatGSOGram_c[Z_NR[long], FP_NR[dpe_t]]* gram_long_dpe
+        IF HAVE_QD:
+            cdef MatGSOGram_c[Z_NR[long], FP_NR[dd_t]]* gram_long_dd
+            cdef MatGSOGram_c[Z_NR[long], FP_NR[qd_t]]* gram_long_qd
+        cdef MatGSOGram_c[Z_NR[long], FP_NR[mpfr_t]]* gram_long_mpfr
+
+        cdef MatGSOGram_c[Z_NR[mpz_t], FP_NR[double]]* gram_mpz_d
+        IF HAVE_LONG_DOUBLE:
+            cdef MatGSOGram_c[Z_NR[mpz_t], FP_NR[ld_t]]* gram_mpz_ld
+        cdef MatGSOGram_c[Z_NR[mpz_t], FP_NR[dpe_t]]* gram_mpz_dpe
+        IF HAVE_QD:
+            cdef MatGSOGram_c[Z_NR[mpz_t], FP_NR[dd_t]]* gram_mpz_dd
+            cdef MatGSOGram_c[Z_NR[mpz_t], FP_NR[qd_t]]* gram_mpz_qd
+        cdef MatGSOGram_c[Z_NR[mpz_t], FP_NR[mpfr_t]]* gram_mpz_mpfr
+
+        if self._alg == mat_gso_gso_t:
+            if self._type == mat_gso_long_d:
+                gso_long_d = <MatGSO_c[Z_NR[long], FP_NR[double]]*>self._core.long_d
+                del gso_long_d
+            IF HAVE_LONG_DOUBLE:
+                if self._type == mat_gso_long_ld:
+                    gso_long_ld = <MatGSO_c[Z_NR[long], FP_NR[ld_t]]*>self._core.long_ld
+                    del gso_long_ld
+            if self._type == mat_gso_long_dpe:
+                gso_long_dpe = <MatGSO_c[Z_NR[long], FP_NR[dpe_t]]*>self._core.long_dpe
+                del gso_long_dpe
+            IF HAVE_QD:
+                if self._type == mat_gso_long_dd:
+                    gso_long_dd = <MatGSO_c[Z_NR[long], FP_NR[dd_t]]*>self._core.long_dd
+                    del gso_long_dd
+                if self._type == mat_gso_long_qd:
+                    gso_long_qd = <MatGSO_c[Z_NR[long], FP_NR[qd_t]]*>self._core.long_qd
+                    del gso_long_qd
+            if self._type == mat_gso_long_mpfr:
+                gso_long_mpfr = <MatGSO_c[Z_NR[long], FP_NR[mpfr_t]]*>self._core.long_mpfr
+                del gso_long_mpfr
+
+            if self._type == mat_gso_mpz_d:
+                gso_mpz_d = <MatGSO_c[Z_NR[mpz_t], FP_NR[double]]*>self._core.mpz_d
+                del gso_mpz_d
+            IF HAVE_LONG_DOUBLE:
+                if self._type == mat_gso_mpz_ld:
+                    gso_mpz_ld = <MatGSO_c[Z_NR[mpz_t], FP_NR[ld_t]]*>self._core.mpz_ld
+                    del gso_mpz_ld
+            if self._type == mat_gso_mpz_dpe:
+                gso_mpz_dpe = <MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]]*>self._core.mpz_dpe
+                del gso_mpz_dpe
+            IF HAVE_QD:
+                if self._type == mat_gso_mpz_dd:
+                    gso_mpz_dd = <MatGSO_c[Z_NR[mpz_t], FP_NR[dd_t]]*>self._core.mpz_dd
+                    del gso_mpz_dd
+                if self._type == mat_gso_mpz_qd:
+                    gso_mpz_qd = <MatGSO_c[Z_NR[mpz_t], FP_NR[qd_t]]*>self._core.mpz_qd
+                    del gso_mpz_qd
+            if self._type == mat_gso_mpz_mpfr:
+                gso_mpz_mpfr = <MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]*>self._core.mpz_mpfr
+                del gso_mpz_mpfr
+        elif self._alg == mat_gso_gram_t:
+            if self._type == mat_gso_long_d:
+                gram_long_d = <MatGSOGram_c[Z_NR[long], FP_NR[double]]*>self._core.long_d
+                del gram_long_d
+            IF HAVE_LONG_DOUBLE:
+                if self._type == mat_gso_long_ld:
+                    gram_long_ld = <MatGSOGram_c[Z_NR[long], FP_NR[ld_t]]*>self._core.long_ld
+                    del gram_long_ld
+            if self._type == mat_gso_long_dpe:
+                gram_long_dpe = <MatGSOGram_c[Z_NR[long], FP_NR[dpe_t]]*>self._core.long_dpe
+                del gram_long_dpe
+            IF HAVE_QD:
+                if self._type == mat_gso_long_dd:
+                    gram_long_dd = <MatGSOGram_c[Z_NR[long], FP_NR[dd_t]]*>self._core.long_dd
+                    del gram_long_dd
+                if self._type == mat_gso_long_qd:
+                    gram_long_qd = <MatGSOGram_c[Z_NR[long], FP_NR[qd_t]]*>self._core.long_qd
+                    del gram_long_qd
+            if self._type == mat_gso_long_mpfr:
+                gram_long_mpfr = <MatGSOGram_c[Z_NR[long], FP_NR[mpfr_t]]*>self._core.long_mpfr
+                del gram_long_mpfr
+
+            if self._type == mat_gso_mpz_d:
+                gram_mpz_d = <MatGSOGram_c[Z_NR[mpz_t], FP_NR[double]]*>self._core.mpz_d
+                del gram_mpz_d
+            IF HAVE_LONG_DOUBLE:
+                if self._type == mat_gso_mpz_ld:
+                    gram_mpz_ld = <MatGSOGram_c[Z_NR[mpz_t], FP_NR[ld_t]]*>self._core.mpz_ld
+                    del gram_mpz_ld
+            if self._type == mat_gso_mpz_dpe:
+                gram_mpz_dpe = <MatGSOGram_c[Z_NR[mpz_t], FP_NR[dpe_t]]*>self._core.mpz_dpe
+                del gram_mpz_dpe
+            IF HAVE_QD:
+                if self._type == mat_gso_mpz_dd:
+                    gram_mpz_dd = <MatGSOGram_c[Z_NR[mpz_t], FP_NR[dd_t]]*>self._core.mpz_dd
+                    del gram_mpz_dd
+                if self._type == mat_gso_mpz_qd:
+                    gram_mpz_qd = <MatGSOGram_c[Z_NR[mpz_t], FP_NR[qd_t]]*>self._core.mpz_qd
+                    del gram_mpz_qd
+            if self._type == mat_gso_mpz_mpfr:
+                gram_mpz_mpfr = <MatGSOGram_c[Z_NR[mpz_t], FP_NR[mpfr_t]]*>self._core.mpz_mpfr
+                del gram_mpz_mpfr
+
 
     def __reduce__(self):
         """
