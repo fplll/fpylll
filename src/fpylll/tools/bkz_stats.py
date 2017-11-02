@@ -11,7 +11,7 @@ from __future__ import absolute_import
 import time
 import copy
 from collections import OrderedDict
-from math import log, sqrt
+from math import log
 from fpylll.tools.quality import basis_quality
 
 
@@ -731,7 +731,7 @@ class BKZTreeTracer(Tracer):
         if label == "enumeration":
             full = kwds.get("full", True)
             if full:
-                node.data["#enum"] = Accumulator(kwds["enum_obj"].get_nodes(), repr="sum") + node.data.get("#enum", None)
+                node.data["#enum"] = Accumulator(kwds["enum_obj"].get_nodes(), repr="sum") + node.data.get("#enum", None)  # noqa
                 try:
                     node.data["%"] = Accumulator(kwds["probability"], repr="avg") + node.data.get("%", None)
                 except KeyError:
