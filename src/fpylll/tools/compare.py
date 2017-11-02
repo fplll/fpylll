@@ -218,7 +218,7 @@ class Conductor(object):
             for tag in inputs:
                 major, minor = tag
                 try:
-                    res = apply(play, inputs[tag])
+                    res = play(*inputs[tag])
                     current[major].append((minor, res))
                     self.logger.debug(fmtstr%(major, minor, pretty_dict(res.data)))
 
