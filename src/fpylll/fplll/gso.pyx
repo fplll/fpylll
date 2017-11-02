@@ -1780,7 +1780,7 @@ cdef class MatGSO:
         """
         cdef Py_ssize_t i, j, d
 
-        if self._alg != mat_gso_gram_t:
+        if self._alg != mat_gso_gso_t:
             raise TypeError("This function is only defined for GSO objects over a basis")
 
         if dimension == -1:
@@ -1814,7 +1814,7 @@ cdef class MatGSO:
         :returns: a tuple of dimension ``M.B.ncols``
 
         """
-        if self._alg != mat_gso_gram_t:
+        if self._alg != mat_gso_gso_t:
             raise TypeError("This function is only defined for GSO objects over a basis")
 
         cdef list vv = list(v)
