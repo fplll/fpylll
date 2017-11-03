@@ -7,17 +7,22 @@ from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fpylll.fplll.fplll cimport IntType, ZT_LONG, ZT_MPZ
 from fpylll.fplll.fplll cimport adjust_radius_to_gh_bound as adjust_radius_to_gh_bound_c
+from fpylll.fplll.fplll cimport set_external_enumerator as set_external_enumerator_c
+from fpylll.fplll.fplll cimport extenum_fc_enumerate
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
 from fpylll.fplll.fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS, PrunerMetric
 from fpylll.fplll.gso cimport MatGSO
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
 from math import log, exp, lgamma, pi
-
+from libcpp.functional cimport function
 
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
     from fpylll.fplll.fplll cimport FT_DD, FT_QD
+
+cdef extern from "util_helper.h":
+    function[extenum_fc_enumerate] void_ptr_to_function(void *ptr)
 
 
 float_aliases = {'d': 'double',
@@ -241,7 +246,51 @@ def gaussian_heuristic(r):
     log_gh =  1./n * (log_vol - 2 * ball_log_vol(n))
     return exp(log_gh)
 
+cpdef set_external_enumerator(enumerator):
+    """
+    Set an external enumeration library.
+
+    For example, assume you compiled a `fplll-extenum
+    <https://github.com/cr-marcstevens/fplll-extenum>`_
+
+    First, we load the required Python modules: fpylll and `ctypes
+    <https://docs.python.org/2/library/ctypes.html>`_
+
+    >>> from fpylll import *  # doctest: +SKIP
+    >>> import ctypes         # doctest: +SKIP
+
+    Then, using ``ctypes`` we dlopen ``enumlib.so``
+
+    >>> enumlib = ctypes.cdll.LoadLibrary("enumlib.so") # doctest: +SKIP
+
+    For demonstration purposes we increase the loglevel. Note that functions names are result of C++
+    compiler name mangling and may differ depending on platform/compiler/linker.
+
+    >>> enumlib._Z20enumlib_set_logleveli(1)            # doctest: +SKIP
+
+    We grab the external enumeration function
+
+    >>> fn = enumlib._Z17enumlib_enumerateidSt8functionIFvPdmbS0_S0_EES_IFddS0_EES_IFvdS0_iEEbb # doctest: +SKIP
+
+    and pass it to Fplll
+
+    >>> FPLLL.set_external_enumerator(fn)  # doctest: +SKIP
+
+    To disable the external enumeration library, call
+
+    >>> FPLLL.set_external_enumerator(None)  # doctest: +SKIP
+
+    """
+    import ctypes
+    cdef unsigned long p
+    if not enumerator:
+        set_external_enumerator_c(<function[extenum_fc_enumerate]>NULL)
+    elif isinstance(enumerator, ctypes._CFuncPtr):
+        p = ctypes.cast(enumerator, ctypes.c_void_p).value
+        set_external_enumerator_c(void_ptr_to_function(<void *>p))
+
 class FPLLL:
     set_precision = staticmethod(set_precision)
     get_precision = staticmethod(get_precision)
     set_random_seed = staticmethod(set_random_seed)
+    set_external_enumerator = staticmethod(set_external_enumerator)
