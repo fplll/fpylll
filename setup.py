@@ -25,6 +25,11 @@ import Cython.Build
 
 from copy import copy
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = OSError  # Python 2 workaround
+
 
 # CONFIG VARIABLES
 
@@ -61,7 +66,7 @@ try:
     libs = subprocess.check_output(["pkg-config", "fplll", "--libs"])
     if b"-lqd" in libs:
         have_qd = True
-except subprocess.CalledProcessError:
+except (subprocess.CalledProcessError, FileNotFoundError):
     pass
 
 if have_qd:
