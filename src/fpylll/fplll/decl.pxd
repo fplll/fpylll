@@ -396,9 +396,9 @@ ELSE:
             Enumeration[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union enumeration_core_t:
-            Enumeration[FP_NR[d_t]] *d
-            Enumeration[FP_NR[dpe_t]] *dpe
-            Enumeration[FP_NR[mpfr_t]] *mpfr
+            Enumeration[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            Enumeration[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            Enumeration[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
             Enumeration[Z_NR[long], FP_NR[d_t]] *long_d
             Enumeration[Z_NR[long], FP_NR[dpe_t]] *long_dpe
             Enumeration[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
