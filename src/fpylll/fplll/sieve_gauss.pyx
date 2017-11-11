@@ -10,8 +10,8 @@ ACM-SIAM.
 
 Example::
 
-    >>> from fpylll import IntegerMatrix, GaussSieve, SVP, LLL, set_random_seed
-    >>> set_random_seed(1337)
+    >>> from fpylll import IntegerMatrix, GaussSieve, SVP, LLL, FPLLL
+    >>> FPLLL.set_random_seed(1337)
     >>> A = IntegerMatrix.random(20, "qary", k=10, q=127); A = LLL.reduction(A)
     >>> w = SVP.shortest_vector(A)
     >>> v = GaussSieve(A, algorithm=2)()

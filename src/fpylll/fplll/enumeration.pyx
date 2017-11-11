@@ -446,7 +446,7 @@ cdef class Enumeration:
         Return sub-solutions computed in last enumeration call.
 
         >>> from fpylll import *
-        >>> set_random_seed(1337)
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix.random(80, "qary", bits=30, k=40)
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
