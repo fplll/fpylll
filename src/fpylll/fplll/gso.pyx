@@ -432,8 +432,8 @@ cdef class MatGSO:
           construct the Gram matrix and return it
         - Otherwise, a ``NotImplementedError`` is raised
 
-        >>> from fpylll import IntegerMatrix, GSO, set_random_seed
-        >>> set_random_seed(1337)
+        >>> from fpylll import IntegerMatrix, GSO, FPLLL
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix.random(10, "qary", k=5, bits=10)
         >>> M = GSO.Mat(A, flags=GSO.INT_GRAM); _ = M.update_gso()
         >>> G = M.G
@@ -1028,7 +1028,7 @@ cdef class MatGSO:
         :param j:
 
         >>> from fpylll import *
-        >>> set_random_seed(0)
+        >>> FPLLL.set_random_seed(0)
         >>> A = IntegerMatrix.random(5, "uniform", bits=5)
         >>> M = GSO.Mat(A)
         >>> M.update_gso()
