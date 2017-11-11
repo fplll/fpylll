@@ -11,7 +11,7 @@ include "fpylll/config.pxi"
 from cpython cimport PyIndex_Check
 from cysignals.signals cimport sig_on, sig_off
 
-from fplll cimport Matrix, MatrixRow, sqr_norm, Z_NR
+from fplll cimport Matrix, MatrixRow, Z_NR
 from fpylll.util cimport preprocess_indices, check_int_type
 from fpylll.io cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
 
@@ -126,10 +126,10 @@ cdef class IntegerMatrixRow:
 
         # TODO: don't just use doubles
         if self.m._type == ZT_MPZ:
-            sqr_norm[Z_NR[mpz_t]](t_mpz, self.m._core.mpz[0][self.row], self.m._ncols())
+            self.m._core.mpz[0][self.row].dot_product(t_mpz, self.m._core.mpz[0][self.row])
             return sqrt(t_mpz.get_d())
         elif self.m._type == ZT_LONG:
-            sqr_norm[Z_NR[long]](t_l, self.m._core.long[0][self.row], self.m._ncols())
+            self.m._core.long[0][self.row].dot_product(t_l, self.m._core.long[0][self.row])
             return sqrt(t_l.get_d())
         else:
             raise RuntimeError("Integer type '%s' not understood."%self._m._type)

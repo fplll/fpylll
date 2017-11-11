@@ -321,6 +321,9 @@ cdef extern from "fplll/nr/matrix.h" namespace "fplll":
         void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, T& tmp) nogil
         void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, int n, T& tmp) nogil
 
+        void dot_product(T &result, const MatrixRow[T] &v0) nogil
+        void dot_product(T &result, const MatrixRow[T] &v0, int n) nogil
+
     void dot_product[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2, int n) nogil
     void dot_product[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2) nogil
 
@@ -734,7 +737,6 @@ cdef extern from "fplll/util.h" namespace "fplll":
                                vector[Z_NR[mpz_t]] &x,
                                const ZZ_mat[mpz_t] &m) nogil
 
-    void sqr_norm[T](T& result, const MatrixRow[T]& v, int n) nogil
 
 
 
