@@ -10,6 +10,7 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.pair cimport pair
 from libcpp cimport bool
+from libcpp.functional cimport function
 
 
 cdef extern from "<map>" namespace "std":
@@ -319,6 +320,9 @@ cdef extern from "fplll/nr/matrix.h" namespace "fplll":
         void addmul_si(const MatrixRow[T]& v, long x, int n) nogil
         void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, T& tmp) nogil
         void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, int n, T& tmp) nogil
+
+        void dot_product(T &result, const MatrixRow[T] &v0) nogil
+        void dot_product(T &result, const MatrixRow[T] &v0, int n) nogil
 
     void dot_product[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2, int n) nogil
     void dot_product[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2) nogil
@@ -681,6 +685,22 @@ cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
 
         long get_nodes()
 
+cdef extern from "fplll/enum/enumerate_ext.h" namespace "fplll":
+
+    ctypedef void extenum_cb_set_config (double *mu, size_t mudim, bool mutranspose, double *rdiag,
+                                         double *pruning)
+
+    ctypedef double extenum_cb_process_sol(double dist, double *sol);
+
+    ctypedef void extenum_cb_process_subsol(double dist, double *subsol, int offset);
+
+    ctypedef unsigned long extenum_fc_enumerate(int dim, enumf maxdist,
+                                                function[extenum_cb_set_config] cbfunc,
+                                                function[extenum_cb_process_sol] cbsol,
+                                                function[extenum_cb_process_subsol] cbsubsol,
+                                                bool dual, bool findsubsols)
+
+    void set_external_enumerator(function[extenum_fc_enumerate] extenum)
 
 
 # SVP
@@ -816,7 +836,6 @@ cdef extern from "fplll/util.h" namespace "fplll":
                                vector[Z_NR[mpz_t]] &x,
                                const ZZ_mat[mpz_t] &m) nogil
 
-    void sqr_norm[T](T& result, const MatrixRow[T]& v, int n) nogil
 
 
 

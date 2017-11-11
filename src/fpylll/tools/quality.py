@@ -32,8 +32,8 @@ def basis_quality(M):
 
     :example:
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, set_random_seed
-        >>> set_random_seed(1337)
+        >>> from fpylll import IntegerMatrix, GSO, LLL, FPLLL
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix.random(100, "qary", bits=30, k=50)
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A); _ = M.update_gso()

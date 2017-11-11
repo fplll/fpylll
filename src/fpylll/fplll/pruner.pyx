@@ -5,7 +5,7 @@ Pruner
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 
     >>> from fpylll import *
-    >>> set_random_seed(1337)
+    >>> FPLLL.set_random_seed(1337)
     >>> A = [IntegerMatrix.random(10, "qary", bits=10, k=5) for _ in range(20)]
     >>> M = [GSO.Mat(a) for a in A]
     >>> _ = [LLL.Reduction(m)() for m in M]
@@ -41,7 +41,7 @@ from fplll cimport svp_probability as svp_probability_c
 from fplll cimport PRUNER_CVP, PRUNER_START_FROM_INPUT, PRUNER_GRADIENT, PRUNER_NELDER_MEAD, PRUNER_VERBOSE
 
 
-from fpylll.util import adjust_radius_to_gh_bound, precision, get_precision
+from fpylll.util import adjust_radius_to_gh_bound, precision, FPLLL
 from fpylll.util cimport check_float_type, check_precision, check_pruner_metric
 
 IF HAVE_LONG_DOUBLE:
@@ -236,8 +236,8 @@ cdef class Pruner:
         :param flags:              flags
         :param float_type:         floating point type to use
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, set_random_seed
-        >>> set_random_seed(1337)
+        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
@@ -347,8 +347,8 @@ cdef class Pruner:
         """
         Optimize pruning coefficients.
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, set_random_seed
-        >>> set_random_seed(1337)
+        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
@@ -414,8 +414,8 @@ cdef class Pruner:
         """
         Compute the cost of a single enumeration
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, set_random_seed
-        >>> set_random_seed(1337)
+        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
@@ -490,8 +490,8 @@ cdef class Pruner:
         Compute the cost of r enumeration and (r-1) preprocessing, where r is the required number of
         retrials to reach target
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, set_random_seed
-        >>> set_random_seed(1337)
+        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
@@ -552,8 +552,8 @@ cdef class Pruner:
         """
         Compute the success probability of expected number of solutions of a single enumeration.
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, set_random_seed
-        >>> set_random_seed(1337)
+        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
@@ -621,15 +621,15 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
     :param pruning:            write output here, pass ``None`` for creating a new one
     :param float_type:         floating point type to use
 
-    >>> from fpylll import IntegerMatrix, LLL, GSO, get_precision, set_precision
+    >>> from fpylll import IntegerMatrix, LLL, GSO, FPLLL
     >>> from fpylll.numpy import dump_r
-    >>> from fpylll import set_random_seed
+    >>> from fpylll import FPLLL
     >>> from fpylll import Pruning
-    >>> set_random_seed(1337)
+    >>> FPLLL.set_random_seed(1337)
     >>> A = IntegerMatrix.random(20, "qary", bits=20, k=10)
     >>> M = GSO.Mat(A)
     >>> LLL.Reduction(M)()
-    >>> _ = set_precision(53)
+    >>> _ = FPLLL.set_precision(53)
     >>> R = [M.get_r(i,i) for i in range(0, 20)]
     >>> pr0 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="double")
     >>> pr1 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="long double")

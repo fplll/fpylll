@@ -11,7 +11,7 @@ include "fpylll/config.pxi"
 from cpython cimport PyIndex_Check
 from cysignals.signals cimport sig_on, sig_off
 
-from fplll cimport Matrix, MatrixRow, sqr_norm, Z_NR
+from fplll cimport Matrix, MatrixRow, Z_NR
 from fpylll.util cimport preprocess_indices, check_int_type
 from fpylll.io cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
 
@@ -126,10 +126,10 @@ cdef class IntegerMatrixRow:
 
         # TODO: don't just use doubles
         if self.m._type == ZT_MPZ:
-            sqr_norm[Z_NR[mpz_t]](t_mpz, self.m._core.mpz[0][self.row], self.m._ncols())
+            self.m._core.mpz[0][self.row].dot_product(t_mpz, self.m._core.mpz[0][self.row])
             return sqrt(t_mpz.get_d())
         elif self.m._type == ZT_LONG:
-            sqr_norm[Z_NR[long]](t_l, self.m._core.long[0][self.row], self.m._ncols())
+            self.m._core.long[0][self.row].dot_product(t_l, self.m._core.long[0][self.row])
             return sqrt(t_l.get_d())
         else:
             raise RuntimeError("Integer type '%s' not understood."%self._m._type)
@@ -457,8 +457,8 @@ cdef class IntegerMatrix:
 
         Examples::
 
-            >>> from fpylll import set_random_seed
-            >>> set_random_seed(1337)
+            >>> from fpylll import FPLLL
+            >>> FPLLL.set_random_seed(1337)
 
             >>> print(IntegerMatrix.random(10, "intrel", bits=100))
             [ 256463166861109549799341521970 1 0 0 0 0 0 0 0 0 0 ]
@@ -702,7 +702,7 @@ cdef class IntegerMatrix:
 
         Example::
 
-            >>> from fpylll import set_random_seed
+            >>> from fpylll import FPLLL
             >>> z = [[0 for _ in range(10)] for _ in range(10)]
             >>> A = IntegerMatrix.random(10, "qary", q=127, k=5)
             >>> _ = A.to_matrix(z)
@@ -1343,8 +1343,8 @@ cdef class IntegerMatrix:
         :param IntegerMatrix B: n × k integer matrix B
         :returns: m × k integer matrix C = A × B
 
-        >>> from fpylll import set_random_seed
-        >>> set_random_seed(1337)
+        >>> from fpylll import FPLLL
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix(2, 2)
         >>> A.randomize("uniform", bits=2)
         >>> print(A)
@@ -1526,9 +1526,9 @@ cdef class IntegerMatrix:
 
         We illustrate the calling conventions of this function using a 10 x 10 matrix::
 
-            >>> from fpylll import IntegerMatrix, set_random_seed
+            >>> from fpylll import IntegerMatrix, FPLLL
             >>> A = IntegerMatrix(10, 10)
-            >>> set_random_seed(1337)
+            >>> FPLLL.set_random_seed(1337)
             >>> A.randomize("ntrulike", bits=22, q=4194319)
             >>> print(A)
             [ 1 0 0 0 0 3021421  752690 1522220 2972677  119630 ]
