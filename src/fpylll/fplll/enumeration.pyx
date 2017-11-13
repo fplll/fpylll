@@ -24,10 +24,13 @@ from fplll cimport dpe_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 from decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t
 from decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
-from decl cimport d_t, ld_t
+from decl cimport d_t
 from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
 from fplll cimport multimap
+
+IF HAVE_LONG_DOUBLE:
+    from decl cimport ld_t
 
 IF HAVE_QD:
     from decl cimport gso_mpz_dd, gso_mpz_qd, gso_long_dd, gso_long_qd, dd_t, qd_t

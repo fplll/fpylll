@@ -28,8 +28,8 @@ from cysignals.signals cimport sig_on, sig_off
 from cython.operator cimport dereference as deref, preincrement as inc
 
 from decl cimport fp_nr_t, mpz_t, dpe_t, mpfr_t
-from decl cimport nr_d, nr_dpe, nr_mpfr, pruner_core_t, d_t, ld_t
-from fplll cimport FT_DOUBLE, FT_DPE, FT_MPFR, FloatType
+from decl cimport nr_d, nr_dpe, nr_mpfr, pruner_core_t, d_t
+from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 from fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS
 from fplll cimport FP_NR, Z_NR
 from fplll cimport MatGSO as MatGSO_c
@@ -45,12 +45,9 @@ from fpylll.util import adjust_radius_to_gh_bound, precision, FPLLL
 from fpylll.util cimport check_float_type, check_precision, check_pruner_metric
 
 IF HAVE_LONG_DOUBLE:
-    from fplll cimport FT_LONG_DOUBLE
-    from decl cimport gso_mpz_ld
-    from decl cimport nr_ld
+    from decl cimport nr_ld, ld_t
 
 IF HAVE_QD:
-    from decl cimport gso_mpz_dd, gso_mpz_qd
     from decl cimport nr_dd, nr_qd, dd_t, qd_t
     from fplll cimport FT_DD, FT_QD
 

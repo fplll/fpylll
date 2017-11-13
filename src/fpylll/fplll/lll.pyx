@@ -31,9 +31,12 @@ from fplll cimport FloatType
 from fpylll.util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll.util import ReductionError
 
-from decl cimport d_t, ld_t
+from decl cimport d_t
 from decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr
 from decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
+
+IF HAVE_LONG_DOUBLE:
+    from decl cimport ld_t
 
 IF HAVE_QD:
     from decl cimport gso_mpz_dd, gso_mpz_qd, gso_long_dd, gso_long_qd, dd_t, qd_t
@@ -66,7 +69,8 @@ cdef class LLLReduction:
         check_eta(eta)
 
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[d_t]]  *m_mpz_double
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[ld_t]] *m_mpz_ld
+        IF HAVE_LONG_DOUBLE:
+            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[ld_t]] *m_mpz_ld
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]] *m_mpz_dpe
         IF HAVE_QD:
             cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_t]] *m_mpz_dd
@@ -74,7 +78,8 @@ cdef class LLLReduction:
         cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpz_mpfr
 
         cdef MatGSO_c[Z_NR[long], FP_NR[d_t]]  *m_long_double
-        cdef MatGSO_c[Z_NR[long], FP_NR[ld_t]] *m_long_ld
+        IF HAVE_LONG_DOUBLE:
+            cdef MatGSO_c[Z_NR[long], FP_NR[ld_t]] *m_long_ld
         cdef MatGSO_c[Z_NR[long], FP_NR[dpe_t]] *m_long_dpe
         IF HAVE_QD:
             cdef MatGSO_c[Z_NR[long], FP_NR[dd_t]] *m_long_dd
