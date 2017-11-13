@@ -54,9 +54,6 @@ class build_ext(_build_ext, object):
     # CONFIG VARIABLES
 
     cythonize_dir = "build"
-    include_dirs = None
-    library_dirs = None
-    cxxflags = None
     fplll = None
     other = None
     def_varnames = ['HAVE_QD', 'HAVE_LONG_DOUBLE', 'HAVE_NUMPY']
@@ -67,30 +64,24 @@ class build_ext(_build_ext, object):
 
         def_vars = self._generate_config_pxi()
 
-        if self.include_dirs is None:
-            self.include_dirs = [os.path.join(sys.prefix, "include")]
-
-        if self.library_dirs is None:
-            self.library_dirs = [os.path.join(sys.exec_prefix, "lib")]
-
-        if self.cxxflags is None:
-            flags = os.environ.get("CXXFLAGS", "").split()
-            self.cxxflags = [flag for flag in flags if flag]
+        include_dirs = [os.path.join(sys.prefix, 'include')]
+        library_dirs = [os.path.join(sys.exec_prefix, "lib")]
+        cxxflags = list(filter(None, os.environ.get("CXXFLAGS", "").split()))
 
         if self.fplll is None:
-            self.fplll = {"include_dirs": self.include_dirs,
-                          "library_dirs": self.library_dirs,
+            self.fplll = {"include_dirs": include_dirs,
+                          "library_dirs": library_dirs,
                           "language": "c++",
                           "libraries": ["gmp", "mpfr", "fplll"],
-                          "extra_compile_args": ["-std=c++11"] + self.cxxflags,
+                          "extra_compile_args": ["-std=c++11"] + cxxflags,
                           "extra_link_args": ["-std=c++11"]}
 
             if def_vars['HAVE_QD']:
                 self.fplll['libraries'].append('qd')
 
         if self.other is None:
-            self.other = {"include_dirs": self.include_dirs,
-                          "library_dirs": self.library_dirs,
+            self.other = {"include_dirs": include_dirs,
+                          "library_dirs": library_dirs,
                           "libraries": ["gmp"]}
 
         if "READTHEDOCS" in os.environ:
