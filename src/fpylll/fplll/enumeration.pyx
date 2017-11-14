@@ -8,33 +8,32 @@ from libcpp.pair cimport pair
 from libcpp cimport bool
 from cysignals.signals cimport sig_on, sig_off
 
-from gso cimport MatGSO
-from fplll cimport EvaluatorStrategy as EvaluatorStrategy_c
-from fplll cimport EVALSTRATEGY_BEST_N_SOLUTIONS
-from fplll cimport EVALSTRATEGY_FIRST_N_SOLUTIONS
-from fplll cimport EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
-from fplll cimport Enumeration as Enumeration_c
-from fplll cimport FastEvaluator as FastEvaluator_c
-from fplll cimport FastErrorBoundedEvaluator as FastErrorBoundedEvaluator_c
-from fplll cimport MatGSO as MatGSO_c
-from fplll cimport Z_NR, FP_NR, mpz_t
-from fplll cimport EVALMODE_SV
+from .fplll cimport EvaluatorStrategy as EvaluatorStrategy_c
+from .fplll cimport EVALSTRATEGY_BEST_N_SOLUTIONS
+from .fplll cimport EVALSTRATEGY_FIRST_N_SOLUTIONS
+from .fplll cimport EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
+from .fplll cimport Enumeration as Enumeration_c
+from .fplll cimport FastEvaluator as FastEvaluator_c
+from .fplll cimport FastErrorBoundedEvaluator as FastErrorBoundedEvaluator_c
+from .fplll cimport MatGSO as MatGSO_c
+from .fplll cimport Z_NR, FP_NR, mpz_t
+from .fplll cimport EVALMODE_SV
 
-from fplll cimport dpe_t
+from .fplll cimport dpe_t
 from fpylll.mpfr.mpfr cimport mpfr_t
-from decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t
-from decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
-from decl cimport d_t
-from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
+from .decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t
+from .decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
+from .decl cimport d_t
+from .fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
-from fplll cimport multimap
+from .fplll cimport multimap
 
 IF HAVE_LONG_DOUBLE:
-    from decl cimport ld_t
+    from .decl cimport ld_t
 
 IF HAVE_QD:
-    from decl cimport gso_mpz_dd, gso_mpz_qd, gso_long_dd, gso_long_qd, dd_t, qd_t
-    from fplll cimport FT_DD, FT_QD
+    from .decl cimport gso_mpz_dd, gso_mpz_qd, gso_long_dd, gso_long_qd, dd_t, qd_t
+    from .fplll cimport FT_DD, FT_QD
 
 class EnumerationError(Exception):
     pass

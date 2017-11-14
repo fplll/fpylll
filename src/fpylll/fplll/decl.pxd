@@ -13,11 +13,11 @@ from fpylll.mpfr.mpfr cimport mpfr_t
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
 
-from fplll cimport dpe_t
-from fplll cimport Z_NR, FP_NR
-from fplll cimport ZZ_mat, MatGSO, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
-from fplll cimport GaussSieve
-from fplll cimport FastEvaluator, FastErrorBoundedEvaluator, Pruner
+from .fplll cimport dpe_t
+from .fplll cimport Z_NR, FP_NR
+from .fplll cimport ZZ_mat, MatGSO, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
+from .fplll cimport GaussSieve
+from .fplll cimport FastEvaluator, FastErrorBoundedEvaluator, Pruner
 
 from libcpp.vector cimport vector
 

@@ -2,8 +2,8 @@
 include "fpylll/config.pxi"
 
 
-from fplll.fplll cimport default_strategy as default_strategy_c
-from fplll.fplll cimport default_strategy_path as default_strategy_path_c
+from .fplll.fplll cimport default_strategy as default_strategy_c
+from .fplll.fplll cimport default_strategy_path as default_strategy_path_c
 
 IF HAVE_LONG_DOUBLE:
     have_long_double = True

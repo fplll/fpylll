@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from fpylll.gmp.types cimport mpz_t
-from fplll cimport IntType
-from decl cimport zz_mat_core_t
+from .fplll cimport IntType
+from .decl cimport zz_mat_core_t
 
 cdef class IntegerMatrix:
     cdef IntType _type

@@ -4,9 +4,9 @@ include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 
-from fplll cimport Matrix, Z_NR, mpz_t, ZT_MPZ
-from fplll cimport LLL_DEF_ETA, LLL_DEF_DELTA, LLL_DEFAULT
-from fplll cimport get_red_status_str
+from .fplll cimport Matrix, Z_NR, mpz_t, ZT_MPZ
+from .fplll cimport LLL_DEF_ETA, LLL_DEF_DELTA, LLL_DEFAULT
+from .fplll cimport get_red_status_str
 from fpylll.util import ReductionError
 
 

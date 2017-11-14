@@ -1,7 +1,7 @@
-from gmp.mpz cimport mpz_t
-from fplll.fplll cimport FloatType, Z_NR, PrunerMetric, IntType
-from fplll.fplll cimport BKZParam as BKZParam_c
-from fpylll.fplll.fplll cimport PrunerMetric
+from .gmp.mpz cimport mpz_t
+from .fplll.fplll cimport FloatType, Z_NR, PrunerMetric, IntType
+from .fplll.fplll cimport BKZParam as BKZParam_c
+from .fplll.fplll cimport PrunerMetric
 
 cdef FloatType check_float_type(object float_type)
 cdef IntType check_int_type(object int_type)

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from decl cimport bkz_auto_abort_core_t, fplll_gso_type_t
-from decl cimport bkz_reduction_core_t
-from gso cimport MatGSO
-from bkz_param cimport BKZParam
-from lll cimport LLLReduction
+from .decl cimport bkz_auto_abort_core_t, fplll_gso_type_t
+from .decl cimport bkz_reduction_core_t
+from .gso cimport MatGSO
+from .bkz_param cimport BKZParam
+from .lll cimport LLLReduction
 
 cdef class BKZAutoAbort:
     cdef fplll_gso_type_t _type
