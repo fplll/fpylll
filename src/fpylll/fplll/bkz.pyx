@@ -10,34 +10,33 @@ include "fpylll/config.pxi"
 from cysignals.signals cimport sig_on, sig_off
 
 IF HAVE_QD:
-    from decl cimport gso_mpz_dd, gso_mpz_qd
-    from decl cimport gso_long_dd, gso_long_qd
+    from .decl cimport gso_mpz_dd, gso_mpz_qd
+    from .decl cimport gso_long_dd, gso_long_qd
     from fpylll.qd.qd cimport dd_real, qd_real
 
-from bkz_param cimport BKZParam
-from decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, vector_fp_nr_t, fp_nr_t
-from decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
-from fplll cimport BKZAutoAbort as BKZAutoAbort_c
-from fplll cimport BKZReduction as BKZReduction_c
-from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
-from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
-from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
-from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
-from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
-from fplll cimport BKZ_SD_VARIANT, BKZ_SLD_RED
+from .decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, vector_fp_nr_t, fp_nr_t
+from .decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
+from .fplll cimport BKZAutoAbort as BKZAutoAbort_c
+from .fplll cimport BKZReduction as BKZReduction_c
+from .fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
+from .fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
+from .fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+from .fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
+from .fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
+from .fplll cimport BKZ_SD_VARIANT, BKZ_SLD_RED
 
-from fplll cimport FP_NR, Z_NR
-from fplll cimport FloatType
-from fplll cimport RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT
-from fplll cimport bkz_reduction as bkz_reduction_c
-from fplll cimport dpe_t
-from fplll cimport get_red_status_str
-from fplll cimport ZT_MPZ
+from .fplll cimport FP_NR, Z_NR
+from .fplll cimport FloatType
+from .fplll cimport RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT
+from .fplll cimport bkz_reduction as bkz_reduction_c
+from .fplll cimport dpe_t
+from .fplll cimport get_red_status_str
+from .fplll cimport ZT_MPZ
 from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.util cimport check_delta, check_precision, check_float_type
 from fpylll.util import ReductionError
-from integer_matrix cimport IntegerMatrix
+from .integer_matrix cimport IntegerMatrix
 from fpylll.config import default_strategy, default_strategy_path
 
 cdef class BKZAutoAbort:

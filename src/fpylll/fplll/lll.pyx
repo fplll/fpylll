@@ -6,42 +6,42 @@ from cysignals.signals cimport sig_on, sig_off
 
 from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
-from integer_matrix cimport IntegerMatrix
+from .integer_matrix cimport IntegerMatrix
 
-from fplll cimport LLL_VERBOSE
-from fplll cimport LLL_EARLY_RED
-from fplll cimport LLL_SIEGEL
-from fplll cimport LLL_DEFAULT
+from .fplll cimport LLL_VERBOSE
+from .fplll cimport LLL_EARLY_RED
+from .fplll cimport LLL_SIEGEL
+from .fplll cimport LLL_DEFAULT
 
-from fplll cimport LLLMethod, LLL_DEF_ETA, LLL_DEF_DELTA
-from fplll cimport LM_WRAPPER, LM_PROVED, LM_HEURISTIC, LM_FAST
-from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD
-from fplll cimport ZT_MPZ
+from .fplll cimport LLLMethod, LLL_DEF_ETA, LLL_DEF_DELTA
+from .fplll cimport LM_WRAPPER, LM_PROVED, LM_HEURISTIC, LM_FAST
+from .fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD
+from .fplll cimport ZT_MPZ
 
-from fplll cimport dpe_t
-from fplll cimport Z_NR, FP_NR
-from fplll cimport lll_reduction as lll_reduction_c
-from fplll cimport RED_SUCCESS
-from fplll cimport MatGSO as MatGSO_c
-from fplll cimport LLLReduction as LLLReduction_c
-from fplll cimport get_red_status_str
-from fplll cimport is_lll_reduced
-from fplll cimport FloatType
+from .fplll cimport dpe_t
+from .fplll cimport Z_NR, FP_NR
+from .fplll cimport lll_reduction as lll_reduction_c
+from .fplll cimport RED_SUCCESS
+from .fplll cimport MatGSO as MatGSO_c
+from .fplll cimport LLLReduction as LLLReduction_c
+from .fplll cimport get_red_status_str
+from .fplll cimport is_lll_reduced
+from .fplll cimport FloatType
 
 from fpylll.util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll.util import ReductionError
 
-from decl cimport d_t
-from decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr
-from decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
+from .decl cimport d_t
+from .decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr
+from .decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
 
 IF HAVE_LONG_DOUBLE:
-    from decl cimport ld_t
+    from .decl cimport ld_t
 
 IF HAVE_QD:
-    from decl cimport gso_mpz_dd, gso_mpz_qd, gso_long_dd, gso_long_qd, dd_t, qd_t
+    from .decl cimport gso_mpz_dd, gso_mpz_qd, gso_long_dd, gso_long_qd, dd_t, qd_t
 
-from wrapper import Wrapper
+from .wrapper import Wrapper
 
 cdef class LLLReduction:
     def __init__(self, MatGSO M,

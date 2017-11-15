@@ -20,29 +20,29 @@ include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 
-from decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t, zz_mat_core_t
-from decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
-from decl cimport d_t
-from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
-from fplll cimport ZT_LONG, ZT_MPZ, IntType
-from fplll cimport GSO_DEFAULT
-from fplll cimport GSO_INT_GRAM
-from fplll cimport GSO_OP_FORCE_LONG
-from fplll cimport GSO_ROW_EXPO
-from fplll cimport MatGSO as MatGSO_c, Z_NR, FP_NR, Matrix
-from fplll cimport dpe_t
-from fplll cimport get_current_slope
+from .decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t, zz_mat_core_t
+from .decl cimport gso_long_d, gso_long_ld, gso_long_dpe, gso_long_mpfr
+from .decl cimport d_t
+from .fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
+from .fplll cimport ZT_LONG, ZT_MPZ, IntType
+from .fplll cimport GSO_DEFAULT
+from .fplll cimport GSO_INT_GRAM
+from .fplll cimport GSO_OP_FORCE_LONG
+from .fplll cimport GSO_ROW_EXPO
+from .fplll cimport MatGSO as MatGSO_c, Z_NR, FP_NR, Matrix
+from .fplll cimport dpe_t
+from .fplll cimport get_current_slope
 from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.util cimport preprocess_indices, check_float_type
-from integer_matrix cimport IntegerMatrix
+from .integer_matrix cimport IntegerMatrix
 
 IF HAVE_LONG_DOUBLE:
-    from decl cimport ld_t
+    from .decl cimport ld_t
 
 IF HAVE_QD:
-    from decl cimport gso_mpz_dd, gso_mpz_qd, gso_long_dd, gso_long_qd, dd_t, qd_t
-    from fplll cimport FT_DD, FT_QD
+    from .decl cimport gso_mpz_dd, gso_mpz_qd, gso_long_dd, gso_long_qd, dd_t, qd_t
+    from .fplll cimport FT_DD, FT_QD
 
 class MatGSORowOpContext(object):
     """

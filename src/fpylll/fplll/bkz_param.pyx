@@ -9,24 +9,24 @@ include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 
-from fplll cimport BKZParam as BKZParam_c
-from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
-from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
-from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
-from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
-from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
-from fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST
-from fplll cimport PRUNER_METRIC_EXPECTED_SOLUTIONS
-from fplll cimport LLL_DEF_DELTA
-from fplll cimport PruningParams as PruningParams_c
-from fplll cimport Strategy as Strategy_c
-from fplll cimport load_strategies_json as load_strategies_json_c
-from fplll cimport strategy_full_path
+from .fplll cimport BKZParam as BKZParam_c
+from .fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
+from .fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
+from .fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+from .fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
+from .fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
+from .fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST
+from .fplll cimport PRUNER_METRIC_EXPECTED_SOLUTIONS
+from .fplll cimport LLL_DEF_DELTA
+from .fplll cimport PruningParams as PruningParams_c
+from .fplll cimport Strategy as Strategy_c
+from .fplll cimport load_strategies_json as load_strategies_json_c
+from .fplll cimport strategy_full_path
 
 from fpylll.util cimport check_delta, check_pruner_metric
 from cython.operator cimport dereference as deref, preincrement as inc
 
-from pruner cimport PruningParams
+from .pruner cimport PruningParams
 
 from collections import OrderedDict
 import json

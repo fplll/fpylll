@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from fplll cimport Wrapper as Wrapper_c
-from integer_matrix cimport IntegerMatrix
+from .fplll cimport Wrapper as Wrapper_c
+from .integer_matrix cimport IntegerMatrix
 
 cdef class Wrapper:
     cdef Wrapper_c *_core
