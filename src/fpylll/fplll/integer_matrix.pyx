@@ -929,6 +929,10 @@ cdef class IntegerMatrix:
             >>> A[1,0]
             2
 
+        Arbitrary precision integers are supported::
+
+            >>> A[0, 0] = 2**2048
+
         The notation ``A[i][j]`` is not supported.  This is because ``A[i]`` returns an object
         of type ``IntegerMatrixRow`` object which is immutable by design.  This is to avoid the
         user confusing such an object with a proper vector.::
