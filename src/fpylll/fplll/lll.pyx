@@ -6,39 +6,42 @@ from cysignals.signals cimport sig_on, sig_off
 
 from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
-from integer_matrix cimport IntegerMatrix
+from .integer_matrix cimport IntegerMatrix
 
-from fplll cimport LLL_VERBOSE
-from fplll cimport LLL_EARLY_RED
-from fplll cimport LLL_SIEGEL
-from fplll cimport LLL_DEFAULT
+from .fplll cimport LLL_VERBOSE
+from .fplll cimport LLL_EARLY_RED
+from .fplll cimport LLL_SIEGEL
+from .fplll cimport LLL_DEFAULT
 
-from fplll cimport LLLMethod, LLL_DEF_ETA, LLL_DEF_DELTA
-from fplll cimport LM_WRAPPER, LM_PROVED, LM_HEURISTIC, LM_FAST
-from fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD
-from fplll cimport ZT_MPZ
+from .fplll cimport LLLMethod, LLL_DEF_ETA, LLL_DEF_DELTA
+from .fplll cimport LM_WRAPPER, LM_PROVED, LM_HEURISTIC, LM_FAST
+from .fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DD, FT_QD
+from .fplll cimport ZT_MPZ
 
-from fplll cimport dpe_t
-from fplll cimport Z_NR, FP_NR
-from fplll cimport lll_reduction as lll_reduction_c
-from fplll cimport RED_SUCCESS
-from fplll cimport MatGSOInterface as MatGSOInterface_c
-from fplll cimport LLLReduction as LLLReduction_c
-from fplll cimport get_red_status_str
-from fplll cimport is_lll_reduced
-from fplll cimport FloatType
+from .fplll cimport dpe_t
+from .fplll cimport Z_NR, FP_NR
+from .fplll cimport lll_reduction as lll_reduction_c
+from .fplll cimport RED_SUCCESS
+from .fplll cimport MatGSOInterface as MatGSOInterface_c
+from .fplll cimport LLLReduction as LLLReduction_c
+from .fplll cimport get_red_status_str
+from .fplll cimport is_lll_reduced
+from .fplll cimport FloatType
 
 from fpylll.util cimport check_float_type, check_delta, check_eta, check_precision
 from fpylll.util import ReductionError
 
-from decl cimport d_t, ld_t
-from decl cimport mat_gso_mpz_d, mat_gso_mpz_ld, mat_gso_mpz_dpe, mat_gso_mpz_mpfr
-from decl cimport mat_gso_long_d, mat_gso_long_ld, mat_gso_long_dpe, mat_gso_long_mpfr
+from .decl cimport d_t
+from .decl cimport mat_gso_mpz_d, mat_gso_mpz_ld, mat_gso_mpz_dpe, mat_gso_mpz_mpfr
+from .decl cimport mat_gso_long_d, mat_gso_long_ld, mat_gso_long_dpe, mat_gso_long_mpfr
+
+IF HAVE_LONG_DOUBLE:
+    from .decl cimport ld_t
 
 IF HAVE_QD:
-    from decl cimport mat_gso_mpz_dd, mat_gso_mpz_qd, mat_gso_long_dd, mat_gso_long_qd, dd_t, qd_t
+    from .decl cimport mat_gso_mpz_dd, mat_gso_mpz_qd, mat_gso_long_dd, mat_gso_long_qd, dd_t, qd_t
 
-from wrapper import Wrapper
+from .wrapper import Wrapper
 
 cdef class LLLReduction:
     def __init__(self, MatGSO M,
@@ -66,7 +69,8 @@ cdef class LLLReduction:
         check_eta(eta)
 
         cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[d_t]]  *m_mpz_double
-        cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[ld_t]] *m_mpz_ld
+        IF HAVE_LONG_DOUBLE:
+            cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[ld_t]] *m_mpz_ld
         cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dpe_t]] *m_mpz_dpe
         IF HAVE_QD:
             cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dd_t]] *m_mpz_dd
@@ -74,7 +78,8 @@ cdef class LLLReduction:
         cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpz_mpfr
 
         cdef MatGSOInterface_c[Z_NR[long], FP_NR[d_t]]  *m_long_double
-        cdef MatGSOInterface_c[Z_NR[long], FP_NR[ld_t]] *m_long_ld
+        IF HAVE_LONG_DOUBLE:
+            cdef MatGSOInterface_c[Z_NR[long], FP_NR[ld_t]] *m_long_ld
         cdef MatGSOInterface_c[Z_NR[long], FP_NR[dpe_t]] *m_long_dpe
         IF HAVE_QD:
             cdef MatGSOInterface_c[Z_NR[long], FP_NR[dd_t]] *m_long_dd

@@ -20,29 +20,32 @@ include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 
-from decl cimport mat_gso_mpz_d, mat_gso_mpz_ld, mat_gso_mpz_dpe, mat_gso_mpz_mpfr, fp_nr_t, zz_mat_core_t
-from decl cimport mat_gso_long_d, mat_gso_long_ld, mat_gso_long_dpe, mat_gso_long_mpfr
-from decl cimport mat_gso_gso_t, mat_gso_gram_t
-from decl cimport d_t, ld_t
-from fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
-from fplll cimport ZT_LONG, ZT_MPZ, IntType
-from fplll cimport GSO_DEFAULT
-from fplll cimport GSO_INT_GRAM
-from fplll cimport GSO_OP_FORCE_LONG
-from fplll cimport GSO_ROW_EXPO
-from fplll cimport Z_NR, FP_NR, Matrix
-from fplll cimport MatGSO as MatGSO_c, MatGSOGram as MatGSOGram_c, MatGSOInterface as MatGSOInterface_c
-from fplll cimport dpe_t
-from fplll cimport get_current_slope
+from .decl cimport mat_gso_mpz_d, mat_gso_mpz_ld, mat_gso_mpz_dpe, mat_gso_mpz_mpfr, fp_nr_t, zz_mat_core_t
+from .decl cimport mat_gso_long_d, mat_gso_long_ld, mat_gso_long_dpe, mat_gso_long_mpfr
+from .decl cimport d_t
+from .decl cimport mat_gso_gso_t, mat_gso_gram_t
+from .fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
+from .fplll cimport ZT_LONG, ZT_MPZ, IntType
+from .fplll cimport GSO_DEFAULT
+from .fplll cimport GSO_INT_GRAM
+from .fplll cimport GSO_OP_FORCE_LONG
+from .fplll cimport GSO_ROW_EXPO
+from .fplll cimport MatGSO as MatGSO_c, MatGSOGram as MatGSOGram_c, MatGSOInterface as MatGSOInterface_c
+from .fplll cimport Z_NR, FP_NR, Matrix
+from .fplll cimport dpe_t
+from .fplll cimport get_current_slope
 from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.util cimport preprocess_indices, check_float_type
-from integer_matrix cimport IntegerMatrix
 from fpylll.io cimport mpz_get_python
+from .integer_matrix cimport IntegerMatrix
+
+IF HAVE_LONG_DOUBLE:
+    from .decl cimport ld_t
 
 IF HAVE_QD:
-    from decl cimport mat_gso_mpz_dd, mat_gso_mpz_qd, mat_gso_long_dd, mat_gso_long_qd, dd_t, qd_t
-    from fplll cimport FT_DD, FT_QD
+    from .decl cimport mat_gso_mpz_dd, mat_gso_mpz_qd, mat_gso_long_dd, mat_gso_long_qd, dd_t, qd_t
+    from .fplll cimport FT_DD, FT_QD
 
 class MatGSORowOpContext(object):
     """

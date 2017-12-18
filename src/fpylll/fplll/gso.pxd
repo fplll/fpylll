@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from integer_matrix cimport IntegerMatrix
-from decl cimport mat_gso_core_t, fplll_mat_gso_data_type_t, fplll_mat_gso_alg_type_t
+from .integer_matrix cimport IntegerMatrix
+from .decl cimport mat_gso_core_t, fplll_mat_gso_data_type_t, fplll_mat_gso_alg_type_t
 
 cdef class MatGSO:
     cdef fplll_mat_gso_data_type_t _type

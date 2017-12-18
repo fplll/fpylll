@@ -27,32 +27,31 @@ from math import log, exp
 from cysignals.signals cimport sig_on, sig_off
 from cython.operator cimport dereference as deref, preincrement as inc
 
-from decl cimport fp_nr_t, mpz_t, dpe_t, mpfr_t
-from decl cimport nr_d, nr_dpe, nr_mpfr, pruner_core_t, d_t, ld_t
-from fplll cimport FT_DOUBLE, FT_DPE, FT_MPFR, FloatType
-from fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS
-from fplll cimport FP_NR, Z_NR
-from fplll cimport MatGSO as MatGSO_c
-from fplll cimport prune as prune_c
-from fplll cimport PruningParams as PruningParams_c
-from fplll cimport Pruner as Pruner_c
-from fplll cimport PrunerMetric
-from fplll cimport svp_probability as svp_probability_c
-from fplll cimport PRUNER_CVP, PRUNER_START_FROM_INPUT, PRUNER_GRADIENT, PRUNER_NELDER_MEAD, PRUNER_VERBOSE
+from .decl cimport fp_nr_t, mpz_t, dpe_t, mpfr_t
+from .decl cimport nr_d, nr_dpe, nr_mpfr, pruner_core_t, d_t
+from .fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
+from .fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS
+from .fplll cimport FP_NR, Z_NR
+from .fplll cimport MatGSO as MatGSO_c
+from .fplll cimport prune as prune_c
+from .fplll cimport PruningParams as PruningParams_c
+from .fplll cimport Pruner as Pruner_c
+from .fplll cimport PrunerMetric
+from .fplll cimport svp_probability as svp_probability_c
+from .fplll cimport PRUNER_CVP, PRUNER_START_FROM_INPUT, PRUNER_GRADIENT, PRUNER_NELDER_MEAD, PRUNER_VERBOSE
 
 
 from fpylll.util import adjust_radius_to_gh_bound, precision, FPLLL
 from fpylll.util cimport check_float_type, check_precision, check_pruner_metric
 
 IF HAVE_LONG_DOUBLE:
-    from fplll cimport FT_LONG_DOUBLE
-    from decl cimport nr_ld
+    from .decl cimport nr_ld, ld_t
 
 IF HAVE_QD:
-    from decl cimport nr_dd, nr_qd, dd_t, qd_t
-    from fplll cimport FT_DD, FT_QD
+    from .decl cimport nr_dd, nr_qd, dd_t, qd_t
+    from .fplll cimport FT_DD, FT_QD
 
-from gso cimport MatGSO
+from .gso cimport MatGSO
 
 
 cdef class PruningParams:

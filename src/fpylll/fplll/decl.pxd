@@ -13,11 +13,11 @@ from fpylll.mpfr.mpfr cimport mpfr_t
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
 
-from fplll cimport dpe_t
-from fplll cimport Z_NR, FP_NR
-from fplll cimport ZZ_mat, MatGSOInterface, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
-from fplll cimport GaussSieve
-from fplll cimport FastEvaluator, FastErrorBoundedEvaluator, Pruner
+from .fplll cimport dpe_t
+from .fplll cimport Z_NR, FP_NR
+from .fplll cimport ZZ_mat, MatGSOInterface, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
+from .fplll cimport GaussSieve
+from .fplll cimport FastEvaluator, FastErrorBoundedEvaluator, Pruner
 
 from libcpp.vector cimport vector
 
@@ -400,9 +400,9 @@ ELSE:
             Enumeration[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union enumeration_core_t:
-            Enumeration[FP_NR[d_t]] *d
-            Enumeration[FP_NR[dpe_t]] *dpe
-            Enumeration[FP_NR[mpfr_t]] *mpfr
+            Enumeration[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            Enumeration[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            Enumeration[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
             Enumeration[Z_NR[long], FP_NR[d_t]] *long_d
             Enumeration[Z_NR[long], FP_NR[dpe_t]] *long_dpe
             Enumeration[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr

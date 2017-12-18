@@ -11,16 +11,16 @@ include "fpylll/config.pxi"
 from cpython cimport PyIndex_Check
 from cysignals.signals cimport sig_on, sig_off
 
-from fplll cimport Matrix, MatrixRow, Z_NR
+from .fplll cimport Matrix, MatrixRow, Z_NR
 from fpylll.util cimport preprocess_indices, check_int_type
 from fpylll.io cimport assign_Z_NR_mpz, assign_mpz, mpz_get_python
 
-from fplll cimport IntType, ZT_MPZ, ZT_LONG, ZZ_mat
+from .fplll cimport IntType, ZT_MPZ, ZT_LONG, ZZ_mat
 
 import re
 from math import log10, ceil, sqrt, floor
 
-from decl cimport z_long, z_mpz
+from .decl cimport z_long, z_mpz
 from fpylll.gmp.pylong cimport mpz_get_pyintlong
 from fpylll.gmp.mpz cimport mpz_init, mpz_mod, mpz_fdiv_q_ui, mpz_clear, mpz_cmp, mpz_sub, mpz_set, mpz_set_si, mpz_get_si
 
@@ -928,6 +928,10 @@ cdef class IntegerMatrix:
             >>> A[1,0] = 2
             >>> A[1,0]
             2
+
+        Arbitrary precision integers are supported::
+
+            >>> A[0, 0] = 2**2048
 
         The notation ``A[i][j]`` is not supported.  This is because ``A[i]`` returns an object
         of type ``IntegerMatrixRow`` object which is immutable by design.  This is to avoid the
