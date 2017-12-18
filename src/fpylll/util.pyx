@@ -28,7 +28,9 @@ cdef extern from "util_helper.h":
 float_aliases = {'d': 'double',
                  'ld': 'long double'}
 
-cdef FloatType check_float_type(object float_type):
+# We return `object` to permit exceptions
+
+cdef object check_float_type(object float_type):
 
     float_type = float_aliases.get(float_type, float_type)
 
@@ -50,7 +52,7 @@ cdef FloatType check_float_type(object float_type):
 
     raise ValueError("Float type '%s' unknown." % float_type)
 
-cdef IntType check_int_type(object int_type):
+cdef object check_int_type(object int_type):
 
     if int_type == "default" or int_type is None:
         return ZT_MPZ
@@ -59,7 +61,7 @@ cdef IntType check_int_type(object int_type):
     if int_type == "long":
         return ZT_LONG
 
-    raise ValueError("Float type '%s' unknown." % int_type)
+    raise ValueError("Integer type '%s' unknown." % int_type)
 
 cdef PrunerMetric check_pruner_metric(object metric):
     if metric == "probability" or metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
