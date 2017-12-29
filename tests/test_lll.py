@@ -9,7 +9,7 @@ import sys
 if sys.maxsize > 2**32:
     dimensions = ((0, 0), (1, 1), (2, 2), (3, 3), (10, 10), (50, 50), (60, 60))
 else:
-    # work around https://github.com/fplll/fpylll/issues/112
+    # https://github.com/fplll/fpylll/issues/112
     dimensions = ((0, 0), (1, 1), (2, 2), (3, 3), (10, 10), (20, 20), (30, 30))
 
 
