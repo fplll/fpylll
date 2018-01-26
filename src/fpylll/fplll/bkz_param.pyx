@@ -435,9 +435,9 @@ cdef class BKZParam:
 
         """
         if not isinstance(what, str):
-            raise TypeError("Only strings are supported as auxilary keys but got %s"%what)
+            raise TypeError("Only strings are supported as auxiliary keys but got %s"%what)
         if not what.startswith("aux"):
-            raise ValueError("Auxilary keys must start with 'aux' but got '%s'"%what)
+            raise ValueError("Auxiliary keys must start with 'aux' but got '%s'"%what)
         self.aux[what] = value
 
     def dict(self, all=True):
