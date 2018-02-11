@@ -19,10 +19,12 @@ Using enumeration we can study the Gauss circle problem [1]_, i.e. the problem o
 
   >>> from fpylll.fplll.gso import MatGSO
   >>> from fpylll.fplll.integer_matrix import IntegerMatrix
+  >>> from fpylll import FPLLL
   >>> from fpylll import Enumeration, EvaluatorStrategy
   >>> import numpy as np
+  >>> FPLLL.set_random_seed(1337)
   >>> from numpy import matrix,matlib
-  >>> def gauss(radius,dim,nr):
+  >>> def gauss(radius, dim, nr):
   ...  A = IntegerMatrix.identity(dim)   #define the latttice Z^dim
   ...  M = MatGSO(A)
   ...  _ = M.update_gso()
@@ -41,7 +43,8 @@ For instance `N_2` is given by
   >>> print N2
   13
   >>> print g
-  [matrix([[0, 0]]), matrix([[ 0.,  1.]]), matrix([[ 1.,  0.]]), matrix([[-1.,  1.]]), matrix([[ 1.,  1.]]), matrix([[ 0.,  2.]]), matrix([[ 2.,  0.]]), matrix([[ 0., -1.]]), matrix([[-1.,  0.]]), matrix([[ 1., -1.]]), matrix([[-1., -1.]]), matrix([[ 0., -2.]]), matrix([[-2.,  0.]])]
+  [matrix([[0, 0]]), matrix([[ 1.]]), matrix([[ 1.]]), matrix([[ 2.]]), matrix([[ 2.]]), matrix([[ 4.]]), matrix([[ 4.]]), matrix([[-1.]]), matrix([[-1.]]), matrix([[-2.]]), matrix([[-2.]]), matrix([[-4.]]), matrix([[-4.]])]
+
 
 For `{\rm dim} = 2` is enough to choose the parameter `nr = \lceil \pi R^2+2\sqrt{2}\pi R\rceil.` For `R=80` we get
 

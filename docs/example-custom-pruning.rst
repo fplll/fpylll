@@ -28,12 +28,12 @@ strategy as follows.
   ...    print "error"
   ...    return
   ...  from fpylll import BKZ
-  ...  from fpylll.fplll.bkz_param import Pruning
+  ...  from fpylll.fplll.pruner import PruningParams
   ...  from fpylll.fplll.bkz_param import Strategy
   ...  preprocessing = 3
   ...  strategies1 = [Strategy(i) for i in range(6)]
   ...  for b in range(6, blocksize+1):
-  ...    pr = Pruning.LinearPruning(blocksize, level)
+  ...    pr = PruningParams.LinearPruningParams(blocksize, level)
   ...    s = Strategy(b, [preprocessing], [pr])
   ...    strategies1.append(s)
   ...  param = BKZ.Param(block_size = blocksize, strategies = strategies1)
@@ -50,9 +50,9 @@ pruning.
 
 ::
 
-  >>> from fpylll import IntegerMatrix, BKZ, set_random_seed
-  >>> A = IntegerMatrix(140, 141)
-  >>> set_random_seed(2013)
+  >>> from fpylll import IntegerMatrix, BKZ, FPLLL
+  >>> A = IntegerMatrix(70, 71)
+  >>> FPLLL.set_random_seed(2013)
   >>> A.randomize("intrel", bits=100)
   >>> bkz_reduced = BKZ.reduction(A, LP)
 

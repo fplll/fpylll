@@ -51,6 +51,7 @@ script:
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/algorithms/*.py
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/fplll/*.pyx
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/*.pyx
+  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest docs/*.rst
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python setup.py sdist
 
 notifications:

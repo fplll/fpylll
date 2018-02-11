@@ -15,7 +15,7 @@ the construction of param objects can be rolled into the class description. See 
 from __future__ import absolute_import
 from collections import OrderedDict
 from fpylll import IntegerMatrix, BKZ
-from fpylll import set_random_seed
+from fpylll import FPLLL
 from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer, pretty_dict
 from fpylll.tools.quality import basis_quality
 from fpylll.util import ReductionError
@@ -274,7 +274,7 @@ def compare_bkz(classes, matrixf, dimensions, block_sizes, progressive_step_size
                 matrixf_ = matrixf(dimension=dimension, block_size=block_size)
 
                 for i in range(samples):
-                    set_random_seed(seed_)
+                    FPLLL.set_random_seed(seed_)
                     A = IntegerMatrix.random(dimension, **matrixf_)
 
                     for BKZ_ in classes:
