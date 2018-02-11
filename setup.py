@@ -50,7 +50,6 @@ class Extension(_Extension, object):
 
 
 class build_ext(_build_ext, object):
-    
     # CONFIG VARIABLES
 
     cythonize_dir = "build"
@@ -94,8 +93,8 @@ class build_ext(_build_ext, object):
             numpy_args = copy(self.fplll)
             numpy_args["include_dirs"].append(numpy.get_include())
             self.extensions.append(
-                    Extension("fpylll.numpy", ["src/fpylll/numpy.pyx"],
-                              **numpy_args))
+                Extension("fpylll.numpy", ["src/fpylll/numpy.pyx"],
+                          **numpy_args))
 
         for ext in self.extensions:
             if ext.fplll:
