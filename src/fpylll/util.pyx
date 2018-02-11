@@ -2,7 +2,7 @@
 include "fpylll/config.pxi"
 
 
-from fpylll.fplll.decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t
+from fpylll.fplll.decl cimport fp_nr_t
 from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fpylll.fplll.fplll cimport IntType, ZT_LONG, ZT_MPZ
@@ -28,7 +28,9 @@ cdef extern from "util_helper.h":
 float_aliases = {'d': 'double',
                  'ld': 'long double'}
 
-cdef FloatType check_float_type(object float_type):
+# We return `object` to permit exceptions
+
+cdef object check_float_type(object float_type):
 
     float_type = float_aliases.get(float_type, float_type)
 
@@ -50,7 +52,7 @@ cdef FloatType check_float_type(object float_type):
 
     raise ValueError("Float type '%s' unknown." % float_type)
 
-cdef IntType check_int_type(object int_type):
+cdef object check_int_type(object int_type):
 
     if int_type == "default" or int_type is None:
         return ZT_MPZ
@@ -59,7 +61,7 @@ cdef IntType check_int_type(object int_type):
     if int_type == "long":
         return ZT_LONG
 
-    raise ValueError("Float type '%s' unknown." % int_type)
+    raise ValueError("Integer type '%s' unknown." % int_type)
 
 cdef PrunerMetric check_pruner_metric(object metric):
     if metric == "probability" or metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:

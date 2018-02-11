@@ -23,10 +23,10 @@ Example::
 include "fpylll/config.pxi"
 
 from random import randint
-from fplll cimport NumVect, Z_NR, ZT_MPZ, ZT_LONG
-from fplll cimport GaussSieve as GaussSieve_c
+from .fplll cimport NumVect, Z_NR, ZT_MPZ, ZT_LONG
+from .fplll cimport GaussSieve as GaussSieve_c
 from fpylll.io cimport assign_Z_NR_mpz, mpz_get_python
-from integer_matrix cimport IntegerMatrix
+from .integer_matrix cimport IntegerMatrix
 from cysignals.signals cimport sig_on, sig_off
 
 

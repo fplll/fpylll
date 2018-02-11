@@ -1,9 +1,9 @@
 # copied/adapted from Sage development tree version 6.9
 # distutils: libraries = gmp
 
-from types cimport *
-from libc.stdio cimport FILE
+from .types cimport *
 
+from libc.stdio cimport FILE
 from libc.stdint cimport intmax_t, uintmax_t
 
 cdef extern from "gmp.h":

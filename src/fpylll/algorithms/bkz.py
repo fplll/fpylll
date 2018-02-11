@@ -281,4 +281,5 @@ class BKZReduction:
             clean_post = self.svp_postprocessing(kappa, block_size, solution, tracer)
         clean &= clean_post
 
+        self.lll_obj.size_reduction(0, kappa+1)
         return clean

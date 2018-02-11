@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from libcpp.vector cimport vector
-from decl cimport bkz_auto_abort_core_t, fplll_gso_type_t
-from gso cimport MatGSO
-from fplll cimport BKZParam as BKZParam_c
-from fplll cimport PruningParams as PruningParams_c
-from fplll cimport Strategy as Strategy_c
-from fplll cimport PrunerMetric
+from .decl cimport bkz_auto_abort_core_t, fplll_mat_gso_data_type_t
+from .gso cimport MatGSO
+from .fplll cimport BKZParam as BKZParam_c
+from .fplll cimport PruningParams as PruningParams_c
+from .fplll cimport Strategy as Strategy_c
+from .fplll cimport PrunerMetric
 
 cdef class Strategy:
     cdef Strategy_c _core

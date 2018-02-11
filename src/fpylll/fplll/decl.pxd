@@ -13,11 +13,11 @@ from fpylll.mpfr.mpfr cimport mpfr_t
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
 
-from fplll cimport dpe_t
-from fplll cimport Z_NR, FP_NR
-from fplll cimport ZZ_mat, MatGSO, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
-from fplll cimport GaussSieve
-from fplll cimport FastEvaluator, FastErrorBoundedEvaluator, Pruner
+from .fplll cimport dpe_t
+from .fplll cimport Z_NR, FP_NR
+from .fplll cimport ZZ_mat, MatGSOInterface, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
+from .fplll cimport GaussSieve
+from .fplll cimport FastEvaluator, FastErrorBoundedEvaluator, Pruner
 
 from libcpp.vector cimport vector
 
@@ -30,31 +30,35 @@ IF HAVE_QD:
     ctypedef dd_real dd_t
     ctypedef qd_real qd_t
 
+ctypedef enum fplll_mat_gso_alg_type_t:
+    mat_gso_gso_t  = 0
+    mat_gso_gram_t = 1
+
 IF HAVE_QD:
-    ctypedef enum fplll_gso_type_t:
-        gso_mpz_d      =    1
-        gso_mpz_ld     =    2
-        gso_mpz_dpe    =    4
-        gso_mpz_dd     =    8
-        gso_mpz_qd     =   16
-        gso_mpz_mpfr   =   32
-        gso_long_d     =   64
-        gso_long_ld    =  128
-        gso_long_dpe   =  256
-        gso_long_dd    =  512
-        gso_long_qd    = 1024
-        gso_long_mpfr  = 2048
+    ctypedef enum fplll_mat_gso_data_type_t:
+        mat_gso_mpz_d      =    1
+        mat_gso_mpz_ld     =    2
+        mat_gso_mpz_dpe    =    4
+        mat_gso_mpz_dd     =    8
+        mat_gso_mpz_qd     =   16
+        mat_gso_mpz_mpfr   =   32
+        mat_gso_long_d     =   64
+        mat_gso_long_ld    =  128
+        mat_gso_long_dpe   =  256
+        mat_gso_long_dd    =  512
+        mat_gso_long_qd    = 1024
+        mat_gso_long_mpfr  = 2048
 
 ELSE:
-    ctypedef enum fplll_gso_type_t:
-        gso_mpz_d      =    1
-        gso_mpz_ld     =    2
-        gso_mpz_dpe    =    4
-        gso_mpz_mpfr   =   32
-        gso_long_d     =   64
-        gso_long_ld    =  128
-        gso_long_dpe   =  256
-        gso_long_mpfr  = 2048
+    ctypedef enum fplll_mat_gso_data_type_t:
+        mat_gso_mpz_d      =    1
+        mat_gso_mpz_ld     =    2
+        mat_gso_mpz_dpe    =    4
+        mat_gso_mpz_mpfr   =   32
+        mat_gso_long_d     =   64
+        mat_gso_long_ld    =  128
+        mat_gso_long_dpe   =  256
+        mat_gso_long_mpfr  = 2048
 
 IF HAVE_QD:
     ctypedef enum fplll_nr_type_t:
@@ -102,28 +106,28 @@ IF HAVE_LONG_DOUBLE:
 
     IF HAVE_QD:
         ctypedef union mat_gso_core_t:
-            MatGSO[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
-            MatGSO[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
-            MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
-            MatGSO[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
-            MatGSO[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
-            MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
-            MatGSO[Z_NR[long], FP_NR[d_t]] *long_d
-            MatGSO[Z_NR[long], FP_NR[ld_t]] *long_ld
-            MatGSO[Z_NR[long], FP_NR[dpe_t]] *long_dpe
-            MatGSO[Z_NR[long], FP_NR[dd_t]] *long_dd
-            MatGSO[Z_NR[long], FP_NR[qd_t]] *long_qd
-            MatGSO[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            MatGSOInterface[Z_NR[long], FP_NR[d_t]] *long_d
+            MatGSOInterface[Z_NR[long], FP_NR[ld_t]] *long_ld
+            MatGSOInterface[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            MatGSOInterface[Z_NR[long], FP_NR[dd_t]] *long_dd
+            MatGSOInterface[Z_NR[long], FP_NR[qd_t]] *long_qd
+            MatGSOInterface[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union mat_gso_core_t:
-            MatGSO[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
-            MatGSO[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
-            MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
-            MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
-            MatGSO[Z_NR[long], FP_NR[d_t]] *long_d
-            MatGSO[Z_NR[long], FP_NR[ld_t]] *long_ld
-            MatGSO[Z_NR[long], FP_NR[dpe_t]] *long_dpe
-            MatGSO[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            MatGSOInterface[Z_NR[long], FP_NR[d_t]] *long_d
+            MatGSOInterface[Z_NR[long], FP_NR[ld_t]] *long_ld
+            MatGSOInterface[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            MatGSOInterface[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union lll_reduction_core_t:
@@ -287,24 +291,24 @@ ELSE:
 
     IF HAVE_QD:
         ctypedef union mat_gso_core_t:
-            MatGSO[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
-            MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
-            MatGSO[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
-            MatGSO[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
-            MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
-            MatGSO[Z_NR[long], FP_NR[d_t]] *long_d
-            MatGSO[Z_NR[long], FP_NR[dpe_t]] *long_dpe
-            MatGSO[Z_NR[long], FP_NR[dd_t]] *long_dd
-            MatGSO[Z_NR[long], FP_NR[qd_t]] *long_qd
-            MatGSO[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[dd_t]] *mpz_dd
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[qd_t]] *mpz_qd
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            MatGSOInterface[Z_NR[long], FP_NR[d_t]] *long_d
+            MatGSOInterface[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            MatGSOInterface[Z_NR[long], FP_NR[dd_t]] *long_dd
+            MatGSOInterface[Z_NR[long], FP_NR[qd_t]] *long_qd
+            MatGSOInterface[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
     ELSE:
         ctypedef union mat_gso_core_t:
-            MatGSO[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
-            MatGSO[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
-            MatGSO[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
-            MatGSO[Z_NR[long], FP_NR[d_t]] *long_d
-            MatGSO[Z_NR[long], FP_NR[dpe_t]] *long_dpe
-            MatGSO[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[dpe_t]] *mpz_dpe
+            MatGSOInterface[Z_NR[mpz_t], FP_NR[mpfr_t]] *mpz_mpfr
+            MatGSOInterface[Z_NR[long], FP_NR[d_t]] *long_d
+            MatGSOInterface[Z_NR[long], FP_NR[dpe_t]] *long_dpe
+            MatGSOInterface[Z_NR[long], FP_NR[mpfr_t]] *long_mpfr
 
     IF HAVE_QD:
         ctypedef union lll_reduction_core_t:

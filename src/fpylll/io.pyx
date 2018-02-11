@@ -4,7 +4,8 @@ include "fpylll/config.pxi"
 from cpython.int cimport PyInt_AS_LONG
 from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set
 from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
-from gmp.mpz cimport mpz_t, mpz_set_si, mpz_set
+from .gmp.mpz cimport mpz_t, mpz_set_si, mpz_set
+from cpython.version cimport PY_MAJOR_VERSION
 
 try:
     from sage.all import ZZ
@@ -28,9 +29,9 @@ cdef int assign_mpz(mpz_t& t, value) except -1:
     """
     Assign Python integer to Z_NR[mpz_t]
     """
-    if isinstance(value, int):
-        mpz_set_si(t, PyInt_AS_LONG(value))
-        return 0
+    if isinstance(value, int) and PY_MAJOR_VERSION == 2:
+            mpz_set_si(t, PyInt_AS_LONG(value))
+            return 0
     if isinstance(value, long):
         mpz_set_pylong(t, value)
         return 0
