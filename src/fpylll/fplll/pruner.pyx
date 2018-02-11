@@ -628,16 +628,16 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
     >>> A = IntegerMatrix.random(20, "qary", bits=20, k=10)
     >>> M = GSO.Mat(A)
     >>> LLL.Reduction(M)()
-    >>> _ = FPLLL.set_precision(53)
+    >>> _ = FPLLL.set_precision(128)
     >>> R = [M.get_r(i,i) for i in range(0, 20)]
     >>> pr0 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="double")
-    >>> pr1 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="long double")
+    >>> pr1 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="mpfr")
 
     >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
     (0.98, 0.98)
 
     >>> pr0 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.GRADIENT, float_type="double")
-    >>> pr1 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.NELDER_MEAD, float_type="long double")
+    >>> pr1 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.NELDER_MEAD, float_type="mpfr")
     >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
     (0.713510266183..., 0.82429147533...)
 
