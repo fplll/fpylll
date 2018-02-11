@@ -39,10 +39,9 @@ For instance `N_2` is given by
 ::
 
   >>> g = gauss(2,2,100)
-  >>> N2 = len(g)
-  >>> print N2
+  >>> len(g)
   13
-  >>> print g
+  >>> g
   [matrix([[0, 0]]), matrix([[ 1.]]), matrix([[ 1.]]), matrix([[ 2.]]), matrix([[ 2.]]), matrix([[ 4.]]), matrix([[ 4.]]), matrix([[-1.]]), matrix([[-1.]]), matrix([[-2.]]), matrix([[-2.]]), matrix([[-4.]]), matrix([[-4.]])]
 
 
