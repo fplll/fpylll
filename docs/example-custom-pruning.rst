@@ -1,3 +1,5 @@
+.. _example-custom-pruning:
+
 .. role:: math(raw)
    :format: html latex
 ..
@@ -5,6 +7,8 @@
 .. role:: raw-latex(raw)
    :format: latex
 ..
+
+:orphan:
 
 Linear Pruning
 ==============

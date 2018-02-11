@@ -591,9 +591,9 @@ cdef class IntegerMatrix:
               random modulo q. These bases correspond to the SIS/LWE q-ary lattices. Goldstein-Mayer
               lattices correspond to `k=1` and `q` prime.
 
-            - ``"trg"`` - (``alpha``) generate a `d × d` lower-triangular matrix `B` with `B_{ii} =
-              2^{(d-i+1)^\\alpha}` for all `i`, and `B_{ij}` is uniform between `-B_{jj}/2` and
-              `B_{jj}/2` for all ``j<i`.
+            - ``"trg"`` - (``alpha``) generate a `d × d` lower-triangular matrix `B` with
+              `B_{ii} = 2^{(d-i+1)^\\alpha}` for all `i`, and `B_{ij}` is uniform between
+              `-B_{jj}/2` and `B_{jj}/2` for all `j<i`.
 
         :warning: The NTRU options above do *not* produce genuine NTRU lattice with an unusually
             short dense sublattice.

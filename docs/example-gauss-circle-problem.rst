@@ -1,6 +1,10 @@
+.. _example-gauss-circle-problem:
+
 .. role:: math(raw)
    :format: html latex
 ..
+
+:orphan:
 
 .. role:: raw-latex(raw)
    :format: latex

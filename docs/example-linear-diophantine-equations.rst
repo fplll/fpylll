@@ -1,3 +1,5 @@
+.. _example-linear-diophantine-equations:
+
 .. role:: math(raw)
    :format: html latex
 ..
@@ -5,6 +7,8 @@
 .. role:: raw-latex(raw)
    :format: latex
 ..
+
+:orphan:
 
 
 Small solutions to a linear diophantine equation
