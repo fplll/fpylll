@@ -2,29 +2,35 @@
 include "fpylll/config.pxi"
 
 
-from fpylll.fplll.decl cimport gso_mpz_d, gso_mpz_ld, gso_mpz_dpe, gso_mpz_mpfr, fp_nr_t
+from fpylll.fplll.decl cimport fp_nr_t
 from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fpylll.fplll.fplll cimport IntType, ZT_LONG, ZT_MPZ
 from fpylll.fplll.fplll cimport adjust_radius_to_gh_bound as adjust_radius_to_gh_bound_c
+from fpylll.fplll.fplll cimport set_external_enumerator as set_external_enumerator_c
+from fpylll.fplll.fplll cimport extenum_fc_enumerate
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
-from fpylll.fplll.fplll cimport PRUNER_METHOD_GRADIENT, PRUNER_METHOD_NM, PRUNER_METHOD_HYBRID, PRUNER_METHOD_GREEDY
-from fpylll.fplll.fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS
+from fpylll.fplll.fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS, PrunerMetric
 from fpylll.fplll.gso cimport MatGSO
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
 from math import log, exp, lgamma, pi
-
+from libcpp.functional cimport function
 
 IF HAVE_QD:
     from fpylll.qd.qd cimport dd_real, qd_real
     from fpylll.fplll.fplll cimport FT_DD, FT_QD
 
+cdef extern from "util_helper.h":
+    function[extenum_fc_enumerate] void_ptr_to_function(void *ptr)
+
 
 float_aliases = {'d': 'double',
                  'ld': 'long double'}
 
-cdef FloatType check_float_type(object float_type):
+# We return `object` to permit exceptions
+
+cdef object check_float_type(object float_type):
 
     float_type = float_aliases.get(float_type, float_type)
 
@@ -46,7 +52,7 @@ cdef FloatType check_float_type(object float_type):
 
     raise ValueError("Float type '%s' unknown." % float_type)
 
-cdef IntType check_int_type(object int_type):
+cdef object check_int_type(object int_type):
 
     if int_type == "default" or int_type is None:
         return ZT_MPZ
@@ -55,22 +61,9 @@ cdef IntType check_int_type(object int_type):
     if int_type == "long":
         return ZT_LONG
 
-    raise ValueError("Float type '%s' unknown." % int_type)
+    raise ValueError("Integer type '%s' unknown." % int_type)
 
-
-cdef int check_descent_method(object descent_method) except -1:
-    if descent_method == "gradient":
-        return PRUNER_METHOD_GRADIENT
-    elif descent_method == "nm":
-        return PRUNER_METHOD_NM
-    elif descent_method == "hybrid":
-        return PRUNER_METHOD_HYBRID
-    elif descent_method == "greedy":
-        return PRUNER_METHOD_GREEDY
-    else:
-        raise ValueError("Descent method '%s' not supported."%descent_method)
-
-cdef int check_pruner_metric(object metric) except -1:
+cdef PrunerMetric check_pruner_metric(object metric):
     if metric == "probability" or metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
         return PRUNER_METRIC_PROBABILITY_OF_SHORTEST
     elif metric == "solutions" or metric == PRUNER_METRIC_EXPECTED_SOLUTIONS:
@@ -139,22 +132,26 @@ def get_precision(float_type="mpfr"):
 
     This function returns the precision per type::
 
-        >>> from fpylll import get_precision, set_precision
-        >>> get_precision('double')
+        >>> import fpylll
+        >>> from fpylll import FPLLL
+        >>> FPLLL.get_precision('double')
         53
-        >>> get_precision('long double')
+        >>> if fpylll.config.have_long_double:
+        ...     FPLLL.get_precision('long double')
+        ... else:
+        ...     64
         64
-        >>> get_precision('dpe')
+        >>> FPLLL.get_precision('dpe')
         53
 
     For the MPFR type different precisions are supported::
 
-        >>> _ = set_precision(212)
-        >>> get_precision('mpfr')
+        >>> _ = FPLLL.set_precision(212)
+        >>> FPLLL.get_precision('mpfr')
         212
-        >>> get_precision()
+        >>> FPLLL.get_precision()
         212
-        >>> _ = set_precision(53)
+        >>> _ = FPLLL.set_precision(53)
 
     """
     cdef FloatType float_type_ = check_float_type(float_type)
@@ -235,10 +232,71 @@ class ReductionError(RuntimeError):
 
 
 def ball_log_vol(n):
+    """
+    Return volume of `n`-dimensional unit ball
+
+    :param n: dimension
+
+    """
     return (n/2.) * log(pi) - lgamma(n/2. + 1)
 
 def gaussian_heuristic(r):
+    """
+    Return squared norm of shortest vector as predicted by the Gaussian heuristic.
+
+    :param r: vector of squared Gram-Schmidt norms
+
+    """
     n = len(list(r))
     log_vol = sum([log(x) for x in r])
     log_gh =  1./n * (log_vol - 2 * ball_log_vol(n))
     return exp(log_gh)
+
+cpdef set_external_enumerator(enumerator):
+    """
+    Set an external enumeration library.
+
+    For example, assume you compiled a `fplll-extenum
+    <https://github.com/cr-marcstevens/fplll-extenum>`_
+
+    First, we load the required Python modules: fpylll and `ctypes
+    <https://docs.python.org/2/library/ctypes.html>`_
+
+    >>> from fpylll import *  # doctest: +SKIP
+    >>> import ctypes         # doctest: +SKIP
+
+    Then, using ``ctypes`` we dlopen ``enumlib.so``
+
+    >>> enumlib = ctypes.cdll.LoadLibrary("enumlib.so") # doctest: +SKIP
+
+    For demonstration purposes we increase the loglevel. Note that functions names are result of C++
+    compiler name mangling and may differ depending on platform/compiler/linker.
+
+    >>> enumlib._Z20enumlib_set_logleveli(1)            # doctest: +SKIP
+
+    We grab the external enumeration function
+
+    >>> fn = enumlib._Z17enumlib_enumerateidSt8functionIFvPdmbS0_S0_EES_IFddS0_EES_IFvdS0_iEEbb # doctest: +SKIP
+
+    and pass it to Fplll
+
+    >>> FPLLL.set_external_enumerator(fn)  # doctest: +SKIP
+
+    To disable the external enumeration library, call
+
+    >>> FPLLL.set_external_enumerator(None)  # doctest: +SKIP
+
+    """
+    import ctypes
+    cdef unsigned long p
+    if not enumerator:
+        set_external_enumerator_c(<function[extenum_fc_enumerate]>NULL)
+    elif isinstance(enumerator, ctypes._CFuncPtr):
+        p = ctypes.cast(enumerator, ctypes.c_void_p).value
+        set_external_enumerator_c(void_ptr_to_function(<void *>p))
+
+class FPLLL:
+    set_precision = staticmethod(set_precision)
+    get_precision = staticmethod(get_precision)
+    set_random_seed = staticmethod(set_random_seed)
+    set_external_enumerator = staticmethod(set_external_enumerator)

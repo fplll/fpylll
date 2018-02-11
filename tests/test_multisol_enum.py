@@ -57,7 +57,7 @@ def test_multisol():
     solutions = []
     solutions = Enumeration(m, nr_solutions=200).enumerate(0, 27, 48.5, 0)
     assert len(solutions)== 126 / 2
-    for sol, _ in solutions:
+    for _, sol in solutions:
         sol = IntegerMatrix.from_iterable(1, A.nrows, map(lambda x: int(round(x)), sol))
         sol = tuple((sol*A)[0])
         dist = sum([x**2 for x in sol])
@@ -66,7 +66,7 @@ def test_multisol():
     solutions = []
     solutions = Enumeration(m, nr_solutions=126 / 2).enumerate(0, 27, 100., 0)
     assert len(solutions)== 126 / 2
-    for sol, _ in solutions:
+    for _, sol in solutions:
         sol = IntegerMatrix.from_iterable(1, A.nrows, map(lambda x: int(round(x)), sol))
         sol = tuple((sol*A)[0])
         dist = sum([x**2 for x in sol])

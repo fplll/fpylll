@@ -3,8 +3,8 @@
 from random import randint
 from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZBase
-from fpylll.algorithms.bkz_stats import dummy_tracer
-from fpylll.util import adjust_radius_to_gh_bound
+from fpylll.tools.bkz_stats import dummy_tracer
+from fpylll.util import gaussian_heuristic
 
 
 class BKZReduction(BKZBase):
@@ -17,13 +17,16 @@ class BKZReduction(BKZBase):
         """
         BKZBase.__init__(self, A)
 
-    def get_pruning(self, kappa, block_size, param, tracer=dummy_tracer):
-        strategy = param.strategies[block_size]
+    def get_pruning(self, kappa, block_size, params, tracer=dummy_tracer):
+        strategy = params.strategies[block_size]
+        radius = self.M.get_r(kappa, kappa) * self.lll_obj.delta
+        r = [self.M.get_r(i, i) for i in range(kappa, kappa+block_size)]
+        gh_radius = gaussian_heuristic(r)
 
-        radius, re = self.M.get_r_exp(kappa, kappa)
-        root_det = self.M.get_root_det(kappa, kappa + block_size)
-        gh_radius, ge = adjust_radius_to_gh_bound(radius, re, block_size, root_det, 1.0)
-        return strategy.get_pruning(radius  * 2**re, gh_radius * 2**ge)
+        if (params.flags & BKZ.GH_BND and block_size > 30):
+            radius = min(radius, gh_radius * params.gh_factor)
+
+        return radius, strategy.get_pruning(radius, gh_radius)
 
     def randomize_block(self, min_row, max_row, tracer=dummy_tracer, density=0):
         """Randomize basis between from ``min_row`` and ``max_row`` (exclusive)
@@ -31,8 +34,6 @@ class BKZReduction(BKZBase):
             1. permute rows
 
             2. apply lower triangular matrix with coefficients in -1,0,1
-
-            3. LLL reduce result
 
         :param min_row: start in this row
         :param max_row: stop at this row (exclusive)
@@ -96,14 +97,8 @@ class BKZReduction(BKZBase):
                 with tracer.context("reduction"):
                     self.svp_preprocessing(kappa, block_size, params, tracer=tracer)
 
-            radius, expo = self.M.get_r_exp(kappa, kappa)
-            radius *= self.lll_obj.delta
-
-            if params.flags & BKZ.GH_BND and block_size > 30:
-                root_det = self.M.get_root_det(kappa, kappa + block_size)
-                radius, expo = adjust_radius_to_gh_bound(radius, expo, block_size, root_det, params.gh_factor)
-
-            pruning = self.get_pruning(kappa, block_size, params, tracer)
+            with tracer.context("pruner"):
+                radius, pruning = self.get_pruning(kappa, block_size, params, tracer)
 
             try:
                 enum_obj = Enumeration(self.M)
@@ -111,7 +106,7 @@ class BKZReduction(BKZBase):
                                     enum_obj=enum_obj,
                                     probability=pruning.expectation,
                                     full=block_size==params.block_size):
-                    solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, radius, expo,
+                    max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, radius, 0,
                                                             pruning=pruning.coefficients)[0]
                 with tracer.context("postprocessing"):
                     self.svp_postprocessing(kappa, block_size, solution, tracer=tracer)

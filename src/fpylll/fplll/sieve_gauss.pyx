@@ -10,9 +10,9 @@ ACM-SIAM.
 
 Example::
 
-    >>> from fpylll import IntegerMatrix, GaussSieve, SVP, LLL, set_random_seed
-    >>> set_random_seed(1337)
-    >>> A = IntegerMatrix.random(30, "qary", k=15, q=127); A = LLL.reduction(A)
+    >>> from fpylll import IntegerMatrix, GaussSieve, SVP, LLL, FPLLL
+    >>> FPLLL.set_random_seed(1337)
+    >>> A = IntegerMatrix.random(20, "qary", k=10, q=127); A = LLL.reduction(A)
     >>> w = SVP.shortest_vector(A)
     >>> v = GaussSieve(A, algorithm=2)()
     >>> sum([w_**2 for w_ in w]) == sum([v_**2 for v_ in v])
@@ -23,10 +23,10 @@ Example::
 include "fpylll/config.pxi"
 
 from random import randint
-from fplll cimport NumVect, Z_NR, ZT_MPZ, ZT_LONG
-from fplll cimport GaussSieve as GaussSieve_c
+from .fplll cimport NumVect, Z_NR, ZT_MPZ, ZT_LONG
+from .fplll cimport GaussSieve as GaussSieve_c
 from fpylll.io cimport assign_Z_NR_mpz, mpz_get_python
-from integer_matrix cimport IntegerMatrix
+from .integer_matrix cimport IntegerMatrix
 from cysignals.signals cimport sig_on, sig_off
 
 

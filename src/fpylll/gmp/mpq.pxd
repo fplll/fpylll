@@ -1,7 +1,7 @@
 # copied/adapted from Sage development tree version 6.9
 # distutils: libraries = gmp
 
-from types cimport *
+from .types cimport *
 
 cdef extern from "gmp.h":
 

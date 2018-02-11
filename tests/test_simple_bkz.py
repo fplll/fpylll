@@ -4,7 +4,7 @@ from copy import copy
 
 from fpylll import BKZ, IntegerMatrix, LLL
 from fpylll.algorithms.simple_bkz import BKZReduction as SimpleBKZ
-from fpylll.util import set_random_seed
+from fpylll import FPLLL
 
 dimensions = (61, 67)
 
@@ -16,7 +16,7 @@ def make_integer_matrix(n):
 
 def test_simple_bkz_init():
     for n in dimensions:
-        set_random_seed(2**10 + n)
+        FPLLL.set_random_seed(2**10 + n)
         A = make_integer_matrix(n)
         B = SimpleBKZ(copy(A))
         del B
@@ -24,7 +24,7 @@ def test_simple_bkz_init():
 
 def test_simple_bkz_reduction(block_size=10):
     for n in dimensions:
-        set_random_seed(n)
+        FPLLL.set_random_seed(n)
         A = make_integer_matrix(n)
         LLL.reduction(A)
         B = copy(A)

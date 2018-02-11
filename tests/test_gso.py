@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import sys
 from fpylll import GSO, IntegerMatrix, LLL
 from fpylll.config import float_types, int_types
 from copy import copy
 
-dimensions = ((0, 0), (2, 2), (3, 3), (10, 10), (50, 50), (60, 60))
+if sys.maxsize >= 2**62:
+    dimensions = ((0, 0), (2, 2), (3, 3), (10, 10), (30, 30), (50, 50), (60, 60))
+else:
+    dimensions = ((0, 0), (2, 2), (3, 3), (10, 10), (30, 30))
 
 
 def make_integer_matrix(m, n, int_type="mpz"):
@@ -21,11 +25,11 @@ def test_gso_init():
                 M = GSO.Mat(copy(A), float_type=float_type)
                 del M
 
-                U = IntegerMatrix(m, m)
+                U = IntegerMatrix(m, m, int_type=int_type)
                 M = GSO.Mat(copy(A), U=U, float_type=float_type)
                 del M
 
-                UinvT = IntegerMatrix(m, m)
+                UinvT = IntegerMatrix(m, m, int_type=int_type)
                 M = GSO.Mat(copy(A), U=U, UinvT=UinvT, float_type=float_type)
                 del M
 
@@ -53,12 +57,12 @@ def test_gso_int_gram_enabled():
                 assert M.transform_enabled is False
 
                 if m and n:
-                    U = IntegerMatrix(m, m)
+                    U = IntegerMatrix(m, m, int_type=int_type)
                     M = GSO.Mat(copy(A), U=U, float_type=float_type)
                     assert M.transform_enabled is True
                     assert M.inverse_transform_enabled is False
 
-                    UinvT = IntegerMatrix(m, m)
+                    UinvT = IntegerMatrix(m, m, int_type=int_type)
                     M = GSO.Mat(copy(A), U=U, UinvT=UinvT, float_type=float_type)
                     assert M.transform_enabled is True
                     assert M.inverse_transform_enabled is True

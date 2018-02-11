@@ -10,6 +10,7 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.pair cimport pair
 from libcpp cimport bool
+from libcpp.functional cimport function
 
 
 cdef extern from "<map>" namespace "std":
@@ -320,6 +321,9 @@ cdef extern from "fplll/nr/matrix.h" namespace "fplll":
         void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, T& tmp) nogil
         void addmul_si_2exp(const MatrixRow[T]& v, long x, long expo, int n, T& tmp) nogil
 
+        void dot_product(T &result, const MatrixRow[T] &v0) nogil
+        void dot_product(T &result, const MatrixRow[T] &v0, int n) nogil
+
     void dot_product[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2, int n) nogil
     void dot_product[T](T& result, const MatrixRow[T]& v1, const MatrixRow[T]& v2) nogil
 
@@ -415,7 +419,7 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         void discover_all_rows() nogil
         void set_r(int i, int j, FT& f) nogil
         void move_row(int oldR, int newR) nogil
-        void row_swap(int row1, int row2)
+        void row_swap(int row1, int row2) nogil
 
         void row_addmul(int i, int j, const FT& x) nogil
         void row_addmul_we(int i, int j, const FT& x, long expoAdd) nogil
@@ -450,6 +454,105 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         const int enable_inverse_transform
         const int row_op_force_long
 
+cdef extern from "fplll/gso_gram.h" namespace "fplll":
+
+    cdef cppclass MatGSOGram[ZT, FT]:
+        MatGSOGram(Matrix[ZT] B, Matrix[ZT] U, Matrix[ZT] UinvT, int flags)
+
+        long get_max_exp_of_b() nogil
+        bool b_row_is_zero(int i) nogil
+        int get_cols_of_b() nogil
+        int get_rows_of_b() nogil
+        void negate_row_of_b(int i) nogil
+
+        void set_g(Matrix[ZT] arg_g)
+        void create_rows(int n_new_rows) nogil
+        void remove_last_rows(int n_removed_rows) nogil
+
+        void move_row(int old_r, int new_r) nogil
+
+        void row_addmul_we(int i, int j, const FT &x, long expo_add) nogil
+
+        void row_add(int i, int j) nogil
+        void row_sub(int i, int j) nogil
+
+        FT &get_gram(FT &f, int i, int j) nogil
+
+
+cdef extern from "fplll/gso_interface.h" namespace "fplll":
+
+    cdef cppclass MatGSOInterface[ZT, FT]:
+        MatGSOInterface(Matrix[ZT] B, Matrix[ZT] U, Matrix[ZT] UinvT, int flags)
+
+        int d
+
+        long get_max_exp_of_b() nogil
+        bool b_row_is_zero(int i) nogil
+
+        int get_cols_of_b() nogil
+        int get_rows_of_b() nogil
+
+        void negate_row_of_b(int i) nogil
+        vector[long] row_expo
+
+        inline void row_op_begin(int first, int last) nogil
+        void row_op_end(int first, int last) nogil
+        FT &get_gram(FT &f, int i, int j) nogil
+        const Matrix[FT] &get_mu_matrix() nogil
+        const Matrix[FT] &get_r_matrix() nogil
+        const Matrix[ZT] &get_g_matrix() nogil
+        inline const FT &get_mu_exp(int i, int j, long &expo) nogil
+        inline const FT &get_mu_exp(int i, int j) nogil
+        inline FT &get_mu(FT &f, int i, int j) nogil
+        ZT get_max_gram() nogil
+        FT get_max_bstar() nogil
+        inline const FT &get_r_exp(int i, int j, long &expo) nogil
+        inline const FT &get_r_exp(int i, int j) nogil
+        inline FT &get_r(FT &f, int i, int j) nogil
+        long get_max_mu_exp(int i, int n_columns) nogil
+        bool update_gso_row(int i, int last_j) nogil
+
+        inline bool update_gso_row(int i) nogil
+        inline bool update_gso() nogil
+
+        inline void discover_all_rows() nogil
+        void set_r(int i, int j, FT &f) nogil
+
+        void move_row(int old_r, int new_r) nogil
+        void row_swap(int row1, int row2) nogil
+
+
+        inline void row_addmul(int i, int j, const FT &x) nogil
+        void row_addmul_we(int i, int j, const FT &x, long expo_add) nogil
+        void row_add(int i, int j) nogil
+        void row_sub(int i, int j) nogil
+        void lock_cols() nogil
+        void unlock_cols() nogil
+        inline void create_row() nogil
+        void create_rows(int n_new_rows) nogil
+        inline void remove_last_row() nogil
+        void remove_last_rows(int n_removed_rows) nogil
+
+        void apply_transform(const Matrix[FT] &transform, int src_base, int target_base) nogil
+        void apply_transform(const Matrix[FT] &transform, int src_base) nogil
+
+        void dump_mu_d(double* mu, int offset, int block_size) nogil
+        void dump_mu_d(vector[double] mu, int offset, int block_size) nogil
+
+        void dump_r_d(double* r, int offset, int block_size) nogil
+        void dump_r_d(vector[double] r, int offset, int block_size) nogil
+
+        double get_current_slope(int start_row, int stop_row) nogil
+        FT get_root_det(int start_row, int end_row) nogil
+        FT get_log_det(int start_row, int end_row) nogil
+        FT get_slide_potential(int start_row, int end_row, int block_size) nogil
+
+        const bool enable_int_gram
+        const bool enable_row_expo
+        const bool enable_transform
+        const bool enable_inverse_transform
+        const bool row_op_force_long
+
 
 
 # LLL
@@ -457,7 +560,7 @@ cdef extern from "fplll/gso.h" namespace "fplll":
 cdef extern from "fplll/lll.h" namespace "fplll":
 
     cdef cppclass LLLReduction[ZT,FT]:
-        LLLReduction(MatGSO[ZT, FT]& m, double delta, double eta, int flags)
+        LLLReduction(MatGSOInterface[ZT, FT]& m, double delta, double eta, int flags)
 
         int lll() nogil
         int lll(int kappa_min) nogil
@@ -475,7 +578,7 @@ cdef extern from "fplll/lll.h" namespace "fplll":
         int zeros
         int n_swaps
 
-    int is_lll_reduced[ZT, FT](MatGSO[ZT, FT]& m, double delta, double eta) nogil
+    int is_lll_reduced[ZT, FT](MatGSOInterface[ZT, FT]& m, double delta, double eta) nogil
 
 
 # LLL Wrapper
@@ -506,14 +609,18 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
 
-        int size()
 
         int max_sols
         EvaluatorStrategy strategy
         multimap[FT, vector[FT]] solutions
+        size_t sol_count
+        vector[pair[FT, vector[FT]]] sub_solutions
+
         multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator begin()
         multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator end()
 
+        int size()
+        bool empty()
 
     cdef cppclass FastEvaluator[FT]:
         FastEvaluator()
@@ -522,13 +629,17 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         void eval_sol(const vector[FT]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
 
-        int size()
-
         int max_sols
         EvaluatorStrategy strategy
         multimap[FT, vector[FT]] solutions
+        size_t sol_count
+        vector[pair[FT, vector[FT]]] sub_solutions
+
         multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator begin()
         multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator end()
+
+        int size()
+        bool empty()
 
 
     cdef cppclass FastErrorBoundedEvaluator:
@@ -537,7 +648,6 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
         void eval_sol(const vector[FP_NR[mpfr_t]]& newSolCoord,
                       const enumf& newPartialDist, enumf& maxDist, long normExp)
-
         int size()
 
         int max_sols
@@ -545,6 +655,7 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]] solutions
         multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator begin()
         multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator end()
+
 
 
 # Enumeration
@@ -574,6 +685,22 @@ cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
 
         long get_nodes()
 
+cdef extern from "fplll/enum/enumerate_ext.h" namespace "fplll":
+
+    ctypedef void extenum_cb_set_config (double *mu, size_t mudim, bool mutranspose, double *rdiag,
+                                         double *pruning)
+
+    ctypedef double extenum_cb_process_sol(double dist, double *sol);
+
+    ctypedef void extenum_cb_process_subsol(double dist, double *subsol, int offset);
+
+    ctypedef unsigned long extenum_fc_enumerate(int dim, enumf maxdist,
+                                                function[extenum_cb_set_config] cbfunc,
+                                                function[extenum_cb_process_sol] cbsol,
+                                                function[extenum_cb_process_subsol] cbsubsol,
+                                                bool dual, bool findsubsols)
+
+    void set_external_enumerator(function[extenum_fc_enumerate] extenum)
 
 
 # SVP
@@ -601,27 +728,27 @@ cdef extern from "fplll/svpcvp.h" namespace "fplll":
 
 cdef extern from "fplll/bkz_param.h" namespace "fplll":
 
-    cdef cppclass Pruning:
-        double radius_factor
+    cdef cppclass PruningParams:
+        double gh_factor
         vector[double] coefficients
         double expectation
         PrunerMetric metric
         vector[double] detailed_cost
 
-        Pruning()
+        PruningParams()
 
         @staticmethod
-        Pruning LinearPruning(int block_size, int level)
+        PruningParams LinearPruningParams(int block_size, int level)
 
     cdef cppclass Strategy:
         size_t block_size
-        vector[Pruning] pruning_parameters
+        vector[PruningParams] pruning_parameters
         vector[size_t] preprocessing_block_sizes
 
         @staticmethod
         Strategy EmptyStrategy()
 
-        Pruning get_pruning(double radius, double gh)
+        PruningParams get_pruning(double radius, double gh)
 
     cdef cppclass BKZParam:
         BKZParam() nogil
@@ -709,7 +836,6 @@ cdef extern from "fplll/util.h" namespace "fplll":
                                vector[Z_NR[mpz_t]] &x,
                                const ZZ_mat[mpz_t] &m) nogil
 
-    void sqr_norm[T](T& result, const MatrixRow[T]& v, int n) nogil
 
 
 
@@ -717,48 +843,56 @@ cdef extern from "fplll/util.h" namespace "fplll":
 
 cdef extern from "fplll/pruner.h" namespace "fplll":
 
-    cdef enum PrunerMethod:
-        PRUNER_METHOD_GREEDY
-        PRUNER_METHOD_GRADIENT
-        PRUNER_METHOD_NM
-        PRUNER_METHOD_HYBRID
+    cdef enum PrunerFlags:
+        PRUNER_CVP
+        PRUNER_START_FROM_INPUT
+        PRUNER_GRADIENT
+        PRUNER_NELDER_MEAD
+        PRUNER_VERBOSE
 
     cdef enum PrunerMetric:
         PRUNER_METRIC_PROBABILITY_OF_SHORTEST
         PRUNER_METRIC_EXPECTED_SOLUTIONS
 
     cdef cppclass Pruner[FT]:
-        FT enumeration_radius
-        FT preproc_cost
-        FT target
+        Pruner(const int n)
 
-        int verbosity
+        Pruner(const FT enumeration_radius, const FT preproc_cost, const vector[double] &gso_r)
 
-        PrunerMethod method
-        PrunerMetric metric
+        Pruner(const FT enumeration_radius, const FT preproc_cost, const vector[double] &gso_r,
+               const FT target, const PrunerMetric metric, int flags)
 
-        Pruner()
-        Pruner(FT enumeration_radius, FT preproc_cost, FT target)
-        Pruner(FT enumeration_radius, FT preproc_cost, FT target, PrunerMethod method,
-               PrunerMetric metric, size_t n, size_t d)
+        Pruner(const FT enumeration_radius, const FT preproc_cost, const vector[vector[double]] &gso_r)
 
-        void load_basis_shape(const vector[double] &gso_sq_norms, bool reset_renorm)
-        void load_basis_shapes(const vector[vector[double]] &gso_sq_norms_vec)
+        Pruner(const FT enumeration_radius, const FT preproc_cost, const vector[vector[double]] &gso_r,
+               const FT target, const PrunerMetric metric, int flags)
 
-        void optimize_coefficients(vector[double] &pr, bool reset)
+        void optimize_coefficients(vector[double] &pr)
 
-        double single_enum_cost(const vector[double] &pr)
         double single_enum_cost(const vector[double] &pr, vector[double] *detailed_cost)
+        double single_enum_cost(const vector[double] &pr)
+
         double repeated_enum_cost(const vector[double] &pr)
+
         double measure_metric(const vector[double] &pr)
 
-    void prune[FT](Pruning &pruning, double &enumeration_radius, const double preproc_cost, const double target,
-                   vector[double] &r, const PrunerMethod method, const PrunerMetric metric, bool reset)
+        FT gaussian_heuristic()
 
-    void prune[FT](Pruning &pruning, double &enumeration_radius, const double preproc_cost, const double target,
-                   vector[vector[double]] &rs, const PrunerMethod method, const PrunerMetric metric, bool reset);
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[double] &gso_r)
 
-    FT svp_probability[FT](const Pruning &pruning)
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[double] &gso_r,
+                   const double target, const PrunerMetric metric, const int flags)
+
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[vector[double]] &gso_r)
+
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[vector[double]] &gso_r,
+                   const double target, const PrunerMetric metric, const int flags)
+
+    FT svp_probability[FT](const PruningParams &pruning)
     FT svp_probability[FT](const vector[double] &pr)
 
 
@@ -767,7 +901,7 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
 
 cdef extern from "fplll/sieve/sieve_gauss.h" namespace "fplll":
     cdef cppclass GaussSieve[ZT, FT]:
-        GaussSieve(ZZ_mat[ZT] &B, int algorithm, bool verbose, int seed);
+        GaussSieve(ZZ_mat[ZT] &B, int algorithm, bool verbose, int seed)
 
         bool sieve(Z_NR[ZT] target_norm)
 

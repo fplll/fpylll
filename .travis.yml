@@ -4,12 +4,20 @@ language: python
 python:
   - "2.7"
   - "3.5"
+matrix:
+  include:
+    - env: HAVE_QD=no
+    - env: HAVE_LONG_DOUBLE=no
+    - env: HAVE_NUMPY=no
+    - env:
+        - HAVE_QD=no
+        - HAVE_LONG_DOUBLE=no
 
 cache: pip
 
-branches:
-  only:
-    - master
+# branches:
+#   only:
+#     - master
 
 addons:
   apt:
@@ -39,6 +47,7 @@ before_script:
   
 script:
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" py.test
+  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/tools/*.py
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/algorithms/*.py
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/fplll/*.pyx
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/*.pyx

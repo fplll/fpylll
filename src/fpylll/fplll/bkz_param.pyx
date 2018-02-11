@@ -9,192 +9,27 @@ include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 
-from fplll cimport BKZParam as BKZParam_c
-from fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
-from fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
-from fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
-from fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
-from fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
-from fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST
-from fplll cimport PRUNER_METRIC_EXPECTED_SOLUTIONS
-from fplll cimport LLL_DEF_DELTA
-from fplll cimport Pruning as Pruning_c
-from fplll cimport Strategy as Strategy_c
-from fplll cimport load_strategies_json as load_strategies_json_c
-from fplll cimport strategy_full_path
+from .fplll cimport BKZParam as BKZParam_c
+from .fplll cimport BKZ_MAX_LOOPS, BKZ_MAX_TIME, BKZ_DUMP_GSO, BKZ_DEFAULT
+from .fplll cimport BKZ_VERBOSE, BKZ_NO_LLL, BKZ_BOUNDED_LLL, BKZ_GH_BND, BKZ_AUTO_ABORT
+from .fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
+from .fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
+from .fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
+from .fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST
+from .fplll cimport PRUNER_METRIC_EXPECTED_SOLUTIONS
+from .fplll cimport LLL_DEF_DELTA
+from .fplll cimport PruningParams as PruningParams_c
+from .fplll cimport Strategy as Strategy_c
+from .fplll cimport load_strategies_json as load_strategies_json_c
+from .fplll cimport strategy_full_path
 
 from fpylll.util cimport check_delta, check_pruner_metric
 from cython.operator cimport dereference as deref, preincrement as inc
 
+from .pruner cimport PruningParams
+
 from collections import OrderedDict
 import json
-
-cdef class Pruning:
-    """
-    Pruning parameters.
-    """
-    def __init__(self, radius_factor, coefficients, expectation=1.0,
-                 metric="probability", detailed_cost=tuple()):
-        """Create new pruning parameters object.
-
-        :param radius_factor: ratio of radius to Gaussian heuristic
-        :param coefficients:  a list of pruning coefficients
-        :param expectation:   success probability or number of solutions
-        :param metric:        either "probability" or "solutions"
-
-        """
-        if radius_factor <= 0:
-            raise ValueError("Radius factor must be > 0")
-
-        cdef PrunerMetric met = <PrunerMetric>check_pruner_metric(metric)
-
-        if met == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
-            if expectation <= 0 or expectation > 1:
-                raise ValueError("Probability must be between 0 and 1")
-
-        self._core.radius_factor = radius_factor
-        self._core.expectation = expectation
-        self._core.metric = met
-
-        for c in coefficients:
-            self._core.coefficients.push_back(c)
-
-        for c in detailed_cost:
-            self._core.detailed_cost.push_back(c)
-
-    @staticmethod
-    cdef Pruning from_cxx(Pruning_c& p):
-        """
-        Load Pruning object from C++ Pruning object.
-
-        .. note::
-
-           All data is copied, i.e. `p` can be safely deleted after this function returned.
-        """
-
-        cdef Pruning self = Pruning(1.0, ())
-        self._core = p
-        return self
-
-    @staticmethod
-    cdef to_cxx(Pruning_c& self, Pruning p):
-        """
-        Store pruning object in C++ pruning object.
-
-        .. note::
-
-           All data is copied, i.e. `p` can be safely deleted after this function returned.
-        """
-        self.radius_factor = p._core.radius_factor
-        self.expectation = p._core.expectation
-        self.metric = p._core.metric
-        for c in p._core.coefficients:
-            self.coefficients.push_back(c)
-        for c in p._core.detailed_cost:
-            self.detailed_cost.push_back(c)
-
-    @staticmethod
-    def LinearPruning(block_size, level):
-        """
-        Set all pruning coefficients to 1, except the last <level>
-        coefficients, these will be linearly with slope `-1 / block_size`.
-
-        :param block_size: block size
-        :param level: level
-        """
-        sig_on()
-        cdef Pruning_c p = Pruning_c.LinearPruning(block_size, level)
-        sig_off()
-        return Pruning.from_cxx(p)
-
-    def __reduce__(self):
-        """
-            >>> from fpylll.fplll.bkz_param import Pruning
-            >>> import pickle
-            >>> print(pickle.loads(pickle.dumps(Pruning(1.0, [1.0, 0.6, 0.3], 1.0))))
-            Pruning<1.000000, (1.00,...,0.30), 1.0000>
-
-        """
-        return Pruning, (self.radius_factor, self.coefficients, self.expectation, self.metric, self.detailed_cost)
-
-    def __str__(self):
-        return "Pruning<%f, (%.2f,...,%.2f), %.4f>"%(self.radius_factor, self.coefficients[0], self.coefficients[-1], self.expectation)
-
-    @property
-    def radius_factor(self):
-        """
-
-            >>> from fpylll.fplll.bkz_param import Pruning
-            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
-            >>> pr.radius_factor
-            1.0
-
-        """
-        return self._core.radius_factor
-
-    @property
-    def expectation(self):
-        """
-
-            >>> from fpylll.fplll.bkz_param import Pruning
-            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
-            >>> pr.expectation
-            0.9
-
-        """
-        return self._core.expectation
-
-    @property
-    def metric(self):
-        """
-
-            >>> from fpylll.fplll.bkz_param import Pruning
-            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
-            >>> pr.metric
-            'probability'
-
-        """
-        if self._core.metric == PRUNER_METRIC_PROBABILITY_OF_SHORTEST:
-            return "probability"
-        elif self._core.metric == PRUNER_METRIC_EXPECTED_SOLUTIONS:
-            return "solutions"
-        else:
-            raise NotImplementedError("Metric %d not understood"%self._core.metric)
-
-    @property
-    def coefficients(self):
-        """
-
-            >>> from fpylll.fplll.bkz_param import Pruning
-            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
-            >>> pr.coefficients
-            (1.0, 0.6, 0.3)
-
-        """
-        cdef list coefficients = []
-        cdef vector[double].iterator it = self._core.coefficients.begin()
-        while it != self._core.coefficients.end():
-            coefficients.append(deref(it))
-            inc(it)
-        return tuple(coefficients)
-
-    @property
-    def detailed_cost(self):
-        """
-
-            >>> from fpylll.fplll.bkz_param import Pruning
-            >>> pr = Pruning(1.0, [1.0, 0.6, 0.3], 0.9)
-            >>> pr.detailed_cost
-            ()
-
-        """
-        cdef list detailed_cost = []
-        cdef vector[double].iterator it = self._core.detailed_cost.begin()
-        while it != self._core.detailed_cost.end():
-            detailed_cost.append(deref(it))
-            inc(it)
-        return tuple(detailed_cost)
-
 
 cdef class Strategy:
     """
@@ -215,13 +50,13 @@ cdef class Strategy:
         self._core.block_size = block_size
 
         for p in pruning_parameters:
-            if not isinstance(p, Pruning):
-                p = Pruning(*p)
-            self._core.pruning_parameters.push_back((<Pruning>p)._core)
+            if not isinstance(p, PruningParams):
+                p = PruningParams(*p)
+            self._core.pruning_parameters.push_back((<PruningParams>p)._core)
 
         if len(pruning_parameters) == 0:
-            p = Pruning(1.0, [1.0 for _ in range(self.block_size)], 1.0)
-            self._core.pruning_parameters.push_back((<Pruning>p)._core)
+            p = PruningParams(1.0, [1.0 for _ in range(self.block_size)], 1.0)
+            self._core.pruning_parameters.push_back((<PruningParams>p)._core)
 
         for p in preprocessing_block_sizes:
             if p<=2:
@@ -241,9 +76,9 @@ cdef class Strategy:
         closest_dist = 2**80
         best = None
         for pruning in self.pruning_parameters:
-            if abs(pruning.radius_factor - gh_factor) < closest_dist:
+            if abs(pruning.gh_factor - gh_factor) < closest_dist:
                 best = pruning
-                closest_dist = abs(pruning.radius_factor - gh_factor)
+                closest_dist = abs(pruning.gh_factor - gh_factor)
         assert(best is not None)
         return best
 
@@ -260,7 +95,7 @@ cdef class Strategy:
         d = OrderedDict()
         d["block_size"] = self.block_size
         d["preprocessing_block_sizes"] = self.preprocessing_block_sizes
-        d["pruning_parameters"] = tuple([(p.radius_factor, p.coefficients, p.expectation, p.metric, p.detailed_cost)
+        d["pruning_parameters"] = tuple([(p.gh_factor, p.coefficients, p.expectation, p.metric, p.detailed_cost)
                                          for p in self.pruning_parameters])
         return d
 
@@ -275,9 +110,11 @@ cdef class Strategy:
 
     def __reduce__(self):
         """
+            >>> from fpylll import Pruning
             >>> from fpylll.fplll.bkz_param import Strategy
             >>> import pickle
-            >>> print(pickle.loads(pickle.dumps(Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)]))))
+            >>> p = Pruning.PruningParams(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)
+            >>> print(pickle.loads(pickle.dumps(Strategy(20, [10], [p]))))
             Strategy< 20, (10), 0.50-0.50>
 
         """
@@ -293,7 +130,7 @@ cdef class Strategy:
     cdef to_cxx(Strategy_c& self, Strategy s):
 
         for p in s.pruning_parameters:
-            self.pruning_parameters.push_back((<Pruning>p)._core)
+            self.pruning_parameters.push_back((<PruningParams>p)._core)
 
         for p in s.preprocessing_block_sizes:
             self.preprocessing_block_sizes.push_back(p)
@@ -303,8 +140,9 @@ cdef class Strategy:
     @property
     def block_size(self):
         """
+            >>> from fpylll import Pruning
             >>> from fpylll.fplll.bkz_param import Strategy
-            >>> s = Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
+            >>> s = Strategy(20, [10], [Pruning.PruningParams(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
             >>> s.block_size
             20
 
@@ -314,8 +152,9 @@ cdef class Strategy:
     @property
     def preprocessing_block_sizes(self):
         """
+            >>> from fpylll import Pruning
             >>> from fpylll.fplll.bkz_param import Strategy
-            >>> s = Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
+            >>> s = Strategy(20, [10], [Pruning.PruningParams(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
             >>> s.preprocessing_block_sizes
             (10,)
 
@@ -330,16 +169,17 @@ cdef class Strategy:
     @property
     def pruning_parameters(self):
         """
+            >>> from fpylll import Pruning
             >>> from fpylll.fplll.bkz_param import Strategy
-            >>> s = Strategy(20, [10], [Pruning(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
+            >>> s = Strategy(20, [10], [Pruning.PruningParams(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)])
             >>> print(s.pruning_parameters[0])
-            Pruning<1.000000, (1.00,...,0.25), 0.5000>
+            PruningParams<1.000000, (1.00,...,0.25), 0.5000>
 
         """
         cdef list pruning_parameters = []
-        cdef vector[Pruning_c].iterator it = self._core.pruning_parameters.begin()
+        cdef vector[PruningParams_c].iterator it = self._core.pruning_parameters.begin()
         while it != self._core.pruning_parameters.end():
-            pruning_parameters.append(Pruning.from_cxx(deref(it)))
+            pruning_parameters.append(PruningParams.from_cxx(deref(it)))
             inc(it)
         return tuple(pruning_parameters)
 
@@ -595,9 +435,9 @@ cdef class BKZParam:
 
         """
         if not isinstance(what, str):
-            raise TypeError("Only strings are supported as auxilary keys but got %s"%what)
+            raise TypeError("Only strings are supported as auxiliary keys but got %s"%what)
         if not what.startswith("aux"):
-            raise ValueError("Auxilary keys must start with 'aux' but got '%s'"%what)
+            raise ValueError("Auxiliary keys must start with 'aux' but got '%s'"%what)
         self.aux[what] = value
 
     def dict(self, all=True):

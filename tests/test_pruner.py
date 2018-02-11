@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from fpylll import Enumeration, GSO, IntegerMatrix, LLL, prune
+from fpylll import Enumeration, GSO, IntegerMatrix, LLL, Pruning
 from fpylll.util import gaussian_heuristic
 from time import clock
 
@@ -17,8 +17,8 @@ def prepare(n):
 
 def test_pruner():
 
-    # A dummy prune to load tabulated values
-    prune(5, 50, .5, 10*[1.])
+    # A dummyPruningParams.run to load tabulated values
+    Pruning.run(5, 50, 10*[1.], .5)
 
     for (n, overhead) in dim_oh:
 
@@ -31,8 +31,7 @@ def test_pruner():
         radius = gaussian_heuristic(r) * 1.6
         print("pre-greedy radius %.4e" % radius)
         tt = clock()
-        (radius, pruning) = prune(radius, overhead, 200, r,
-                                  descent_method="greedy", metric="solutions")
+        pruning =Pruning.run(radius, overhead, r, 200, flags=Pruning.ZEALOUS, metric="solutions")
         print("Time %.4e"%(clock() - tt))
         print("post-greedy radius %.4e" % radius)
         print(pruning)
@@ -45,7 +44,7 @@ def test_pruner():
         print(" \n GREEDY \n")
         print("pre-greedy radius %.4e" % radius)
         tt = clock()
-        (radius, pruning) = prune(radius, overhead, 200, r, descent_method="greedy", metric="solutions")
+        pruning = Pruning.run(radius, overhead, r, 200, flags=Pruning.ZEALOUS, metric="solutions")
         print("Time %.4e"%(clock() - tt))
         print("post-greedy radius %.4e" % radius)
         print(pruning)
@@ -59,7 +58,7 @@ def test_pruner():
 
         print("radius %.4e" % radius)
         tt = clock()
-        pruning = prune(radius, overhead, 200, r, descent_method="gradient", metric="solutions")
+        pruning = Pruning.run(radius, overhead, r, 200, flags=Pruning.GRADIENT, metric="solutions")
         print("Time %.4e"%(clock() - tt))
         print(pruning)
         print("cost %.4e" % sum(pruning.detailed_cost))
@@ -72,7 +71,7 @@ def test_pruner():
 
         print("radius %.4e" % radius)
         tt = clock()
-        pruning = prune(radius, overhead, 200, r, descent_method="hybrid", metric="solutions")
+        pruning = Pruning.run(radius, overhead, r, 200, flags=Pruning.ZEALOUS, metric="solutions")
         print("Time %.4e"%(clock() - tt))
         print(pruning)
         print("cost %.4e" % sum(pruning.detailed_cost))

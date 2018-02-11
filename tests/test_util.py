@@ -2,7 +2,6 @@
 
 from fpylll import IntegerMatrix, GSO
 from fpylll.util import adjust_radius_to_gh_bound, set_random_seed, gaussian_heuristic
-from fpylll.numpy import dump_r
 
 dimensions = [20, 21, 40, 41, 60, 61, 80, 81, 100, 101, 200, 201, 300, 301, 400, 401]
 
@@ -13,6 +12,11 @@ def make_integer_matrix(n):
 
 
 def test_gh():
+    try:
+        from fpylll.numpy import dump_r
+    except ImportError:
+        return
+
     for n in dimensions:
         set_random_seed(n)
         A = make_integer_matrix(n)

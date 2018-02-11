@@ -15,7 +15,7 @@ from fpylll import BKZ
 from fpylll import Enumeration
 from fpylll import EnumerationError
 from fpylll.util import adjust_radius_to_gh_bound
-from fpylll.algorithms.bkz_stats import BKZTreeTracer, dummy_tracer
+from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer
 
 
 class BKZReduction:
@@ -143,7 +143,7 @@ class BKZReduction:
 
         return clean
 
-    def svp_call(self, kappa, block_size, params, tracer=None):
+    def svp_call(self, kappa, block_size, params, tracer=dummy_tracer):
         """Call SVP oracle
 
         :param kappa: current index
@@ -167,7 +167,7 @@ class BKZReduction:
         try:
             enum_obj = Enumeration(self.M)
             with tracer.context("enumeration", enum_obj=enum_obj, probability=1.0):
-                solution, max_dist = enum_obj.enumerate(kappa, kappa + block_size, max_dist, expo)[0]
+                max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, max_dist, expo)[0]
 
         except EnumerationError as msg:
             if params.flags & BKZ.GH_BND:
@@ -281,4 +281,5 @@ class BKZReduction:
             clean_post = self.svp_postprocessing(kappa, block_size, solution, tracer)
         clean &= clean_post
 
+        self.lll_obj.size_reduction(0, kappa+1)
         return clean

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from fpylll import get_precision, set_precision
+from fpylll import FPLLL
 
 
 def test_precision():
-    set_precision(53)
-    assert get_precision() == 53
-    assert set_precision(100) == 53
-    assert set_precision(100) == 100
+    FPLLL.set_precision(53)
+    assert FPLLL.get_precision() == 53
+    assert FPLLL.set_precision(100) == 53
+    assert FPLLL.set_precision(100) == 100
