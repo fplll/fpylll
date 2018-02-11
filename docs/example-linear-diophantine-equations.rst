@@ -14,9 +14,7 @@
 Small solutions to a linear diophantine equation
 ================================================
 
-Say we want find a small solution to a linear diophantine equation `\sum_{i=1}^{n}a_ix_i=a_0`.
-In general Euclidean algorithm will provide a solution in polynomial time. This method does not provide small solution in general. We can use the lattice from [1]_ to attack this problem.
-Let A be the basis:
+Say we want find a small solution to a linear diophantine equation `\sum_{i=1}^{n}a_ix_i=a_0`. In general Euclidean algorithm will provide a solution in polynomial time. This method does not provide small solution in general. We can use the lattice from [1]_ to attack this problem. Let A be the basis:
 
 .. math::
 
@@ -28,33 +26,29 @@ Let A be the basis:
    0 & 0 & 0 & \cdots & 0 & N_1 &-N_2a_0
    \end{bmatrix}
 
-where `N_1`, `N_2` are some positive integers. Say `(x_1,x_2,...,x_n,x_{n+1},x_{n+2})` is a row of the LLL-reduced matrix of A. If `x_{n+1}=N_1, x_{n+2}=0,` then `(x_1,...,x_n)` is a solution of the linear equation.
-Say `{\bf a} = (1124, 1799, 1151, 1979, 1799, 1625, 1077, 1666, 1438, 1739)`, `a_0=22833`, `N_1=100`, `N_2=1000`. We use numpy matrices to define the previous matrix.
+where `N_1`, `N_2` are some positive integers. Say `(x_1,x_2,...,x_n,x_{n+1},x_{n+2})` is a row of the LLL-reduced matrix of A. If `x_{n+1}=N_1, x_{n+2}=0,` then `(x_1,...,x_n)` is a solution of the linear equation. Say `{\bf a} = (1124, 1799, 1151, 1979, 1799, 1625, 1077, 1666, 1438, 1739)`, `a_0=22833`, `N_1=100`, `N_2=1000`.::
 
 ::
 
-  >>> from fpylll import *
-  >>> import numpy as np
-  >>> from numpy import matrix
-  >>> from numpy import linalg as LA
-  >>> N1 = 100
-  >>> N2 = 10000
-  >>> a = [1124, 1799, 1151, 1979, 1799, 1625, 1077, 1666, 1438, 1739]
-  >>> a0 = 22833
-  >>> n = len(a)
-  >>> zero_matrix = matrix(np.zeros(n))
-  >>> L = matrix([[0 for i in range(0, n)], [N2*a[i] for i in range(0, n)]])
-  >>> L = L.transpose() #the two last columns
-  >>> M =  np.identity(n)
-  >>> Mb = np.hstack([M, L])
-  >>> last_line = matrix(np.hstack((np.zeros(n), np.array([N1, -N2*a0]))))
-  >>> Mb = np.vstack((Mb, last_line))
+    >>> from fpylll import IntegerMatrix, LLL
+    >>> N1 = 100
+    >>> N2 = 10000
+    >>> a = [1124, 1799, 1151, 1979, 1799, 1625, 1077, 1666, 1438, 1739]
+    >>> a0 = 22833
+    >>> n = len(a)
+    >>> M = IntegerMatrix(n+1, n+2)
+    >>> for i in range(len(a)):
+    ...     M[i, -1] = a[i]*N2
+    ...     M[i,  i] = 1
+    ...
+  
+    >>> M[-1, -2] = N1
+    >>> M[-1, -1] = -a0 * N2
+ 
 
-Note that before we apply LLL to Mb we need to convert it to fpyll IntegerMatrix.
+We can now apply LLL::
 
-::
-
-  >>> print(LLL.reduction(IntegerMatrix.from_matrix([map(int, row) for row in Mb.tolist()])))
+  >>> L = LLL.reduction(M); print(L)
   [  0 -1  0  0  1  0  0  0  0 0   0      0 ]
   [  0  1  0  0  0  0  1  0 -2 0   0      0 ]
   [ -1  0 -1 -1  0  0  1  0  1 1   0      0 ]
@@ -71,7 +65,7 @@ So a small solution is `{\bf v} = ( 1,  2,  0,  1,  2,  3,  1,  1,  1, 2 ),` wit
 
 ::
 
-  >>> LA.norm(np.array([1,  2,  0,  1,  2,  3,  1,  1,  1, 2]))
-  5.0990195135927845
+  >>> L.submatrix(0, 0, n, n)[-1].norm()  # doctest: +ELLIPSIS
+  5.099019513...
 
 .. [1] K. Aardal, C. Hurkens, A. Lenstra, Solving a linear Diophantine equation with lower and upper bounds on the variables. Integer programming and combinatorial optimization LNCS 1412, p.229–242, 1998.

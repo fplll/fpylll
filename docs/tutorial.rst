@@ -94,10 +94,10 @@ We can then compute the inner product `r_{i,j} = \langle {\bf b}_i, {\bf b}^{*}_
 ::
 
     >>> i = 3; j = 2;
-    >>> print(M.get_r(i,j))
-    0.810079798404
-    >>> print(M.get_mu(i,j))
-    0.0584569876831
+    >>> print(M.get_r(i,j)) # doctest: +ELLIPSIS
+    0.810079798...
+    >>> print(M.get_mu(i,j))  # doctest: +ELLIPSIS
+    0.0584569876...
 
 To compute the LLL reduced matrix of `{\bf A}`
 
