@@ -477,10 +477,6 @@ cdef class MatGSO:
                     for i in range(self.d):
                         for j in range(self.d):
                             G[i, j] = mpz_get_python(self._core.mpz_d.get_g_matrix()[i][j].get_data())
-                elif self._type == mat_gso_mpz_ld:
-                    for i in range(self.d):
-                        for j in range(self.d):
-                            G[i, j] = mpz_get_python(self._core.mpz_ld.get_g_matrix()[i][j].get_data())
                 elif self._type == mat_gso_mpz_dpe:
                     for i in range(self.d):
                         for j in range(self.d):
@@ -501,6 +497,11 @@ cdef class MatGSO:
                                     G[i, j] = mpz_get_python(self._core.mpz_qd.get_g_matrix()[i][j].get_data())
                         else:
                             raise RuntimeError("MatGSO object '%s' has no core."%self)
+                    ELIF HAVE_LONG_DOUBLE:
+                        if self._type == mat_gso_mpz_ld:
+                            for i in range(self.d):
+                                for j in range(self.d):
+                                    G[i, j] = mpz_get_python(self._core.mpz_ld.get_g_matrix()[i][j].get_data())
                     ELSE:
                         raise RuntimeError("MatGSO object '%s' has no core."%self)
                 return G
@@ -510,10 +511,6 @@ cdef class MatGSO:
                     for i in range(self.d):
                         for j in range(self.d):
                             G[i, j] = self._core.long_d.get_g_matrix()[i][j].get_data()
-                elif self._type == mat_gso_long_ld:
-                    for i in range(self.d):
-                        for j in range(self.d):
-                            G[i, j] = self._core.long_ld.get_g_matrix()[i][j].get_data()
                 elif self._type == mat_gso_long_dpe:
                     for i in range(self.d):
                         for j in range(self.d):
@@ -534,6 +531,11 @@ cdef class MatGSO:
                                     G[i, j] = self._core.long_qd.get_g_matrix()[i][j].get_data()
                         else:
                             raise RuntimeError("MatGSO object '%s' has no core."%self)
+                    ELIF HAVE_LONG_DOUBLE:
+                        if self._type == mat_gso_long_ld:
+                            for i in range(self.d):
+                                for j in range(self.d):
+                                    G[i, j] = self._core.long_ld.get_g_matrix()[i][j].get_data()
                     ELSE:
                         raise RuntimeError("MatGSO object '%s' has no core."%self)
                 return G

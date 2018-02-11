@@ -14,7 +14,11 @@ IF HAVE_QD:
     from .decl cimport mat_gso_long_dd, mat_gso_long_qd
     from .decl cimport dd_t, qd_t
 
-from .decl cimport d_t, ld_t
+from .decl cimport d_t
+
+IF HAVE_LONG_DOUBLE:
+    from  .decl cimport ld_t
+
 from .decl cimport mat_gso_mpz_d, mat_gso_mpz_ld, mat_gso_mpz_dpe, mat_gso_mpz_mpfr, vector_fp_nr_t, fp_nr_t
 from .decl cimport mat_gso_long_d, mat_gso_long_ld, mat_gso_long_dpe, mat_gso_long_mpfr
 from .decl cimport mat_gso_gso_t, mat_gso_gram_t
