@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import sys
 from fpylll import GSO, IntegerMatrix, LLL
 from fpylll.config import float_types, int_types
 from copy import copy
 
-dimensions = ((0, 0), (2, 2), (3, 3), (10, 10), (50, 50), (60, 60))
+if sys.maxsize >= 2**62:
+    dimensions = ((0, 0), (2, 2), (3, 3), (10, 10), (30, 30), (50, 50), (60, 60))
+else:
+    dimensions = ((0, 0), (2, 2), (3, 3), (10, 10), (30, 30))
 
 
 def make_integer_matrix(m, n, int_type="mpz"):
