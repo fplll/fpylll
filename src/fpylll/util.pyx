@@ -132,10 +132,14 @@ def get_precision(float_type="mpfr"):
 
     This function returns the precision per type::
 
+        >>> import fpylll
         >>> from fpylll import FPLLL
         >>> FPLLL.get_precision('double')
         53
-        >>> FPLLL.get_precision('long double')
+        >>> if fpylll.config.have_long_double:
+        ...     FPLLL.get_precision('long double')
+        ... else:
+        ...     64
         64
         >>> FPLLL.get_precision('dpe')
         53
