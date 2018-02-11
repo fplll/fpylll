@@ -21,37 +21,33 @@ Using enumeration we can study the Gauss circle problem [1]_, i.e. the problem o
   >>> from fpylll.fplll.integer_matrix import IntegerMatrix
   >>> from fpylll import FPLLL
   >>> from fpylll import Enumeration, EvaluatorStrategy
-  >>> import numpy as np
   >>> FPLLL.set_random_seed(1337)
-  >>> from numpy import matrix,matlib
   >>> def gauss(radius, dim, nr):
   ...  A = IntegerMatrix.identity(dim)   #define the latttice Z^dim
   ...  M = MatGSO(A)
   ...  _ = M.update_gso()
   ...  enum = Enumeration(M, nr_solutions = nr)
   ...  e1 = enum.enumerate(0, dim, radius**2, 0)
-  ...  e2 = [np.matrix(dim*[0])] + [np.matrix(item[0]) for item in e1]
-  ...  e3 = [((-1)*np.matrix(item[0])) for item in e1]
-  ...  return e2+e3
+  ...  return [tuple(dim*[0])] + [v for d,v in e1] + [tuple([-x for x in v]) for d,v in e1]
 
 For instance `N_2` is given by
 
 ::
 
-  >>> g = gauss(2,2,100)
+  >>> g = gauss(2, 2, 100)
   >>> len(g)
   13
   >>> g
-  [matrix([[0, 0]]), matrix([[ 1.]]), matrix([[ 1.]]), matrix([[ 2.]]), matrix([[ 2.]]), matrix([[ 4.]]), matrix([[ 4.]]), matrix([[-1.]]), matrix([[-1.]]), matrix([[-2.]]), matrix([[-2.]]), matrix([[-4.]]), matrix([[-4.]])]
+  [(0, 0), (0.0, 1.0), (1.0, 0.0), (-1.0, 1.0), (1.0, 1.0), (0.0, 2.0), (2.0, 0.0), (-0.0, -1.0), (-1.0, -0.0), (1.0, -1.0), (-1.0, -1.0), (-0.0, -2.0), (-2.0, -0.0)]
 
 
 For `{\rm dim} = 2` is enough to choose the parameter `nr = \lceil \pi R^2+2\sqrt{2}\pi R\rceil.` For `R=80` we get
 
 ::
 
-  >>> pi = np.pi
+  >>> from math import pi, ceil, sqrt
   >>> R = 80
-  >>> nr = np.ceil(pi*R**2 + 2*np.sqrt(2)*pi*R)
+  >>> nr = ceil(pi*R**2 + 2*sqrt(2)*pi*R)
   >>> len(gauss(R,2,nr))
   20081
 
@@ -64,7 +60,6 @@ The parameter `nr_solutions` is by default `1.` If we set say, `{\rm{nr\_solutio
   >>> from fpylll.fplll.integer_matrix import IntegerMatrix
   >>> from fpylll import Enumeration, EvaluatorStrategy
   >>> import numpy as np
-  >>> from numpy import matrix,matlib
   >>> def n(radius):
   ...   dim = 2
   ...   pi = np.pi
