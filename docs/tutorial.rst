@@ -183,7 +183,7 @@ In fact the following code was executed::
     >>> _, v2 = E.enumerate(0, A.nrows, 5, 40, M.from_canonical(t))[0]
     >>> v3 = IntegerMatrix.from_iterable(1, A.nrows, map(lambda x: int(x), v2))
     >>> v1 = v3*A
-    >>> v1
+    >>> print(v1)
     [ 1 2 3 4 ]
 
 Further examples
