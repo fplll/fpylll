@@ -621,7 +621,6 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
     :param float_type:         floating point type to use
 
     >>> from fpylll import IntegerMatrix, LLL, GSO, FPLLL
-    >>> from fpylll.numpy import dump_r
     >>> from fpylll import FPLLL
     >>> from fpylll import Pruning
     >>> FPLLL.set_random_seed(1337)
