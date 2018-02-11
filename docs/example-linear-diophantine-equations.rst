@@ -54,7 +54,7 @@ Note that before we apply LLL to Mb we need to convert it to fpyll IntegerMatrix
 
 ::
 
-  >>> print LLL.reduction(IntegerMatrix.from_matrix([map(int, row) for row in Mb.tolist()]))
+  >>> print(LLL.reduction(IntegerMatrix.from_matrix([map(int, row) for row in Mb.tolist()])))
   [  0 -1  0  0  1  0  0  0  0 0   0      0 ]
   [  0  1  0  0  0  0  1  0 -2 0   0      0 ]
   [ -1  0 -1 -1  0  0  1  0  1 1   0      0 ]
