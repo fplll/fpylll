@@ -630,33 +630,40 @@ class TimeTreeTracer(Tracer):
     Collect CPU and wall time for every context visited, creating a tree structure along the way.
     """
 
-    entries = (("cputime", time.clock), ("walltime", time.time))
-
-    def __init__(self, instance, root_label="root", verbosity=False):
+    def __init__(self, instance, verbosity=False, root_label="root", start_clocks=False):
         """
         Create a new tracer instance.
 
         :param instance: BKZ-like object instance
         :param verbosity: print information, integers ≥ 0 are also accepted
+        :param root_label: label to give to root node
+        :param start_clocks: start tracking time for the root node immediately
 
         """
+
         Tracer.__init__(self, instance, verbosity)
         self.trace = Node(root_label)
         self.current = self.trace
+        if start_clocks:
+            self.reenter()
 
     def enter(self, label, **kwds):
+        """Enter new context with label
+
+        :param label: label
+
         """
-        Enter context, start tracking time.
+        self.current = self.current.child(label)
+        self.reenter()
 
-        :param label: if a child with given label already exits, it is modified, otherwise a new
-            label is created.
+    def reenter(self, **kwds):
+        """Reenter current context, i.e. restart clocks
+
         """
-        node = self.current.child(label)
 
-        for t, f in TimeTreeTracer.entries:
-            node.data[t] = node.data.get(t, 0) - f()
-
-        self.current = node
+        node = self.current
+        node.data["cputime"]  = node.data.get("cputime",  0) + Accumulator(-time.clock(), repr="sum", count=False)
+        node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(-time.time(),  repr="sum", count=False)
 
     def exit(self, **kwds):
         """
@@ -669,8 +676,10 @@ class TimeTreeTracer(Tracer):
         """
         node = self.current
 
-        for t, f in TimeTreeTracer.entries:
-            node.data[t] = node.data.get(t, 0) + f()
+        node = self.current
+
+        node.data["cputime"] += time.clock()
+        node.data["walltime"] += time.time()
 
         if self.verbosity and self.verbosity >= self.current.level:
             print(self.current)
