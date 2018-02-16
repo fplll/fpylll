@@ -632,7 +632,7 @@ class TimeTreeTracer(Tracer):
 
     entries = (("cputime", time.clock), ("walltime", time.time))
 
-    def __init__(self, instance, verbosity=False):
+    def __init__(self, instance, root_label="root", verbosity=False):
         """
         Create a new tracer instance.
 
@@ -641,7 +641,7 @@ class TimeTreeTracer(Tracer):
 
         """
         Tracer.__init__(self, instance, verbosity)
-        self.trace = Node("root")
+        self.trace = Node(root_label)
         self.current = self.trace
 
     def enter(self, label, **kwds):
