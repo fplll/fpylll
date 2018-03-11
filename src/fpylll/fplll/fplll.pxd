@@ -212,10 +212,6 @@ cdef extern from "fplll/defs.h" namespace "fplll":
         FT_DPE
         FT_MPFR
 
-    cdef enum SVPMethod:
-        SVPM_FAST
-        SVPM_PROVED
-
     cdef enum EvaluatorMode:
         EVALMODE_SV
         EVALMODE_CV
