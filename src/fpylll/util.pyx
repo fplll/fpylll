@@ -12,7 +12,7 @@ from fpylll.fplll.fplll cimport extenum_fc_enumerate
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
 from fpylll.fplll.fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS, PrunerMetric
 from fpylll.fplll.gso cimport MatGSO
-from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui
+from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui, gmp_urandomm_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
 from math import log, exp, lgamma, pi
 from libcpp.functional cimport function
@@ -121,8 +121,21 @@ def set_random_seed(unsigned long seed):
     :param seed: a new seed.
 
     """
+    if not RandGen.get_initialized():
+        RandGen.init()
+
     cdef gmp_randstate_t state = RandGen.get_gmp_state()
     gmp_randseed_ui(state, seed)
+
+def randint(a, b):
+    """
+    Return random integer in range [a, b], including both end points.
+    """
+    if not RandGen.get_initialized():
+        RandGen.init()
+    cdef gmp_randstate_t state = RandGen.get_gmp_state()
+    return (<long>gmp_urandomm_ui(state, b+1-a)) + a
+
 
 def get_precision(float_type="mpfr"):
     """Get currently set precision
@@ -299,4 +312,5 @@ class FPLLL:
     set_precision = staticmethod(set_precision)
     get_precision = staticmethod(get_precision)
     set_random_seed = staticmethod(set_random_seed)
+    randint = staticmethod(randint)
     set_external_enumerator = staticmethod(set_external_enumerator)

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from random import randint
 from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZBase
 from fpylll.tools.bkz_stats import dummy_tracer
-from fpylll.util import gaussian_heuristic
+from fpylll.util import gaussian_heuristic, randint
 
 
 class BKZReduction(BKZBase):
