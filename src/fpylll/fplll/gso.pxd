@@ -10,5 +10,5 @@ cdef class MatGSO:
 
     cdef readonly IntegerMatrix B
     cdef readonly IntegerMatrix _G
-    cdef readonly IntegerMatrix U
-    cdef readonly IntegerMatrix UinvT
+    cdef public IntegerMatrix U
+    cdef public IntegerMatrix UinvT
