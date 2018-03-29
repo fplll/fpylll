@@ -235,6 +235,7 @@ cdef class MatGSO:
                         raise ValueError("Float type '%s' not understood."%float_type)
             self.B = B
         else:
+            flags |= GSO_INT_GRAM
             self._alg = mat_gso_gram_t
 
             if B._type == ZT_MPZ:
