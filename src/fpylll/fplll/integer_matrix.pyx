@@ -1092,12 +1092,16 @@ cdef class IntegerMatrix:
         else:
             raise ValueError("Algorithm '%s' unknown."%algorithm)
 
-    def gen_identity(self, int nrows):
+    def gen_identity(self, int nrows=-1):
         """Generate identity matrix.
 
         :param nrows: number of rows
 
         """
+
+        if nrows == -1:
+            nrows = self.nrows
+
         if self._type == ZT_MPZ:
             self._core.mpz.gen_identity(nrows)
         elif self._type == ZT_LONG:
