@@ -728,7 +728,7 @@ class BKZTreeTracer(Tracer):
         node.data["cputime"]  = node.data.get("cputime",  0) + Accumulator(-time.clock(), repr="sum", count=False)
         node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(-time.time(),  repr="sum", count=False)
 
-    def exit(self, **kwds):
+    def exit(self, **kwds):  # noqa, shut up linter about this function being too complex
         """
         By default CPU and wall time are recorded.  More information is recorded for "enumeration"
         and "tour" labels.  When the label is a tour then the status is printed if verbosity > 0.
