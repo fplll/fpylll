@@ -303,6 +303,8 @@ class TraceContext(object):
         """
         Call ``exit`` on trace object
         """
+        if exception_type is not None:
+            return False
         self.tracer.exit(**self.kwds)
 
 
