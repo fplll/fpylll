@@ -59,3 +59,4 @@ target/
 /.ipynb_checkpoints/*.ipynb
 /MANIFEST
 /valgrind-python.supp
+/.pytest_cache/
