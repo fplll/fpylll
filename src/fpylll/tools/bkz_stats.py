@@ -49,7 +49,7 @@ def pretty_dict(d, keyword_width=None, round_bound=9999, suppress_length=128):
             try:
                 v = float(v)
             except TypeError:
-          ``      if len(str(v)) <= suppress_length:
+                if len(str(v)) <= suppress_length:
                     s.append(u"%s: %s"%(k, v))
                 else:
                     s.append(u"%s: '...'"%(k,))
