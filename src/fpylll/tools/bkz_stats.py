@@ -15,12 +15,13 @@ from math import log
 from fpylll.tools.quality import basis_quality
 
 
-def pretty_dict(d, keyword_width=None, round_bound=9999):
+def pretty_dict(d, keyword_width=None, round_bound=9999, suppress_length=128):
     """Return 'pretty' string representation of the dictionary ``d``.
 
     :param d: a dictionary
     :param keyword_width: width allocated for keywords
     :param round_bound: values beyond this bound are shown as `2^x`
+    :param suppress_length: don't print arbitrary data with ``len(str(data)) > suppress_length``
 
     >>> from collections import OrderedDict
     >>> str(pretty_dict(OrderedDict([('d', 2), ('f', 0.1), ('large', 4097)])))
@@ -48,7 +49,10 @@ def pretty_dict(d, keyword_width=None, round_bound=9999):
             try:
                 v = float(v)
             except TypeError:
-                s.append(u"%s: %s"%(k, v))
+          ``      if len(str(v)) <= suppress_length:
+                    s.append(u"%s: %s"%(k, v))
+                else:
+                    s.append(u"%s: '...'"%(k,))
                 continue
 
         if 0 <= v < 10.0:
