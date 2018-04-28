@@ -75,7 +75,7 @@ def simulate(r, param):
     d = len(r)
 
     # code uses log2 of norms, FPLLL uses squared norms
-    r = map(lambda x: log(x, 2)/2., r)
+    r = list(map(lambda x: log(x, 2)/2., r))
 
     r1 = copy(r)
     r2 = copy(r)
@@ -121,9 +121,9 @@ def simulate(r, param):
         if param.flags & BKZ.VERBOSE:
             r = OrderedDict()
             r["i"] = i
-            for k, v in basis_quality(map(lambda x: 2.**(2*x), r1)).iteritems():
+            for k, v in basis_quality(list(map(lambda x: 2.**(2*x), r1))).items():
                 r[k] = v
             print(pretty_dict(r))
 
-    r1 = map(lambda x: 2.**(2*x), r1)
+    r1 = list(map(lambda x: 2.**(2*x), r1))
     return r1, i+1
