@@ -26,6 +26,8 @@ from .fplll cimport strategy_full_path
 from fpylll.util cimport check_delta, check_pruner_metric
 from cython.operator cimport dereference as deref, preincrement as inc
 
+from fpylll.config import default_strategy
+
 from .pruner cimport PruningParams
 
 from collections import OrderedDict
@@ -505,3 +507,30 @@ def unpickle_Strategy(*args):
     cls, args = args
     kwds = dict(args)
     return cls(**kwds)
+
+
+def BKZEasyParam(block_size, **kwds):
+    """
+    Set sane defaults for most use-cases:
+
+        1. set default strategies
+
+        2. switch on auto abort
+
+    Additional parameters can be passed.  When flags are passed, they are XORed with the default
+    flags.
+
+    :param block_size: BKZ block size
+
+    """
+    easy_kwds = {}
+    easy_kwds["block_size"] = block_size
+    easy_kwds["strategies"] = default_strategy
+    easy_kwds["flags"] = BKZ_DEFAULT|BKZ_AUTO_ABORT
+
+    for k,v in kwds.iteritems():
+        if k == "flags":
+            easy_kwds[k] ^= v
+        else:
+            easy_kwds[k] = v
+    return BKZParam(**easy_kwds)

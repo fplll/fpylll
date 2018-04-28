@@ -46,6 +46,8 @@ from fpylll.util import ReductionError
 from .integer_matrix cimport IntegerMatrix
 from fpylll.config import default_strategy, default_strategy_path
 
+from .bkz_param import BKZEasyParam
+
 cdef class BKZAutoAbort:
     """
     Utility class for aborting BKZ when slope does not improve any longer.
@@ -1150,6 +1152,7 @@ class BKZ:
     SLD_RED = BKZ_SLD_RED
 
     Param = BKZParam
+    EasyParam = staticmethod(BKZEasyParam)
     AutoAbort = BKZAutoAbort
     reduction = staticmethod(bkz_reduction)
     Reduction = BKZReduction
