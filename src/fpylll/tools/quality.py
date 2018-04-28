@@ -8,6 +8,34 @@ from collections import OrderedDict
 from fpylll.util import gaussian_heuristic
 
 
+def get_current_slope(r, start_row=0, stop_row=-1):
+    """
+    A Python re-implementation of ``MatGSO.get_current_slope``.
+
+        >>> from fpylll import IntegerMatrix, GSO, LLL, FPLLL
+        >>> FPLLL.set_random_seed(1337)
+        >>> A = IntegerMatrix.random(100, "qary", bits=30, k=50)
+        >>> _ = LLL.reduction(A)
+        >>> M = GSO.Mat(A); _ = M.update_gso()
+        >>> from fpylll.tools.quality import get_current_slope
+        >>> M.get_current_slope(0, 100)  # doctest: +ELLIPSIS
+        -0.085500625...
+        >>> get_current_slope(M.r(), 0, 100) # doctest: +ELLIPSIS
+        -0.085500625...
+
+    """
+    x = [log(r[i]) for i in range(start_row, stop_row)]
+    n = stop_row - start_row
+    i_mean = (n - 1) * 0.5 + start_row
+    x_mean = sum(x)/n
+    v1, v2 = 0.0, 0.0
+
+    for i in range(start_row, stop_row):
+        v1 += (i - i_mean) * (x[i] - x_mean)
+        v2 += (i - i_mean) * (i - i_mean)
+    return v1 / v2
+
+
 def basis_quality(M):
     r"""
     Return a dictionary with various expressions of quality of the basis corresponding to ``M``.
@@ -28,9 +56,9 @@ def basis_quality(M):
         - ``r_0/gh`` - `|b_0|/GH` where `GH = Γ(d/2+1)^{1/d}/π^{1/2} ⋅ \Vol(Λ)^{1/d}` is the Gaussian
           Heuristic for the shortest vector.
 
-    :param M: A MatGSO object.
+    :param M: A MatGSO object or a vector of squared Gram-Schmidt norms.
 
-    :example:
+    Example:
 
         >>> from fpylll import IntegerMatrix, GSO, LLL, FPLLL
         >>> FPLLL.set_random_seed(1337)
@@ -42,14 +70,19 @@ def basis_quality(M):
         >>> from fpylll.tools.bkz_stats import pretty_dict
         >>> str(pretty_dict(basis_quality(M)))
         '{"r_0":   2^34.0,  "r_0/gh": 9.389811,  "rhf": 1.020530,  "/": -0.08550,  "hv/hv": 2.940943}'
+        >>> str(pretty_dict(basis_quality(M.r())))
+        '{"r_0":   2^34.0,  "r_0/gh": 9.389811,  "rhf": 1.020530,  "/": -0.08550,  "hv/hv": 2.940943}'
 
     """
 
-    d = M.d
+    try:
+        d = M.d
+        r = [M.get_r(i, i) for i in range(d)]
+    except AttributeError:
+        d = len(M)
+        r = M
 
     ret = OrderedDict()
-
-    r = [M.get_r(i, i) for i in range(d)]
 
     log_volume = sum(log(r_)/2 for r_ in r)
 
@@ -59,7 +92,10 @@ def basis_quality(M):
     ret["r_0"] = r[0]
     ret["r_0/gh"] = r[0]/gaussian_heuristic(r)
     ret["rhf"] = exp((log(r[0])/2.0 - log_volume/d)/d)
-    ret['/']   = M.get_current_slope(0, d)
+    try:
+        ret['/'] = M.get_current_slope(0, d)
+    except AttributeError:
+        ret["/"] = get_current_slope(M, 0, d)
     ret["hv/hv"] = exp((lhs - rhs)/d)
 
     return ret
