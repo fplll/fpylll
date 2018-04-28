@@ -89,7 +89,7 @@ def simulate(r, param):
 
     for i in range(max_loops):
         phi = True
-        for k in xrange(d-min(45, param.block_size)):
+        for k in range(d-min(45, param.block_size)):
             beta = min(param.block_size, d - k)
             f = k + beta
             logV = sum(r1[:f]) - sum(r2[:k])
