@@ -10,7 +10,7 @@ BKZ simulation algorithm as proposed in
 
 """
 from copy import copy
-from math import log, sqrt, gamma, pi
+from math import log, sqrt, lgamma, pi
 from collections import OrderedDict
 
 from fpylll.tools.quality import basis_quality
@@ -80,7 +80,7 @@ def simulate(r, param):
     r1 = copy(r)
     r2 = copy(r)
     c = [rk[-i] - sum(rk[-i:])/i for i in range(1, 46)]
-    c += [log(gamma(beta/2.+1)**(1./beta)/(sqrt(pi)), 2) for beta in range(46, param.block_size + 1)]
+    c += [(lgamma(beta/2.+1)*(1./beta) - log(sqrt(pi)))/log(2.) for beta in range(46, param.block_size + 1)]
 
     if param.max_loops:
         max_loops = param.max_loops
