@@ -19,14 +19,6 @@ from fpylll.fplll.bkz import BKZ
 from fpylll.fplll.integer_matrix import IntegerMatrix
 from fpylll.fplll.gso import MatGSO, GSO
 
-# This program is free software: you can redistribute it and/or modify it under the terms of the GNU
-# General Public License as published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
-# even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-
 rk = ( 0.789527997160000,   0.780003183804613,  0.750872218594458,   0.706520454592593,   0.696345241018901,  # noqa
        0.660533841808400,   0.626274718790505,  0.581480717333169,   0.553171463433503,   0.520811087419712,
        0.487994338534253,   0.459541470573431,  0.414638319529319,   0.392811729940846,   0.339090376264829,
