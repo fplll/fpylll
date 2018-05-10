@@ -20,10 +20,6 @@ EXAMPLE::
 
 """
 
-from math import log, pi, e
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-
 
 def KeepGSOBKZFactory(cls):
     """
@@ -84,6 +80,9 @@ def plot_gso_norms(gso_norms, block_size, basename="bkz-gso-norms",
 
     .. warning:: This function is quite slow.
     """
+    from math import log, pi, e
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as patches
 
     filenames = []
 
