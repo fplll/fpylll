@@ -38,6 +38,8 @@ def KeepGSOBKZFactory(cls):
 
     :param cls: A BKZ-like algorithm with methods ``__call__``, ``svp_reduction`` and ``tour``.
 
+    .. warning:: This will slow down the algorithm especially for small block sizes.
+
     """
     class KeepGSOBKZ(cls):
         def __call__(self, *args, **kwds):
