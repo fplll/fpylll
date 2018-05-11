@@ -29,7 +29,7 @@ def KeepGSOBKZFactory(cls):
     In particular, the list will be constructed as follows:
 
     - index 0: input GSO norms
-    - index i,j: GSO norms in tour i-1 for after SVP call at index j
+    - index i,j: kappa and GSO norms in tour i-1 for after j-th SVP call
     - index -1: output GSO norms
 
     :param cls: A BKZ-like algorithm with methods ``__call__``, ``svp_reduction`` and ``tour``.
@@ -46,14 +46,14 @@ def KeepGSOBKZFactory(cls):
             self.M.update_gso()
             self.__gso_norms.append(self.M.r())
 
-        def svp_reduction(self, *args, **kwds):
+        def svp_reduction(self, kappa, *args, **kwds):
             at_toplevel = self.__at_toplevel
             self.__at_toplevel = False
-            r = cls.svp_reduction(self, *args, **kwds)
+            r = cls.svp_reduction(self, kappa, *args, **kwds)
             self.__at_toplevel = at_toplevel
             if at_toplevel:
                 self.M.update_gso()
-                self.__gso_norms[-1].append(self.M.r())
+                self.__gso_norms[-1].append((kappa, self.M.r()))
             return r
 
         def tour(self, *args, **kwds):
@@ -116,7 +116,7 @@ def plot_gso_norms(gso_norms, block_size, basename="bkz-gso-norms",
     plot_finalize(ax, "%s-aaaa-input"%basename)
 
     for i, tour in enumerate(gso_norms[1:-1]):
-        for kappa, norms in enumerate(tour):
+        for j, (kappa, norms) in enumerate(tour):
             fig, ax = plt.subplots()
 
             rect = patches.Rectangle((kappa, ylim[0]), min(block_size, d-kappa-1), ylim[1]-ylim[0],
@@ -125,7 +125,7 @@ def plot_gso_norms(gso_norms, block_size, basename="bkz-gso-norms",
             ax.plot(x, maplog2(norms), label="$\\|\\mathbf{b}_i^*\\|$")
             ax.plot(x, gsa, color="black", label="GSA")
             ax.set_title("BKZ-%d tour: %2d, $\\kappa$: %3d"%(block_size, i, kappa))
-            plot_finalize(ax, "%s-t%03d-k%04d"%(basename, i, kappa))
+            plot_finalize(ax, "%s-t%03d-%04d"%(basename, i, j))
 
     fig, ax = plt.subplots()
     ax.plot(x, maplog2(gso_norms[-1]))
