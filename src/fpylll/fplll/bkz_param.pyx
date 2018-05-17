@@ -268,7 +268,7 @@ cdef class BKZParam:
         :param dump_gso_filename: if this is not ``None`` then the logs of the norms of the
             Gram-Schmidt vectors are written to this file after each BKZ loop.
 
-        All other keyword arguments starting with "aux" are stored as auxiliary parameters in
+        All other keyword arguments are stored as auxiliary parameters in
         the ``aux`` attribute.
         """
 
@@ -351,10 +351,7 @@ cdef class BKZParam:
         self.o = o
         self.aux = {}
         for k,v in kwds.iteritems():
-            if isinstance(k, str) and k.startswith("aux"):
-                self.aux[k] = v
-            else:
-                raise ValueError("Parameter '%s' not supported"%k)
+            self.aux[k] = v
 
     def __dealloc__(self):
         del self.o
@@ -419,8 +416,8 @@ cdef class BKZParam:
         """
 
             >>> from fpylll import BKZ
-            >>> p = BKZ.Param(40, max_loops=4, aux_foo=True)
-            >>> p["aux_foo"]
+            >>> p = BKZ.Param(40, max_loops=4, foo=True)
+            >>> p["foo"]
             True
 
         """
@@ -430,16 +427,16 @@ cdef class BKZParam:
         """
 
             >>> from fpylll import BKZ
-            >>> p = BKZ.Param(40, max_loops=4, aux_foo=True)
-            >>> p["aux_foo"] = False
-            >>> p["aux_foo"]
+            >>> p = BKZ.Param(40, max_loops=4, foo=True)
+            >>> p["foo"] = False
+            >>> p["foo"]
             False
 
         """
         if not isinstance(what, str):
-            raise TypeError("Only strings are supported as auxiliary keys but got %s"%what)
-        if not what.startswith("aux"):
-            raise ValueError("Auxiliary keys must start with 'aux' but got '%s'"%what)
+            raise TypeError("Only strings are supported as auxiliary keys but got %s"%type(what))
+        if hasattr(self, what):
+            raise ValueError("Provided key '%s' would shadow class attribute"%what)
         self.aux[what] = value
 
     def dict(self, all=True):
