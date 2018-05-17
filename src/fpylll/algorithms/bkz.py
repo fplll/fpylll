@@ -69,7 +69,11 @@ class BKZReduction(object):
         :param max_row: stop processing in this row (exclusive)
 
         """
-        tracer = BKZTreeTracer(self, verbosity=params.flags & BKZ.VERBOSE, start_clocks=True)
+        try:
+            label = params["name"]
+        except KeyError:
+            label = "bkz"
+        tracer = BKZTreeTracer(self, label=label, verbosity=params.flags & BKZ.VERBOSE, start_clocks=True)
 
         if params.flags & BKZ.AUTO_ABORT:
             auto_abort = BKZ.AutoAbort(self.M, self.A.nrows)
