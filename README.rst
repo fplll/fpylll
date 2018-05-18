@@ -220,13 +220,17 @@ Attribution & License
 
 The following people have contributed to **fpylll**
 
-- Martin Albrecht
+- E. M. Bray
+- Fernando Virdia
 - Guillaume Bonnoron
 - Jeroen Demeyer
+- Jérôme Benoit
 - Konstantinos Draziotis
 - Leo Ducas
+- Martin Albrecht
+- Michael Walter
 - Omer Katz
-- Fernando Virdia
+– Fernando Virdia
 
 We copied a decent bit of code over from Sage, mostly from it's fpLLL interface.
 
