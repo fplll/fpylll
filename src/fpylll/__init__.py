@@ -12,4 +12,4 @@ from .fplll.pruner import Pruning
 from .fplll.sieve_gauss import GaussSieve
 from .util import ReductionError
 from .util import FPLLL
-__version__ = "0.3.0dev"
+__version__ = "0.4.0dev"
