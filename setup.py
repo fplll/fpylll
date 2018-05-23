@@ -197,6 +197,16 @@ with open(path.join('src', 'fpylll', '__init__.py')) as f:
 
 # FIRE
 
+def readme_to_long_description():
+    """
+    Python wants long descriptions to be plain ASCII.  Our contributors have names that are not
+    plain ASCII. Thus, we cut off the list of contributors when reading the long description.
+    """
+    long_description=open('README.rst').read()
+    cut = long_description.index("Attribution & License")
+    return long_description[:cut].encode('ascii')
+
+
 setup(
     name="fpylll",
     description="A Python interface for https://github.com/fplll/fplll",
@@ -208,6 +218,6 @@ setup(
     package_dir={"": "src"},
     packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms", "fpylll.tools"],
     license='GNU General Public License, version 2 or later',
-    long_description=open('README.rst').read(),
+    long_description=readme_to_long_description(),
     cmdclass={'build_ext': build_ext}
 )
