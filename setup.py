@@ -4,6 +4,7 @@
 import os
 import subprocess
 import sys
+import io
 
 if "READTHEDOCS" in os.environ:
     # When building with readthedocs, install the dependencies too.
@@ -202,7 +203,7 @@ def readme_to_long_description():
     Python wants long descriptions to be plain ASCII.  Our contributors have names that are not
     plain ASCII. Thus, we cut off the list of contributors when reading the long description.
     """
-    long_description=open('README.rst').read()
+    long_description=io.open('README.rst', encoding='utf-8').read()
     cut = long_description.index("Attribution & License")
     return str(long_description[:cut].encode('ascii'))
 
