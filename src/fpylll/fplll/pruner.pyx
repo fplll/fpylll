@@ -242,6 +242,8 @@ cdef class Pruner:
         >>> M = GSO.Mat(A)
         >>> _ = M.update_gso()
         >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 1, metric=Pruning.EXPECTED_SOLUTIONS)
+
 
         .. note :: Preprocessing cost should be expressed in terms of nodes in an
            enumeration (~100 CPU cycles per node)
@@ -259,7 +261,7 @@ cdef class Pruner:
             if target <= 0 or target >= 1.0:
                 raise ValueError("Probability must be between 0 and 1 (exclusive) but got %f"%target)
         if metric == PRUNER_METRIC_EXPECTED_SOLUTIONS:
-            if target <= 0 or target >= 1.0:
+            if target <= 0:
                 raise ValueError("Number of solutions must be > 0 but got %f"%target)
 
 
