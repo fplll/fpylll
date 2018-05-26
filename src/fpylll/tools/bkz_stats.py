@@ -515,6 +515,22 @@ class Node(object):
         else:
             return None
 
+    def find_all(self, label):
+        """
+        Find all nodes labelled ``label``
+
+        :param label: a label
+
+        """
+        r = []
+        if self.label == label:
+            r.append(self)
+        if isinstance(self.label, tuple) and self.label[0] == label:
+            r.append(self)
+        for child in self.children:
+            r.extend(child.find_all(label))
+        return tuple(r)
+
     def merge(self, node):
         """
         Merge tree ``node`` into self.
