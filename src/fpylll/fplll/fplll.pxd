@@ -837,7 +837,7 @@ cdef extern from "fplll/util.h" namespace "fplll":
 
 # Pruner
 
-cdef extern from "fplll/pruner.h" namespace "fplll":
+cdef extern from "fplll/pruner/pruner.h" namespace "fplll":
 
     cdef enum PrunerFlags:
         PRUNER_CVP
@@ -845,6 +845,7 @@ cdef extern from "fplll/pruner.h" namespace "fplll":
         PRUNER_GRADIENT
         PRUNER_NELDER_MEAD
         PRUNER_VERBOSE
+        PRUNER_FULL
 
     cdef enum PrunerMetric:
         PRUNER_METRIC_PROBABILITY_OF_SHORTEST
