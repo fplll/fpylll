@@ -39,6 +39,7 @@ from .fplll cimport Pruner as Pruner_c
 from .fplll cimport PrunerMetric
 from .fplll cimport svp_probability as svp_probability_c
 from .fplll cimport PRUNER_CVP, PRUNER_START_FROM_INPUT, PRUNER_GRADIENT, PRUNER_NELDER_MEAD, PRUNER_VERBOSE
+from .fplll cimport PRUNER_SINGLE
 
 
 from fpylll.util import adjust_radius_to_gh_bound, precision, FPLLL
@@ -411,6 +412,276 @@ cdef class Pruner:
             pr.append(pr_[i])
         return tuple(pr)
 
+    def optimize_coefficients_evec(self, pr):
+        """
+        Optimize pruning coefficients.
+
+        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+        >>> FPLLL.set_random_seed(1337)
+        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+        >>> _ = LLL.reduction(A)
+        >>> M = GSO.Mat(A)
+        >>> _ = M.update_gso()
+        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+        >>> c = pr.optimize_coefficients_evec([1. for _ in range(M.d)])
+        >>> c[0:10]  # doctest: +ELLIPSIS
+        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
+
+        .. note :: Basis shape and other parameters must have been set beforehand.
+
+        """
+        cdef vector[double] pr_
+        cdef bool called = False
+
+        d = len(pr)
+        for e in pr:
+            pr_.push_back(e)
+
+        # TODO: don't just return doubles
+        if self._type == nr_d:
+            sig_on()
+            self._core.d.optimize_coefficients_evec(pr_)
+            called = True
+            sig_off()
+        IF HAVE_LONG_DOUBLE:
+            if self._type == nr_ld:
+                sig_on()
+                self._core.ld.optimize_coefficients_evec(pr_)
+                called = True
+                sig_off()
+        if self._type == nr_dpe:
+            sig_on()
+            self._core.dpe.optimize_coefficients_evec(pr_)
+            called = True
+            sig_off()
+        IF HAVE_QD:
+            if self._type == nr_dd:
+                sig_on()
+                self._core.dd.optimize_coefficients_evec(pr_)
+                called = True
+                sig_off()
+            elif self._type == nr_qd:
+                sig_on()
+                self._core.qd.optimize_coefficients_evec(pr_)
+                called = True
+                sig_off()
+        if self._type == nr_mpfr:
+            sig_on()
+            self._core.mpfr.optimize_coefficients_evec(pr_)
+            called = True
+            sig_off()
+
+        if not called:
+             raise RuntimeError("Pruner object '%s' has no core."%self)
+
+        pr = []
+        for i in range(d):
+            pr.append(pr_[i])
+        return tuple(pr)
+
+    def optimize_coefficients_full(self, pr):
+        """
+        Optimize pruning coefficients.
+
+        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+        >>> FPLLL.set_random_seed(1337)
+        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+        >>> _ = LLL.reduction(A)
+        >>> M = GSO.Mat(A)
+        >>> _ = M.update_gso()
+        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+        >>> c = pr.optimize_coefficients_full([1. for _ in range(M.d)])
+        >>> c[0:10]  # doctest: +ELLIPSIS
+        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
+
+        .. note :: Basis shape and other parameters must have been set beforehand.
+
+        """
+        cdef vector[double] pr_
+        cdef bool called = False
+
+        d = len(pr)
+        for e in pr:
+            pr_.push_back(e)
+
+        # TODO: don't just return doubles
+        if self._type == nr_d:
+            sig_on()
+            self._core.d.optimize_coefficients_full(pr_)
+            called = True
+            sig_off()
+        IF HAVE_LONG_DOUBLE:
+            if self._type == nr_ld:
+                sig_on()
+                self._core.ld.optimize_coefficients_full(pr_)
+                called = True
+                sig_off()
+        if self._type == nr_dpe:
+            sig_on()
+            self._core.dpe.optimize_coefficients_full(pr_)
+            called = True
+            sig_off()
+        IF HAVE_QD:
+            if self._type == nr_dd:
+                sig_on()
+                self._core.dd.optimize_coefficients_full(pr_)
+                called = True
+                sig_off()
+            elif self._type == nr_qd:
+                sig_on()
+                self._core.qd.optimize_coefficients_full(pr_)
+                called = True
+                sig_off()
+        if self._type == nr_mpfr:
+            sig_on()
+            self._core.mpfr.optimize_coefficients_full(pr_)
+            called = True
+            sig_off()
+
+        if not called:
+             raise RuntimeError("Pruner object '%s' has no core."%self)
+
+        pr = []
+        for i in range(d):
+            pr.append(pr_[i])
+        return tuple(pr)
+
+    def optimize_coefficients_cost_vary_prob(self, pr):
+        """
+        Optimize pruning coefficients.
+
+        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+        >>> FPLLL.set_random_seed(1337)
+        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+        >>> _ = LLL.reduction(A)
+        >>> M = GSO.Mat(A)
+        >>> _ = M.update_gso()
+        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+        >>> c = pr.optimize_coefficients_cost_vary_prob([1. for _ in range(M.d)])
+        >>> c[0:10]  # doctest: +ELLIPSIS
+        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
+
+        .. note :: Basis shape and other parameters must have been set beforehand.
+
+        """
+        cdef vector[double] pr_
+        cdef bool called = False
+
+        d = len(pr)
+        for e in pr:
+            pr_.push_back(e)
+
+        # TODO: don't just return doubles
+        if self._type == nr_d:
+            sig_on()
+            self._core.d.optimize_coefficients_cost_vary_prob(pr_)
+            called = True
+            sig_off()
+        IF HAVE_LONG_DOUBLE:
+            if self._type == nr_ld:
+                sig_on()
+                self._core.ld.optimize_coefficients_cost_vary_prob(pr_)
+                called = True
+                sig_off()
+        if self._type == nr_dpe:
+            sig_on()
+            self._core.dpe.optimize_coefficients_cost_vary_prob(pr_)
+            called = True
+            sig_off()
+        IF HAVE_QD:
+            if self._type == nr_dd:
+                sig_on()
+                self._core.dd.optimize_coefficients_cost_vary_prob(pr_)
+                called = True
+                sig_off()
+            elif self._type == nr_qd:
+                sig_on()
+                self._core.qd.optimize_coefficients_cost_vary_prob(pr_)
+                called = True
+                sig_off()
+        if self._type == nr_mpfr:
+            sig_on()
+            self._core.mpfr.optimize_coefficients_cost_vary_prob(pr_)
+            called = True
+            sig_off()
+
+        if not called:
+             raise RuntimeError("Pruner object '%s' has no core."%self)
+
+        pr = []
+        for i in range(d):
+            pr.append(pr_[i])
+        return tuple(pr)
+
+
+    def optimize_coefficients_cost_fixed_prob(self, pr):
+        """
+        Optimize pruning coefficients.
+
+        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+        >>> FPLLL.set_random_seed(1337)
+        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+        >>> _ = LLL.reduction(A)
+        >>> M = GSO.Mat(A)
+        >>> _ = M.update_gso()
+        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+        >>> c = pr.optimize_coefficients_cost_fixed_prob([1. for _ in range(M.d)])
+        >>> c[0:10]  # doctest: +ELLIPSIS
+        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
+
+        .. note :: Basis shape and other parameters must have been set beforehand.
+
+        """
+        cdef vector[double] pr_
+        cdef bool called = False
+
+        d = len(pr)
+        for e in pr:
+            pr_.push_back(e)
+
+        # TODO: don't just return doubles
+        if self._type == nr_d:
+            sig_on()
+            self._core.d.optimize_coefficients_cost_fixed_prob(pr_)
+            called = True
+            sig_off()
+        IF HAVE_LONG_DOUBLE:
+            if self._type == nr_ld:
+                sig_on()
+                self._core.ld.optimize_coefficients_cost_fixed_prob(pr_)
+                called = True
+                sig_off()
+        if self._type == nr_dpe:
+            sig_on()
+            self._core.dpe.optimize_coefficients_cost_fixed_prob(pr_)
+            called = True
+            sig_off()
+        IF HAVE_QD:
+            if self._type == nr_dd:
+                sig_on()
+                self._core.dd.optimize_coefficients_cost_fixed_prob(pr_)
+                called = True
+                sig_off()
+            elif self._type == nr_qd:
+                sig_on()
+                self._core.qd.optimize_coefficients_cost_fixed_prob(pr_)
+                called = True
+                sig_off()
+        if self._type == nr_mpfr:
+            sig_on()
+            self._core.mpfr.optimize_coefficients_cost_fixed_prob(pr_)
+            called = True
+            sig_off()
+
+        if not called:
+             raise RuntimeError("Pruner object '%s' has no core."%self)
+
+        pr = []
+        for i in range(d):
+            pr.append(pr_[i])
+        return tuple(pr)
+
+
     def single_enum_cost(self, pr, detailed_cost=False):
         """
         Compute the cost of a single enumeration
@@ -759,5 +1030,8 @@ class Pruning:
     NELDER_MEAD = PRUNER_NELDER_MEAD
     VERBOSE = PRUNER_VERBOSE
     ZEALOUS = PRUNER_GRADIENT | PRUNER_NELDER_MEAD
+    SINGLE = PRUNER_SINGLE
     PROBABILITY_OF_SHORTEST = PRUNER_METRIC_PROBABILITY_OF_SHORTEST
     EXPECTED_SOLUTIONS = PRUNER_METRIC_EXPECTED_SOLUTIONS
+
+Cython finished at Mon Jun 25 15:59:09

@@ -845,7 +845,7 @@ cdef extern from "fplll/pruner/pruner.h" namespace "fplll":
         PRUNER_GRADIENT
         PRUNER_NELDER_MEAD
         PRUNER_VERBOSE
-        PRUNER_FULL
+        PRUNER_SINGLE
 
     cdef enum PrunerMetric:
         PRUNER_METRIC_PROBABILITY_OF_SHORTEST
@@ -865,6 +865,10 @@ cdef extern from "fplll/pruner/pruner.h" namespace "fplll":
                const FT target, const PrunerMetric metric, int flags)
 
         void optimize_coefficients(vector[double] &pr)
+        void optimize_coefficients_cost_vary_prob(vector[double] &pr)
+        void optimize_coefficients_cost_fixed_prob(vector[double] &pr)
+        void optimize_coefficients_evec(vector[double] &pr)
+        void optimize_coefficients_full(vector[double] &pr)
 
         double single_enum_cost(const vector[double] &pr, vector[double] *detailed_cost)
         double single_enum_cost(const vector[double] &pr)
