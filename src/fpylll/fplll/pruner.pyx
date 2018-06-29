@@ -12,7 +12,7 @@ Pruner
     >>> radius = sum([m.get_r(0, 0) for m in M])/len(M)
     >>> pr = Pruning.run(radius, 10000, [m.r() for m in M], 0.4)
     >>> print(pr)  # doctest: +ELLIPSIS
-    PruningParams<7.797437, (1.00,...,0.80), 0.4173>
+    PruningParams<7.797437, (1.00,...,0.80), 0.6594>
 
     >>> print(Pruning.run(M[0].get_r(0, 0), 2**20, [m.r() for m in M], 0.9, pruning=pr))
     PruningParams<1.001130, (1.00,...,0.98), 0.9410>
@@ -351,7 +351,7 @@ cdef class Pruner:
 
         >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
         >>> FPLLL.set_random_seed(1337)
-        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+        >>> A = IntegerMatrix.random(60, "qary", bits=20, k=30)
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
         >>> _ = M.update_gso()
@@ -360,19 +360,22 @@ cdef class Pruner:
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**40, [M.r()], 0.51, metric=Pruning.PROBABILITY_OF_SHORTEST)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
         >>> pr.measure_metric(c)
+        0.002711953990557637
 
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**2, [M.r()], 1.0, metric=Pruning.EXPECTED_SOLUTIONS)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
         >>> pr.measure_metric(c)
+        0.9905176515981204
 
         >>> pr = Pruning.Pruner(0.5*M.get_r(0,0), 2**40, [M.r()], 0.51, metric=Pruning.PROBABILITY_OF_SHORTEST, flags=Pruning.SINGLE)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
         >>> pr.measure_metric(c)
+        0.5153043409067131
 
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**2, [M.r()], 1.0, metric=Pruning.EXPECTED_SOLUTIONS, flags=Pruning.SINGLE)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
         >>> pr.measure_metric(c)
-
+        1.0435784596984998
 
         """
         cdef vector[double] pr_
@@ -571,7 +574,7 @@ cdef class Pruner:
         >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
         >>> c = pr.optimize_coefficients_cost_vary_prob([1. for _ in range(M.d)])
         >>> c[0:10]  # doctest: +ELLIPSIS
-        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
+        (1.0, 1.0, 0.999..., 0.999..., 0.995..., 0.993..., 0.977..., 0.962..., 0.936..., 0.913...)
 
         .. note :: Basis shape and other parameters must have been set beforehand.
 
@@ -639,7 +642,7 @@ cdef class Pruner:
         >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
         >>> c = pr.optimize_coefficients_cost_fixed_prob([1. for _ in range(M.d)])
         >>> c[0:10]  # doctest: +ELLIPSIS
-        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
+        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.962..., 0.944..., 0.944..., 0.944...)
 
         .. note :: Basis shape and other parameters must have been set beforehand.
 
@@ -708,10 +711,11 @@ cdef class Pruner:
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
         >>> cost, details = pr.single_enum_cost(c, True)
         >>> cost  # doctest: +ELLIPSIS
-        31157.427...
+        14980.4842...
 
         >>> details[0:10]  # doctest: +ELLIPSIS
-        (0.161..., 0.407..., 0.829..., 2.14..., 6.15..., 15.9..., 29.85..., 68.67..., 147.51..., 294.26...)
+        (0.134901..., 0.3048..., 0.81588..., 1.945..., 4.5903..., 11.51..., 16.048..., 41.7115..., 48.03..., 116.986...)
+
 
         """
         cdef vector[double] pr_
@@ -783,7 +787,7 @@ cdef class Pruner:
         >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
         >>> pr.repeated_enum_cost(c)  # doctest: +ELLIPSIS
-        31157.4271...
+        15626.9894...
 
         """
         cdef vector[double] pr_
@@ -918,7 +922,7 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
     >>> pr1 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="mpfr")
 
     >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
-    (0.98, 0.98)
+    (0.6266..., 0.6266...)
 
     >>> pr0 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.GRADIENT, float_type="double")
     >>> pr1 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.NELDER_MEAD, float_type="mpfr")
