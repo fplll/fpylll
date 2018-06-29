@@ -39,7 +39,7 @@ from .fplll cimport Pruner as Pruner_c
 from .fplll cimport PrunerMetric
 from .fplll cimport svp_probability as svp_probability_c
 from .fplll cimport PRUNER_CVP, PRUNER_START_FROM_INPUT, PRUNER_GRADIENT, PRUNER_NELDER_MEAD, PRUNER_VERBOSE
-from .fplll cimport PRUNER_SINGLE
+from .fplll cimport PRUNER_SINGLE, PRUNER_HALF
 
 
 from fpylll.util import adjust_radius_to_gh_bound, precision, FPLLL
@@ -355,12 +355,24 @@ cdef class Pruner:
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
         >>> _ = M.update_gso()
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
-        >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
-        >>> c[0:10]  # doctest: +ELLIPSIS
-        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
 
-        .. note :: Basis shape and other parameters must have been set beforehand.
+
+        >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**40, [M.r()], 0.51, metric=Pruning.PROBABILITY_OF_SHORTEST)
+        >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
+        >>> pr.measure_metric(c)
+
+        >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**2, [M.r()], 1.0, metric=Pruning.EXPECTED_SOLUTIONS)
+        >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
+        >>> pr.measure_metric(c)
+
+        >>> pr = Pruning.Pruner(0.5*M.get_r(0,0), 2**40, [M.r()], 0.51, metric=Pruning.PROBABILITY_OF_SHORTEST, flags=Pruning.SINGLE)
+        >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
+        >>> pr.measure_metric(c)
+
+        >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**2, [M.r()], 1.0, metric=Pruning.EXPECTED_SOLUTIONS, flags=Pruning.SINGLE)
+        >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
+        >>> pr.measure_metric(c)
+
 
         """
         cdef vector[double] pr_
@@ -1031,7 +1043,6 @@ class Pruning:
     VERBOSE = PRUNER_VERBOSE
     ZEALOUS = PRUNER_GRADIENT | PRUNER_NELDER_MEAD
     SINGLE = PRUNER_SINGLE
+    HALF = PRUNER_HALF
     PROBABILITY_OF_SHORTEST = PRUNER_METRIC_PROBABILITY_OF_SHORTEST
     EXPECTED_SOLUTIONS = PRUNER_METRIC_EXPECTED_SOLUTIONS
-
-Cython finished at Mon Jun 25 15:59:09

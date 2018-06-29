@@ -846,6 +846,7 @@ cdef extern from "fplll/pruner/pruner.h" namespace "fplll":
         PRUNER_NELDER_MEAD
         PRUNER_VERBOSE
         PRUNER_SINGLE
+        PRUNER_HALF
 
     cdef enum PrunerMetric:
         PRUNER_METRIC_PROBABILITY_OF_SHORTEST
