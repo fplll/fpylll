@@ -507,7 +507,7 @@ cdef class Pruner:
         >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
         >>> c = pr.optimize_coefficients_full([1. for _ in range(M.d)])
         >>> c[0:10]  # doctest: +ELLIPSIS
-        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
+        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9608..., 0.9607..., 0.9574..., 0.9572...)
 
         .. note :: Basis shape and other parameters must have been set beforehand.
 
@@ -927,7 +927,7 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
     >>> pr0 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.GRADIENT, float_type="double")
     >>> pr1 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.NELDER_MEAD, float_type="mpfr")
     >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
-    (0.713510266183..., 0.82429147533...)
+    (0.70722482938..., 0.824291475...)
 
     .. note :: Preprocessing cost should be expressed in terms of nodes in an
        enumeration (~100 CPU cycles per node)
