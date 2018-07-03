@@ -456,7 +456,7 @@ cdef class Enumeration:
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
         >>> _ = M.update_gso()
-        >>> pruning = Pruning.run(M.get_r(0, 0), 2**40, M.r()[:30], 0.2)
+        >>> pruning = Pruning.run(M.get_r(0, 0), 2**40, M.r()[:30], 0.8)
         >>> enum = Enumeration(M, strategy=EvaluatorStrategy.BEST_N_SOLUTIONS, sub_solutions=True)
         >>> _ = enum.enumerate(0, 30, 0.999*M.get_r(0, 0), 0, pruning=pruning.coefficients)
         >>> [int(a) for a,b in enum.sub_solutions[:5]]
