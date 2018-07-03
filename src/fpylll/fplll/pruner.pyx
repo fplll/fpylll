@@ -429,20 +429,30 @@ cdef class Pruner:
 
     def optimize_coefficients_evec(self, pr):
         """
-        Optimize pruning coefficients.
+        Optimize using "even" coefficients.
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
-        >>> FPLLL.set_random_seed(1337)
-        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
-        >>> _ = LLL.reduction(A)
-        >>> M = GSO.Mat(A)
-        >>> _ = M.update_gso()
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
-        >>> c = pr.optimize_coefficients_evec([1. for _ in range(M.d)])
-        >>> c[0:10]  # doctest: +ELLIPSIS
-        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
+        Run the optimization process, successively using the algorithm activated using using half
+        coefficients: the input ``pr`` has length ``n``; but only the even indices in the vector
+        will be used in the optimization.  In the end, we have ``pr_i = pr_{i+1}``.
 
-        .. note :: Basis shape and other parameters must have been set beforehand.
+        This function only optimizes the overall enumeration time where the target function is:
+
+        ``single_enum_cost(pr) * trials + preproc_cost * (trials - 1.0)``
+
+        :param pr: input pruning parameters
+
+        EXAMPLE::
+
+            >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+            >>> FPLLL.set_random_seed(1337)
+            >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+            >>> _ = LLL.reduction(A)
+            >>> M = GSO.Mat(A)
+            >>> _ = M.update_gso()
+            >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+            >>> c = pr.optimize_coefficients_evec([1.  for _ in range(M.d)])
+            >>> c[0:10] # doctest: +ELLIPSIS
+            (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9637..., 0.9637..., 0.9591..., 0.9591...)
 
         """
         cdef vector[double] pr_
@@ -496,7 +506,19 @@ cdef class Pruner:
 
     def optimize_coefficients_full(self, pr):
         """
-        Optimize pruning coefficients.
+        Optimize pruning coefficients using all the coefficients.
+
+        Run the optimization process, successively using the algorithm activated using using full
+        coefficients. That is, we do not have the constraint pr_i = pr_{i+1} in this function.
+
+        Note that this function (and `optimize_coefficients_full_core()`) only optimizes
+        the overall enumeration time where the target function is:
+
+            ``single_enum_cost(pr) * trials + preproc_cost * (trials - 1.0)``
+
+        :param pr: input pruning parameters
+
+        EXAMPLE::
 
         >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
         >>> FPLLL.set_random_seed(1337)
@@ -563,20 +585,22 @@ cdef class Pruner:
 
     def optimize_coefficients_cost_vary_prob(self, pr):
         """
-        Optimize pruning coefficients.
+         Optimize the pruning coefficients with respect to the overall enumeration time.
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
-        >>> FPLLL.set_random_seed(1337)
-        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
-        >>> _ = LLL.reduction(A)
-        >>> M = GSO.Mat(A)
-        >>> _ = M.update_gso()
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
-        >>> c = pr.optimize_coefficients_cost_vary_prob([1. for _ in range(M.d)])
-        >>> c[0:10]  # doctest: +ELLIPSIS
-        (1.0, 1.0, 0.999..., 0.999..., 0.995..., 0.993..., 0.977..., 0.962..., 0.936..., 0.913...)
+         The target function is: ``single_enum_cost(pr) * trials + preproc_cost * (trials - 1.0)``;
 
-        .. note :: Basis shape and other parameters must have been set beforehand.
+        EXAMPLE::
+
+            >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+            >>> FPLLL.set_random_seed(1337)
+            >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+            >>> _ = LLL.reduction(A)
+            >>> M = GSO.Mat(A)
+            >>> _ = M.update_gso()
+            >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+            >>> c = pr.optimize_coefficients_cost_vary_prob([1. for _ in range(M.d)])
+            >>> c[0:10]  # doctest: +ELLIPSIS
+            (1.0, 1.0, 0.999..., 0.999..., 0.995..., 0.993..., 0.977..., 0.962..., 0.936..., 0.913...)
 
         """
         cdef vector[double] pr_
@@ -631,20 +655,23 @@ cdef class Pruner:
 
     def optimize_coefficients_cost_fixed_prob(self, pr):
         """
-        Optimize pruning coefficients.
+        Optimize pruning coefficients with respect to the single enumeration.
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
-        >>> FPLLL.set_random_seed(1337)
-        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
-        >>> _ = LLL.reduction(A)
-        >>> M = GSO.Mat(A)
-        >>> _ = M.update_gso()
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
-        >>> c = pr.optimize_coefficients_cost_fixed_prob([1. for _ in range(M.d)])
-        >>> c[0:10]  # doctest: +ELLIPSIS
-        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.962..., 0.944..., 0.944..., 0.944...)
+        Main interface to optimize the single enumeration time with the constraint such that the succ.
+        prob (or expected solutions) is fixed (and given) from input to the Pruner constructor.
 
-        .. note :: Basis shape and other parameters must have been set beforehand.
+        EXAMPLE::
+
+            >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+            >>> FPLLL.set_random_seed(1337)
+            >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+            >>> _ = LLL.reduction(A)
+            >>> M = GSO.Mat(A)
+            >>> _ = M.update_gso()
+            >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+            >>> c = pr.optimize_coefficients_cost_fixed_prob([1. for _ in range(M.d)])
+            >>> c[0:10]  # doctest: +ELLIPSIS
+            (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.962..., 0.944..., 0.944..., 0.944...)
 
         """
         cdef vector[double] pr_
