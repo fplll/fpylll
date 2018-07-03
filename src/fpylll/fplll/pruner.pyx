@@ -4,6 +4,8 @@ Pruner
 
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 
+EXAMPLE::
+
     >>> from fpylll import *
     >>> FPLLL.set_random_seed(1337)
     >>> A = [IntegerMatrix.random(10, "qary", bits=10, k=5) for _ in range(20)]
@@ -135,11 +137,12 @@ cdef class PruningParams:
 
     def __reduce__(self):
         """
+        ::
+
             >>> from fpylll.fplll.pruner import PruningParams
             >>> import pickle
             >>> print(pickle.loads(pickle.dumps(PruningParams(1.0, [1.0, 0.6, 0.3], 1.0))))
             PruningParams<1.000000, (1.00,...,0.30), 1.0000>
-
         """
         return PruningParams, (self.gh_factor, self.coefficients, self.expectation, self.metric, self.detailed_cost)
 
@@ -149,6 +152,7 @@ cdef class PruningParams:
     @property
     def gh_factor(self):
         """
+        ::
 
             >>> from fpylll.fplll.pruner import PruningParams
             >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
@@ -161,6 +165,7 @@ cdef class PruningParams:
     @property
     def expectation(self):
         """
+        ::
 
             >>> from fpylll.fplll.pruner import PruningParams
             >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
@@ -173,6 +178,7 @@ cdef class PruningParams:
     @property
     def metric(self):
         """
+        ::
 
             >>> from fpylll.fplll.pruner import PruningParams
             >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
@@ -190,6 +196,7 @@ cdef class PruningParams:
     @property
     def coefficients(self):
         """
+        ::
 
             >>> from fpylll.fplll.pruner import PruningParams
             >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
@@ -207,6 +214,7 @@ cdef class PruningParams:
     @property
     def detailed_cost(self):
         """
+        ::
 
             >>> from fpylll.fplll.pruner import PruningParams
             >>> pr = PruningParams(1.0, [1.0, 0.6, 0.3], 0.9)
@@ -227,27 +235,27 @@ cdef class Pruner:
                  metric="probability", int flags=PRUNER_GRADIENT,
                  float_type="double"):
         """
-
         :param enumeration_radius: target squared enumeration radius
-        :param preproc_cost:       cost of preprocessing
-        :param gso_r:              r vector of GSO
-        :param target:             overall targeted success probability or number of solutions
-        :param metric:             "probability" or "solutions"
-        :param flags:              flags
-        :param float_type:         floating point type to use
+        :param preproc_cost: cost of preprocessing
+        :param gso_r: r vector of GSO
+        :param target: overall targeted success probability or number of solutions
+        :param metric: "probability" or "solutions"
+        :param flags: flags
+        :param float_type: floating point type to use
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
-        >>> FPLLL.set_random_seed(1337)
-        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
-        >>> _ = LLL.reduction(A)
-        >>> M = GSO.Mat(A)
-        >>> _ = M.update_gso()
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 1, metric=Pruning.EXPECTED_SOLUTIONS)
+        EXAMPLE::
 
+            >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+            >>> FPLLL.set_random_seed(1337)
+            >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+            >>> _ = LLL.reduction(A)
+            >>> M = GSO.Mat(A)
+            >>> _ = M.update_gso()
+            >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+            >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 1, metric=Pruning.EXPECTED_SOLUTIONS)
 
-        .. note :: Preprocessing cost should be expressed in terms of nodes in an
-           enumeration (~100 CPU cycles per node)
+        ..  note :: Preprocessing cost should be expressed in terms of nodes in an enumeration (~100
+        CPU cycles per node)
 
         """
         cdef FloatType float_type_ = check_float_type(float_type)
@@ -509,30 +517,29 @@ cdef class Pruner:
         Optimize pruning coefficients using all the coefficients.
 
         Run the optimization process, successively using the algorithm activated using using full
-        coefficients. That is, we do not have the constraint pr_i = pr_{i+1} in this function.
+        coefficients.  That is, we do not have the constraint pr_i = pr_{i+1} in this function.
 
-        Note that this function (and `optimize_coefficients_full_core()`) only optimizes
-        the overall enumeration time where the target function is:
+        Note that this function (and `optimize_coefficients_full_core()`) only optimizes the overall
+        enumeration time where the target function is:
 
-            ``single_enum_cost(pr) * trials + preproc_cost * (trials - 1.0)``
+        ``single_enum_cost(pr) * trials + preproc_cost * (trials - 1.0)``
 
         :param pr: input pruning parameters
 
         EXAMPLE::
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
-        >>> FPLLL.set_random_seed(1337)
-        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
-        >>> _ = LLL.reduction(A)
-        >>> M = GSO.Mat(A)
-        >>> _ = M.update_gso()
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
-        >>> c = pr.optimize_coefficients_full([1. for _ in range(M.d)])
-        >>> c[0:10]  # doctest: +ELLIPSIS
-        (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9608..., 0.9607..., 0.9574..., 0.9572...)
+            >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+            >>> FPLLL.set_random_seed(1337)
+            >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+            >>> _ = LLL.reduction(A)
+            >>> M = GSO.Mat(A)
+            >>> _ = M.update_gso()
+            >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+            >>> c = pr.optimize_coefficients_full([1. for _ in range(M.d)])
+            >>> c[0:10]  # doctest: +ELLIPSIS
+            (1.0, 1.0, 0.98, 0.98, 0.98, 0.98, 0.9608..., 0.9607..., 0.9574..., 0.9572...)
 
-        .. note :: Basis shape and other parameters must have been set beforehand.
-
+            ..  note :: Basis shape and other parameters must have been set beforehand.
         """
         cdef vector[double] pr_
         cdef bool called = False
@@ -726,23 +733,22 @@ cdef class Pruner:
 
     def single_enum_cost(self, pr, detailed_cost=False):
         """
-        Compute the cost of a single enumeration
+        Compute the cost of a single enumeration::
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
-        >>> FPLLL.set_random_seed(1337)
-        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
-        >>> _ = LLL.reduction(A)
-        >>> M = GSO.Mat(A)
-        >>> _ = M.update_gso()
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
-        >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
-        >>> cost, details = pr.single_enum_cost(c, True)
-        >>> cost  # doctest: +ELLIPSIS
-        14980.4842...
+            >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+            >>> FPLLL.set_random_seed(1337)
+            >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+            >>> _ = LLL.reduction(A)
+            >>> M = GSO.Mat(A)
+            >>> _ = M.update_gso()
+            >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+            >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
+            >>> cost, details = pr.single_enum_cost(c, True)
+            >>> cost  # doctest: +ELLIPSIS
+            14980.4842...
 
-        >>> details[0:10]  # doctest: +ELLIPSIS
-        (0.134901..., 0.3048..., 0.81588..., 1.945..., 4.5903..., 11.51..., 16.048..., 41.7115..., 48.03..., 116.986...)
-
+            >>> details[0:10]  # doctest: +ELLIPSIS
+            (0.134901..., 0.3048..., 0.81588..., 1.945..., 4.5903..., 11.51..., 16.048..., 41.7115..., 48.03..., 116.986...)
 
         """
         cdef vector[double] pr_
@@ -803,18 +809,18 @@ cdef class Pruner:
     def repeated_enum_cost(self, pr):
         """
         Compute the cost of r enumeration and (r-1) preprocessing, where r is the required number of
-        retrials to reach target
+        retrials to reach target::
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
-        >>> FPLLL.set_random_seed(1337)
-        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
-        >>> _ = LLL.reduction(A)
-        >>> M = GSO.Mat(A)
-        >>> _ = M.update_gso()
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
-        >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
-        >>> pr.repeated_enum_cost(c)  # doctest: +ELLIPSIS
-        15626.9894...
+            >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+            >>> FPLLL.set_random_seed(1337)
+            >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+            >>> _ = LLL.reduction(A)
+            >>> M = GSO.Mat(A)
+            >>> _ = M.update_gso()
+            >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+            >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
+            >>> pr.repeated_enum_cost(c)  # doctest: +ELLIPSIS
+            15626.9894...
 
         """
         cdef vector[double] pr_
@@ -865,16 +871,16 @@ cdef class Pruner:
 
     def measure_metric(self, pr):
         """
-        Compute the success probability of expected number of solutions of a single enumeration.
+        Compute the success probability of expected number of solutions of a single enumeration::
 
-        >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
-        >>> FPLLL.set_random_seed(1337)
-        >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
-        >>> _ = LLL.reduction(A)
-        >>> M = GSO.Mat(A)
-        >>> _ = M.update_gso()
-        >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
-        >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
+            >>> from fpylll import IntegerMatrix, GSO, LLL, Pruning, FPLLL
+            >>> FPLLL.set_random_seed(1337)
+            >>> A = IntegerMatrix.random(40, "qary", bits=20, k=20)
+            >>> _ = LLL.reduction(A)
+            >>> M = GSO.Mat(A)
+            >>> _ = M.update_gso()
+            >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
+            >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
 
         """
         cdef vector[double] pr_
@@ -928,37 +934,38 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
     """Return optimal pruning parameters.
 
     :param enumeration_radius: target squared enumeration radius
-    :param preproc_cost:       cost of preprocessing
-    :param gso_:               list (of lists) with r coefficients
-    :param target:             overall targeted success probability or number of solutions
-    :param metric:             "probability" or "solutions"
-    :param flags:              flags
-    :param pruning:            write output here, pass ``None`` for creating a new one
-    :param float_type:         floating point type to use
+    :param preproc_cost: cost of preprocessing
+    :param gso_: list (of lists) with r coefficients
+    :param target: overall targeted success probability or number of solutions
+    :param metric: "probability" or "solutions"
+    :param flags: flags
+    :param pruning: write output here, pass ``None`` for creating a new one
+    :param float_type: floating point type to use
 
-    >>> from fpylll import IntegerMatrix, LLL, GSO, FPLLL
-    >>> from fpylll import FPLLL
-    >>> from fpylll import Pruning
-    >>> FPLLL.set_random_seed(1337)
-    >>> A = IntegerMatrix.random(20, "qary", bits=20, k=10)
-    >>> M = GSO.Mat(A)
-    >>> LLL.Reduction(M)()
-    >>> _ = FPLLL.set_precision(128)
-    >>> R = [M.get_r(i,i) for i in range(0, 20)]
-    >>> pr0 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="double")
-    >>> pr1 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="mpfr")
+    EXAMPLE::
 
-    >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
-    (0.6266..., 0.6266...)
+        >>> from fpylll import IntegerMatrix, LLL, GSO, FPLLL
+        >>> from fpylll import FPLLL
+        >>> from fpylll import Pruning
+        >>> FPLLL.set_random_seed(1337)
+        >>> A = IntegerMatrix.random(20, "qary", bits=20, k=10)
+        >>> M = GSO.Mat(A)
+        >>> LLL.Reduction(M)()
+        >>> _ = FPLLL.set_precision(128)
+        >>> R = [M.get_r(i,i) for i in range(0, 20)]
+        >>> pr0 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="double")
+        >>> pr1 = Pruning.run(R[0], 2**20, [R], 0.5, float_type="mpfr")
 
-    >>> pr0 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.GRADIENT, float_type="double")
-    >>> pr1 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.NELDER_MEAD, float_type="mpfr")
-    >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
-    (0.70722482938..., 0.824291475...)
+        >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
+        (0.6266..., 0.6266...)
 
-    .. note :: Preprocessing cost should be expressed in terms of nodes in an
-       enumeration (~100 CPU cycles per node)
+        >>> pr0 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.GRADIENT, float_type="double")
+        >>> pr1 = Pruning.run(R[0], 2**10, [R], 0.5, flags=Pruning.NELDER_MEAD, float_type="mpfr")
+        >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
+        (0.70722482938..., 0.824291475...)
 
+        ..  note :: Preprocessing cost should be expressed in terms of nodes in an enumeration (~100
+        CPU cycles per node)
     """
     if preproc_cost < 1:
         raise ValueError("Preprocessing cost must be at least 1 but got %f"%preproc_cost)
