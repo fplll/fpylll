@@ -143,6 +143,7 @@ cdef class PruningParams:
             >>> import pickle
             >>> print(pickle.loads(pickle.dumps(PruningParams(1.0, [1.0, 0.6, 0.3], 1.0))))
             PruningParams<1.000000, (1.00,...,0.30), 1.0000>
+
         """
         return PruningParams, (self.gh_factor, self.coefficients, self.expectation, self.metric, self.detailed_cost)
 
@@ -363,7 +364,6 @@ cdef class Pruner:
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)
         >>> _ = M.update_gso()
-
 
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**40, [M.r()], 0.51, metric=Pruning.PROBABILITY_OF_SHORTEST)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
@@ -592,9 +592,9 @@ cdef class Pruner:
 
     def optimize_coefficients_cost_vary_prob(self, pr):
         """
-         Optimize the pruning coefficients with respect to the overall enumeration time.
+        Optimize the pruning coefficients with respect to the overall enumeration time.
 
-         The target function is: ``single_enum_cost(pr) * trials + preproc_cost * (trials - 1.0)``;
+        The target function is: ``single_enum_cost(pr) * trials + preproc_cost * (trials - 1.0)``;
 
         EXAMPLE::
 
@@ -964,7 +964,7 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
         >>> pr0.coefficients[10], pr1.coefficients[10] # doctest: +ELLIPSIS
         (0.70722482938..., 0.824291475...)
 
-        ..  note :: Preprocessing cost should be expressed in terms of nodes in an enumeration (~100
+    ..  note :: Preprocessing cost should be expressed in terms of nodes in an enumeration (~100
         CPU cycles per node)
     """
     if preproc_cost < 1:
