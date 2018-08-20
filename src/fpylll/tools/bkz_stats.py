@@ -659,6 +659,7 @@ class Node(object):
         else:
             return copy.copy(self)
 
+
 class TimeTreeTracer(Tracer):
     """
     Collect CPU and wall time for every context visited, creating a tree structure along the way.
