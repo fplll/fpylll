@@ -699,8 +699,6 @@ class TimeTreeTracer(Tracer):
         """
         node = self.current
 
-        node = self.current
-
         node.data["cputime"] += time.clock()
         node.data["walltime"] += time.time()
 
