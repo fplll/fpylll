@@ -684,6 +684,9 @@ class TimeTreeTracer(Tracer):
 
         """
 
+        if self.current is None:
+            # we exited the root node
+            self.current = self.trace
         node = self.current
         node.data["cputime"]  = node.data.get("cputime",  0) + Accumulator(-time.clock(), repr="sum", count=False)
         node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(-time.time(),  repr="sum", count=False)
