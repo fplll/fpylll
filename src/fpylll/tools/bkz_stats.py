@@ -647,6 +647,17 @@ class Node(object):
                 print("Skipping missing node '%s'"%lchild.label)
         return diff
 
+    def copy(self, deepcopy=True):
+        """
+        Return a (deep)copy of this node.
+
+        :param deepcopy: If ``False`` child nodes and data dictionaries are not copied, this is
+            usually not what the user wants.
+        """
+        if deepcopy:
+            return copy.deepcopy(self)
+        else:
+            return copy.copy(self)
 
 class TimeTreeTracer(Tracer):
     """
