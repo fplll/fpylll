@@ -531,6 +531,28 @@ class Node(object):
             r.extend(child.find_all(label))
         return tuple(r)
 
+    def __iter__(self):
+        """
+        Depth-first iterate over all subnodes (including self)
+
+        ::
+
+            >>> root = Node("root")
+            >>> c1 = root.child(("child",1))
+            >>> c2 = root.child(("child",2))
+            >>> c3 = c1.child(("child", 3))
+            >>> c1.data["a"] = 100.0
+            >>> c3.data["a"] = 4097
+            >>> list(root)
+            [{"root": {}}, {"('child', 1)": {"a":  100.000}}, {"('child', 3)": {"a":     4097}}, {"('child', 2)": {}}]
+
+        """
+
+        yield self
+        for child in self.children:
+            for c in iter(child):
+                yield c
+
     def merge(self, node):
         """
         Merge tree ``node`` into self.
