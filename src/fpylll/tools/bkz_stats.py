@@ -681,6 +681,33 @@ class Node(object):
         else:
             return copy.copy(self)
 
+    def accumulate(self, key, filter=lambda node: True, repr="avg"):
+        """
+        Return accumulator value for all occurrences of ``key``::
+
+            >>> root = Node("root")
+            >>> c1 = root.child(("child",1))
+            >>> c2 = root.child(("child",2))
+            >>> c3 = c1.child(("child", 3))
+            >>> c1.data["a"] = 100.0
+            >>> c3.data["a"] = 4097
+            >>> root.accumulate("a").sum
+            4197.0
+            >>> root.accumulate("a", filter=lambda node: node.label == ("child", 3)).sum
+            4097
+
+
+        :param key: Dictionary key to some ``data`` attribute
+        :param filter: Callable that should return ``True`` for nodes that ought to be considered.
+        :param repr: Representation of accumulator
+
+        """
+        acc = Accumulator(0, repr=repr, count=False)
+        for node in iter(self):
+            if filter(node) and key in node.data:
+                acc += node.data[key]
+        return acc
+
 
 class TimeTreeTracer(Tracer):
     """
