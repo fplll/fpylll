@@ -220,6 +220,7 @@ Attribution & License
 
 The following people have contributed to **fpylll**
 
++ Eamonn Postlethwaite
 + E M Bray
 + Fernando Virdia
 + Guillaume Bonnoron
