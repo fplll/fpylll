@@ -822,6 +822,9 @@ class BKZTreeTracer(Tracer):
         node.data["cputime"] += time.clock()
         node.data["walltime"] += time.time()
 
+        if kwds.get("dump_gso", False):
+            node.data["r"] = node.data.get("r", []) + [self.instance.M.r()]
+
         if label == "enumeration":
             full = kwds.get("full", True)
             if full:
