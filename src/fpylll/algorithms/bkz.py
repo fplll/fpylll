@@ -85,10 +85,7 @@ class BKZReduction(object):
 
         i = 0
         while True:
-            with tracer.context(
-                    "tour",
-                    i,
-                    dump_gso=params.flags & BKZ.DUMP_GSO):
+            with tracer.context("tour", i, dump_gso=params.flags & BKZ.DUMP_GSO):
                 clean = self.tour(params, min_row, max_row, tracer)
             i += 1
             if clean or params.block_size >= self.A.nrows:
