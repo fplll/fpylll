@@ -342,7 +342,7 @@ cdef class BKZParam:
         if dump_gso_filename is not None:
             o.flags |= BKZ_DUMP_GSO
 
-        if o.flags & BKZ_DUMP_GSO:
+        if o.flags & BKZ_DUMP_GSO and dump_gso_filename is not None:
             o.dump_gso_filename = dump_gso_filename
 
         o.min_success_probability = min_success_probability
