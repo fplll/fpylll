@@ -110,7 +110,9 @@ class build_ext(_build_ext, object):
                 self.extensions,
                 include_path=["src"],
                 build_dir=self.cythonize_dir,
-                compiler_directives={'binding': True, "embedsignature": True})
+                compiler_directives={'binding': True,
+                                     'embedsignature': True,
+                                     'language_level': 2})
         super(build_ext, self).run()
 
     def _generate_config_pxi(self):
