@@ -384,7 +384,7 @@ def names_to_classes(class_names, filenames):
 
         # check if there's some BKZReduction implemented in bkz_foo.py, we match this with BKZ_FOO
         if fn.startswith(os.path.basename(fn)) and "BKZReduction" in tmp.__dict__:
-            candidate = re.sub("bkz(.*)\.py", "BKZ\\1", os.path.basename(fn)).upper()
+            candidate = re.sub("bkz(.*)\\.py", "BKZ\\1", os.path.basename(fn)).upper()
             if candidate in classes:
                 tmp.BKZReduction.__name__ = candidate
                 classes[classes.index(candidate)] = tmp.BKZReduction

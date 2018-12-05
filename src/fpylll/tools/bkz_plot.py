@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Plot `\log_2` of square Gram-Schmidt norms during a BKZ run.
+Plot `\\log_2` of square Gram-Schmidt norms during a BKZ run.
 
 EXAMPLE::
 
