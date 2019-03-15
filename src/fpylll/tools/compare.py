@@ -242,50 +242,50 @@ class Conductor(object):
 def compare_bkz(classes, matrixf, dimensions, block_sizes, progressive_step_size,
                 seed, threads=2, samples=2, tours=1,
                 pickle_jar=None, logger="compare"):
-        """
-        Compare BKZ-style lattice reduction.
+    """
+    Compare BKZ-style lattice reduction.
 
-        :param classes: a list of BKZ classes to test.  See caveat above.
-        :param matrixf: A function to create matrices for a given dimension and block size
-        :param dimensions: a list of dimensions to test
-        :param block_sizes: a list of block sizes to test
-        :param progressive_step_size: step size for the progressive strategy; ``None`` to disable it
-        :param seed: A random seed, each matrix will be created with seed increased by one
-        :param threads: number of threads to use
-        :param samples: number of reductions to perform
-        :param tours: number of BKZ tours to run
-        :param log_filename: log to this file if not ``None``
+    :param classes: a list of BKZ classes to test.  See caveat above.
+    :param matrixf: A function to create matrices for a given dimension and block size
+    :param dimensions: a list of dimensions to test
+    :param block_sizes: a list of block sizes to test
+    :param progressive_step_size: step size for the progressive strategy; ``None`` to disable it
+    :param seed: A random seed, each matrix will be created with seed increased by one
+    :param threads: number of threads to use
+    :param samples: number of reductions to perform
+    :param tours: number of BKZ tours to run
+    :param log_filename: log to this file if not ``None``
 
-        """
+    """
 
-        jobs = []
+    jobs = []
 
-        for dimension in dimensions:
+    for dimension in dimensions:
 
-            jobs.append((dimension, []))
+        jobs.append((dimension, []))
 
-            for block_size in block_sizes:
-                if dimension < block_size:
-                    continue
+        for block_size in block_sizes:
+            if dimension < block_size:
+                continue
 
-                seed_ = seed
-                jobs_ = []
+            seed_ = seed
+            jobs_ = []
 
-                matrixf_ = matrixf(dimension=dimension, block_size=block_size)
+            matrixf_ = matrixf(dimension=dimension, block_size=block_size)
 
-                for i in range(samples):
-                    FPLLL.set_random_seed(seed_)
-                    A = IntegerMatrix.random(dimension, **matrixf_)
+            for i in range(samples):
+                FPLLL.set_random_seed(seed_)
+                A = IntegerMatrix.random(dimension, **matrixf_)
 
-                    for BKZ_ in classes:
-                        args = (BKZ_, A, block_size, tours, progressive_step_size)
-                        jobs_.append(((BKZ_.__name__, seed_), args))
-                    seed_ += 1
+                for BKZ_ in classes:
+                    args = (BKZ_, A, block_size, tours, progressive_step_size)
+                    jobs_.append(((BKZ_.__name__, seed_), args))
+                seed_ += 1
 
-                jobs[-1][1].append((block_size, jobs_))
+            jobs[-1][1].append((block_size, jobs_))
 
-        conductor = Conductor(threads=threads, pickle_jar=pickle_jar, logger=logger)
-        return conductor(jobs)
+    conductor = Conductor(threads=threads, pickle_jar=pickle_jar, logger=logger)
+    return conductor(jobs)
 
 
 # Example
