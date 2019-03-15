@@ -443,6 +443,9 @@ cdef class Enumeration:
                 solutions.append((cur_dist, tuple(cur_sol)))
                 inc(solutions_mpfr)
 
+        if solutions == []:
+            raise NotImplementedError("GSO datatype not implemented.")
+
         return solutions
 
     @property
