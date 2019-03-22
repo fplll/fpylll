@@ -135,6 +135,7 @@ def closest_vector(IntegerMatrix B, target, int flags=CVP_DEFAULT):
         >>> t = (94, -42, 123, 512, -1337)
         >>> print (CVP.closest_vector(A, t))
         (-34, 109, 204, 360, -1548)
+
     """
 
     if B._type != ZT_MPZ:
