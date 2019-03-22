@@ -117,20 +117,24 @@ class SVP:
 def closest_vector(IntegerMatrix B, target, int flags=CVP_DEFAULT):
     """Return a closest vector.
 
+    The basis must be LLL-reduced with delta=``LLL.DEFAULT_DELTA`` and eta=``LLL.DEFAULT_ETA``.  The
+    result is guaranteed if method = ``CVPM_PROVED``.
+
     :param IntegerMatrix B:
     :param vector[Z_NR[mpz_t]] target:
     :param int flags:
     :returns coordinates of the solution vector:
     :rtype tuple:
 
-    >>> from fpylll import *
-    >>> FPLLL.set_random_seed(42)
-    >>> A = IntegerMatrix.random(5, 'uniform', bits=10)
-    >>> lll = LLL.reduction(A)
-    >>> t = (94, -42, 123, 512, -1337)
-    >>> print (CVP.closest_vector(A, t))
-    (-34, 109, 204, 360, -1548)
+    EXAMPLE ::
 
+        >>> from fpylll import *
+        >>> FPLLL.set_random_seed(42)
+        >>> A = IntegerMatrix.random(5, 'uniform', bits=10)
+        >>> lll = LLL.reduction(A)
+        >>> t = (94, -42, 123, 512, -1337)
+        >>> print (CVP.closest_vector(A, t))
+        (-34, 109, 204, 360, -1548)
     """
 
     if B._type != ZT_MPZ:
