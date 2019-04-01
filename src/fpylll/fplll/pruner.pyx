@@ -2,8 +2,6 @@
 """
 Pruner
 
-..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
-
 EXAMPLE::
 
     >>> from fpylll import *
@@ -19,6 +17,8 @@ EXAMPLE::
     >>> print(Pruning.run(M[0].get_r(0, 0), 2**20, [m.r() for m in M], 0.9, pruning=pr))
     PruningParams<1.001130, (1.00,...,0.98), 0.9410>
 
+
+..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
 """
 
 include "fpylll/config.pxi"
