@@ -18,6 +18,8 @@ from .fplll cimport SVP_VERBOSE, CVP_VERBOSE
 from .fplll cimport SVP_OVERRIDE_BND
 from .fplll cimport SVPM_PROVED, SVPM_FAST
 from .fplll cimport SVPMethod
+from .fplll cimport CVPM_PROVED, CVPM_FAST
+from .fplll cimport CVPMethod
 from .fplll cimport shortest_vector_pruning
 from .fplll cimport shortest_vector as shortest_vector_c
 from .fplll cimport closest_vector as closest_vector_c
@@ -28,11 +30,11 @@ from fpylll.util import ReductionError
 
 from .integer_matrix cimport IntegerMatrix
 
-def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning=None, run_lll=True, max_aux_sols=0):
-    """Return a shortest vector.
+def shortest_vector(IntegerMatrix B, method="proved", int flags=SVP_DEFAULT, pruning=None, run_lll=True, max_aux_sols=0):
+    """Return a shortest vector. The result is guaranteed if method = "proved".
 
     :param IntegerMatrix B:
-    :param method:
+    :param method: One of "fast" or "proved".
     :param int flags:
     :param pruning:
     :param run_lll:
@@ -46,7 +48,7 @@ def shortest_vector(IntegerMatrix B, method=None, int flags=SVP_DEFAULT, pruning
         raise NotImplementedError("Only integer matrices over GMP integers (mpz_t) are supported.")
 
     cdef SVPMethod method_
-    if method == "proved" or method is None:
+    if method == "proved":
         method_ = SVPM_PROVED
     elif method == "fast":
         method_ = SVPM_FAST
@@ -114,15 +116,16 @@ class SVP:
     VERBOSE = SVP_VERBOSE
     OVERRIDE_BND = SVP_OVERRIDE_BND
 
-def closest_vector(IntegerMatrix B, target, int flags=CVP_DEFAULT):
+def closest_vector(IntegerMatrix B, target, method="fast", int flags=CVP_DEFAULT):
     """Return a closest vector.
 
     The basis must be LLL-reduced with delta=``LLL.DEFAULT_DELTA`` and eta=``LLL.DEFAULT_ETA``.  The
-    result is guaranteed if method = ``CVPM_PROVED``.
+    result is guaranteed if method = "proved", default is "fast".
 
     :param IntegerMatrix B:
     :param vector[Z_NR[mpz_t]] target:
-    :param int flags:
+    :param method: One of "fast" or "proved".
+    :param int flags: Either ``CVP.DEFAULT`` or ``CVP.VERBOSE``.
     :returns coordinates of the solution vector:
     :rtype tuple:
 
@@ -141,6 +144,14 @@ def closest_vector(IntegerMatrix B, target, int flags=CVP_DEFAULT):
     if B._type != ZT_MPZ:
         raise NotImplementedError("Only integer matrices over GMP integers (mpz_t) are supported.")
 
+    cdef CVPMethod method_
+    if method == "proved":
+        method_ = CVPM_PROVED
+    elif method == "fast":
+        method_ = CVPM_FAST
+    else:
+        raise ValueError("Method '{}' unknown".format(method))
+
     cdef int r = 0
 
     cdef vector[Z_NR[mpz_t]] int_target
@@ -154,7 +165,7 @@ def closest_vector(IntegerMatrix B, target, int flags=CVP_DEFAULT):
         assign_Z_NR_mpz(int_target[i], target[i])
 
     sig_on()
-    r = closest_vector_c(B._core.mpz[0], int_target, sol_coord, flags)
+    r = closest_vector_c(B._core.mpz[0], int_target, sol_coord, method_, flags)
     sig_off()
 
     if r:
