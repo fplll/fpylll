@@ -9,6 +9,10 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import time
+try:
+    from time import process_time  # Python 3
+except ImportError:
+    from time import clock as process_time  # Python 2
 import copy
 from collections import OrderedDict
 from math import log
@@ -749,8 +753,10 @@ class TimeTreeTracer(Tracer):
             # we exited the root node
             self.current = self.trace
         node = self.current
-        node.data["cputime"]  = node.data.get("cputime",  0) + Accumulator(-time.clock(), repr="sum", count=False)
-        node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(-time.time(),  repr="sum", count=False)
+        node.data["cputime"]  = node.data.get("cputime",  0) + Accumulator(-process_time(),
+                                                                           repr="sum", count=False)
+        node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(-time.time(),
+                                                                           repr="sum", count=False)
 
     def exit(self, **kwds):
         """
@@ -763,7 +769,7 @@ class TimeTreeTracer(Tracer):
         """
         node = self.current
 
-        node.data["cputime"] += time.clock()
+        node.data["cputime"] += process_time()
         node.data["walltime"] += time.time()
 
         if self.verbosity and self.verbosity >= self.current.level:
@@ -808,8 +814,10 @@ class BKZTreeTracer(Tracer):
         """
 
         node = self.current
-        node.data["cputime"]  = node.data.get("cputime",  0) + Accumulator(-time.clock(), repr="sum", count=False)
-        node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(-time.time(),  repr="sum", count=False)
+        node.data["cputime"]  = node.data.get("cputime",  0) + Accumulator(-process_time(),
+                                                                           repr="sum", count=False)
+        node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(-time.time(),
+                                                                           repr="sum", count=False)
 
     def exit(self, **kwds):  # noqa, shut up linter about this function being too complex
         """
@@ -819,7 +827,7 @@ class BKZTreeTracer(Tracer):
         node = self.current
         label = node.label
 
-        node.data["cputime"] += time.clock()
+        node.data["cputime"] += process_time()
         node.data["walltime"] += time.time()
 
         if kwds.get("dump_gso", False):
