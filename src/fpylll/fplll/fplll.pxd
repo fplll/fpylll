@@ -194,6 +194,10 @@ cdef extern from "fplll/defs.h" namespace "fplll":
         SVP_VERBOSE
         SVP_OVERRIDE_BND
 
+    cdef enum CVPMethod:
+        CVPM_FAST
+        CVPM_PROVED
+
     cdef enum CVPFlags:
         CVP_DEFAULT
         CVP_VERBOSE
@@ -714,9 +718,8 @@ cdef extern from "fplll/svpcvp.h" namespace "fplll":
                                 vector[double]& auxsol_dist, const int max_aux_sols,
                                 const vector[double]& pruning, int flags) nogil
 
-    # Experimental. Do not use.
     int closest_vector(ZZ_mat[mpz_t] b, vector[Z_NR[mpz_t]] &intTarget,
-                       vector[Z_NR[mpz_t]]& sol_coord, int flags) nogil
+                       vector[Z_NR[mpz_t]]& sol_coord, CVPMethod method, int flags) nogil
 
 
 
