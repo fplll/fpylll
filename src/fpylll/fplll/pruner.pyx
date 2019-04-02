@@ -973,7 +973,7 @@ def prune(double enumeration_radius, double preproc_cost, gso_r, double target,
         if target <= 0 or target >= 1.0:
             raise ValueError("Probability must be between 0 and 1 (exclusive) but got %f"%target)
     if metric == PRUNER_METRIC_EXPECTED_SOLUTIONS:
-        if target <= 0 or target >= 1.0:
+        if target <= 0:
             raise ValueError("Number of solutions must be > 0 but got %f"%target)
 
     cdef FloatType ft = check_float_type(float_type)
