@@ -78,7 +78,7 @@ class BKZReduction(object):
         if params.flags & BKZ.AUTO_ABORT:
             auto_abort = BKZ.AutoAbort(self.M, self.A.nrows)
 
-        cputime_start = time.clock()
+        cputime_start = time.perf_counter()
 
         with tracer.context("lll"):
             self.lll_obj()
@@ -94,7 +94,7 @@ class BKZReduction(object):
                 break
             if (params.flags & BKZ.MAX_LOOPS) and i >= params.max_loops:
                 break
-            if (params.flags & BKZ.MAX_TIME) and time.clock() - cputime_start >= params.max_time:
+            if (params.flags & BKZ.MAX_TIME) and time.perf_counter() - cputime_start >= params.max_time:
                 break
 
         tracer.exit()

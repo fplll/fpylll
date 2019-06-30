@@ -2,7 +2,7 @@
 
 from fpylll import Enumeration, GSO, IntegerMatrix, LLL, Pruning
 from fpylll.util import gaussian_heuristic
-from time import clock
+from time import perf_counter
 
 dim_oh = ((40, 2**22), (41, 2**22), (50, 2**24), (51, 2**24))
 
@@ -30,9 +30,9 @@ def test_pruner():
         print(" \n GREEDY")
         radius = gaussian_heuristic(r) * 1.6
         print("pre-greedy radius %.4e" % radius)
-        tt = clock()
+        tt = perf_counter()
         pruning =Pruning.run(radius, overhead, r, 200, flags=Pruning.ZEALOUS, metric="solutions")
-        print("Time %.4e"%(clock() - tt))
+        print("Time %.4e"%(perf_counter() - tt))
         print("post-greedy radius %.4e" % radius)
         print(pruning)
         print("cost %.4e" % sum(pruning.detailed_cost))
@@ -43,9 +43,9 @@ def test_pruner():
 
         print(" \n GREEDY \n")
         print("pre-greedy radius %.4e" % radius)
-        tt = clock()
+        tt = perf_counter()
         pruning = Pruning.run(radius, overhead, r, 200, flags=Pruning.ZEALOUS, metric="solutions")
-        print("Time %.4e"%(clock() - tt))
+        print("Time %.4e"%(perf_counter() - tt))
         print("post-greedy radius %.4e" % radius)
         print(pruning)
         print("cost %.4e" % sum(pruning.detailed_cost))
@@ -57,9 +57,9 @@ def test_pruner():
         print(" \n GRADIENT \n")
 
         print("radius %.4e" % radius)
-        tt = clock()
+        tt = perf_counter()
         pruning = Pruning.run(radius, overhead, r, 200, flags=Pruning.GRADIENT, metric="solutions")
-        print("Time %.4e"%(clock() - tt))
+        print("Time %.4e"%(perf_counter() - tt))
         print(pruning)
         print("cost %.4e" % sum(pruning.detailed_cost))
         solutions = Enumeration(M, nr_solutions=10000).enumerate(0, n, radius, 0, pruning=pruning.coefficients)
@@ -70,9 +70,9 @@ def test_pruner():
         print(" \n HYBRID \n")
 
         print("radius %.4e" % radius)
-        tt = clock()
+        tt = perf_counter()
         pruning = Pruning.run(radius, overhead, r, 200, flags=Pruning.ZEALOUS, metric="solutions")
-        print("Time %.4e"%(clock() - tt))
+        print("Time %.4e"%(perf_counter() - tt))
         print(pruning)
         print("cost %.4e" % sum(pruning.detailed_cost))
         solutions = Enumeration(M, nr_solutions=10000).enumerate(0, n, radius, 0, pruning=pruning.coefficients)
