@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: xenial
 language: python
 python:
   - "2.7"
@@ -21,10 +21,7 @@ cache: pip
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
-      - g++-4.9
       - libgmp-dev
       - libmpfr-dev
       - libqd-dev
@@ -36,7 +33,6 @@ addons:
       - python-flake8
 
 install:
-  - export CXX="g++-4.9"
   - ./install-dependencies.sh $VIRTUAL_ENV
   - pip install -r requirements.txt
   - python setup.py build
