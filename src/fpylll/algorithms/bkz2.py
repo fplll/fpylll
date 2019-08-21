@@ -18,14 +18,16 @@ class BKZReduction(BKZBase):
 
     def get_pruning(self, kappa, block_size, params, tracer=dummy_tracer):
         strategy = params.strategies[block_size]
-        radius = self.M.get_r(kappa, kappa) * self.lll_obj.delta
-        r = [self.M.get_r(i, i) for i in range(kappa, kappa+block_size)]
-        gh_radius = gaussian_heuristic(r)
+        radius, re = self.M.get_r_exp(kappa, kappa)
+        radius *= self.lll_obj.delta
+        r = [self.M.get_r_exp(i, i) for i in range(kappa, kappa+block_size)]
+        gh_radius = gaussian_heuristic([x for x, _ in r])
+        ge = float(sum([y for _, y in r])) / len(r)
 
         if (params.flags & BKZ.GH_BND and block_size > 30):
-            radius = min(radius, gh_radius * params.gh_factor)
+            radius = min(radius, gh_radius * 2**(ge-re) * params.gh_factor)
 
-        return radius, strategy.get_pruning(radius, gh_radius)
+        return radius, re, strategy.get_pruning(radius, gh_radius * 2**(ge-re))
 
     def randomize_block(self, min_row, max_row, tracer=dummy_tracer, density=0):
         """Randomize basis between from ``min_row`` and ``max_row`` (exclusive)
@@ -97,7 +99,7 @@ class BKZReduction(BKZBase):
                     self.svp_preprocessing(kappa, block_size, params, tracer=tracer)
 
             with tracer.context("pruner"):
-                radius, pruning = self.get_pruning(kappa, block_size, params, tracer)
+                radius, re, pruning = self.get_pruning(kappa, block_size, params, tracer)
 
             try:
                 enum_obj = Enumeration(self.M)
@@ -105,7 +107,7 @@ class BKZReduction(BKZBase):
                                     enum_obj=enum_obj,
                                     probability=pruning.expectation,
                                     full=block_size==params.block_size):
-                    max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, radius, 0,
+                    max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, radius, re,
                                                             pruning=pruning.coefficients)[0]
                 with tracer.context("postprocessing"):
                     self.svp_postprocessing(kappa, block_size, solution, tracer=tracer)
