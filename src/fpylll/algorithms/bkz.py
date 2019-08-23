@@ -9,7 +9,10 @@ implementation in fplll's core.  Additionally, this implementation collects some
 statistics.  Hence, it should provide a good basis for implementing variants of this algorithm.
 """
 from __future__ import absolute_import
-import time
+try:
+    from time import process_time  # Python 3
+except ImportError:
+    from time import clock as process_time  # Python 2
 from fpylll import IntegerMatrix, GSO, LLL
 from fpylll import BKZ
 from fpylll import Enumeration
@@ -78,7 +81,7 @@ class BKZReduction(object):
         if params.flags & BKZ.AUTO_ABORT:
             auto_abort = BKZ.AutoAbort(self.M, self.A.nrows)
 
-        cputime_start = time.clock()
+        cputime_start = process_time()
 
         with tracer.context("lll"):
             self.lll_obj()
@@ -94,7 +97,7 @@ class BKZReduction(object):
                 break
             if (params.flags & BKZ.MAX_LOOPS) and i >= params.max_loops:
                 break
-            if (params.flags & BKZ.MAX_TIME) and time.clock() - cputime_start >= params.max_time:
+            if (params.flags & BKZ.MAX_TIME) and process_time() - cputime_start >= params.max_time:
                 break
 
         tracer.exit()
