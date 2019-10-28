@@ -78,7 +78,7 @@ We recommend `virtualenv <https://virtualenv.readthedocs.org/>`__ for isolating 
      $ ./bootstrap.sh
      $ source activate
 
-**Manual install*
+**Manual install**
 
 1. Create a new virtualenv and activate it:
 
