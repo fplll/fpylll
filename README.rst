@@ -68,6 +68,7 @@ Getting Started
 **Note:** fpylll is also available via `PyPI <https://pypi.python.org/pypi/fpylll/>`__ and `Conda-Forge <https://conda-forge.github.io>`__ for `Conda <https://conda.io/docs/>`__. In what follows, we explain manual installation.
 
 We recommend `virtualenv <https://virtualenv.readthedocs.org/>`__ for isolating Python build environments and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`__ to manage virtual environments.
+We indicate active virtualenvs by the prefix ``(fpylll)``.
 
 **Automatic install**
 
@@ -88,7 +89,6 @@ We recommend `virtualenv <https://virtualenv.readthedocs.org/>`__ for isolating 
      $ ln -s ./env/bin/activate ./
      $ source ./activate
 
-   We indicate active virtualenvs by the prefix ``(fpylll)``.
 
 2. Install the required libraries - `GMP <https://gmplib.org>`__ or `MPIR <http://mpir.org>`__ and `MPFR <http://www.mpfr.org>`__  - if not available already. You may also want to install `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`__.
 
