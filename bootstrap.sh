@@ -49,5 +49,5 @@ python setup.py build_ext
 python setup.py install
 
 
-echo "Don't forget to activate environment:"
-echo " source activate"
+echo "Don't forget to activate environment each time:"
+echo " source ./activate"
