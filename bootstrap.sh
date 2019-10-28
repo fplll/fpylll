@@ -23,7 +23,9 @@ export CFLAGS
 export CXXFLAGS
 EOF
 
-source fpylll-env/bin/activate
+ln -s fpylll-env/bin/activate
+
+source activate
 
 pip install -U pip
 
@@ -46,5 +48,6 @@ python setup.py clean
 python setup.py build_ext
 python setup.py install
 
+
 echo "Don't forget to activate environment:"
-echo " source fpylll-env/bin/activate"
+echo " source activate"

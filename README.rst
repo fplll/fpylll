@@ -53,6 +53,7 @@ Requirements
 
 We also suggest
 
+- `virtualenv`__ to build and install fpylll in
 - `IPython  <https://ipython.org>`__ for interacting with Python
 - `Numpy <http://www.numpy.org>`__ for numerical computations (e.g. with Gram-Schmidt values)
 
@@ -67,6 +68,17 @@ Getting Started
 **Note:** fpylll is also available via `PyPI <https://pypi.python.org/pypi/fpylll/>`__ and `Conda-Forge <https://conda-forge.github.io>`__ for `Conda <https://conda.io/docs/>`__. In what follows, we explain manual installation.
 
 We recommend `virtualenv <https://virtualenv.readthedocs.org/>`__ for isolating Python build environments and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`__ to manage virtual environments.
+
+**Automatic install**
+
+1. Run bootstrap.sh
+
+   .. code-block:: bash
+
+     $ ./bootstrap.sh
+     $ source activate
+
+**Manual install*
 
 1. Create a new virtualenv and activate it:
 
