@@ -60,3 +60,6 @@ target/
 /MANIFEST
 /valgrind-python.supp
 /.pytest_cache/
+/activate
+/fpylll-env
+/fpylll-fplll

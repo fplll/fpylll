@@ -53,6 +53,7 @@ Requirements
 
 We also suggest
 
+- `virtualenv`__ to build and install fpylll in
 - `IPython  <https://ipython.org>`__ for interacting with Python
 - `Numpy <http://www.numpy.org>`__ for numerical computations (e.g. with Gram-Schmidt values)
 
@@ -67,15 +68,27 @@ Getting Started
 **Note:** fpylll is also available via `PyPI <https://pypi.python.org/pypi/fpylll/>`__ and `Conda-Forge <https://conda-forge.github.io>`__ for `Conda <https://conda.io/docs/>`__. In what follows, we explain manual installation.
 
 We recommend `virtualenv <https://virtualenv.readthedocs.org/>`__ for isolating Python build environments and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`__ to manage virtual environments.
+We indicate active virtualenvs by the prefix ``(fpylll)``.
+
+**Automatic install**
+
+1. Run bootstrap.sh
+
+   .. code-block:: bash
+
+     $ ./bootstrap.sh
+     $ source ./activate
+
+**Manual install**
 
 1. Create a new virtualenv and activate it:
 
    .. code-block:: bash
 
      $ virtualenv env
-     $ source ./env/bin/activate
+     $ ln -s ./env/bin/activate ./
+     $ source ./activate
 
-   We indicate active virtualenvs by the prefix ``(fpylll)``.
 
 2. Install the required libraries - `GMP <https://gmplib.org>`__ or `MPIR <http://mpir.org>`__ and `MPFR <http://www.mpfr.org>`__  - if not available already. You may also want to install `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`__.
 
@@ -120,55 +133,58 @@ We recommend `virtualenv <https://virtualenv.readthedocs.org/>`__ for isolating 
 
    so that Python can find fplll and friends.
 
-8. Start Python:
+   Note that you can also patch ``activate`` to set ``LD_LIBRRY_PATH``. For this, add:
+
+   .. code-block:: bash
+
+     ### LD_LIBRARY_HACK
+     _OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+     LD_LIBRARY_PATH="$VIRTUAL_ENV/lib:$LD_LIBRARY_PATH"
+     export LD_LIBRARY_PATH
+     ### END_LD_LIBRARY_HACK
+
+     ### PKG_CONFIG_HACK
+     _OLD_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
+     PKG_CONFIG_PATH="$VIRTUAL_ENV/lib/pkgconfig:$PKG_CONFIG_PATH"
+     export PKG_CONFIG_PATH
+     ### END_PKG_CONFIG_HACK
+
+   towards the end and:
+
+   .. code-block:: bash
+
+     ### LD_LIBRARY_HACK
+     if ! [ -z ${_OLD_LD_LIBRARY_PATH+x} ] ; then
+         LD_LIBRARY_PATH="$_OLD_LD_LIBRARY_PATH"
+         export LD_LIBRARY_PATH
+         unset _OLD_LD_LIBRARY_PATH
+     fi
+     ### END_LD_LIBRARY_HACK
+
+     ### PKG_CONFIG_HACK
+     if ! [ -z ${_OLD_PKG_CONFIG_PATH+x} ] ; then
+         PKG_CONFIG_PATH="$_OLD_PKG_CONFIG_PATH"
+         export PKG_CONFIG_PATH
+         unset _OLD_PKG_CONFIG_PATH
+     fi
+     ### END_PKG_CONFIG_HACK
+
+   in the ``deactivate`` function in the ``activate`` script.
+
+**Running fpylll**
+
+1. To (re)activate the virtual environment, simply run:
+
+   .. code-block:: bash
+
+    $ source ./activate
+
+2. Start Python:
 
    .. code-block:: bash
 
     $ (fpylll) ipython
 
-To reactivate the virtual environment later, simply run:
-
-   .. code-block:: bash
-
-    $ source ./env/bin/activate
-
-Note that you can also patch ``activate`` to set ``LD_LIBRRY_PATH``. For this, add:
-
-.. code-block:: bash
-
-    ### LD_LIBRARY_HACK
-    _OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
-    LD_LIBRARY_PATH="$VIRTUAL_ENV/lib:$LD_LIBRARY_PATH"
-    export LD_LIBRARY_PATH
-    ### END_LD_LIBRARY_HACK
-
-    ### PKG_CONFIG_HACK
-    _OLD_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
-    PKG_CONFIG_PATH="$VIRTUAL_ENV/lib/pkgconfig:$PKG_CONFIG_PATH"
-    export PKG_CONFIG_PATH
-    ### END_PKG_CONFIG_HACK
-
-towards the end and:
-
-.. code-block:: bash
-
-    ### LD_LIBRARY_HACK
-    if ! [ -z ${_OLD_LD_LIBRARY_PATH+x} ] ; then
-        LD_LIBRARY_PATH="$_OLD_LD_LIBRARY_PATH"
-        export LD_LIBRARY_PATH
-        unset _OLD_LD_LIBRARY_PATH
-    fi
-    ### END_LD_LIBRARY_HACK
-
-    ### PKG_CONFIG_HACK
-    if ! [ -z ${_OLD_PKG_CONFIG_PATH+x} ] ; then
-        PKG_CONFIG_PATH="$_OLD_PKG_CONFIG_PATH"
-        export PKG_CONFIG_PATH
-        unset _OLD_PKG_CONFIG_PATH
-    fi
-    ### END_PKG_CONFIG_HACK
-
-in the ``deactivate`` function in the ``activate`` script.
 
 Multicore Support
 -----------------
