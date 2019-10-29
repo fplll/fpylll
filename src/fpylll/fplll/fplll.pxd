@@ -657,12 +657,29 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator end()
 
 
+    cdef cppclass ErrorBoundedEvaluator:
+        ErrorBoundedEvaluator()
+        ErrorBoundedEvaluator(int d, Matrix[FP_NR[mpfr_t]] mu, Matrix[FP_NR[mpfr_t]] r, EvaluatorMode eval_mode, size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
+
+        void eval_sol(const vector[FP_NR[mpfr_t]]& newSolCoord,
+                      const enumf& newPartialDist, enumf& maxDist, long normExp)
+        int size()
+
+        int max_sols
+        EvaluatorStrategy strategy
+        multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]] solutions
+        multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator begin()
+        multimap[FP_NR[mpfr_t], vector[FP_NR[mpfr_t]]].reverse_iterator end()
+
+
 
 # Enumeration
 
 cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
     cdef cppclass Enumeration[ZT, FT]:
+        Enumeration(MatGSO[ZT, FT]& gso, Evaluator[FT]& evaluator)
         Enumeration(MatGSO[ZT, FT]& gso, FastEvaluator[FT]& evaluator)
+        Enumeration(MatGSO[ZT, FP_NR[mpfr_t]]& gso, ErrorBoundedEvaluator& evaluator)
         Enumeration(MatGSO[ZT, FP_NR[mpfr_t]]& gso, FastErrorBoundedEvaluator& evaluator)
 
         void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
