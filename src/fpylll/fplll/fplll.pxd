@@ -595,6 +595,12 @@ cdef extern from "fplll/wrapper.h" namespace "fplll":
 
 # Evaluator
 
+cdef extern from "enumeration_callback_helper.h":
+    cdef cppclass PyCallbackEvaluatorWrapper:
+        PyCallbackEvaluatorWrapper()
+        PyCallbackEvaluatorWrapper(object)
+
+
 cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
     cdef enum EvaluatorStrategy:
@@ -641,6 +647,25 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
         int size()
         bool empty()
 
+    cdef cppclass CallbackEvaluator[FT]:
+        CallbackEvaluator()
+        CallbackEvaluator(PyCallbackEvaluatorWrapper, void *ctx,
+                          size_t nr_solutions, EvaluatorStrategy strategy, bool find_subsolutions)
+
+        void eval_sol(const vector[FT]& newSolCoord,
+                      const enumf& newPartialDist, enumf& maxDist, long normExp)
+
+        int max_sols
+        EvaluatorStrategy strategy
+        multimap[FT, vector[FT]] solutions
+        size_t sol_count
+        vector[pair[FT, vector[FT]]] sub_solutions
+
+        multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator begin()
+        multimap[FP_NR[FT], vector[FP_NR[FT]]].reverse_iterator end()
+
+        int size()
+        bool empty()
 
     cdef cppclass FastErrorBoundedEvaluator:
         FastErrorBoundedEvaluator()

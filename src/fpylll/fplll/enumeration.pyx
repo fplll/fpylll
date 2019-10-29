@@ -14,6 +14,7 @@ from .fplll cimport EVALSTRATEGY_FIRST_N_SOLUTIONS
 from .fplll cimport EVALSTRATEGY_OPPORTUNISTIC_N_SOLUTIONS
 from .fplll cimport Enumeration as Enumeration_c
 from .fplll cimport FastEvaluator as FastEvaluator_c
+from .fplll cimport CallbackEvaluator as CallbackEvaluator_c
 from .fplll cimport Evaluator as Evaluator_c
 from .fplll cimport FastErrorBoundedEvaluator as FastErrorBoundedEvaluator_c
 from .fplll cimport ErrorBoundedEvaluator as ErrorBoundedEvaluator_c
@@ -30,6 +31,14 @@ from .decl cimport d_t
 from .fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
 from .fplll cimport multimap
+
+from libcpp cimport bool
+
+cdef public bool evaluator_callback_call_obj(obj, int n, double *new_sol_coord):
+    cdef list new_sol_coord_ = []
+    for i in range(n):
+        new_sol_coord_.append(new_sol_coord[i])
+    return obj(new_sol_coord_);
 
 IF HAVE_LONG_DOUBLE:
     from .decl cimport ld_t
@@ -64,13 +73,16 @@ class EvaluatorStrategy:
 
 cdef class Enumeration:
     def __cinit__(self, MatGSO M, int nr_solutions=1,
-                  strategy=EvaluatorStrategy.BEST_N_SOLUTIONS, bool sub_solutions=False):
+                  strategy=EvaluatorStrategy.BEST_N_SOLUTIONS, bool sub_solutions=False,
+                  callbackf=None):
         """Create new enumeration object
 
         :param MatGSO M:       GSO matrix
         :param nr_solutions:   Number of solutions to be returned by enumeration
         :param strategy:       EvaluatorStrategy to use when finding new solutions
         :param sub_solutions:  Compute sub-solutions
+        :param callbackf:      A predicate to accept or reject a candidate solution
+
         """
 
         assert(M._alg == mat_gso_gso_t)
@@ -97,9 +109,18 @@ cdef class Enumeration:
 
         if M._type == mat_gso_mpz_d:
             m_mpz_d = <MatGSO_c[Z_NR[mpz_t], FP_NR[d_t]]*>M._core.mpz_d
-            self._fe_core.d = <Evaluator_c[FP_NR[double]]*>new FastEvaluator_c[FP_NR[double]](nr_solutions,
-                                                                                              strategy,
-                                                                                              sub_solutions)
+            if callbackf is None:
+                self._fe_core.d = <Evaluator_c[FP_NR[double]]*>new FastEvaluator_c[FP_NR[double]](nr_solutions,
+                                                                                                  strategy,
+                                                                                                  sub_solutions)
+            else:
+                self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                self._fe_core.d = <Evaluator_c[FP_NR[double]]*>new CallbackEvaluator_c[FP_NR[double]](
+                    self._callback_wrapper[0],
+                    NULL,
+                    nr_solutions,
+                    strategy,
+                    sub_solutions)
             self._core.mpz_d = new Enumeration_c[Z_NR[mpz_t], FP_NR[double]](m_mpz_d[0], self._fe_core.d[0])
         elif M._type == mat_gso_long_d:
             m_l_d = <MatGSO_c[Z_NR[long], FP_NR[d_t]]*>M._core.long_d
@@ -229,6 +250,9 @@ cdef class Enumeration:
         if self.M._type == mat_gso_long_mpfr:
             del self._fe_core.mpfr
             del self._core.long_mpfr
+
+        if self._callback_wrapper:
+            del self._callback_wrapper
 
     def enumerate(self, int first, int last, max_dist, max_dist_expo,
                   target=None, subtree=None, pruning=None, dual=False, subtree_reset=False):
