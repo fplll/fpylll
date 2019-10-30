@@ -13,11 +13,13 @@ matrix:
         - HAVE_QD=no
         - HAVE_LONG_DOUBLE=no
 
-cache: pip
+cache:
+  - pip
+  - ccache
 
-# branches:
-#   only:
-#     - master
+env:
+  global:
+    - MAKEFLAGS="-j 4"
 
 addons:
   apt:
