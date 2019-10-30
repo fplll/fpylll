@@ -15,11 +15,6 @@ matrix:
 
 cache:
   - pip
-  - ccache
-
-env:
-  global:
-    - MAKEFLAGS="-j 4"
 
 addons:
   apt:
