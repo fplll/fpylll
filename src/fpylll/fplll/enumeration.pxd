@@ -7,5 +7,5 @@ from .gso cimport MatGSO
 cdef class Enumeration:
     cdef readonly MatGSO M
     cdef enumeration_core_t _core
-    cdef evaluator_core_t _fe_core
+    cdef evaluator_core_t _eval_core
     cdef PyCallbackEvaluatorWrapper_c *_callback_wrapper

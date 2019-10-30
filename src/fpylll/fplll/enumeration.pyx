@@ -110,100 +110,145 @@ cdef class Enumeration:
         if M._type == mat_gso_mpz_d:
             m_mpz_d = <MatGSO_c[Z_NR[mpz_t], FP_NR[d_t]]*>M._core.mpz_d
             if callbackf is None:
-                self._fe_core.d = <Evaluator_c[FP_NR[double]]*>new FastEvaluator_c[FP_NR[double]](nr_solutions,
+                self._eval_core.d = <Evaluator_c[FP_NR[double]]*>new FastEvaluator_c[FP_NR[double]](nr_solutions,
                                                                                                   strategy,
                                                                                                   sub_solutions)
             else:
                 self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
-                self._fe_core.d = <Evaluator_c[FP_NR[double]]*>new CallbackEvaluator_c[FP_NR[double]](
-                    self._callback_wrapper[0],
-                    NULL,
-                    nr_solutions,
-                    strategy,
-                    sub_solutions)
-            self._core.mpz_d = new Enumeration_c[Z_NR[mpz_t], FP_NR[double]](m_mpz_d[0], self._fe_core.d[0])
+                self._eval_core.d = <Evaluator_c[FP_NR[double]]*>new CallbackEvaluator_c[FP_NR[double]](
+                    self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+            self._core.mpz_d = new Enumeration_c[Z_NR[mpz_t], FP_NR[double]](m_mpz_d[0], self._eval_core.d[0])
         elif M._type == mat_gso_long_d:
             m_l_d = <MatGSO_c[Z_NR[long], FP_NR[d_t]]*>M._core.long_d
-            self._fe_core.d = <Evaluator_c[FP_NR[double]]*>new FastEvaluator_c[FP_NR[double]](nr_solutions,
-                                                                                              strategy,
-                                                                                              sub_solutions)
-            self._core.long_d = new Enumeration_c[Z_NR[long], FP_NR[double]](m_l_d[0], self._fe_core.d[0])
+            if callbackf is None:
+                self._eval_core.d = <Evaluator_c[FP_NR[d_t]]*>new FastEvaluator_c[FP_NR[d_t]](nr_solutions,
+                                                                                                  strategy,
+                                                                                                  sub_solutions)
+            else:
+                self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                self._eval_core.d = <Evaluator_c[FP_NR[d_t]]*>new CallbackEvaluator_c[FP_NR[d_t]](
+                    self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+            self._core.long_d = new Enumeration_c[Z_NR[long], FP_NR[double]](m_l_d[0], self._eval_core.d[0])
         elif M._type == mat_gso_mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 m_mpz_ld =  <MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]]*>M._core.mpz_ld
-                self._fe_core.ld = <Evaluator_c[FP_NR[ld_t]]*> new FastEvaluator_c[FP_NR[ld_t]](nr_solutions,
-                                                                                                strategy,
-                                                                                                sub_solutions)
-                self._core.mpz_ld = new Enumeration_c[Z_NR[mpz_t], FP_NR[ld_t]](m_mpz_ld[0], self._fe_core.ld[0])
+                if callbackf is None:
+                    self._eval_core.ld = <Evaluator_c[FP_NR[ld_t]]*>new FastEvaluator_c[FP_NR[ld_t]](nr_solutions,
+                                                                                                      strategy,
+                                                                                                      sub_solutions)
+                else:
+                    self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                    self._eval_core.ld = <Evaluator_c[FP_NR[ld_t]]*>new CallbackEvaluator_c[FP_NR[ld_t]](
+                        self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+                self._core.mpz_ld = new Enumeration_c[Z_NR[mpz_t], FP_NR[ld_t]](m_mpz_ld[0], self._eval_core.ld[0])
             ELSE:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mat_gso_long_ld:
             IF HAVE_LONG_DOUBLE:
                 m_l_ld = <MatGSO_c[Z_NR[long], FP_NR[ld_t]]*>M._core.long_ld
-                self._fe_core.ld = <Evaluator_c[FP_NR[ld_t]]*> new FastEvaluator_c[FP_NR[longdouble]](nr_solutions,
+                if callbackf is None:
+                    self._eval_core.ld = <Evaluator_c[FP_NR[ld_t]]*>new FastEvaluator_c[FP_NR[ld_t]](nr_solutions,
                                                                                                       strategy,
                                                                                                       sub_solutions)
-                self._core.long_ld = new Enumeration_c[Z_NR[long], FP_NR[ld_t]](m_l_ld[0], self._fe_core.ld[0])
+                else:
+                    self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                    self._eval_core.ld = <Evaluator_c[FP_NR[ld_t]]*>new CallbackEvaluator_c[FP_NR[ld_t]](
+                        self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+                self._core.long_ld = new Enumeration_c[Z_NR[long], FP_NR[ld_t]](m_l_ld[0], self._eval_core.ld[0])
             ELSE:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mat_gso_mpz_dpe:
             m_mpz_dpe = <MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]]*>M._core.mpz_dpe
-            self._fe_core.dpe = <Evaluator_c[FP_NR[dpe_t]]*>new FastEvaluator_c[FP_NR[dpe_t]](nr_solutions,
-                                                                                              strategy,
-                                                                                              sub_solutions)
-            self._core.mpz_dpe = new Enumeration_c[Z_NR[mpz_t], FP_NR[dpe_t]](m_mpz_dpe[0], self._fe_core.dpe[0])
+            if callbackf is None:
+                self._eval_core.dpe = <Evaluator_c[FP_NR[dpe_t]]*>new FastEvaluator_c[FP_NR[dpe_t]](nr_solutions,
+                                                                                                  strategy,
+                                                                                                  sub_solutions)
+            else:
+                self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                self._eval_core.dpe = <Evaluator_c[FP_NR[dpe_t]]*>new CallbackEvaluator_c[FP_NR[dpe_t]](
+                    self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+            self._core.mpz_dpe = new Enumeration_c[Z_NR[mpz_t], FP_NR[dpe_t]](m_mpz_dpe[0], self._eval_core.dpe[0])
         elif M._type == mat_gso_long_dpe:
             m_l_dpe = <MatGSO_c[Z_NR[long], FP_NR[dpe_t]]*>M._core.long_dpe
-            self._fe_core.dpe = <Evaluator_c[FP_NR[dpe_t]]*>new FastEvaluator_c[FP_NR[dpe_t]](nr_solutions,
-                                                                                              strategy,
-                                                                                              sub_solutions)
-            self._core.long_dpe = new Enumeration_c[Z_NR[long], FP_NR[dpe_t]](m_l_dpe[0], self._fe_core.dpe[0])
+            if callbackf is None:
+                self._eval_core.dpe = <Evaluator_c[FP_NR[dpe_t]]*>new FastEvaluator_c[FP_NR[dpe_t]](nr_solutions,
+                                                                                                  strategy,
+                                                                                                  sub_solutions)
+            else:
+                self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                self._eval_core.dpe = <Evaluator_c[FP_NR[dpe_t]]*>new CallbackEvaluator_c[FP_NR[dpe_t]](
+                    self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+            self._core.long_dpe = new Enumeration_c[Z_NR[long], FP_NR[dpe_t]](m_l_dpe[0], self._eval_core.dpe[0])
         elif M._type == mat_gso_mpz_mpfr:
+            if callbackf is not None:
+                raise NotImplementedError("Callbacks are not implemented for MPFR.")
             m_mpz_mpfr = <MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]*>M._core.mpz_mpfr
-            self._fe_core.mpfr = <ErrorBoundedEvaluator_c*>new FastErrorBoundedEvaluator_c(M.d,
-                                                                                           M._core.mpz_mpfr.get_mu_matrix(),
-                                                                                           M._core.mpz_mpfr.get_r_matrix(),
-                                                                                           EVALMODE_SV,
-                                                                                           nr_solutions,
-                                                                                           strategy,
-                                                                                           sub_solutions)
-            self._core.mpz_mpfr = new Enumeration_c[Z_NR[mpz_t], FP_NR[mpfr_t]](m_mpz_mpfr[0], self._fe_core.mpfr[0])
+            self._eval_core.mpfr = <ErrorBoundedEvaluator_c*>new FastErrorBoundedEvaluator_c(M.d,
+                                                                                             M._core.mpz_mpfr.get_mu_matrix(),
+                                                                                             M._core.mpz_mpfr.get_r_matrix(),
+                                                                                             EVALMODE_SV,
+                                                                                             nr_solutions,
+                                                                                             strategy,
+                                                                                             sub_solutions)
+            self._core.mpz_mpfr = new Enumeration_c[Z_NR[mpz_t], FP_NR[mpfr_t]](m_mpz_mpfr[0], self._eval_core.mpfr[0])
         elif M._type == mat_gso_long_mpfr:
+            if callbackf is not None:
+                raise NotImplementedError("Callbacks are not implemented for MPFR.")
             m_l_mpfr = <MatGSO_c[Z_NR[long], FP_NR[mpfr_t]]*>M._core.long_mpfr
-            self._fe_core.mpfr = <ErrorBoundedEvaluator_c*>new FastErrorBoundedEvaluator_c(M.d,
+            self._eval_core.mpfr = <ErrorBoundedEvaluator_c*>new FastErrorBoundedEvaluator_c(M.d,
                                                                                            M._core.long_mpfr.get_mu_matrix(),
                                                                                            M._core.long_mpfr.get_r_matrix(),
                                                                                            EVALMODE_SV,
                                                                                            nr_solutions,
                                                                                            strategy,
                                                                                            sub_solutions)
-            self._core.long_mpfr = new Enumeration_c[Z_NR[long], FP_NR[mpfr_t]](m_l_mpfr[0], self._fe_core.mpfr[0])
+            self._core.long_mpfr = new Enumeration_c[Z_NR[long], FP_NR[mpfr_t]](m_l_mpfr[0], self._eval_core.mpfr[0])
         else:
             IF HAVE_QD:
                 if M._type == mat_gso_mpz_dd:
                     m_mpz_dd = <MatGSO_c[Z_NR[mpz_t], FP_NR[dd_t]]*>M._core.mpz_dd
-                    self._fe_core.dd = <Evaluator_c[FP_NR[dd_t]]*>new FastEvaluator_c[FP_NR[dd_t]](nr_solutions,
-                                                                                                   strategy,
-                                                                                                   sub_solutions)
-                    self._core.mpz_dd = new Enumeration_c[Z_NR[mpz_t], FP_NR[dd_t]](m_mpz_dd[0], self._fe_core.dd[0])
+                    if callbackf is None:
+                        self._eval_core.dd = <Evaluator_c[FP_NR[dd_t]]*>new FastEvaluator_c[FP_NR[dd_t]](nr_solutions,
+                                                                                                          strategy,
+                                                                                                          sub_solutions)
+                    else:
+                        self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                        self._eval_core.dd = <Evaluator_c[FP_NR[dd_t]]*>new CallbackEvaluator_c[FP_NR[dd_t]](
+                            self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+                    self._core.mpz_dd = new Enumeration_c[Z_NR[mpz_t], FP_NR[dd_t]](m_mpz_dd[0], self._eval_core.dd[0])
                 elif M._type == mat_gso_mpz_qd:
                     m_mpz_qd = <MatGSO_c[Z_NR[mpz_t], FP_NR[qd_t]]*>M._core.mpz_qd
-                    self._fe_core.qd = <Evaluator_c[FP_NR[qd_t]]*>new FastEvaluator_c[FP_NR[qd_t]](nr_solutions,
-                                                                                                   strategy,
-                                                                                                   sub_solutions)
-                    self._core.mpz_qd = new Enumeration_c[Z_NR[mpz_t], FP_NR[qd_t]](m_mpz_qd[0], self._fe_core.qd[0])
+                    if callbackf is None:
+                        self._eval_core.qd = <Evaluator_c[FP_NR[qd_t]]*>new FastEvaluator_c[FP_NR[qd_t]](nr_solutions,
+                                                                                                          strategy,
+                                                                                                          sub_solutions)
+                    else:
+                        self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                        self._eval_core.qd = <Evaluator_c[FP_NR[qd_t]]*>new CallbackEvaluator_c[FP_NR[qd_t]](
+                            self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+                    self._core.mpz_qd = new Enumeration_c[Z_NR[mpz_t], FP_NR[qd_t]](m_mpz_qd[0], self._eval_core.qd[0])
                 elif M._type == mat_gso_long_dd:
                     m_l_dd = <MatGSO_c[Z_NR[long], FP_NR[dd_t]]*>M._core.long_dd
-                    self._fe_core.dd = <Evaluator_c[FP_NR[dd_t]]*>new FastEvaluator_c[FP_NR[dd_t]](nr_solutions,
-                                                                                                   strategy,
-                                                                                                   sub_solutions)
-                    self._core.long_dd = new Enumeration_c[Z_NR[long], FP_NR[dd_t]](m_l_dd[0], self._fe_core.dd[0])
+                    if callbackf is None:
+                        self._eval_core.dd = <Evaluator_c[FP_NR[dd_t]]*>new FastEvaluator_c[FP_NR[dd_t]](nr_solutions,
+                                                                                                          strategy,
+                                                                                                          sub_solutions)
+                    else:
+                        self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                        self._eval_core.dd = <Evaluator_c[FP_NR[dd_t]]*>new CallbackEvaluator_c[FP_NR[dd_t]](
+                            self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+                    self._core.long_dd = new Enumeration_c[Z_NR[long], FP_NR[dd_t]](m_l_dd[0], self._eval_core.dd[0])
                 elif M._type == mat_gso_long_qd:
                     m_l_qd = <MatGSO_c[Z_NR[long], FP_NR[qd_t]]*>M._core.long_qd
-                    self._fe_core.qd = <Evaluator_c[FP_NR[qd_t]]*>new FastEvaluator_c[FP_NR[qd_t]](nr_solutions,
-                                                                                                   strategy,
-                                                                                                   sub_solutions)
-                    self._core.long_qd = new Enumeration_c[Z_NR[long], FP_NR[qd_t]](m_l_qd[0], self._fe_core.qd[0])
+                    if callbackf is None:
+                        self._eval_core.qd = <Evaluator_c[FP_NR[qd_t]]*>new FastEvaluator_c[FP_NR[qd_t]](nr_solutions,
+                                                                                                          strategy,
+                                                                                                          sub_solutions)
+                    else:
+                        self._callback_wrapper = new PyCallbackEvaluatorWrapper_c(callbackf)
+                        self._eval_core.qd = <Evaluator_c[FP_NR[qd_t]]*>new CallbackEvaluator_c[FP_NR[qd_t]](
+                            self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
+                    self._core.long_qd = new Enumeration_c[Z_NR[long], FP_NR[qd_t]](m_l_qd[0], self._eval_core.qd[0])
                 else:
                     raise RuntimeError("MatGSO object '%s' has no core."%self)
             ELSE:
@@ -211,44 +256,44 @@ cdef class Enumeration:
 
     def __dealloc__(self):
         if self.M._type == mat_gso_mpz_d:
-            del self._fe_core.d
+            del self._eval_core.d
             del self._core.mpz_d
         IF HAVE_LONG_DOUBLE:
             if self.M._type == mat_gso_mpz_ld:
-                del self._fe_core.ld
+                del self._eval_core.ld
                 del self._core.mpz_ld
         if self.M._type == mat_gso_mpz_dpe:
-            del self._fe_core.dpe
+            del self._eval_core.dpe
             del self._core.mpz_dpe
         IF HAVE_QD:
             if self.M._type == mat_gso_mpz_dd:
-                del self._fe_core.dd
+                del self._eval_core.dd
                 del self._core.mpz_dd
             if self.M._type == mat_gso_mpz_qd:
-                del self._fe_core.qd
+                del self._eval_core.qd
                 del self._core.mpz_qd
         if self.M._type == mat_gso_mpz_mpfr:
-            del self._fe_core.mpfr
+            del self._eval_core.mpfr
             del self._core.mpz_mpfr
         if self.M._type == mat_gso_long_d:
-            del self._fe_core.d
+            del self._eval_core.d
             del self._core.long_d
         IF HAVE_LONG_DOUBLE:
             if self.M._type == mat_gso_long_ld:
-                del self._fe_core.ld
+                del self._eval_core.ld
                 del self._core.long_ld
         if self.M._type == mat_gso_long_dpe:
-            del self._fe_core.dpe
+            del self._eval_core.dpe
             del self._core.long_dpe
         IF HAVE_QD:
             if self.M._type == mat_gso_long_dd:
-                del self._fe_core.dd
+                del self._eval_core.dd
                 del self._core.long_dd
             if self.M._type == mat_gso_long_qd:
-                del self._fe_core.qd
+                del self._eval_core.qd
                 del self._core.long_qd
         if self.M._type == mat_gso_long_mpfr:
-            del self._fe_core.mpfr
+            del self._eval_core.mpfr
             del self._core.long_mpfr
 
         if self._callback_wrapper:
@@ -330,11 +375,11 @@ cdef class Enumeration:
                 self._core.long_d.enumerate(first, last, max_dist_d, max_dist_expo,
                                             target_coord_d, sub_tree_, pruning_, dual)
             sig_off()
-            if not self._fe_core.d.size():
+            if not self._eval_core.d.size():
                 raise EnumerationError("No solution found.")
 
-            solutions_d = self._fe_core.d.begin()
-            while solutions_d != self._fe_core.d.end():
+            solutions_d = self._eval_core.d.begin()
+            while solutions_d != self._eval_core.d.end():
                 cur_dist = deref(solutions_d).first.get_d()
                 cur_sol = []
                 for j in range(deref(solutions_d).second.size()):
@@ -356,11 +401,11 @@ cdef class Enumeration:
                     self._core.long_ld.enumerate(first, last, max_dist_ld, max_dist_expo,
                                                  target_coord_ld, sub_tree_, pruning_, dual)
                 sig_off()
-                if not self._fe_core.ld.size():
+                if not self._eval_core.ld.size():
                     raise EnumerationError("No solution found.")
 
-                solutions_ld = self._fe_core.ld.begin()
-                while solutions_ld != self._fe_core.ld.end():
+                solutions_ld = self._eval_core.ld.begin()
+                while solutions_ld != self._eval_core.ld.end():
                     cur_dist = deref(solutions_ld).first.get_d()
                     cur_sol = []
                     for j in range(deref(solutions_ld).second.size()):
@@ -381,11 +426,11 @@ cdef class Enumeration:
                 self._core.long_dpe.enumerate(first, last, max_dist_dpe, max_dist_expo,
                                             target_coord_dpe, sub_tree_, pruning_, dual)
             sig_off()
-            if not self._fe_core.dpe.size():
+            if not self._eval_core.dpe.size():
                 raise EnumerationError("No solution found.")
 
-            solutions_dpe = self._fe_core.dpe.begin()
-            while solutions_dpe != self._fe_core.dpe.end():
+            solutions_dpe = self._eval_core.dpe.begin()
+            while solutions_dpe != self._eval_core.dpe.end():
                 cur_dist = deref(solutions_dpe).first.get_d()
                 cur_sol = []
                 for j in range(deref(solutions_dpe).second.size()):
@@ -407,11 +452,11 @@ cdef class Enumeration:
                     self._core.long_dd.enumerate(first, last, max_dist_dd, max_dist_expo,
                                                 target_coord_dd, sub_tree_, pruning_, dual)
                 sig_off()
-                if not self._fe_core.dd.size():
+                if not self._eval_core.dd.size():
                     raise EnumerationError("No solution found.")
 
-                solutions_dd = self._fe_core.dd.begin()
-                while solutions_dd != self._fe_core.dd.end():
+                solutions_dd = self._eval_core.dd.begin()
+                while solutions_dd != self._eval_core.dd.end():
                     cur_dist = deref(solutions_dd).first.get_d()
                     cur_sol = []
                     for j in range(deref(solutions_dd).second.size()):
@@ -432,11 +477,11 @@ cdef class Enumeration:
                     self._core.long_qd.enumerate(first, last, max_dist_qd, max_dist_expo,
                                                 target_coord_qd, sub_tree_, pruning_, dual)
                 sig_off()
-                if not self._fe_core.qd.size():
+                if not self._eval_core.qd.size():
                     raise EnumerationError("No solution found.")
 
-                solutions_qd = self._fe_core.qd.begin()
-                while solutions_qd != self._fe_core.qd.end():
+                solutions_qd = self._eval_core.qd.begin()
+                while solutions_qd != self._eval_core.qd.end():
                     cur_dist = deref(solutions_qd).first.get_d()
                     cur_sol = []
                     for j in range(deref(solutions_qd).second.size()):
@@ -457,11 +502,11 @@ cdef class Enumeration:
                 self._core.long_mpfr.enumerate(first, last, max_dist_mpfr, max_dist_expo,
                                             target_coord_mpfr, sub_tree_, pruning_, dual)
             sig_off()
-            if not self._fe_core.mpfr.size():
+            if not self._eval_core.mpfr.size():
                 raise EnumerationError("No solution found.")
 
-            solutions_mpfr = self._fe_core.mpfr.begin()
-            while solutions_mpfr != self._fe_core.mpfr.end():
+            solutions_mpfr = self._eval_core.mpfr.begin()
+            while solutions_mpfr != self._eval_core.mpfr.end():
                 cur_dist = deref(solutions_mpfr).first.get_d()
                 cur_sol = []
                 for j in range(deref(solutions_mpfr).second.size()):
@@ -497,8 +542,8 @@ cdef class Enumeration:
         cdef vector[pair[FP_NR[d_t], vector[FP_NR[d_t]]]].iterator _sub_solutions_d
 
         if self.M._type == mat_gso_mpz_d or self.M._type == mat_gso_long_d:
-            _sub_solutions_d = self._fe_core.d.sub_solutions.begin()
-            while _sub_solutions_d != self._fe_core.d.sub_solutions.end():
+            _sub_solutions_d = self._eval_core.d.sub_solutions.begin()
+            while _sub_solutions_d != self._eval_core.d.sub_solutions.end():
                 cur_dist = deref(_sub_solutions_d).first.get_d()
                 if cur_dist == 0.0:
                     cur_dist = None
