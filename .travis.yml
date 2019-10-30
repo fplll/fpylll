@@ -2,8 +2,8 @@ sudo: required
 dist: xenial
 language: python
 python:
-  - "2.7"
   - "3.5"
+  - "2.7"
 matrix:
   include:
     - env: HAVE_QD=no
