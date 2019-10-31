@@ -17,7 +17,7 @@ from .fplll cimport dpe_t
 from .fplll cimport Z_NR, FP_NR
 from .fplll cimport ZZ_mat, MatGSOInterface, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
 from .fplll cimport GaussSieve
-from .fplll cimport FastEvaluator, FastErrorBoundedEvaluator, Pruner
+from .fplll cimport Evaluator, FastEvaluator, ErrorBoundedEvaluator, FastErrorBoundedEvaluator, Pruner
 
 from libcpp.vector cimport vector
 
@@ -220,6 +220,21 @@ IF HAVE_LONG_DOUBLE:
             FastErrorBoundedEvaluator *mpfr
 
     IF HAVE_QD:
+        ctypedef union evaluator_core_t:
+            Evaluator[FP_NR[d_t]] *d
+            Evaluator[FP_NR[ld_t]] *ld
+            Evaluator[FP_NR[dpe_t]] *dpe
+            Evaluator[FP_NR[dd_t]] *dd
+            Evaluator[FP_NR[qd_t]] *qd
+            ErrorBoundedEvaluator *mpfr
+    ELSE:
+        ctypedef union evaluator_core_t:
+            Evaluator[FP_NR[d_t]] *d
+            Evaluator[FP_NR[ld_t]] *ld
+            Evaluator[FP_NR[dpe_t]] *dpe
+            ErrorBoundedEvaluator *mpfr
+
+    IF HAVE_QD:
         ctypedef union enumeration_core_t:
             Enumeration[Z_NR[mpz_t], FP_NR[d_t]] *mpz_d
             Enumeration[Z_NR[mpz_t], FP_NR[ld_t]] *mpz_ld
@@ -385,6 +400,19 @@ ELSE:
             FastEvaluator[FP_NR[d_t]] *d
             FastEvaluator[FP_NR[dpe_t]] *dpe
             FastErrorBoundedEvaluator *mpfr
+
+    IF HAVE_QD:
+        ctypedef union evaluator_core_t:
+            Evaluator[FP_NR[d_t]] *d
+            Evaluator[FP_NR[dpe_t]] *dpe
+            Evaluator[FP_NR[dd_t]] *dd
+            Evaluator[FP_NR[qd_t]] *qd
+            ErrorBoundedEvaluator *mpfr
+    ELSE:
+        ctypedef union evaluator_core_t:
+            Evaluator[FP_NR[d_t]] *d
+            Evaluator[FP_NR[dpe_t]] *dpe
+            ErrorBoundedEvaluator *mpfr
 
     IF HAVE_QD:
         ctypedef union enumeration_core_t:
