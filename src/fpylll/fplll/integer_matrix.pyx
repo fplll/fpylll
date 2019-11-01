@@ -1304,7 +1304,7 @@ cdef class IntegerMatrix:
 
     def transpose(self):
         """
-        Transpose.
+        Inline transpose.
 
         >>> A = IntegerMatrix.from_matrix([[0,2],[3,4]])
         >>> _ = A.transpose()
