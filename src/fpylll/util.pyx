@@ -11,6 +11,7 @@ from fpylll.fplll.fplll cimport set_external_enumerator as set_external_enumerat
 from fpylll.fplll.fplll cimport extenum_fc_enumerate
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
 from fpylll.fplll.fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS, PrunerMetric
+from fpylll.fplll.fplll cimport get_threads as get_threads_c, set_threads as set_threads_c
 from fpylll.fplll.gso cimport MatGSO
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui, gmp_urandomm_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
@@ -308,9 +309,33 @@ cpdef set_external_enumerator(enumerator):
         p = ctypes.cast(enumerator, ctypes.c_void_p).value
         set_external_enumerator_c(void_ptr_to_function(<void *>p))
 
+def set_threads(int th=1):
+    """
+    Set the number of threads.
+
+    :param th: number of threads
+
+    .. note: Currently only used for enumeration.
+
+    """
+    return set_threads_c(th)
+
+
+def get_threads():
+    """
+    Get the number of threads.
+
+    .. note: Currently only used for enumeration.
+
+    """
+    return get_threads_c()
+
+
 class FPLLL:
     set_precision = staticmethod(set_precision)
     get_precision = staticmethod(get_precision)
+    set_threads = staticmethod(set_threads)
+    get_threads = staticmethod(get_threads)
     set_random_seed = staticmethod(set_random_seed)
     randint = staticmethod(randint)
     set_external_enumerator = staticmethod(set_external_enumerator)
