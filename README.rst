@@ -13,7 +13,7 @@ A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`__.
 .. code-block:: python
 
     >>> from fpylll import *
-   
+
     >>> A = IntegerMatrix(50, 50)
     >>> A.randomize("ntrulike", bits=50, q=127)
     >>> A[0].norm()
@@ -33,7 +33,7 @@ A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`__.
 
 The basic BKZ algorithm can be implemented in about 60 pretty readable lines of Python code (cf. `simple_bkz.py <https://github.com/fplll/fpylll/blob/master/src/fpylll/algorithms/simple_bkz.py>`__).
 For a quick tour of the library, you can check out the `tutorial`.
-             
+
 Requirements
 ------------
 
@@ -98,8 +98,8 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
 
      $ (fpylll) ./install-dependencies.sh $VIRTUAL_ENV
 
-   Some OSX users report that they required ``export CXXFLAGS="-stdlib=lic++ -mmacosx-version-min=10.7"`` and ``export CXX=clang++`` (after installing a recent clang with `brew <https://brew.sh>`__) since the default GCC installed by Apple does not have full C++11 support.
-    
+   Some OSX users report that they required ``export CXXFLAGS="-stdlib=libc++ -mmacosx-version-min=10.7"`` and ``export CXX=clang++`` (after installing a recent clang with `brew <https://brew.sh>`__) since the default GCC installed by Apple does not have full C++11 support.
+
 4. Then, execute:
 
    .. code-block:: bash
@@ -199,9 +199,9 @@ The example below calls ``LLL.reduction`` on 128 matrices of dimension 30 on fou
     from multiprocessing import Pool
 
     d, workers, tasks = 30, 4, 128
-    
+
     def run_it(p, f, A, prefix=""):
-        """Print status during parallel execution."""         
+        """Print status during parallel execution."""
         import sys
         r = []
         for i, retval in enumerate(p.imap_unordered(f, A, 1)):
@@ -210,12 +210,12 @@ The example below calls ``LLL.reduction`` on 128 matrices of dimension 30 on fou
             sys.stderr.flush()
         sys.stderr.write('\r{0} done {1:.2%}\n'.format(prefix, float(i+1)/len(A)))
         return r
-        
-    A = [IntegerMatrix.random(d, "uniform", bits=30) for _ in range(tasks)]    
+
+    A = [IntegerMatrix.random(d, "uniform", bits=30) for _ in range(tasks)]
     A = run_it(Pool(workers), LLL.reduction, A)
 
-To test threading simply replace the line ``from multiprocessing import Pool`` with ``from multiprocessing.pool import ThreadPool as Pool``. For calling ``BKZ.reduction`` this way, which expects a second parameter with options, using `functools.partial <https://docs.python.org/2/library/functools.html#functools.partial>`_ is a good choice. 
-    
+To test threading simply replace the line ``from multiprocessing import Pool`` with ``from multiprocessing.pool import ThreadPool as Pool``. For calling ``BKZ.reduction`` this way, which expects a second parameter with options, using `functools.partial <https://docs.python.org/2/library/functools.html#functools.partial>`_ is a good choice.
+
 Contributing
 ------------
 
@@ -250,4 +250,4 @@ The following people have contributed to **fpylll**
 
 We copied a decent bit of code over from Sage, mostly from it's fpLLL interface.
 
-**fpylll** is licensed under the GPLv2+.  
+**fpylll** is licensed under the GPLv2+.
