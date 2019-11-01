@@ -120,10 +120,10 @@ To compute the determinant of :math:`{\bf A}`, compute either its :math:`\sqrt[n
     >>> stop_row = -1
     >>> root_det_A = M.get_root_det(start_row, stop_row)
     >>> log_det_A = M.get_log_det(start_row, stop_row)
-    >>> print(root_det_A) # root_det_A = det(A)^(1/n)
-    21.44761058952721
-    >>> print(log_det_A) # log_det_A = exp(det(A)) in base e
-    12.26245297896628
+    >>> print(root_det_A) # root_det_A = det(A)^(1/n) doctest: +ELLIPSIS
+    21.4476105895...
+    >>> print(log_det_A) # log_det_A = exp(det(A)) in base e doctest: +ELLIPSIS
+    12.2624529789...
 
 Lattice reduction tools
 ------------------------
@@ -212,8 +212,8 @@ Also, the ``GaussSieve`` algorithm [MV]_ is implemented,
     >>> FPLLL.set_random_seed(0x1337)
     >>> A = IntegerMatrix.random(30, "qary", k=15, q=127)
     >>> v = GaussSieve(A, algorithm=2)()
-    >>> tuple(map(lambda x: -1*x, v)) if v[0] < 0 else v
-    (0, -2, 0, 2, -2, 1, 1, 4, 5, -2, -2, -4, -1, -3, 1, 0, -3, 1, 4, 2, 2, -4, 3, 1, 3, 9, 2, -1, -3, -6)
+    >>> tuple(map(lambda x: -1*x, v)) if v[1] < 0 else v
+    (0, 2, 0, -2, 2, -1, -1, -4, -5, 2, 2, 4, 1, 3, -1, 0, 3, -1, -4, -2, -2, 4, -3, -1, -3, -9, -2, 1, 3, 6)
     >>> print(A[0])
     (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 67, 119, 27, 122, 124, 109, 43, 58, 11, 120, 47, 48, 40, 21, 5)
     >>> A[0].norm()
