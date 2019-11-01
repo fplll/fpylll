@@ -174,6 +174,15 @@ cdef class MatGSO:
 
         cdef FloatType float_type_ = check_float_type(float_type)
 
+        if gram:
+            # This is quite heavy handed but all hell breaks loose if we provide wrong inputs.
+            for i in range(B.nrows):
+                for j in range(B.ncols):
+                    if B._get(i, j) != B._get(j, i):
+                        raise ValueError("Input matrix is not symmetric.")
+                    if B._get(i, j) < 0:
+                        raise ValueError("Input matrix has negative entries.")
+
         if not gram:
             self._alg = mat_gso_gso_t
 

@@ -34,7 +34,6 @@ from .decl cimport nr_d, nr_dpe, nr_mpfr, pruner_core_t, d_t
 from .fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 from .fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS
 from .fplll cimport FP_NR, Z_NR
-from .fplll cimport MatGSO as MatGSO_c
 from .fplll cimport prune as prune_c
 from .fplll cimport PruningParams as PruningParams_c
 from .fplll cimport Pruner as Pruner_c
@@ -53,8 +52,6 @@ IF HAVE_LONG_DOUBLE:
 IF HAVE_QD:
     from .decl cimport nr_dd, nr_qd, dd_t, qd_t
     from .fplll cimport FT_DD, FT_QD
-
-from .gso cimport MatGSO
 
 
 cdef class PruningParams:

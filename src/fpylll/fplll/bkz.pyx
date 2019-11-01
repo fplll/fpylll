@@ -30,7 +30,7 @@ from .fplll cimport BKZ_DEF_AUTO_ABORT_SCALE, BKZ_DEF_AUTO_ABORT_MAX_NO_DEC
 from .fplll cimport BKZ_DEF_GH_FACTOR, BKZ_DEF_MIN_SUCCESS_PROBABILITY
 from .fplll cimport BKZ_DEF_RERANDOMIZATION_DENSITY
 from .fplll cimport BKZ_SD_VARIANT, BKZ_SLD_RED
-from .fplll cimport MatGSO as MatGSO_c
+from .fplll cimport MatGSOInterface as MatGSOInterface_c
 
 from .fplll cimport FP_NR, Z_NR
 from .fplll cimport FloatType
@@ -62,72 +62,70 @@ cdef class BKZAutoAbort:
 
         """
 
-        assert(M._alg == mat_gso_gso_t)
-
         if M._type == mat_gso_mpz_d:
             self._type = mat_gso_mpz_d
-            self._core.mpz_d = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[d_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[d_t]]*>M._core.mpz_d)[0],
+            self._core.mpz_d = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[d_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[d_t]]*>M._core.mpz_d)[0],
                                                                            num_rows,
                                                                            start_row)
         elif M._type == mat_gso_long_d:
             self._type = mat_gso_long_d
-            self._core.long_d = new BKZAutoAbort_c[Z_NR[long], FP_NR[d_t]]((<MatGSO_c[Z_NR[long], FP_NR[d_t]]*>M._core.long_d)[0],
+            self._core.long_d = new BKZAutoAbort_c[Z_NR[long], FP_NR[d_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[d_t]]*>M._core.long_d)[0],
                                                                            num_rows,
                                                                            start_row)
         elif M._type == mat_gso_mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 self._type = mat_gso_mpz_ld
-                self._core.mpz_ld = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[ld_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[ld_t]]*>M._core.mpz_ld)[0],
+                self._core.mpz_ld = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[ld_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[ld_t]]*>M._core.mpz_ld)[0],
                                                                                  num_rows,
                                                                                  start_row)
         elif M._type == mat_gso_long_ld:
             IF HAVE_LONG_DOUBLE:
                 self._type = mat_gso_long_ld
-                self._core.long_ld = new BKZAutoAbort_c[Z_NR[long], FP_NR[longdouble]]((<MatGSO_c[Z_NR[long], FP_NR[ld_t]]*>M._core.long_ld)[0],
+                self._core.long_ld = new BKZAutoAbort_c[Z_NR[long], FP_NR[longdouble]]((<MatGSOInterface_c[Z_NR[long], FP_NR[ld_t]]*>M._core.long_ld)[0],
                                                                                        num_rows,
                                                                                        start_row)
             ELSE:
                 raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
         elif M._type == mat_gso_mpz_dpe:
             self._type = mat_gso_mpz_dpe
-            self._core.mpz_dpe = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[dpe_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]]*>M._core.mpz_dpe)[0],
+            self._core.mpz_dpe = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[dpe_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dpe_t]]*>M._core.mpz_dpe)[0],
                                                                                num_rows,
                                                                                start_row)
         elif M._type == mat_gso_long_dpe:
             self._type = mat_gso_long_dpe
-            self._core.long_dpe = new BKZAutoAbort_c[Z_NR[long], FP_NR[dpe_t]]((<MatGSO_c[Z_NR[long], FP_NR[dpe_t]]*>M._core.long_dpe)[0],
+            self._core.long_dpe = new BKZAutoAbort_c[Z_NR[long], FP_NR[dpe_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[dpe_t]]*>M._core.long_dpe)[0],
                                                                                num_rows,
                                                                                start_row)
         elif M._type == mat_gso_mpz_mpfr:
             self._type = mat_gso_mpz_mpfr
-            self._core.mpz_mpfr = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[mpfr_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]*>M._core.mpz_mpfr)[0],
+            self._core.mpz_mpfr = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[mpfr_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[mpfr_t]]*>M._core.mpz_mpfr)[0],
                                                                                  num_rows,
                                                                                  start_row)
         elif M._type == mat_gso_long_mpfr:
             self._type = mat_gso_long_mpfr
-            self._core.long_mpfr = new BKZAutoAbort_c[Z_NR[long], FP_NR[mpfr_t]]((<MatGSO_c[Z_NR[long], FP_NR[mpfr_t]]*>M._core.long_mpfr)[0],
+            self._core.long_mpfr = new BKZAutoAbort_c[Z_NR[long], FP_NR[mpfr_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[mpfr_t]]*>M._core.long_mpfr)[0],
                                                                                  num_rows,
                                                                                  start_row)
         else:
             IF HAVE_QD:
                 if M._type == mat_gso_mpz_dd:
                     self._type = mat_gso_mpz_dd
-                    self._core.mpz_dd = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[dd_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[dd_t]]*>M._core.mpz_dd)[0],
+                    self._core.mpz_dd = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[dd_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dd_t]]*>M._core.mpz_dd)[0],
                                                                                      num_rows,
                                                                                      start_row)
                 elif M._type == mat_gso_long_dd:
                     self._type = mat_gso_long_dd
-                    self._core.long_dd = new BKZAutoAbort_c[Z_NR[long], FP_NR[dd_t]]((<MatGSO_c[Z_NR[long], FP_NR[dd_t]]*>M._core.long_dd)[0],
+                    self._core.long_dd = new BKZAutoAbort_c[Z_NR[long], FP_NR[dd_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[dd_t]]*>M._core.long_dd)[0],
                                                                                      num_rows,
                                                                                      start_row)
                 elif M._type == mat_gso_mpz_qd:
                     self._type = mat_gso_mpz_qd
-                    self._core.mpz_qd = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[qd_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[qd_t]]*>M._core.mpz_qd)[0],
+                    self._core.mpz_qd = new BKZAutoAbort_c[Z_NR[mpz_t], FP_NR[qd_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[qd_t]]*>M._core.mpz_qd)[0],
                                                                                      num_rows,
                                                                                      start_row)
                 elif M._type == mat_gso_long_qd:
                     self._type = mat_gso_long_qd
-                    self._core.long_qd = new BKZAutoAbort_c[Z_NR[long], FP_NR[qd_t]]((<MatGSO_c[Z_NR[long], FP_NR[qd_t]]*>M._core.long_qd)[0],
+                    self._core.long_qd = new BKZAutoAbort_c[Z_NR[long], FP_NR[qd_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[qd_t]]*>M._core.long_qd)[0],
                                                                                      num_rows,
                                                                                      start_row)
                 else:
@@ -197,70 +195,70 @@ cdef class BKZReduction:
 
         if M._type == mat_gso_mpz_d:
             self._type = mat_gso_mpz_d
-            self._core.mpz_d = new BKZReduction_c[Z_NR[mpz_t], FP_NR[double]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[double]]*>self.M._core.mpz_d)[0],
+            self._core.mpz_d = new BKZReduction_c[Z_NR[mpz_t], FP_NR[double]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[double]]*>self.M._core.mpz_d)[0],
                                                                               self.lll_obj._core.mpz_d[0],
                                                                               param.o[0])
         elif M._type == mat_gso_mpz_ld:
             IF HAVE_LONG_DOUBLE:
                 self._type = mat_gso_mpz_ld
-                self._core.mpz_ld = new BKZReduction_c[Z_NR[mpz_t], FP_NR[ld_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[ld_t]]*>self.M._core.mpz_ld)[0],
+                self._core.mpz_ld = new BKZReduction_c[Z_NR[mpz_t], FP_NR[ld_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[ld_t]]*>self.M._core.mpz_ld)[0],
                                                                                  self.lll_obj._core.mpz_ld[0],
                                                                                  param.o[0])
             ELSE:
                 raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
         elif M._type == mat_gso_mpz_dpe:
             self._type = mat_gso_mpz_dpe
-            self._core.mpz_dpe = new BKZReduction_c[Z_NR[mpz_t], FP_NR[dpe_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]]*>self.M._core.mpz_dpe)[0],
+            self._core.mpz_dpe = new BKZReduction_c[Z_NR[mpz_t], FP_NR[dpe_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dpe_t]]*>self.M._core.mpz_dpe)[0],
                                                                                self.lll_obj._core.mpz_dpe[0],
                                                                                param.o[0])
         elif M._type == mat_gso_mpz_mpfr:
             self._type = mat_gso_mpz_mpfr
-            self._core.mpz_mpfr = new BKZReduction_c[Z_NR[mpz_t], FP_NR[mpfr_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]*>self.M._core.mpz_mpfr)[0],
+            self._core.mpz_mpfr = new BKZReduction_c[Z_NR[mpz_t], FP_NR[mpfr_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[mpfr_t]]*>self.M._core.mpz_mpfr)[0],
                                                                                  self.lll_obj._core.mpz_mpfr[0],
                                                                                  param.o[0])
         elif M._type == mat_gso_long_d:
             self._type = mat_gso_long_d
-            self._core.long_d = new BKZReduction_c[Z_NR[long], FP_NR[double]]((<MatGSO_c[Z_NR[long], FP_NR[double]]*>self.M._core.long_d)[0],
+            self._core.long_d = new BKZReduction_c[Z_NR[long], FP_NR[double]]((<MatGSOInterface_c[Z_NR[long], FP_NR[double]]*>self.M._core.long_d)[0],
                                                                               self.lll_obj._core.long_d[0],
                                                                               param.o[0])
         elif M._type == mat_gso_long_ld:
             IF HAVE_LONG_DOUBLE:
                 self._type = mat_gso_long_ld
-                self._core.long_ld = new BKZReduction_c[Z_NR[long], FP_NR[ld_t]]((<MatGSO_c[Z_NR[long], FP_NR[ld_t]]*>self.M._core.long_ld)[0],
+                self._core.long_ld = new BKZReduction_c[Z_NR[long], FP_NR[ld_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[ld_t]]*>self.M._core.long_ld)[0],
                                                                                  self.lll_obj._core.long_ld[0],
                                                                                  param.o[0])
             ELSE:
                 raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
         elif M._type == mat_gso_long_dpe:
             self._type = mat_gso_long_dpe
-            self._core.long_dpe = new BKZReduction_c[Z_NR[long], FP_NR[dpe_t]]((<MatGSO_c[Z_NR[long], FP_NR[dpe_t]]*>self.M._core.long_dpe)[0],
+            self._core.long_dpe = new BKZReduction_c[Z_NR[long], FP_NR[dpe_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[dpe_t]]*>self.M._core.long_dpe)[0],
                                                                                self.lll_obj._core.long_dpe[0],
                                                                                param.o[0])
         elif M._type == mat_gso_long_mpfr:
             self._type = mat_gso_long_mpfr
-            self._core.long_mpfr = new BKZReduction_c[Z_NR[long], FP_NR[mpfr_t]]((<MatGSO_c[Z_NR[long], FP_NR[mpfr_t]]*>self.M._core.long_mpfr)[0],
+            self._core.long_mpfr = new BKZReduction_c[Z_NR[long], FP_NR[mpfr_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[mpfr_t]]*>self.M._core.long_mpfr)[0],
                                                                                  self.lll_obj._core.long_mpfr[0],
                                                                                  param.o[0])
         else:
             IF HAVE_QD:
                 if M._type == mat_gso_mpz_dd:
                     self._type = mat_gso_mpz_dd
-                    self._core.mpz_dd = new BKZReduction_c[Z_NR[mpz_t], FP_NR[dd_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[dd_t]]*>self.M._core.mpz_dd)[0],
+                    self._core.mpz_dd = new BKZReduction_c[Z_NR[mpz_t], FP_NR[dd_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dd_t]]*>self.M._core.mpz_dd)[0],
                                                                            self.lll_obj._core.mpz_dd[0],
                                                                            param.o[0])
                 elif M._type == mat_gso_mpz_qd:
                     self._type = mat_gso_mpz_qd
-                    self._core.mpz_qd = new BKZReduction_c[Z_NR[mpz_t], FP_NR[qd_t]]((<MatGSO_c[Z_NR[mpz_t], FP_NR[qd_t]]*>self.M._core.mpz_qd)[0],
+                    self._core.mpz_qd = new BKZReduction_c[Z_NR[mpz_t], FP_NR[qd_t]]((<MatGSOInterface_c[Z_NR[mpz_t], FP_NR[qd_t]]*>self.M._core.mpz_qd)[0],
                                                                            self.lll_obj._core.mpz_qd[0],
                                                                            param.o[0])
                 elif M._type == mat_gso_long_dd:
                     self._type = mat_gso_long_dd
-                    self._core.long_dd = new BKZReduction_c[Z_NR[long], FP_NR[dd_t]]((<MatGSO_c[Z_NR[long], FP_NR[dd_t]]*>self.M._core.long_dd)[0],
+                    self._core.long_dd = new BKZReduction_c[Z_NR[long], FP_NR[dd_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[dd_t]]*>self.M._core.long_dd)[0],
                                                                            self.lll_obj._core.long_dd[0],
                                                                            param.o[0])
                 elif M._type == mat_gso_long_qd:
                     self._type = mat_gso_long_qd
-                    self._core.long_qd = new BKZReduction_c[Z_NR[long], FP_NR[qd_t]]((<MatGSO_c[Z_NR[long], FP_NR[qd_t]]*>self.M._core.long_qd)[0],
+                    self._core.long_qd = new BKZReduction_c[Z_NR[long], FP_NR[qd_t]]((<MatGSOInterface_c[Z_NR[long], FP_NR[qd_t]]*>self.M._core.long_qd)[0],
                                                                            self.lll_obj._core.long_qd[0],
                                                                            param.o[0])
                 else:
@@ -484,7 +482,7 @@ cdef class BKZReduction:
                 r = self._core.mpz_ld.svp_postprocessing(kappa, block_size, solution_.ld)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_mpz_dpe:
             for s in solution:
                 t.dpe = float(s)
@@ -515,7 +513,7 @@ cdef class BKZReduction:
                 r = self._core.long_ld.svp_postprocessing(kappa, block_size, solution_.ld)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_long_dpe:
             for s in solution:
                 t.dpe = float(s)
@@ -591,7 +589,7 @@ cdef class BKZReduction:
                 r = self._core.mpz_ld.svp_reduction(kappa, block_size, param.o[0], dual)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_mpz_dpe:
             sig_on()
             r = self._core.mpz_dpe.svp_reduction(kappa, block_size, param.o[0], dual)
@@ -610,7 +608,7 @@ cdef class BKZReduction:
                 r = self._core.long_ld.svp_reduction(kappa, block_size, param.o[0], dual)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_long_dpe:
             sig_on()
             r = self._core.long_dpe.svp_reduction(kappa, block_size, param.o[0], dual)
@@ -669,7 +667,7 @@ cdef class BKZReduction:
                 r = self._core.mpz_ld.tour(loop, kappa_max, param.o[0], min_row, max_row)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_mpz_dpe:
             sig_on()
             r = self._core.mpz_dpe.tour(loop, kappa_max, param.o[0], min_row, max_row)
@@ -688,7 +686,7 @@ cdef class BKZReduction:
                 r = self._core.long_ld.tour(loop, kappa_max, param.o[0], min_row, max_row)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_long_dpe:
             sig_on()
             r = self._core.long_dpe.tour(loop, kappa_max, param.o[0], min_row, max_row)
@@ -746,7 +744,7 @@ cdef class BKZReduction:
                 r = self._core.mpz_ld.sd_tour(loop, param.o[0], min_row, max_row)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_mpz_dpe:
             sig_on()
             r = self._core.mpz_dpe.sd_tour(loop, param.o[0], min_row, max_row)
@@ -765,7 +763,7 @@ cdef class BKZReduction:
                 r = self._core.long_ld.sd_tour(loop, param.o[0], min_row, max_row)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_long_dpe:
             sig_on()
             r = self._core.long_dpe.sd_tour(loop, param.o[0], min_row, max_row)
@@ -829,7 +827,7 @@ cdef class BKZReduction:
                 r = self._core.mpz_ld.slide_tour(loop, param.o[0], min_row, max_row)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_mpz_dpe:
             sig_on()
             r = self._core.mpz_dpe.slide_tour(loop, param.o[0], min_row, max_row)
@@ -848,7 +846,7 @@ cdef class BKZReduction:
                 r = self._core.long_ld.slide_tour(loop, param.o[0], min_row, max_row)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_long_dpe:
             sig_on()
             r = self._core.long_dpe.slide_tour(loop, param.o[0], min_row, max_row)
@@ -909,7 +907,7 @@ cdef class BKZReduction:
                 r = self._core.mpz_ld.hkz(kappa_max, param.o[0], min_row, max_row)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_mpz_dpe:
             sig_on()
             r = self._core.mpz_dpe.hkz(kappa_max, param.o[0], min_row, max_row)
@@ -928,7 +926,7 @@ cdef class BKZReduction:
                 r = self._core.long_ld.hkz(kappa_max, param.o[0], min_row, max_row)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_long_dpe:
             sig_on()
             r = self._core.long_dpe.hkz(kappa_max, param.o[0], min_row, max_row)
@@ -977,7 +975,7 @@ cdef class BKZReduction:
                 self._core.mpz_ld.rerandomize_block(min_row, max_row, density)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_mpz_dpe:
             sig_on()
             self._core.mpz_dpe.rerandomize_block(min_row, max_row, density)
@@ -996,7 +994,7 @@ cdef class BKZReduction:
                 self._core.long_ld.rerandomize_block(min_row, max_row, density)
                 sig_off()
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_long_dpe:
             sig_on()
             self._core.long_dpe.rerandomize_block(min_row, max_row, density)
@@ -1037,7 +1035,7 @@ cdef class BKZReduction:
             IF HAVE_LONG_DOUBLE:
                 return self._core.mpz_ld.status
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_mpz_dpe:
             return self._core.mpz_dpe.status
         elif self._type == mat_gso_mpz_mpfr:
@@ -1048,7 +1046,7 @@ cdef class BKZReduction:
             IF HAVE_LONG_DOUBLE:
                 return self._core.long_ld.status
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_long_dpe:
             return self._core.long_dpe.status
         elif self._type == mat_gso_long_mpfr:
@@ -1077,7 +1075,7 @@ cdef class BKZReduction:
             IF HAVE_LONG_DOUBLE:
                 return self._core.mpz_ld.nodes
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_mpz_dpe:
             return self._core.mpz_dpe.nodes
         elif self._type == mat_gso_mpz_mpfr:
@@ -1088,7 +1086,7 @@ cdef class BKZReduction:
             IF HAVE_LONG_DOUBLE:
                 return self._core.long_ld.nodes
             ELSE:
-                raise RuntimeError("BKZAutoAbort object '%s' has no core."%self)
+                raise RuntimeError("BKZReduction object '%s' has no core."%self)
         elif self._type == mat_gso_long_dpe:
             return self._core.long_dpe.nodes
         elif self._type == mat_gso_long_mpfr:
