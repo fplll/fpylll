@@ -221,7 +221,7 @@ Contributing
 
 **fpylll** welcomes contributions, cf. the list of `open issues <https://github.com/fplll/fpylll/issues>`_. To contribute, clone this repository, commit your code on a separate branch and send a pull request. Please write tests for your code. You can run them by calling::
 
-    $ (fpylll) py.test
+    $ (fpylll) PY_IGNORE_IMPORTMISMATCH=1 py.test
 
 from the top-level directory which runs all tests in ``tests/test_*.py``. We run `flake8 <https://flake8.readthedocs.org/en/latest/>`_ on every commit automatically, In particular, we run::
 

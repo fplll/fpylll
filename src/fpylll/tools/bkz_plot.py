@@ -15,7 +15,7 @@ EXAMPLE::
     >>> bkz._KeepGSOBKZ__gso_norms[0][0]
     23104295.0
     >>> bkz._KeepGSOBKZ__gso_norms[-1][0]
-    6170206.0
+    6735909.0
 
 .. modulauthor: Martin Albrecht <martin.albrecht@royalholloway.ac.uk>
 

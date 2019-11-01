@@ -39,12 +39,7 @@ before_script:
   - "flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src"
   
 script:
-  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" py.test
-  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/tools/*.py
-  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/algorithms/*.py
-  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/fplll/*.pyx
-  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest src/fpylll/*.pyx
-  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python -m doctest docs/*.rst
+  - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" PY_IGNORE_IMPORTMISMATCH=1 py.test
   - LD_LIBRARY_PATH="$VIRTUAL_ENV/lib" python setup.py sdist
 
 notifications:
