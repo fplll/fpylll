@@ -2,7 +2,7 @@
 
 if [ "$TRAVIS_BRANCH" != "" ]; then
     FPLLL_BRANCH=$TRAVIS_BRANCH;
-    CONFIGURE_FLAGS="--disable-static --with-max-enumeration-dimension=64"
+    CONFIGURE_FLAGS="--disable-static --with-max-enum-dim=64 --with-max-parallel-enum-dim=64"
 fi
 
 if [ "$FPLLL_BRANCH" = "" ]; then
