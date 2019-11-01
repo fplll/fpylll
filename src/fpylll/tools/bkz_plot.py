@@ -8,13 +8,14 @@ EXAMPLE::
     >>> from fpylll.algorithms.bkz2 import BKZReduction as BKZ2
     >>> from fpylll.tools.bkz_plot import KeepGSOBKZFactory
     >>> FPLLL.set_random_seed(1337)
+    >>> _ = FPLLL.set_threads(1)  # to make it deterministic
     >>> A = IntegerMatrix.random(80, "qary", k=40, bits=20)
     >>> bkz = KeepGSOBKZFactory(BKZ2)(A)
     >>> bkz(BKZ.EasyParam(20))
     >>> bkz._KeepGSOBKZ__gso_norms[0][0]
     23104295.0
     >>> bkz._KeepGSOBKZ__gso_norms[-1][0]
-    6735909.0
+    6170206.0
 
 .. modulauthor: Martin Albrecht <martin.albrecht@royalholloway.ac.uk>
 

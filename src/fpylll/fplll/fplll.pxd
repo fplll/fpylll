@@ -963,6 +963,12 @@ cdef extern from "fplll/sieve/sieve_gauss.h" namespace "fplll":
 
         NumVect[Z_NR[ZT]] return_first()
 
+# Threads
+
+cdef extern from "fplll/threadpool.h" namespace "fplll":
+    int get_threads()
+    int set_threads(int th)
+
 
 
 # Highlevel Functions
