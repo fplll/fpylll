@@ -28,8 +28,11 @@ If we want to use pruning we can use the default pruning of fplll or to use our 
   ...  preprocessing = 3
   ...  strategies1 = [Strategy(i) for i in range(6)]
   ...  for b in range(6, block_size+1):
-  ...    pr = PruningParams.LinearPruningParams(block_size, level)
-  ...    s = Strategy(b, [preprocessing], [pr])
+  ...    if block_size == b:
+  ...        pr = PruningParams.LinearPruningParams(block_size, level)
+  ...        s = Strategy(b, [preprocessing], [pr])
+  ...    else:
+  ...        s = Strategy(b, [preprocessing])
   ...    strategies1.append(s)
   ...  param = BKZ.Param(block_size = block_size, strategies = strategies1)
   ...  return param
