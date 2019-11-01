@@ -18,7 +18,7 @@ from .fplll cimport CallbackEvaluator as CallbackEvaluator_c
 from .fplll cimport Evaluator as Evaluator_c
 from .fplll cimport FastErrorBoundedEvaluator as FastErrorBoundedEvaluator_c
 from .fplll cimport ErrorBoundedEvaluator as ErrorBoundedEvaluator_c
-from .fplll cimport MatGSO as MatGSO_c
+from .fplll cimport MatGSOInterface as MatGSOInterface_c
 from .fplll cimport Z_NR, FP_NR, mpz_t
 from .fplll cimport EVALMODE_SV
 
@@ -85,30 +85,28 @@ cdef class Enumeration:
 
         """
 
-        assert(M._alg == mat_gso_gso_t)
-
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[d_t]]  *m_mpz_d
+        cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[d_t]]  *m_mpz_d
         IF HAVE_LONG_DOUBLE:
-            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[ld_t]] *m_mpz_ld
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]] *m_mpz_dpe
+            cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[ld_t]] *m_mpz_ld
+        cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dpe_t]] *m_mpz_dpe
         IF HAVE_QD:
-            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[dd_t]] *m_mpz_dd
-            cdef MatGSO_c[Z_NR[mpz_t], FP_NR[qd_t]] *m_mpz_qd
-        cdef MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpz_mpfr
+            cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dd_t]] *m_mpz_dd
+            cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[qd_t]] *m_mpz_qd
+        cdef MatGSOInterface_c[Z_NR[mpz_t], FP_NR[mpfr_t]]  *m_mpz_mpfr
 
-        cdef MatGSO_c[Z_NR[long], FP_NR[d_t]]  *m_l_d
+        cdef MatGSOInterface_c[Z_NR[long], FP_NR[d_t]]  *m_l_d
         IF HAVE_LONG_DOUBLE:
-            cdef MatGSO_c[Z_NR[long], FP_NR[ld_t]] *m_l_ld
-        cdef MatGSO_c[Z_NR[long], FP_NR[dpe_t]] *m_l_dpe
+            cdef MatGSOInterface_c[Z_NR[long], FP_NR[ld_t]] *m_l_ld
+        cdef MatGSOInterface_c[Z_NR[long], FP_NR[dpe_t]] *m_l_dpe
         IF HAVE_QD:
-            cdef MatGSO_c[Z_NR[long], FP_NR[dd_t]] *m_l_dd
-            cdef MatGSO_c[Z_NR[long], FP_NR[qd_t]] *m_l_qd
-        cdef MatGSO_c[Z_NR[long], FP_NR[mpfr_t]]  *m_l_mpfr
+            cdef MatGSOInterface_c[Z_NR[long], FP_NR[dd_t]] *m_l_dd
+            cdef MatGSOInterface_c[Z_NR[long], FP_NR[qd_t]] *m_l_qd
+        cdef MatGSOInterface_c[Z_NR[long], FP_NR[mpfr_t]]  *m_l_mpfr
 
         self.M = M
 
         if M._type == mat_gso_mpz_d:
-            m_mpz_d = <MatGSO_c[Z_NR[mpz_t], FP_NR[d_t]]*>M._core.mpz_d
+            m_mpz_d = <MatGSOInterface_c[Z_NR[mpz_t], FP_NR[d_t]]*>M._core.mpz_d
             if callbackf is None:
                 self._eval_core.d = <Evaluator_c[FP_NR[double]]*>new FastEvaluator_c[FP_NR[double]](nr_solutions,
                                                                                                   strategy,
@@ -119,7 +117,7 @@ cdef class Enumeration:
                     self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
             self._core.mpz_d = new Enumeration_c[Z_NR[mpz_t], FP_NR[double]](m_mpz_d[0], self._eval_core.d[0])
         elif M._type == mat_gso_long_d:
-            m_l_d = <MatGSO_c[Z_NR[long], FP_NR[d_t]]*>M._core.long_d
+            m_l_d = <MatGSOInterface_c[Z_NR[long], FP_NR[d_t]]*>M._core.long_d
             if callbackf is None:
                 self._eval_core.d = <Evaluator_c[FP_NR[d_t]]*>new FastEvaluator_c[FP_NR[d_t]](nr_solutions,
                                                                                                   strategy,
@@ -131,7 +129,7 @@ cdef class Enumeration:
             self._core.long_d = new Enumeration_c[Z_NR[long], FP_NR[double]](m_l_d[0], self._eval_core.d[0])
         elif M._type == mat_gso_mpz_ld:
             IF HAVE_LONG_DOUBLE:
-                m_mpz_ld =  <MatGSO_c[Z_NR[mpz_t], FP_NR[longdouble]]*>M._core.mpz_ld
+                m_mpz_ld =  <MatGSOInterface_c[Z_NR[mpz_t], FP_NR[longdouble]]*>M._core.mpz_ld
                 if callbackf is None:
                     self._eval_core.ld = <Evaluator_c[FP_NR[ld_t]]*>new FastEvaluator_c[FP_NR[ld_t]](nr_solutions,
                                                                                                       strategy,
@@ -145,7 +143,7 @@ cdef class Enumeration:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mat_gso_long_ld:
             IF HAVE_LONG_DOUBLE:
-                m_l_ld = <MatGSO_c[Z_NR[long], FP_NR[ld_t]]*>M._core.long_ld
+                m_l_ld = <MatGSOInterface_c[Z_NR[long], FP_NR[ld_t]]*>M._core.long_ld
                 if callbackf is None:
                     self._eval_core.ld = <Evaluator_c[FP_NR[ld_t]]*>new FastEvaluator_c[FP_NR[ld_t]](nr_solutions,
                                                                                                       strategy,
@@ -158,7 +156,7 @@ cdef class Enumeration:
             ELSE:
                 raise RuntimeError("MatGSO object '%s' has no core."%self)
         elif M._type == mat_gso_mpz_dpe:
-            m_mpz_dpe = <MatGSO_c[Z_NR[mpz_t], FP_NR[dpe_t]]*>M._core.mpz_dpe
+            m_mpz_dpe = <MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dpe_t]]*>M._core.mpz_dpe
             if callbackf is None:
                 self._eval_core.dpe = <Evaluator_c[FP_NR[dpe_t]]*>new FastEvaluator_c[FP_NR[dpe_t]](nr_solutions,
                                                                                                   strategy,
@@ -169,7 +167,7 @@ cdef class Enumeration:
                     self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
             self._core.mpz_dpe = new Enumeration_c[Z_NR[mpz_t], FP_NR[dpe_t]](m_mpz_dpe[0], self._eval_core.dpe[0])
         elif M._type == mat_gso_long_dpe:
-            m_l_dpe = <MatGSO_c[Z_NR[long], FP_NR[dpe_t]]*>M._core.long_dpe
+            m_l_dpe = <MatGSOInterface_c[Z_NR[long], FP_NR[dpe_t]]*>M._core.long_dpe
             if callbackf is None:
                 self._eval_core.dpe = <Evaluator_c[FP_NR[dpe_t]]*>new FastEvaluator_c[FP_NR[dpe_t]](nr_solutions,
                                                                                                   strategy,
@@ -182,7 +180,7 @@ cdef class Enumeration:
         elif M._type == mat_gso_mpz_mpfr:
             if callbackf is not None:
                 raise NotImplementedError("Callbacks are not implemented for MPFR.")
-            m_mpz_mpfr = <MatGSO_c[Z_NR[mpz_t], FP_NR[mpfr_t]]*>M._core.mpz_mpfr
+            m_mpz_mpfr = <MatGSOInterface_c[Z_NR[mpz_t], FP_NR[mpfr_t]]*>M._core.mpz_mpfr
             self._eval_core.mpfr = <ErrorBoundedEvaluator_c*>new FastErrorBoundedEvaluator_c(M.d,
                                                                                              M._core.mpz_mpfr.get_mu_matrix(),
                                                                                              M._core.mpz_mpfr.get_r_matrix(),
@@ -194,7 +192,7 @@ cdef class Enumeration:
         elif M._type == mat_gso_long_mpfr:
             if callbackf is not None:
                 raise NotImplementedError("Callbacks are not implemented for MPFR.")
-            m_l_mpfr = <MatGSO_c[Z_NR[long], FP_NR[mpfr_t]]*>M._core.long_mpfr
+            m_l_mpfr = <MatGSOInterface_c[Z_NR[long], FP_NR[mpfr_t]]*>M._core.long_mpfr
             self._eval_core.mpfr = <ErrorBoundedEvaluator_c*>new FastErrorBoundedEvaluator_c(M.d,
                                                                                            M._core.long_mpfr.get_mu_matrix(),
                                                                                            M._core.long_mpfr.get_r_matrix(),
@@ -206,7 +204,7 @@ cdef class Enumeration:
         else:
             IF HAVE_QD:
                 if M._type == mat_gso_mpz_dd:
-                    m_mpz_dd = <MatGSO_c[Z_NR[mpz_t], FP_NR[dd_t]]*>M._core.mpz_dd
+                    m_mpz_dd = <MatGSOInterface_c[Z_NR[mpz_t], FP_NR[dd_t]]*>M._core.mpz_dd
                     if callbackf is None:
                         self._eval_core.dd = <Evaluator_c[FP_NR[dd_t]]*>new FastEvaluator_c[FP_NR[dd_t]](nr_solutions,
                                                                                                           strategy,
@@ -217,7 +215,7 @@ cdef class Enumeration:
                             self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
                     self._core.mpz_dd = new Enumeration_c[Z_NR[mpz_t], FP_NR[dd_t]](m_mpz_dd[0], self._eval_core.dd[0])
                 elif M._type == mat_gso_mpz_qd:
-                    m_mpz_qd = <MatGSO_c[Z_NR[mpz_t], FP_NR[qd_t]]*>M._core.mpz_qd
+                    m_mpz_qd = <MatGSOInterface_c[Z_NR[mpz_t], FP_NR[qd_t]]*>M._core.mpz_qd
                     if callbackf is None:
                         self._eval_core.qd = <Evaluator_c[FP_NR[qd_t]]*>new FastEvaluator_c[FP_NR[qd_t]](nr_solutions,
                                                                                                           strategy,
@@ -228,7 +226,7 @@ cdef class Enumeration:
                             self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
                     self._core.mpz_qd = new Enumeration_c[Z_NR[mpz_t], FP_NR[qd_t]](m_mpz_qd[0], self._eval_core.qd[0])
                 elif M._type == mat_gso_long_dd:
-                    m_l_dd = <MatGSO_c[Z_NR[long], FP_NR[dd_t]]*>M._core.long_dd
+                    m_l_dd = <MatGSOInterface_c[Z_NR[long], FP_NR[dd_t]]*>M._core.long_dd
                     if callbackf is None:
                         self._eval_core.dd = <Evaluator_c[FP_NR[dd_t]]*>new FastEvaluator_c[FP_NR[dd_t]](nr_solutions,
                                                                                                           strategy,
@@ -239,7 +237,7 @@ cdef class Enumeration:
                             self._callback_wrapper[0], NULL, nr_solutions, strategy, sub_solutions)
                     self._core.long_dd = new Enumeration_c[Z_NR[long], FP_NR[dd_t]](m_l_dd[0], self._eval_core.dd[0])
                 elif M._type == mat_gso_long_qd:
-                    m_l_qd = <MatGSO_c[Z_NR[long], FP_NR[qd_t]]*>M._core.long_qd
+                    m_l_qd = <MatGSOInterface_c[Z_NR[long], FP_NR[qd_t]]*>M._core.long_qd
                     if callbackf is None:
                         self._eval_core.qd = <Evaluator_c[FP_NR[qd_t]]*>new FastEvaluator_c[FP_NR[qd_t]](nr_solutions,
                                                                                                           strategy,
@@ -526,6 +524,7 @@ cdef class Enumeration:
 
         >>> from fpylll import *
         >>> FPLLL.set_random_seed(1337)
+        >>> FPLLL.set_threads(1)
         >>> A = IntegerMatrix.random(80, "qary", bits=30, k=40)
         >>> _ = LLL.reduction(A)
         >>> M = GSO.Mat(A)

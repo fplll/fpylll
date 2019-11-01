@@ -702,10 +702,10 @@ cdef extern from "fplll/enum/evaluator.h" namespace "fplll":
 
 cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
     cdef cppclass Enumeration[ZT, FT]:
-        Enumeration(MatGSO[ZT, FT]& gso, Evaluator[FT]& evaluator)
-        Enumeration(MatGSO[ZT, FT]& gso, FastEvaluator[FT]& evaluator)
-        Enumeration(MatGSO[ZT, FP_NR[mpfr_t]]& gso, ErrorBoundedEvaluator& evaluator)
-        Enumeration(MatGSO[ZT, FP_NR[mpfr_t]]& gso, FastErrorBoundedEvaluator& evaluator)
+        Enumeration(MatGSOInterface[ZT, FT]& gso, Evaluator[FT]& evaluator)
+        Enumeration(MatGSOInterface[ZT, FT]& gso, FastEvaluator[FT]& evaluator)
+        Enumeration(MatGSOInterface[ZT, FP_NR[mpfr_t]]& gso, ErrorBoundedEvaluator& evaluator)
+        Enumeration(MatGSOInterface[ZT, FP_NR[mpfr_t]]& gso, FastErrorBoundedEvaluator& evaluator)
 
         void enumerate(int first, int last, FT& fMaxDist, long maxDistExpo,
                        const vector[FT]& targetCoord,
@@ -828,7 +828,7 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
 
     cdef cppclass BKZReduction[ZT, FT]:
 
-        BKZReduction(MatGSO[ZT, FT] &m, LLLReduction[ZT, FT] &lll_obj, const BKZParam &param) nogil
+        BKZReduction(MatGSOInterface[ZT, FT] &m, LLLReduction[ZT, FT] &lll_obj, const BKZParam &param) nogil
 
         int svp_preprocessing(int kappa, int block_size, const BKZParam &param) nogil
         int svp_postprocessing(int kappa, int block_size, const vector[FT] &solution) nogil
@@ -853,8 +853,8 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
 
 
     cdef cppclass BKZAutoAbort[ZT, FT]:
-        BKZAutoAbort(MatGSO[ZT, FT]& m, int num_rows) nogil
-        BKZAutoAbort(MatGSO[ZT, FT]& m, int num_rows, int start_row) nogil
+        BKZAutoAbort(MatGSOInterface[ZT, FT]& m, int num_rows) nogil
+        BKZAutoAbort(MatGSOInterface[ZT, FT]& m, int num_rows, int start_row) nogil
 
         int test_abort() nogil
         int test_abort(double scale) nogil
@@ -863,11 +863,11 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
     void adjust_radius_to_gh_bound[FT](FT& max_dist, long max_dist_expo,
                                         int block_size, FT& root_det_mpfr, double gh_factor) nogil
 
-    FT get_root_det[FT](MatGSO[Z_NR[mpz_t], FT]& m, int start, int end)
-    FT get_log_det[FT](MatGSO[Z_NR[mpz_t], FT]& m, int start, int end)
-    FT get_sld_potential[FT](MatGSO[Z_NR[mpz_t], FT]& m, int start, int end, int block_size)
+    FT get_root_det[FT](MatGSOInterface[Z_NR[mpz_t], FT]& m, int start, int end)
+    FT get_log_det[FT](MatGSOInterface[Z_NR[mpz_t], FT]& m, int start, int end)
+    FT get_sld_potential[FT](MatGSOInterface[Z_NR[mpz_t], FT]& m, int start, int end, int block_size)
 
-    double get_current_slope[FT](MatGSO[Z_NR[mpz_t], FT]& m, int startRow, int stopRow) nogil
+    double get_current_slope[FT](MatGSOInterface[Z_NR[mpz_t], FT]& m, int startRow, int stopRow) nogil
 
 
 # Utility
