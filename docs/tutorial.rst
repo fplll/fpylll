@@ -41,7 +41,7 @@ Matrix :math:`A` is a (random) knapsack type matrix. That is of the form  :math:
 
 
 
-Also, the following types of matrices are supported uniform,
+Also, the following types of matrices are supported,
 
 ::
 
