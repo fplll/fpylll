@@ -177,9 +177,7 @@ cdef class MatGSO:
         if gram:
             # This is quite heavy handed but all hell breaks loose if we provide wrong inputs.
             for i in range(B.nrows):
-                for j in range(B.ncols):
-                    if B._get(i, j) != B._get(j, i):
-                        raise ValueError("Input matrix is not symmetric.")
+                for j in range(i+1):
                     if B._get(i, j) < 0:
                         raise ValueError("Input matrix has negative entries.")
 
