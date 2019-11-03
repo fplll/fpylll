@@ -175,11 +175,12 @@ cdef class MatGSO:
         cdef FloatType float_type_ = check_float_type(float_type)
 
         if gram:
-            # This is quite heavy handed but all hell breaks loose if we provide wrong inputs.
+            # Do some sanity checking that we're not getting a random non-Gram matrix
+            #
+            # This isn't sufficient but the full check would be too expensive.
             for i in range(B.nrows):
-                for j in range(i+1):
-                    if B._get(i, j) < 0:
-                        raise ValueError("Input matrix has negative entries.")
+                if B._get(i, i) < 0:
+                        raise ValueError("Diagonal of input matrix has negative entries.")
 
         if not gram:
             self._alg = mat_gso_gso_t
