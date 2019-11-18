@@ -207,7 +207,7 @@ def readme_to_long_description():
     """
     long_description=io.open('README.rst', encoding='utf-8').read()
     cut = long_description.index("Attribution & License")
-    return str(long_description[:cut].encode('ascii'))
+    return str(long_description[:cut])
 
 
 setup(
