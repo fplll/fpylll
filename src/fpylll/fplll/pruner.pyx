@@ -364,23 +364,23 @@ cdef class Pruner:
 
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**40, [M.r()], 0.51, metric=Pruning.PROBABILITY_OF_SHORTEST)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
-        >>> pr.measure_metric(c)
-        0.002711953990557637
+        >>> pr.measure_metric(c) # doctest: +ELLIPSIS
+        0.002711953990...
 
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**2, [M.r()], 1.0, metric=Pruning.EXPECTED_SOLUTIONS)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
-        >>> pr.measure_metric(c)
-        0.9905176515981204
+        >>> pr.measure_metric(c) # doctest: +ELLIPSIS
+        0.990517651598...
 
         >>> pr = Pruning.Pruner(0.5*M.get_r(0,0), 2**40, [M.r()], 0.51, metric=Pruning.PROBABILITY_OF_SHORTEST, flags=Pruning.SINGLE)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
-        >>> pr.measure_metric(c)
-        0.5153043409067131
+        >>> pr.measure_metric(c) # doctest: +ELLIPSIS
+        0.515304340906...
 
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**2, [M.r()], 1.0, metric=Pruning.EXPECTED_SOLUTIONS, flags=Pruning.SINGLE)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
-        >>> pr.measure_metric(c)
-        1.0435784596984998
+        >>> pr.measure_metric(c) # doctest: +ELLIPSIS
+        1.043578459698...
 
         """
         cdef vector[double] pr_

@@ -19,7 +19,7 @@ def bench_enumeration(n):
 
     """
 
-    A = IntegerMatrix.random(n, "qary", bits=5*n, k=1)
+    A = IntegerMatrix.random(n, "qary", bits=30, k=n//2)
     M = MatGSO(A)
     L = LLLReduction(M)
     L(0, 0, n)

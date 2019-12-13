@@ -15,7 +15,7 @@ else:
 
 def make_integer_matrix(m, n, int_type="mpz"):
     A = IntegerMatrix(m, n, int_type=int_type)
-    A.randomize("uniform", bits=m)
+    A.randomize("qary", bits=20, k=min(m, n)//2)
     return A
 
 
