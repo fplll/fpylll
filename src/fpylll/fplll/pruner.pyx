@@ -365,7 +365,7 @@ cdef class Pruner:
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**40, [M.r()], 0.51, metric=Pruning.PROBABILITY_OF_SHORTEST)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
         >>> pr.measure_metric(c) # doctest: +ELLIPSIS
-        0.002711953990...
+        0.00271195...
 
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**2, [M.r()], 1.0, metric=Pruning.EXPECTED_SOLUTIONS)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])

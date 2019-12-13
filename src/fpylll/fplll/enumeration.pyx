@@ -532,8 +532,8 @@ cdef class Enumeration:
         >>> pruning = Pruning.run(M.get_r(0, 0), 2**40, M.r()[:30], 0.8)
         >>> enum = Enumeration(M, strategy=EvaluatorStrategy.BEST_N_SOLUTIONS, sub_solutions=True)
         >>> _ = enum.enumerate(0, 30, 0.999*M.get_r(0, 0), 0, pruning=pruning.coefficients)
-        >>> [int(a) for a,b in enum.sub_solutions[:5]]
-        [5569754193, 5556022461, 5083806188, 5022873439, 4260865082]
+        >>> [int(round(a)) for a,b in enum.sub_solutions[:5]]
+        [5569754193, 5556022462, 5083806188, 5022873440, 4260865083]
 
         """
         cdef list sub_solutions = []
