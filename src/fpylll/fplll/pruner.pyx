@@ -375,12 +375,12 @@ cdef class Pruner:
         >>> pr = Pruning.Pruner(0.5*M.get_r(0,0), 2**40, [M.r()], 0.51, metric=Pruning.PROBABILITY_OF_SHORTEST, flags=Pruning.SINGLE)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
         >>> pr.measure_metric(c) # doctest: +ELLIPSIS
-        0.51530434...
+        0.5153043...
 
         >>> pr = Pruning.Pruner(0.9*M.get_r(0,0), 2**2, [M.r()], 1.0, metric=Pruning.EXPECTED_SOLUTIONS, flags=Pruning.SINGLE)
         >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
         >>> pr.measure_metric(c) # doctest: +ELLIPSIS
-        1.04357845...
+        1.043578...
 
         """
         cdef vector[double] pr_
@@ -742,7 +742,7 @@ cdef class Pruner:
             >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
             >>> cost, details = pr.single_enum_cost(c, True)
             >>> cost  # doctest: +ELLIPSIS
-            14980.4842...
+            14980.48...
 
             >>> details[0:10]  # doctest: +ELLIPSIS
             (0.134901..., 0.3048..., 0.81588..., 1.945..., 4.5903..., 11.51..., 16.048..., 41.7115..., 48.03..., 116.986...)
@@ -817,7 +817,7 @@ cdef class Pruner:
             >>> pr = Pruning.Pruner(M.get_r(0,0), 2**20, [M.r()], 0.51)
             >>> c = pr.optimize_coefficients([1. for _ in range(M.d)])
             >>> pr.repeated_enum_cost(c)  # doctest: +ELLIPSIS
-            15626.9894...
+            15626.98...
 
         """
         cdef vector[double] pr_
