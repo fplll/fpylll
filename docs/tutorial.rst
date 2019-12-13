@@ -93,7 +93,7 @@ To write a vector :math:`v` as a linear combination of the GS-basis of RowSp(:ma
     >>> v_from_canonical = M.from_canonical(v)
     >>> print(v_from_canonical) # doctest: +ELLIPSIS
     (1.3333333333333..., -0.01301973960520..., 0.1949374454466..., 1.2521739130434...)
-    >>> v_back_to_canonical = tuple([round(v_) for v_ in M.to_canonical(v_from_canonical)])
+    >>> v_back_to_canonical = tuple([int(round(v_)) for v_ in M.to_canonical(v_from_canonical)])
     >>> print(v_back_to_canonical)
     (1, 2, 5, 5)
     >>> # the dimension of the GS-matrix :
