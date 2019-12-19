@@ -151,10 +151,10 @@ def get_precision(float_type="mpfr"):
         >>> FPLLL.get_precision('double')
         53
         >>> if fpylll.config.have_long_double:
-        ...     FPLLL.get_precision('long double')
+        ...     FPLLL.get_precision('long double') > 53
         ... else:
-        ...     64
-        64
+        ...     True
+        True
         >>> FPLLL.get_precision('dpe')
         53
 
