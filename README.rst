@@ -228,8 +228,8 @@ The instructions are very similar to the manual ones above.
    .. code-block:: bash
 
      $ (sage-sh) export PKG_CONFIG_PATH="$SAGE_LOCAL/lib/pkgconfig:$PKG_CONFIG_PATH"
-     $ (sage-sh) python setup.py build_ext
-     $ (sage-sh) python setup.py install
+     $ (sage-sh) python3 setup.py build_ext
+     $ (sage-sh) python3 setup.py install
      $ (sage-sh) exit
 
 7. Verify the upgrade went well:
@@ -239,6 +239,8 @@ The instructions are very similar to the manual ones above.
      $ sage
      sage: import fpylll
      sage: print(fpylll.__version__)
+
+   The output should match the value of `__version__` in `src/fpylll/__init__.py <https://github.com/fplll/fpylll/blob/master/src/fpylll/__init__.py>`__.
 
 
 Multicore Support
