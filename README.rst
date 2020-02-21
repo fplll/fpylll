@@ -171,6 +171,20 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
 
    in the ``deactivate`` function in the ``activate`` script.
 
+**Running fpylll**
+
+1. To (re)activate the virtual environment, simply run:
+
+   .. code-block:: bash
+
+    $ source ./activate
+
+2. Start Python:
+
+   .. code-block:: bash
+
+    $ (fpylll) ipython
+
 **Manual update of fpylll and fplll inside Sagemath 9.0+**
 
 The instructions are very similar to the manual ones above.
@@ -225,21 +239,6 @@ The instructions are very similar to the manual ones above.
      $ sage
      sage: import fpylll
      sage: print(fpylll.__version__)
-
-
-**Running fpylll**
-
-1. To (re)activate the virtual environment, simply run:
-
-   .. code-block:: bash
-
-    $ source ./activate
-
-2. Start Python:
-
-   .. code-block:: bash
-
-    $ (fpylll) ipython
 
 
 Multicore Support
