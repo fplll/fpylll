@@ -185,6 +185,61 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
 
     $ (fpylll) ipython
 
+**Manual update of fpylll and fplll inside Sagemath 9.0+**
+
+The instructions are very similar to the manual ones above.
+
+1. Activate the sage-sh virtualenv:
+
+   .. code-block:: bash
+
+     $ sage -sh
+
+
+2. Install the required libraries - `GMP <https://gmplib.org>`__ or `MPIR <http://mpir.org>`__ and `MPFR <http://www.mpfr.org>`__  - if not available already. You may also want to install `QD <http://crd-legacy.lbl.gov/~dhbailey/mpdist/>`__.
+
+3. Install fplll:
+
+   .. code-block:: bash
+
+     $ (sage-sh) ./install-dependencies.sh $SAGE_LOCAL
+
+   Some OSX users report that they required ``export CXXFLAGS="-stdlib=libc++ -mmacosx-version-min=10.7"`` and ``export CXX=clang++`` (after installing a recent clang with `brew <https://brew.sh>`__) since the default GCC installed by Apple does not have full C++11 support.
+
+4. Then, execute:
+
+   .. code-block:: bash
+
+     $ (sage-sh) pip3 install Cython
+     $ (sage-sh) pip3 install -r requirements.txt
+
+   to install the required Python packages (see above).
+
+5. If you are so inclined, run:
+
+   .. code-block:: bash
+
+     $ (sage-sh) pip3 install -r suggestions.txt
+
+   to install suggested Python packages as well (optional).
+
+6. Build the Python extension:
+
+   .. code-block:: bash
+
+     $ (sage-sh) export PKG_CONFIG_PATH="$SAGE_LOCAL/lib/pkgconfig:$PKG_CONFIG_PATH"
+     $ (sage-sh) python setup.py build_ext
+     $ (sage-sh) python setup.py install
+     $ (sage-sh) exit
+
+7. Verify the upgrade went well:
+
+   .. code-block:: bash
+
+     $ sage
+     sage: import fpylll
+     sage: print(fpylll.__version__)
+
 
 Multicore Support
 -----------------
