@@ -218,7 +218,7 @@ The instructions are very similar to the manual ones above.
      $ (sage-sh) python setup.py install
      $ (sage-sh) exit
 
-Done! To verify you are running the latest version of fpylll, run
+7. Verify the upgrade went well:
 
    .. code-block:: bash
 
