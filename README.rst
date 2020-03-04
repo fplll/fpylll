@@ -247,33 +247,36 @@ The instructions are very similar to the manual ones above.
 When running larger experiments, sometimes **fplll** will require higher floating point precision than natively available. The easiest solution to this problem is to use "double double" floating point numbers via **libqd**. You can test whether this is available in your current **fpylll** setup by running the following code:
 
    .. code-block:: python
+
      from fpylll import *
      A = IntegerMatrix(50, 50)
      M = GSO.Mat(A, float_type="dd")
 
-If the snippet above results in `ValueError: Float type 'dd' unknown.`, you may want to recompile **fplll** and **fpylll**. The instructions are the same as above (in either the **Manual install** or the **Manual update of fpylll and fplll inside Sagemath 9.0+** sections), except that instead of installing **fplll** automatically via the `install-dependencies.sh` script, we substitute that step with the following:
+If the snippet above results in ``ValueError: Float type 'dd' unknown.``, you may want to recompile **fplll** and **fpylll**. The instructions are the same as above (in either the **Manual install** or the **Manual update of fpylll and fplll inside Sagemath 9.0+** sections), except that instead of installing **fplll** automatically via the `install-dependencies.sh` script, we substitute that step with the following:
 
-1. Find out where `libqd.so` is located in your system. If it's not available, first install that (e.g. on Debian derivatives `sudo apt install libqd-dev` should suffice).
+1. Find out where ``libqd.so`` is located in your system. If it's not available, first install that (e.g. on Debian derivatives ``sudo apt install libqd-dev`` should suffice).
 
    .. code-block:: bash
+
      $ ldconfig -p | grep libqd
      ...
      libqd.so (libc6,x86-64) => /path/to/libqd/libqd.so
 
-2. Manually get and compile **fplll** inside the virtual environment (`$VIRTUAL_ENV` below becomes `$SAGE_LOCAL` if you are working inside your Sagemath install).
+2. Manually get and compile **fplll** inside the virtual environment (``$VIRTUAL_ENV`` below becomes ``$SAGE_LOCAL`` if you are working inside your Sagemath install).
 
    .. code-block:: bash
-   $ (fpylll) git clone https://github.com/fplll/fplll
-   $ (fpylll) cd fplll
-   $ (fpylll) ./autogen.sh
-   $ (fpylll) ./configure --prefix=$VIRTUAL_ENV --with-qd=/path/to/libqd/
-   $ (fpylll) make
-   $ (fpylll) make install
-   $ (fpylll) cd ..
+
+     $ (fpylll) git clone https://github.com/fplll/fplll
+     $ (fpylll) cd fplll
+     $ (fpylll) ./autogen.sh
+     $ (fpylll) ./configure --prefix=$VIRTUAL_ENV --with-qd=/path/to/libqd/
+     $ (fpylll) make
+     $ (fpylll) make install
+     $ (fpylll) cd ..
 
 3. Continue with the manuall installation of **fpylll** as described in previous sections.
 
-At this point, the test code above should return without raising any exceptions. If so, you have successfully enabled `dd` and `qd` precision inside **fp(y)lll**!
+At this point, the test code above should return without raising any exceptions. If so, you have successfully enabled ``dd`` and ``qd`` precision inside **fp(y)lll**!
 
 Multicore Support
 -----------------
