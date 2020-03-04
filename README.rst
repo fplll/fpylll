@@ -32,7 +32,7 @@ A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`__.
     24.06241883103193
 
 The basic BKZ algorithm can be implemented in about 60 pretty readable lines of Python code (cf. `simple_bkz.py <https://github.com/fplll/fpylll/blob/master/src/fpylll/algorithms/simple_bkz.py>`__).
-For a quick tour of the library, you can check out the tutorial.
+For a quick tour of the library, you can check out the `tutorial <https://github.com/fplll/fpylll/blob/master/docs/tutorial.rst>`__.
 
 Requirements
 ------------
