@@ -315,7 +315,10 @@ def set_threads(int th=1):
 
     :param th: number of threads
 
-    .. note: Currently only used for enumeration.
+    This is currently only used for enumeration.
+
+    ..  note: If you use ``multiprocessing`` etc you must call this function after forking to
+        have an effect.  This prevents the threadpool from being shared.
 
     """
     return set_threads_c(th)
