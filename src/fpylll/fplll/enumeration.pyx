@@ -386,7 +386,7 @@ cdef class Enumeration:
                 inc(solutions_d)
 
         IF HAVE_LONG_DOUBLE:
-            if self.M._type == mat_gso_mpz_ld:
+            if self.M._type == mat_gso_mpz_ld or self.M._type == mat_gso_long_ld:
                 if target is not None:
                     for it in target:
                         tmp.ld = float(it)
@@ -411,7 +411,7 @@ cdef class Enumeration:
                     solutions.append((cur_dist, tuple(cur_sol)))
                     inc(solutions_ld)
 
-        if self.M._type == mat_gso_mpz_dpe:
+        if self.M._type == mat_gso_mpz_dpe or self.M._type == mat_gso_long_dpe:
             if target is not None:
                 for it in target:
                     tmp.dpe = float(it)
@@ -437,7 +437,7 @@ cdef class Enumeration:
                 inc(solutions_dpe)
 
         IF HAVE_QD:
-            if self.M._type == mat_gso_mpz_dd:
+            if self.M._type == mat_gso_mpz_dd or self.M._type == mat_gso_long_dd:
                 if target is not None:
                     for it in target:
                         tmp.dd = float(it)
@@ -462,7 +462,7 @@ cdef class Enumeration:
                     solutions.append((cur_dist, tuple(cur_sol)))
                     inc(solutions_dd)
 
-            if self.M._type == mat_gso_mpz_qd:
+            if self.M._type == mat_gso_mpz_qd or self.M._type == mat_gso_long_qd:
                 if target is not None:
                     for it in target:
                         tmp.qd = float(it)
@@ -487,7 +487,7 @@ cdef class Enumeration:
                     solutions.append((cur_dist, tuple(cur_sol)))
                     inc(solutions_qd)
 
-        if self.M._type == mat_gso_mpz_mpfr:
+        if self.M._type == mat_gso_mpz_mpfr or self.M._type == mat_gso_long_mpfr:
             if target is not None:
                 for it in target:
                     tmp.mpfr = float(it)
