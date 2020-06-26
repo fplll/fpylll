@@ -38,12 +38,13 @@ cdef class Strategy:
     A strategy is a collection of pruning coefficients for a variety
     of radii and preprocessing block sizes.
     """
-    def __init__(self, block_size, preprocessing_block_sizes=tuple(), pruning_parameters=tuple()):
+    def __init__(self, block_size, preprocessing_block_sizes=tuple(), pruning_parameters=tuple(), **kwds):
         """
-
         :param block_size: block size of this strategy
         :param preprocessing_block_sizes: preprocessing block sizes
         :param pruning_parameters: a list of pruning parameters
+
+        All other keyword arguments are stored as auxiliary parameters in the ``aux`` attribute.
 
         """
 
@@ -66,6 +67,10 @@ cdef class Strategy:
             if p >= block_size:
                 raise ValueError("Preprocessing block_size must be < block size, got %s", p)
             self._core.preprocessing_block_sizes.push_back(p)
+
+        self.aux = {}
+        for k,v in kwds.items():
+            self.aux[k] = v
 
     def get_pruning(self, radius, gh):
         """
@@ -91,7 +96,7 @@ cdef class Strategy:
             >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50].dict()) # doctest: +ELLIPSIS
             OrderedDict([('block_size', 50), ('preprocessing_block_sizes', (26,)), ('pruning_parameters', ...)])
             >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50])
-            Strategy< 50, (26), 0.50-0.50>
+            Strategy< 50, (26), 0.50-0.50, {}>
 
         """
         d = OrderedDict()
@@ -99,7 +104,20 @@ cdef class Strategy:
         d["preprocessing_block_sizes"] = self.preprocessing_block_sizes
         d["pruning_parameters"] = tuple([(p.gh_factor, p.coefficients, p.expectation, p.metric, p.detailed_cost)
                                          for p in self.pruning_parameters])
+        for k,v in self.aux.items():
+            d[k] = v
         return d
+
+    def __getitem__(self, what):
+        """
+
+            >>> from fpylll.fplll.bkz_param import Strategy
+            >>> s = Strategy(20, [10], [], foo=True)
+            >>> s["foo"]
+            True
+
+        """
+        return self.aux[what]
 
     def __str__(self):
         preproc = ",".join([str(p) for p in self.preprocessing_block_sizes])
@@ -108,7 +126,7 @@ cdef class Strategy:
             pruning = min(pruning), max(pruning)
         else:
             pruning = 1.0, 1.0
-        return "Strategy<%3d, (%s), %4.2f-%4.2f>"%(self.block_size, preproc, pruning[0], pruning[1])
+        return "Strategy<%3d, (%s), %4.2f-%4.2f, %s>"%(self.block_size, preproc, pruning[0], pruning[1], self.aux)
 
     def __reduce__(self):
         """
@@ -117,7 +135,7 @@ cdef class Strategy:
             >>> import pickle
             >>> p = Pruning.PruningParams(1.0, [1.0, 0.75, 0.5, 0.25], 0.5)
             >>> print(pickle.loads(pickle.dumps(Strategy(20, [10], [p]))))
-            Strategy< 20, (10), 0.50-0.50>
+            Strategy< 20, (10), 0.50-0.50, {}>
 
         """
         return unpickle_Strategy, (self.__class__, tuple(self.dict().items()))

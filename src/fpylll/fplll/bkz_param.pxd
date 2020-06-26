@@ -10,6 +10,7 @@ from .fplll cimport PrunerMetric
 
 cdef class Strategy:
     cdef Strategy_c _core
+    cdef dict aux
 
     @staticmethod
     cdef Strategy from_cxx(Strategy_c & s)
@@ -23,4 +24,4 @@ cdef class BKZParam:
     cdef vector[Strategy_c] strategies_c
     cdef BKZParam_c *o
     cdef readonly tuple strategies
-    cdef aux
+    cdef dict aux
