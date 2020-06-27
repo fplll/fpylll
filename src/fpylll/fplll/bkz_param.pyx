@@ -215,26 +215,63 @@ cdef strategies_c_to_strategies(vector[Strategy_c]& strategies):
         inc(it)
     return tuple(ret)
 
+cdef _load_strategies_aux_json(strategies, filename):
+    """
+    Load auxiliary data into strategies.
+
+    We call ``load_strategies_json_c`` ignores all attributes not known at the C++ level.  Thus, we
+    read the file twice to load those auxiliary attributes.  It's a bit hamfisted but it works and
+    allows us to avoid reimplementing ``load_strategies_json_c`` here.
+
+    ::
+
+        >>> import tempfile
+        >>> from fpylll.fplll.bkz_param import Strategy, load_strategies_json, dump_strategies_json
+        >>> fh, fn = tempfile.mkstemp(suffix=".json")
+        >>> s = [Strategy(0, [], [], foo=True)]
+        >>> dump_strategies_json(fn, s)
+        >>> s = load_strategies_json(fn)
+        >>> s[0]["foo"]
+        True
+
+    """
+    with open(filename, "r") as fh:
+        json_ = json.load(fh)
+        for i in range(len(strategies)):
+            if not isinstance(strategies[i], Strategy):
+                raise TypeError("{i}-th input {strategy} is not a Strategy".format(i=i, strategy=strategies[i]))
+            for k,v in json_[i].items():
+                if not hasattr(strategies[i], k):
+                    (<Strategy>strategies[i]).aux[k] = v
+    return strategies
 
 def load_strategies_json(filename):
     """
-    Load strategies from `filename`.
+    Load strategies from ``filename``.
 
-    >>> import fpylll.config
-    >>> from fpylll import load_strategies_json, BKZ
-    >>> strategies = load_strategies_json(BKZ.DEFAULT_STRATEGY)
-    >>> strategies[80].preprocessing_block_sizes
-    (58,)
+    ::
 
-    >>> strategies[80].pruning_parameters[0].expectation
-    0.25250527262687683
+        >>> from fpylll import load_strategies_json, BKZ
+        >>> strategies = load_strategies_json(BKZ.DEFAULT_STRATEGY)
+        >>> strategies[80].preprocessing_block_sizes
+        (58,)
+
+        >>> strategies[80].pruning_parameters[0].expectation
+        0.25250527262687683
 
     """
+    if isinstance(filename, bytes):
+        filename = filename.decode("UTF-8")
+    if isinstance(filename, (str, unicode)):
+        filename = filename.encode('UTF-8')
+
     cdef vector[Strategy_c] strategies
     sig_on()
     strategies = load_strategies_json_c(filename)
     sig_off()
-    return strategies_c_to_strategies(strategies)
+    strategies_ = strategies_c_to_strategies(strategies)
+    strategies_ = _load_strategies_aux_json(strategies_, filename)
+    return strategies_
 
 
 def dump_strategies_json(filename, strategies):
