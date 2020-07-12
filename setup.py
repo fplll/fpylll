@@ -45,8 +45,8 @@ class Extension(_Extension, object):
     """
 
     def __init__(self, name, sources, **kwargs):
-        self.fplll = kwargs.pop('fplll', False)
-        self.other = kwargs.pop('other', False)
+        self.fplll = kwargs.pop("fplll", False)
+        self.other = kwargs.pop("other", False)
         super(Extension, self).__init__(name, sources, **kwargs)
 
 
@@ -56,7 +56,7 @@ class build_ext(_build_ext, object):
     cythonize_dir = "build"
     fplll = None
     other = None
-    def_varnames = ['HAVE_QD', 'HAVE_LONG_DOUBLE', 'HAVE_NUMPY']
+    def_varnames = ["HAVE_QD", "HAVE_LONG_DOUBLE", "HAVE_NUMPY"]
     config_pxi_path = os.path.join(".", "src", "fpylll", "config.pxi")
 
     def finalize_options(self):
@@ -64,38 +64,43 @@ class build_ext(_build_ext, object):
 
         def_vars = self._generate_config_pxi()
 
-        include_dirs = [os.path.join(sys.prefix, 'include')]
+        include_dirs = [os.path.join(sys.prefix, "include")]
         library_dirs = [os.path.join(sys.exec_prefix, "lib")]
         cxxflags = list(filter(None, os.environ.get("CXXFLAGS", "").split()))
 
         if self.fplll is None:
-            self.fplll = {"include_dirs": include_dirs,
-                          "library_dirs": library_dirs,
-                          "language": "c++",
-                          "libraries": ["gmp", "mpfr", "fplll"],
-                          "extra_compile_args": ["-std=c++11"] + cxxflags,
-                          "extra_link_args": ["-std=c++11"]}
+            self.fplll = {
+                "include_dirs": include_dirs,
+                "library_dirs": library_dirs,
+                "language": "c++",
+                "libraries": ["gmp", "mpfr", "fplll"],
+                "extra_compile_args": ["-std=c++11"] + cxxflags,
+                "extra_link_args": ["-std=c++11"],
+            }
 
-            if def_vars['HAVE_QD']:
-                self.fplll['libraries'].append('qd')
+            if def_vars["HAVE_QD"]:
+                self.fplll["libraries"].append("qd")
 
         if self.other is None:
-            self.other = {"include_dirs": include_dirs,
-                          "library_dirs": library_dirs,
-                          "libraries": ["gmp"]}
+            self.other = {
+                "include_dirs": include_dirs,
+                "library_dirs": library_dirs,
+                "libraries": ["gmp"],
+            }
 
         if "READTHEDOCS" in os.environ:
             # ReadTheDocs uses fplll from Conda, which was built with the old
             # C++ ABI.
             self.fplll["extra_compile_args"].append("-D_GLIBCXX_USE_CXX11_ABI=0")
 
-        if def_vars['HAVE_NUMPY']:
+        if def_vars["HAVE_NUMPY"]:
             import numpy
+
             numpy_args = copy(self.fplll)
             numpy_args["include_dirs"].append(numpy.get_include())
             self.extensions.append(
-                Extension("fpylll.numpy", ["src/fpylll/numpy.pyx"],
-                          **numpy_args))
+                Extension("fpylll.numpy", ["src/fpylll/numpy.pyx"], **numpy_args)
+            )
 
         for ext in self.extensions:
             if ext.fplll:
@@ -107,12 +112,11 @@ class build_ext(_build_ext, object):
 
     def run(self):
         self.extensions = Cython.Build.cythonize(
-                self.extensions,
-                include_path=["src"],
-                build_dir=self.cythonize_dir,
-                compiler_directives={'binding': True,
-                                     'embedsignature': True,
-                                     'language_level': 2})
+            self.extensions,
+            include_path=["src"],
+            build_dir=self.cythonize_dir,
+            compiler_directives={"binding": True, "embedsignature": True, "language_level": 2},
+        )
         super(build_ext, self).run()
 
     def _generate_config_pxi(self):
@@ -125,11 +129,11 @@ class build_ext(_build_ext, object):
             # testing
             value = os.environ.get(defvar)
             if value is not None:
-                value = value.lower() in ['1', 'true', 'yes']
+                value = value.lower() in ["1", "true", "yes"]
             else:
-                value = getattr(self, '_get_' + defvar.lower())()
+                value = getattr(self, "_get_" + defvar.lower())()
 
-            config_pxi.append('DEF {0}={1}'.format(defvar, value))
+            config_pxi.append("DEF {0}={1}".format(defvar, value))
             def_vars[defvar] = value
 
         config_pxi = "\n".join(config_pxi) + "\n"
@@ -158,6 +162,7 @@ class build_ext(_build_ext, object):
     def _get_have_numpy(self):
         try:
             import numpy
+
             return True
         except ImportError:
             pass
@@ -168,10 +173,9 @@ class build_ext(_build_ext, object):
         # Ideally this would check the fplll headers explicitly for the
         # the FPLLL_WITH_LONG_DOUBLE define, but for now it suffices to
         # say that long double support is disabled on Cygwin
-        return not sys.platform.startswith('cygwin')
+        return not sys.platform.startswith("cygwin")
 
 
-
 # EXTENSIONS
 
 extensions = [
@@ -191,21 +195,22 @@ extensions = [
     Extension("fpylll.config", ["src/fpylll/config.pyx"], fplll=True),
 ]
 
-
+
 # VERSION
 
-with open(path.join('src', 'fpylll', '__init__.py')) as f:
-    __version__ = parse(next(filter(lambda line: line.startswith('__version__'), f))).body[0].value.s
-
-
+with open(path.join("src", "fpylll", "__init__.py")) as f:
+    __version__ = (
+        parse(next(filter(lambda line: line.startswith("__version__"), f))).body[0].value.s
+    )
 # FIRE
+
 
 def readme_to_long_description():
     """
     Python wants long descriptions to be plain ASCII.  Our contributors have names that are not
     plain ASCII. Thus, we cut off the list of contributors when reading the long description.
     """
-    long_description=io.open('README.rst', encoding='utf-8').read()
+    long_description = io.open("README.rst", encoding="utf-8").read()
     cut = long_description.index("Attribution & License")
     return str(long_description[:cut])
 
@@ -220,7 +225,7 @@ setup(
     ext_modules=extensions,
     package_dir={"": "src"},
     packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms", "fpylll.tools"],
-    license='GNU General Public License, version 2 or later',
+    license="GNU General Public License, version 2 or later",
     long_description=readme_to_long_description(),
-    cmdclass={'build_ext': build_ext}
+    cmdclass={"build_ext": build_ext},
 )
