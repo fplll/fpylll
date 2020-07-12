@@ -150,6 +150,20 @@ class build_ext(_build_ext, object):
         return def_vars
 
     def _get_have_qd(self):
+        if "CONDA_PREFIX" in os.environ:
+            os.environ["PKG_CONFIG_PATH"] = ":".join(
+                [
+                    os.path.join(os.environ["CONDA_PREFIX"], "lib", "pkgconfig"),
+                    os.environ.get("PKG_CONFIG_PATH", ""),
+                ]
+            )
+        if "VIRTUAL_ENV" in os.environ:
+            os.environ["PKG_CONFIG_PATH"] = ":".join(
+                [
+                    os.path.join(os.environ["VIRTUAL_ENV"], "lib", "pkgconfig"),
+                    os.environ.get("PKG_CONFIG_PATH", ""),
+                ]
+            )
         try:
             libs = subprocess.check_output(["pkg-config", "fplll", "--libs"])
             if b"-lqd" in libs:
