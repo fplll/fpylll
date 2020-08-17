@@ -725,7 +725,7 @@ cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
                        int dual,
                        int subtree_reset)
 
-        long get_nodes()
+        long get_nodes(int level)
 
 cdef extern from "fplll/enum/enumerate_ext.h" namespace "fplll":
 

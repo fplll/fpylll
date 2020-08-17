@@ -556,35 +556,46 @@ cdef class Enumeration:
 
         return tuple(sub_solutions)
 
-    def get_nodes(self):
-        """Return number of visited nodes in last enumeration call.
+    def get_nodes(self, level=None):
         """
+        Return number of visited nodes in last enumeration call.
+
+        :param level: return for ``level`` except when ``None`` in which case the sum is returned.
+        """
+
+        cdef int _level = -1
+
+        if level is not None:
+            if level < -1 or level >= self.M.d:
+                raise ValueError("Level {level} out of bounds.".format(level=level))
+            _level = level
+
         if self.M._type == mat_gso_mpz_d:
-            return self._core.mpz_d.get_nodes()
+            return self._core.mpz_d.get_nodes(_level)
         IF HAVE_LONG_DOUBLE:
             if self.M._type == mat_gso_mpz_ld:
-                return self._core.mpz_ld.get_nodes()
+                return self._core.mpz_ld.get_nodes(_level)
         if self.M._type == mat_gso_mpz_dpe:
-            return self._core.mpz_dpe.get_nodes()
+            return self._core.mpz_dpe.get_nodes(_level)
         IF HAVE_QD:
             if self.M._type == mat_gso_mpz_dd:
-                return self._core.mpz_dd.get_nodes()
+                return self._core.mpz_dd.get_nodes(_level)
             if self.M._type == mat_gso_mpz_qd:
-                return self._core.mpz_qd.get_nodes()
+                return self._core.mpz_qd.get_nodes(_level)
         if self.M._type == mat_gso_mpz_mpfr:
-            return self._core.mpz_mpfr.get_nodes()
+            return self._core.mpz_mpfr.get_nodes(_level)
 
         if self.M._type == mat_gso_long_d:
-            return self._core.long_d.get_nodes()
+            return self._core.long_d.get_nodes(_level)
         IF HAVE_LONG_DOUBLE:
             if self.M._type == mat_gso_long_ld:
-                return self._core.long_ld.get_nodes()
+                return self._core.long_ld.get_nodes(_level)
         if self.M._type == mat_gso_long_dpe:
-            return self._core.long_dpe.get_nodes()
+            return self._core.long_dpe.get_nodes(_level)
         IF HAVE_QD:
             if self.M._type == mat_gso_long_dd:
-                return self._core.long_dd.get_nodes()
+                return self._core.long_dd.get_nodes(_level)
             if self.M._type == mat_gso_long_qd:
-                return self._core.long_qd.get_nodes()
+                return self._core.long_qd.get_nodes(_level)
         if self.M._type == mat_gso_long_mpfr:
-            return self._core.long_mpfr.get_nodes()
+            return self._core.long_mpfr.get_nodes(_level)
