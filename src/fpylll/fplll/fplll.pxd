@@ -47,6 +47,17 @@ cdef extern from "<map>" namespace "std":
         pair[iterator, bint] insert(pair[T,U])
         size_t size()
 
+
+cdef extern from "fplll/fplll_config.h":
+    int FPLLL_WITH_QD
+    int FPLLL_MAJOR_VERSION
+    int FPLLL_MINOR_VERSION
+    int FPLLL_MICRO_VERSION
+
+    int FPLLL_MAX_ENUM_DIM
+    bool FPLLL_WITH_RECURSIVE_ENUM
+    int FPLLL_MAX_PARALLEL_ENUM_DIM
+
 #
 # Numbers
 
@@ -992,12 +1003,3 @@ cdef extern from "fplll/fplll.h" namespace "fplll":
     const char* get_red_status_str(int status) nogil
 
 
-cdef extern from "fplll/fplll_config.h":
-    int FPLLL_WITH_QD
-    int FPLLL_MAJOR_VERSION
-    int FPLLL_MINOR_VERSION
-    int FPLLL_MICRO_VERSION
-
-    int FPLLL_MAX_ENUM_DIM
-    bool FPLLL_WITH_RECURSIVE_ENUM
-    int FPLLL_MAX_PARALLEL_ENUM_DIM
