@@ -32,6 +32,8 @@ from .fplll cimport FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR, FloatType
 
 from .fplll cimport multimap
 
+from .fplll cimport FPLLL_MAX_ENUM_DIM
+
 from libcpp cimport bool
 
 cdef public bool evaluator_callback_call_obj(obj, int n, double *new_sol_coord):
@@ -566,9 +568,9 @@ cdef class Enumeration:
         cdef int _level = -1
 
         if level is not None:
-            if level < -1 or level >= self.M.d:
+            if level < -1 or level >= FPLLL_MAX_ENUM_DIM:
                 raise ValueError("Level {level} out of bounds.".format(level=level))
-            _level = level
+        _level = level
 
         if self.M._type == mat_gso_mpz_d:
             return self._core.mpz_d.get_nodes(_level)
