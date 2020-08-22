@@ -570,7 +570,7 @@ cdef class Enumeration:
         if level is not None:
             if level < -1 or level >= FPLLL_MAX_ENUM_DIM:
                 raise ValueError("Level {level} out of bounds.".format(level=level))
-        _level = level
+            _level = level
 
         if self.M._type == mat_gso_mpz_d:
             return self._core.mpz_d.get_nodes(_level)
