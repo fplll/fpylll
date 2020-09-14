@@ -47,6 +47,17 @@ cdef extern from "<map>" namespace "std":
         pair[iterator, bint] insert(pair[T,U])
         size_t size()
 
+
+cdef extern from "fplll/fplll_config.h":
+    int FPLLL_WITH_QD
+    int FPLLL_MAJOR_VERSION
+    int FPLLL_MINOR_VERSION
+    int FPLLL_MICRO_VERSION
+
+    int FPLLL_MAX_ENUM_DIM
+    bool FPLLL_WITH_RECURSIVE_ENUM
+    int FPLLL_MAX_PARALLEL_ENUM_DIM
+
 #
 # Numbers
 
@@ -725,7 +736,7 @@ cdef extern from "fplll/enum/enumerate.h" namespace "fplll":
                        int dual,
                        int subtree_reset)
 
-        long get_nodes()
+        unsigned long get_nodes(int level)
 
 cdef extern from "fplll/enum/enumerate_ext.h" namespace "fplll":
 
@@ -990,3 +1001,5 @@ cdef extern from "fplll/fplll.h" namespace "fplll":
     int hkz_reduction(ZZ_mat[mpz_t] b) nogil
 
     const char* get_red_status_str(int status) nogil
+
+
