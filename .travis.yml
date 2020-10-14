@@ -12,6 +12,16 @@ matrix:
   - env:
     - HAVE_QD=no
     - HAVE_LONG_DOUBLE=no
+  - env: HAVE_QD=no
+    arch: ppc64le
+  - env: HAVE_LONG_DOUBLE=no
+    arch: ppc64le
+  - env: HAVE_NUMPY=no
+    arch: ppc64le
+  - env:
+    - HAVE_QD=no
+    - HAVE_LONG_DOUBLE=no
+    arch: ppc64le
 cache:
 - pip
 addons:
