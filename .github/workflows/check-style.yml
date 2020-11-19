@@ -9,6 +9,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+             python-version: '3.x'        
+
       - name: Check out
         uses: actions/checkout@v2
 
