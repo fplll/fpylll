@@ -109,3 +109,41 @@ def test_gso_io():
                 v_ = IntegerMatrix.from_iterable(1, m, w) * A
                 v_ = list(v_[0])
                 assert v == v_
+
+def test_gso_coherence_gram_matrix():
+    """
+        Test if the GSO is coherent if it is given a matrix A or its associated
+        Gram matrix A*A^T
+    """
+
+    def float_eq(x, y, epsilon=0.0001):
+        if abs(y) < epsilon:
+            return abs(x) < epsilon
+        return abs(x/y-1) < epsilon
+
+
+    for int_type in int_types:
+        for m, n in dimensions:
+            print(m, n)
+            A = make_integer_matrix(m, n, int_type=int_type)
+            At = copy(A)
+            A = A.transpose()
+            G = A*At
+            # print(G)
+            for float_type in float_types:
+                M_A = GSO.Mat(copy(A), float_type=float_type, gram=False)
+                M_A.update_gso()
+
+                M_G = GSO.Mat(copy(G), float_type=float_type, gram=True)
+                M_G.update_gso()
+
+                # Check that the gram matrix coincide
+                for i in range(m):
+                    for j in range(i):
+                        assert float_eq(M_A.get_gram(i, j), G[i, j])
+
+                # Check if computations coincide
+                for i in range(m):
+                    assert float_eq(M_A.get_r(i, i), M_G.get_r(i, i))
+                    for j in range(i):
+                        assert float_eq(M_A.get_mu(i, j), M_G.get_mu(i, j))
