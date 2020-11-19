@@ -51,7 +51,7 @@ def test_lll_gram_lll_coherence():
         Test if LLL is coherent if it is given a matrix A or its associated
         Gram matrix A*A^T
 
-        The Gram matrix of LLL(A) should be LLL(A*A^T).
+        We should have Gram(LLL_basis(A)) = LLL_Gram(Gram(A)).
     """
 
     def float_eq(x, y, epsilon=0.0001):
