@@ -5,6 +5,7 @@ from fpylll.config import float_types, int_types
 from copy import copy
 
 import sys
+import tools
 
 if sys.maxsize > 2 ** 32:
     dimensions = ((0, 0), (1, 1), (2, 2), (3, 3), (10, 10), (50, 50), (60, 60))
@@ -54,20 +55,10 @@ def test_lll_gram_lll_coherence():
         We should have Gram(LLL_basis(A)) = LLL_Gram(Gram(A)).
     """
 
-    def float_eq(x, y, epsilon=0.0001):
-        if abs(y) < epsilon:
-            return abs(x) < epsilon
-        return abs(x / y - 1) < epsilon
-
-    def compute_gram(A):
-        At = copy(A.transpose())
-        return A.transpose() * At
-
     for m, n in dimensions:
         for int_type in int_types:
             A = make_integer_matrix(m, n)
-
-            G = compute_gram(A)
+            G = tools.compute_gram(A)
 
             for float_type in float_types:
                 M_A = GSO.Mat(A, float_type=float_type, gram=False)
@@ -81,11 +72,11 @@ def test_lll_gram_lll_coherence():
                 # G modified in place
                 lll_G()
 
-                G_updated = compute_gram(A)
+                G_updated = tools.compute_gram(A)
 
                 if (m, n) == (0, 0):
                     continue
                 for i in range(m):
                     for j in range(i + 1):
-                        assert float_eq(G_updated[i, j], G[i, j])
+                        assert G_updated[i, j] == G[i, j]
 
