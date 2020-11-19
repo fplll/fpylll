@@ -17,7 +17,9 @@ jobs:
         uses: actions/checkout@v2
         
       - name: Build
-        run: python setup.py sdist
+        run: |
+          pip install Cython
+          python setup.py sdist
           
       - name: Create Release
         id: create_release
