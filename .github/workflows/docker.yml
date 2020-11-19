@@ -16,7 +16,7 @@ jobs:
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: fplll/fplll # list of Docker images to use as base name for tags
+          images: fplll/fpylll # list of Docker images to use as base name for tags
         
       - name: Login to DockerHub
         uses: docker/login-action@v1 
