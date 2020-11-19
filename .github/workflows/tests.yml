@@ -15,11 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9]
+        python-version: [2.7, 3.6, 3.8]
         have_qd: [yes, no]
         have_numpy: [yes, no]
         have_long_double: [yes, no]
 
+    env:
+        HAVE_QD: $${{ matrix.have_qd }}
+        HAVE_NUMPY: $${{ matrix.have_numpy }}
+        HAVE_LONG_DOUBLE: $${{ matrix.have_long_double }}
+        
     steps:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -32,7 +37,7 @@ jobs:
         run: |
           sudo DEBIAN_FRONTEND=noninteractive apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install $DEPS
-
+          
       - name: Dependencies
         run: |
           git clone https://github.com/fplll/fplll
