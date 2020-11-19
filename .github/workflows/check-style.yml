@@ -1,0 +1,20 @@
+name: Check Style
+
+on:
+  push:
+  pull_request:
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+
+      - name: Dependencies
+        run: pip install flake8
+          
+      - name: Flake8
+        run: flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241,E741,E203 src
+
