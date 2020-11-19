@@ -3,8 +3,8 @@ fpylll
 
 A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`__.
 
-.. image:: https://travis-ci.org/fplll/fpylll.svg?branch=master
-    :target: https://travis-ci.org/fplll/fpylll
+.. image:: https://github.com/fplll/fpylll/workflows/Tests/badge.svg
+    :target: https://github.com/fplll/fpylll/actions?query=workflow%3ATests
 .. image:: https://badge.fury.io/py/fpylll.svg
     :target: https://badge.fury.io/py/fpylll
 .. image:: https://readthedocs.org/projects/fpylll/badge/?version=latest
