@@ -15,10 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [2.7, 3.6, 3.8]
+        python-version: [3.6, 3.8]
         have_qd: [yes, no]
         have_numpy: [yes, no]
-        have_long_double: [yes, no]
 
     env:
         HAVE_QD: $${{ matrix.have_qd }}
