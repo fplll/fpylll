@@ -20,9 +20,8 @@ jobs:
         have_numpy: [yes, no]
 
     env:
-        HAVE_QD: $${{ matrix.have_qd }}
-        HAVE_NUMPY: $${{ matrix.have_numpy }}
-        HAVE_LONG_DOUBLE: $${{ matrix.have_long_double }}
+        HAVE_QD: ${{ matrix.have_qd }}
+        HAVE_NUMPY: ${{ matrix.have_numpy }}
         
     steps:
       - name: Set up Python ${{ matrix.python-version }}
