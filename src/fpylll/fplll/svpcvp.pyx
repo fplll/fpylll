@@ -24,6 +24,7 @@ from .fplll cimport shortest_vector_pruning
 from .fplll cimport shortest_vector as shortest_vector_c
 from .fplll cimport closest_vector as closest_vector_c
 from .fplll cimport vector_matrix_product
+from .fplll cimport FPLLL_MAX_ENUM_DIM as MAX_ENUM_DIM
 from .lll import lll_reduction
 from fpylll.io cimport assign_Z_NR_mpz, mpz_get_python
 from fpylll.util import ReductionError
@@ -43,6 +44,9 @@ def shortest_vector(IntegerMatrix B, method="proved", int flags=SVP_DEFAULT, pru
     :rtype:
 
     """
+
+    if B.nrows > MAX_ENUM_DIM:
+        raise NotImplementedError("This build of FPLLL is configured with a maximum enumeration dimension of %d."%MAX_ENUM_DIM)
 
     if B._type != ZT_MPZ:
         raise NotImplementedError("Only integer matrices over GMP integers (mpz_t) are supported.")
@@ -140,6 +144,9 @@ def closest_vector(IntegerMatrix B, target, method="fast", int flags=CVP_DEFAULT
         (-34, 109, 204, 360, -1548)
 
     """
+
+    if B.nrows > MAX_ENUM_DIM:
+        raise NotImplementedError("This build of FPLLL is configured with a maximum enumeration dimension of %d."%MAX_ENUM_DIM)
 
     if B._type != ZT_MPZ:
         raise NotImplementedError("Only integer matrices over GMP integers (mpz_t) are supported.")
