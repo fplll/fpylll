@@ -7,6 +7,7 @@ from copy import copy
 
 import tools
 
+
 if sys.maxsize >= 2**62:
     dimensions = ((0, 0), (2, 2), (3, 3), (10, 10), (30, 30), (50, 50), (60, 60))
 else:
@@ -117,9 +118,12 @@ def test_gso_coherence_gram_matrix():
         Test if the GSO is coherent if it is given a matrix A or its associated
         Gram matrix A*A^T
     """
+    for m, n in dimensions:
+        for int_type in int_types:
+            # long is not tested for high dimensions because of integer overflow
+            if m > 20 and int_type == "long":
+                continue
 
-    for int_type in int_types:
-        for m, n in dimensions:
             A = make_integer_matrix(m, n, int_type=int_type).transpose()
             G = tools.compute_gram(A)
 
@@ -133,7 +137,7 @@ def test_gso_coherence_gram_matrix():
                 # Check that the gram matrix coincide
                 for i in range(m):
                     for j in range(i):
-                        assert tools.float_equals(M_A.get_gram(i, j), G[i, j])
+                        assert M_A.get_int_gram(i, j) == G[i, j]
 
                 # Check if computations coincide
                 for i in range(m):
