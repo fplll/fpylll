@@ -73,8 +73,8 @@ def simulate(r, param, prng_seed=0xdeadbeef):
     # code uses log2 of norms, FPLLL uses squared norms
     r = list(map(lambda x: log(x, 2) / 2.0, r))
 
-    l = copy(r)
-    l̂ = copy(r)
+    l1 = copy(r)
+    l2 = copy(r)
     c = [rk[-j] - sum(rk[-j:]) / j for j in range(1, 46)]
     c += [
         (lgamma(d / 2.0 + 1) * (1.0 / d) - log(sqrt(pi))) / log(2.0)
@@ -95,27 +95,27 @@ def simulate(r, param, prng_seed=0xdeadbeef):
             tau = False
             for kp in range(k, e):
                 tau |= t0[kp]
-            logV = sum(l[:e-1]) - sum(l̂[:k])
+            logV = sum(l1[:e-1]) - sum(l2[:k])
             if tau:
                 X = random.expovariate(.5)
                 g = (log(X, 2) + logV) / d + c[d - 1]
-                if g < l[k]:
-                    l̂[k] = g
-                    l̂[k+1] = l[k] + log(sqrt(1-1./d), 2)
-                    γ = (l[k] + l[k+1]) - (l̂[k] + l̂[k+1])
+                if g < l1[k]:
+                    l2[k] = g
+                    l2[k+1] = l1[k] + log(sqrt(1-1./d), 2)
+                    gamma = (l1[k] + l1[k+1]) - (l2[k] + l2[k+1])
                     for kp in range(k+2, e):
-                        l̂[kp] = l[kp] + γ/(d-2.)
+                        l2[kp] = l1[kp] + gamma/(d-2.)
                         t1[kp] = True
                     tau = False
             for idx in range(k, e-1):
-                l[idx] = l̂[idx]
+                l1[idx] = l2[idx]
 
         # early termination
-        if True not in t1 or l == l̂:
+        if True not in t1 or l1 == l2:
             break
         else:
             d = min(45, param.block_size)
-            logV = sum(l) - sum(l̂[:-d])
+            logV = sum(l1) - sum(l2[:-d])
 
             if param.block_size < 45:
                 tmp = sum(rk[-param.block_size:]) / param.block_size
@@ -124,20 +124,20 @@ def simulate(r, param, prng_seed=0xdeadbeef):
                 rk1 = rk
 
             for k, r in zip(range(n - d, n), rk1):
-                l̂[k] = logV / d + r
+                l2[k] = logV / d + r
                 t1[kp] = True
-            l = copy(l̂)
+            l1 = copy(l2)
             t0 = copy(t1)
 
         if param.flags & BKZ.VERBOSE:
             r = OrderedDict()
             r["i"] = j
-            for k, v in basis_quality(list(map(lambda x: 2.0 ** (2 * x), l))).items():
+            for k, v in basis_quality(list(map(lambda x: 2.0 ** (2 * x), l1))).items():
                 r[k] = v
             print(pretty_dict(r))
 
-    l = list(map(lambda x: 2.0 ** (2 * x), l))
-    return l, j + 1
+    l1 = list(map(lambda x: 2.0 ** (2 * x), l1))
+    return l1, j + 1
 
 
 def averaged_simulate(L, params, tries=10):
