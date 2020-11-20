@@ -110,7 +110,6 @@ def simulate(r, param, prng_seed=0xdeadbeef):
             for idx in range(k, e-1):
                 l[idx] = l̂[idx]
 
-
         # early termination
         if True not in t1 or l == l̂:
             break
@@ -119,8 +118,8 @@ def simulate(r, param, prng_seed=0xdeadbeef):
             logV = sum(l) - sum(l̂[:-d])
 
             if param.block_size < 45:
-                tmp = sum(rk[-param.block_size :]) / param.block_size
-                rk1 = [r_ - tmp for r_ in rk[-param.block_size :]]
+                tmp = sum(rk[-param.block_size:]) / param.block_size
+                rk1 = [r_ - tmp for r_ in rk[-param.block_size:]]
             else:
                 rk1 = rk
 
@@ -155,7 +154,7 @@ def averaged_simulate(L, params, tries=10):
     from sage.all import vector, RR
 
     for _ in range(tries):
-        x, y = simulate(L, params_fplll, prng_seed=_+1)
+        x, y = simulate(L, params, prng_seed=_+1)
         if _ == 0:
             i = vector(RR, x)
             j = y
