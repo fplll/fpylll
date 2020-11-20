@@ -23,7 +23,6 @@ from ast import parse
 from distutils.command.build_ext import build_ext as _build_ext
 from distutils.core import setup
 from distutils.extension import Extension as _Extension
-import Cython.Build
 
 from copy import copy
 
@@ -111,6 +110,7 @@ class build_ext(_build_ext, object):
                     setattr(ext, key, value)
 
     def run(self):
+        import Cython.Build
         self.extensions = Cython.Build.cythonize(
             self.extensions,
             include_path=["src"],
