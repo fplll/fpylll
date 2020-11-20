@@ -20,7 +20,7 @@ include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 
-from .decl cimport mat_gso_mpz_d, mat_gso_mpz_ld, mat_gso_mpz_dpe, mat_gso_mpz_mpfr, fp_nr_t, zz_mat_core_t
+from .decl cimport mat_gso_mpz_d, mat_gso_mpz_ld, mat_gso_mpz_dpe, mat_gso_mpz_mpfr, fp_nr_t, zz_mat_core_t, z_nr_t
 from .decl cimport mat_gso_long_d, mat_gso_long_ld, mat_gso_long_dpe, mat_gso_long_mpfr
 from .decl cimport d_t
 from .decl cimport mat_gso_gso_t, mat_gso_gram_t
@@ -993,8 +993,8 @@ cdef class MatGSO:
         is true, returns `⟨b_i, b_j⟩/ 2^{(r_i + r_j)}`, where `r_i` and `r_j` are the row exponents
         of rows `i` and `j` respectively.
 
-        :param int i:
-        :param int j:
+        :param int i: 0 ≤ i < d
+        :param int j: 0 ≤ j ≤ i
 
         """
         preprocess_indices(i, j, self.d, self.d)
@@ -1031,6 +1031,57 @@ cdef class MatGSO:
                 return self._core.long_qd.get_gram(t.qd, i, j).get_d()
         if self._type == mat_gso_long_mpfr:
             return self._core.long_mpfr.get_gram(t.mpfr, i, j).get_d()
+
+        raise RuntimeError("MatGSO object '%s' has no core."%self)
+
+    def get_int_gram(self, int i, int j):
+        """
+        Return *integer* Gram matrix coefficients (0 ≤ i ≤ ``n_known_rows`` and 0 ≤ j ≤ i).  If
+        ``enable_row_expo`` is false, returns the dot product `⟨b_i, b_j⟩`.
+
+        :param int i: 0 ≤ i < d
+        :param int j: 0 ≤ j ≤ i
+
+        """
+        preprocess_indices(i, j, self.d, self.d)
+
+        cdef z_nr_t t
+
+        if self._type == mat_gso_mpz_d:
+            self._core.mpz_d.get_int_gram(t.mpz, i, j)
+            return mpz_get_python(t.mpz.get_data())
+        IF HAVE_LONG_DOUBLE:
+            if self._type == mat_gso_mpz_ld:
+                self._core.mpz_ld.get_int_gram(t.mpz, i, j)
+                return mpz_get_python(t.mpz.get_data())
+        if self._type == mat_gso_mpz_dpe:
+            self._core.mpz_dpe.get_int_gram(t.mpz, i, j)
+            return mpz_get_python(t.mpz.get_data())
+        IF HAVE_QD:
+            if self._type == mat_gso_mpz_dd:
+                self._core.mpz_dd.get_int_gram(t.mpz, i, j)
+                return mpz_get_python(t.mpz.get_data())
+            if self._type == mat_gso_mpz_qd:
+                self._core.mpz_qd.get_int_gram(t.mpz, i, j)
+                return mpz_get_python(t.mpz.get_data())
+        if self._type == mat_gso_mpz_mpfr:
+            self._core.mpz_mpfr.get_int_gram(t.mpz, i, j)
+            return mpz_get_python(t.mpz.get_data())
+
+        if self._type == mat_gso_long_d:
+            return self._core.long_d.get_int_gram(t.long, i, j).get_data()
+        IF HAVE_LONG_DOUBLE:
+            if self._type == mat_gso_long_ld:
+                return self._core.long_ld.get_int_gram(t.long, i, j).get_data()
+        if self._type == mat_gso_long_dpe:
+            return self._core.long_dpe.get_int_gram(t.long, i, j).get_data()
+        IF HAVE_QD:
+            if self._type == mat_gso_long_dd:
+                return self._core.long_dd.get_int_gram(t.long, i, j).get_data()
+            if self._type == mat_gso_long_qd:
+                return self._core.long_qd.get_int_gram(t.long, i, j).get_data()
+        if self._type == mat_gso_long_mpfr:
+            return self._core.long_mpfr.get_int_gram(t.long, i, j).get_data()
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 

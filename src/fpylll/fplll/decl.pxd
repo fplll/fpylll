@@ -80,12 +80,16 @@ ctypedef enum fplll_z_type_t:
     z_mpz     =  2
 
 ctypedef union zz_mat_core_t:
-    ZZ_mat[mpz_t] *mpz
     ZZ_mat[long]  *long
+    ZZ_mat[mpz_t] *mpz
 
 ctypedef union gauss_sieve_core_t:
-    GaussSieve[mpz_t, FP_NR[double]]  *mpz_d
     GaussSieve[long, FP_NR[double]]   *long_d
+    GaussSieve[mpz_t, FP_NR[double]]  *mpz_d
+
+ctypedef struct z_nr_t:
+    Z_NR[long] long
+    Z_NR[mpz_t] mpz
 
 IF HAVE_LONG_DOUBLE:
     IF HAVE_QD:
