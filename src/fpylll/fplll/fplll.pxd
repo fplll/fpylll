@@ -509,6 +509,7 @@ cdef extern from "fplll/gso_interface.h" namespace "fplll":
         inline void row_op_begin(int first, int last) nogil
         void row_op_end(int first, int last) nogil
         FT &get_gram(FT &f, int i, int j) nogil
+        ZT &get_int_gram(ZT &f, int i, int j) nogil
         const Matrix[FT] &get_mu_matrix() nogil
         const Matrix[FT] &get_r_matrix() nogil
         const Matrix[ZT] &get_g_matrix() nogil

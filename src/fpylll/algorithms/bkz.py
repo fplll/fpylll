@@ -188,7 +188,8 @@ class BKZReduction(object):
             return solution
 
     def svp_postprocessing(self, kappa, block_size, solution, tracer):
-        """Insert SVP solution into basis and LLL reduce.
+        """Insert SVP solution into basis. Note that this does not run LLL; instead,
+           it resolves the linear dependencies internally.
 
         :param solution: coordinates of an SVP solution
         :param kappa: current index
