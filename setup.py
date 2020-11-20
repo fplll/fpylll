@@ -250,5 +250,5 @@ setup(
     license="GNU General Public License, version 2 or later",
     long_description=readme_to_long_description(),
     cmdclass={"build_ext": build_ext},
-    **aux_setup_kwds,
+    **aux_setup_kwds
 )
