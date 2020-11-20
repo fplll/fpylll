@@ -11,7 +11,7 @@ def make_integer_matrix(m, n):
     return A
 
 
-def test_cvp():
+def test_cvp_cvp():
     for m, n in dimensions:
         A = make_integer_matrix(m, n)
         A = LLL.reduction(A)
@@ -26,3 +26,4 @@ def test_cvp():
         v1 = tuple((v1*A)[0])
 
         assert v0 == v1
+
