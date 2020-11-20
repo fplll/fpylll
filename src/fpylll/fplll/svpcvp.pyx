@@ -7,7 +7,6 @@ Shortest and Closest Vectors.
 
 include "fpylll/config.pxi"
 
-import threading
 from cysignals.signals cimport sig_on, sig_off
 
 from libcpp.vector cimport vector
@@ -25,35 +24,47 @@ from .fplll cimport shortest_vector as shortest_vector_c
 from .fplll cimport closest_vector as closest_vector_c
 from .fplll cimport vector_matrix_product
 from .fplll cimport FPLLL_MAX_ENUM_DIM as MAX_ENUM_DIM
-from .lll import lll_reduction
+from .gso import GSO
+from .lll import LLL
+from .bkz import BKZ
+from .pruner import Pruning
 from fpylll.io cimport assign_Z_NR_mpz, mpz_get_python
+from fpylll.io import SuppressStream
 from fpylll.util import ReductionError
 
 from .integer_matrix cimport IntegerMatrix
 
-def shortest_vector(IntegerMatrix B, method="proved", int flags=SVP_DEFAULT, pruning=None, run_lll=True, max_aux_sols=0):
-    """Return a shortest vector. The result is guaranteed if method = "proved".
+def shortest_vector(IntegerMatrix B, method="fast", int flags=SVP_DEFAULT, pruning=True, preprocess=True, max_aux_solutions=0):
+    """Return a shortest vector. The result is guaranteed if ``method`` is "proved".
 
-    :param IntegerMatrix B:
+    :param B: A lattice basis
     :param method: One of "fast" or "proved".
     :param int flags:
-    :param pruning:
-    :param run_lll:
-    :param max_aux_sols:
-    :returns:
-    :rtype:
+    :param pruning: If ``True`` pruning parameters are computed by this function.
+    :param preprocess: Blocksize used for preprocessing; if  ``True`` a block size is picked.
+    :param max_aux_solutions: maximum number of additional short-ish solutions to return
 
     """
 
-    if B.nrows > MAX_ENUM_DIM:
+    d = B.nrows
+
+    if pruning is True and d <= 10:
+        pruning = None # HACK: pruning in small dimensions can go wrong.
+
+    if d > MAX_ENUM_DIM:
         raise NotImplementedError("This build of FPLLL is configured with a maximum enumeration dimension of %d."%MAX_ENUM_DIM)
 
     if B._type != ZT_MPZ:
         raise NotImplementedError("Only integer matrices over GMP integers (mpz_t) are supported.")
 
     cdef SVPMethod method_
+
     if method == "proved":
         method_ = SVPM_PROVED
+        if pruning is True:
+            pruning = None
+        if pruning is not None:
+            raise ValueError("Method 'proved' is incompatible with providing pruning parameters.")
     elif method == "fast":
         method_ = SVPM_FAST
     else:
@@ -61,8 +72,26 @@ def shortest_vector(IntegerMatrix B, method="proved", int flags=SVP_DEFAULT, pru
 
     cdef int r = 0
 
-    if run_lll:
-        lll_reduction(B)
+    if preprocess is True:
+        preprocess = max(d - 10, 2) # complete guess
+
+    if preprocess == 2:
+        B = LLL.reduction(B)
+    elif preprocess:
+        preprocess = min(d, preprocess)
+        B = BKZ.reduction(B, BKZ.EasyParam(preprocess))
+
+    if pruning is True:
+        M = GSO.Mat(B)
+        M.update_gso()
+        for cost in (10, 20, 30, 40, 50):
+            try:
+                with SuppressStream():
+                    pruning = Pruning.run(0.99*M.get_r(0, 0), 2**cost, M.r(), 0.99, flags=Pruning.SINGLE|Pruning.GRADIENT)
+                pruning = pruning.coefficients
+                break
+            except RuntimeError:
+                pass
 
     cdef vector[Z_NR[mpz_t]] sol_coord
     cdef vector[Z_NR[mpz_t]] solution
@@ -79,13 +108,13 @@ def shortest_vector(IntegerMatrix B, method="proved", int flags=SVP_DEFAULT, pru
         for i in range(len(pruning)):
             pruning_[i] = pruning[i]
 
-        if max_aux_sols == 0:
+        if max_aux_solutions == 0:
             sig_on()
             r = shortest_vector_pruning(B._core.mpz[0], sol_coord, pruning_, flags)
             sig_off()
         else:
             sig_on()
-            r = shortest_vector_pruning(B._core.mpz[0], sol_coord, auxsol_coord, auxsol_dist, max_aux_sols, pruning_, flags)
+            r = shortest_vector_pruning(B._core.mpz[0], sol_coord, auxsol_coord, auxsol_dist, max_aux_solutions, pruning_, flags)
             sig_off()
     else:
         sig_on()
@@ -103,7 +132,7 @@ def shortest_vector(IntegerMatrix B, method="proved", int flags=SVP_DEFAULT, pru
         v.append(mpz_get_python(solution[i].get_data()))
 
     cdef list aux = []
-    if max_aux_sols > 0:
+    if max_aux_solutions > 0:
         for j in range(auxsol_dist.size()):
             vector_matrix_product(solution, auxsol_coord[j], B._core.mpz[0])
             aux_sol = []
