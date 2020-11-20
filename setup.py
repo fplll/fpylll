@@ -20,9 +20,17 @@ except ImportError:
 
 from os import path
 from ast import parse
-from distutils.command.build_ext import build_ext as _build_ext
-from distutils.core import setup
-from distutils.extension import Extension as _Extension
+
+try:
+    from setuptools.command.build_ext import build_ext as _build_ext
+    from setuptools.core import setup
+    from setuptools.extension import Extension as _Extension
+    aux_setup_kwds = {"install_requires": ["Cython", "cysignals"]}
+except ImportError:
+    from distutils.command.build_ext import build_ext as _build_ext
+    from distutils.core import setup
+    from distutils.extension import Extension as _Extension
+    aux_setup_kwds = {}
 
 from copy import copy
 
@@ -242,5 +250,5 @@ setup(
     license="GNU General Public License, version 2 or later",
     long_description=readme_to_long_description(),
     cmdclass={"build_ext": build_ext},
-    install_requires=["Cython", "cysignals"],
+    **aux_setup_kwds,
 )
