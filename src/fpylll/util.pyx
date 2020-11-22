@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-
+
+from contextlib import contextmanager
 
 from fpylll.fplll.decl cimport fp_nr_t
 from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
@@ -199,28 +200,27 @@ def set_precision(unsigned int prec):
         raise ValueError("Precision (%d) too small."%prec)
     return FP_NR[mpfr_t].set_prec(prec)
 
-class PrecisionContext:
-    def __init__(self, prec):
-        """Create new precision context.
-
-        :param prec: internal precision
-
-        """
-        self.prec = prec
-
-    def __enter__(self):
-        self.prec = set_precision(self.prec)
-
-    def __exit__(self, exception_type, exception_value, exception_traceback):
-        self.prec = set_precision(self.prec)
-
+@contextmanager
 def precision(prec):
-    """Create new precision context.
+    """Run with precision ``prec`` temporarily.
 
-    :param prec: internal precision
+    :param prec: temporary precision
+    :returns: temporary precision being used
+
+    >>> from fpylll import FPLLL
+    >>> with FPLLL.precision(212) as prec: print(212)
+    212
+    >>> FPLLL.get_precision()
+    53
+    >>> with FPLLL.precision(212): FPLLL.get_precision()
+    212
 
     """
-    return PrecisionContext(prec)
+    old_prec = set_precision(prec)
+    try:
+        yield get_precision()
+    finally:
+        set_precision(old_prec)
 
 
 def adjust_radius_to_gh_bound(double dist, int dist_expo, int block_size, double root_det, double gh_factor):
@@ -333,12 +333,40 @@ def get_threads():
     """
     return get_threads_c()
 
+@contextmanager
+def threads(int th=1):
+    """
+    Run with ``th`` threads temporariliy
+
+    :param th: number of threads ≥ 1
+    :returns: number of threads used
+
+    >>> from fpylll import FPLLL
+    >>> with FPLLL.threads(4) as th: print(th)
+    4
+    >>> FPLLL.get_threads()
+    1
+    >>> with FPLLL.threads(4) as th: FPLLL.get_threads()
+    4
+
+    """
+    old_th = get_threads()
+    set_threads(th)
+    try:
+        yield get_threads()
+    finally:
+        set_threads(old_th)
 
 class FPLLL:
     set_precision = staticmethod(set_precision)
     get_precision = staticmethod(get_precision)
+    precision = staticmethod(precision)
+
     set_threads = staticmethod(set_threads)
     get_threads = staticmethod(get_threads)
+    threads = staticmethod(threads)
+
     set_random_seed = staticmethod(set_random_seed)
     randint = staticmethod(randint)
+
     set_external_enumerator = staticmethod(set_external_enumerator)
