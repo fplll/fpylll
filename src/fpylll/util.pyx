@@ -359,12 +359,14 @@ def threads(int th=1):
     :returns: number of threads used
 
     >>> from fpylll import FPLLL
-    >>> with FPLLL.threads(4) as th: print(th)
-    4
+    >>> import multiprocessing
+    >>> max_th = multiprocessing.cpu_count()
+    >>> with FPLLL.threads(4) as th: th == min(max_th, 4)
+    True
     >>> FPLLL.get_threads()
     1
-    >>> with FPLLL.threads(4) as th: FPLLL.get_threads()
-    4
+    >>> with FPLLL.threads(4) as th: FPLLL.get_threads() == min(max_th, 4)
+    True
 
     """
     old_th = get_threads()
