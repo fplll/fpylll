@@ -336,7 +336,7 @@ def get_threads():
 @contextmanager
 def threads(int th=1):
     """
-    Run with ``th`` threads temporariliy
+    Run with ``th`` threads temporarily
 
     :param th: number of threads ≥ 1
     :returns: number of threads used
