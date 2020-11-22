@@ -9,6 +9,7 @@ from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, F
 from fpylll.fplll.fplll cimport IntType, ZT_LONG, ZT_MPZ
 from fpylll.fplll.fplll cimport adjust_radius_to_gh_bound as adjust_radius_to_gh_bound_c
 from fpylll.fplll.fplll cimport set_external_enumerator as set_external_enumerator_c
+from fpylll.fplll.fplll cimport get_external_enumerator as get_external_enumerator_c
 from fpylll.fplll.fplll cimport extenum_fc_enumerate
 from fpylll.fplll.fplll cimport get_root_det as get_root_det_c
 from fpylll.fplll.fplll cimport PRUNER_METRIC_PROBABILITY_OF_SHORTEST, PRUNER_METRIC_EXPECTED_SOLUTIONS, PrunerMetric
@@ -291,14 +292,15 @@ cpdef set_external_enumerator(enumerator):
     We grab the external enumeration function
 
     >>> fn = enumlib._Z17enumlib_enumerateidSt8functionIFvPdmbS0_S0_EES_IFddS0_EES_IFvdS0_iEEbb # doctest: +SKIP
-
-    and pass it to Fplll
+    and pass it to FPLLL
 
     >>> FPLLL.set_external_enumerator(fn)  # doctest: +SKIP
 
     To disable the external enumeration library, call
 
     >>> FPLLL.set_external_enumerator(None)  # doctest: +SKIP
+
+    :param enumerator: CTypes handle
 
     """
     import ctypes
@@ -308,6 +310,21 @@ cpdef set_external_enumerator(enumerator):
     elif isinstance(enumerator, ctypes._CFuncPtr):
         p = ctypes.cast(enumerator, ctypes.c_void_p).value
         set_external_enumerator_c(void_ptr_to_function(<void *>p))
+
+@contextmanager
+def external_enumerator(enumerator):
+    """
+    Temporarily use ``enumerator``.
+
+    :param enumerator: CTypes handle
+
+    """
+    cdef function[extenum_fc_enumerate] fn = get_external_enumerator_c()
+    set_external_enumerator(enumerator)
+    try:
+        yield
+    finally:
+        set_external_enumerator_c(fn)
 
 def set_threads(int th=1):
     """
@@ -370,3 +387,4 @@ class FPLLL:
     randint = staticmethod(randint)
 
     set_external_enumerator = staticmethod(set_external_enumerator)
+    external_enumerator = staticmethod(external_enumerator)
