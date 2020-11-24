@@ -27,6 +27,8 @@ from .fplll cimport FPLLL_MAX_ENUM_DIM as MAX_ENUM_DIM
 from .gso import GSO
 from .lll import LLL
 from .bkz import BKZ
+from .bkz_param import load_strategies_json
+from fpylll.algorithms.bkz2 import BKZReduction
 from .pruner import Pruning
 from fpylll.io cimport assign_Z_NR_mpz, mpz_get_python
 from fpylll.io import SuppressStream
@@ -71,15 +73,20 @@ def shortest_vector(IntegerMatrix B, method="fast", int flags=SVP_DEFAULT, pruni
         raise ValueError("Method '{}' unknown".format(method))
 
     cdef int r = 0
+    s = load_strategies_json(BKZ.DEFAULT_STRATEGY)[-1]
 
-    if preprocess is True:
-        preprocess = max(d - 10, 2) # complete guess
+    if preprocess is True and d > s.block_size:
+        preprocess = max(min(d-10, s.block_size), 2)
 
-    if preprocess == 2:
+    if preprocess == 2: # just run LLL
         B = LLL.reduction(B)
-    elif preprocess:
-        preprocess = min(d, preprocess)
-        B = BKZ.reduction(B, BKZ.EasyParam(preprocess))
+    elif preprocess is True: # automatic choice
+        bkz_obj = BKZReduction(B)
+        bkz_obj.svp_reduction(0, d, BKZ.EasyParam(d))
+    elif preprocess and preprocess > 2: # make something work
+        preprocess = max(min(d-10, preprocess), 2)
+        bkz_obj = BKZReduction(B)
+        bkz_obj(BKZ.EasyParam(preprocess))
 
     if pruning is True:
         M = GSO.Mat(B)
@@ -87,7 +94,7 @@ def shortest_vector(IntegerMatrix B, method="fast", int flags=SVP_DEFAULT, pruni
         for cost in (10, 20, 30, 40, 50):
             try:
                 with SuppressStream():
-                    pruning = Pruning.run(0.99*M.get_r(0, 0), 2**cost, M.r(), 0.99, flags=Pruning.SINGLE|Pruning.GRADIENT)
+                    pruning = Pruning.run(M.get_r(0, 0), 2**cost, M.r(), 0.99, flags=Pruning.SINGLE|Pruning.GRADIENT)
                 pruning = pruning.coefficients
                 break
             except RuntimeError:
