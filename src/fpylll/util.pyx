@@ -209,7 +209,7 @@ def precision(prec):
     :returns: temporary precision being used
 
     >>> from fpylll import FPLLL
-    >>> with FPLLL.precision(212) as prec: print(212)
+    >>> with FPLLL.precision(212) as prec: print(prec)
     212
     >>> FPLLL.get_precision()
     53
