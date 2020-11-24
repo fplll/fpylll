@@ -755,6 +755,7 @@ cdef extern from "fplll/enum/enumerate_ext.h" namespace "fplll":
                                                 bool dual, bool findsubsols)
 
     void set_external_enumerator(function[extenum_fc_enumerate] extenum)
+    function[extenum_fc_enumerate] get_external_enumerator()
 
 
 # SVP
