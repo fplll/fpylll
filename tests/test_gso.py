@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import pytest
+
 from fpylll import GSO, IntegerMatrix, LLL
 from fpylll.config import float_types, int_types
 from copy import copy
+
+import tools
+
 
 if sys.maxsize >= 2**62:
     dimensions = ((0, 0), (2, 2), (3, 3), (10, 10), (30, 30), (50, 50), (60, 60))
@@ -69,6 +74,8 @@ def test_gso_int_gram_enabled():
 
 
 def test_gso_update_gso():
+    EPSILON = 0.0001
+
     for int_type in int_types:
         for m, n in dimensions:
             A = make_integer_matrix(m, n, int_type=int_type)
@@ -87,9 +94,9 @@ def test_gso_update_gso():
                 g00.append(M.get_gram(0, 0))
 
             for i in range(1, len(r00)):
-                assert abs(r00[0]/r00[i] - 1.0) < 0.0001
-                assert abs(re00[0]/re00[i] - 1.0) < 0.0001
-                assert abs(g00[0]/g00[i] - 1.0) < 0.0001
+                assert r00[0] ==  pytest.approx(r00[i], rel=EPSILON)
+                assert re00[0] ==  pytest.approx(re00[i], rel=EPSILON)
+                assert g00[0] ==  pytest.approx(g00[i], rel=EPSILON)
 
 
 def test_gso_io():
@@ -109,3 +116,46 @@ def test_gso_io():
                 v_ = IntegerMatrix.from_iterable(1, m, w) * A
                 v_ = list(v_[0])
                 assert v == v_
+
+def test_gso_coherence_gram_matrix():
+    """
+        Test if the GSO is coherent if it is given a matrix A or its associated
+        Gram matrix A*A^T
+    """
+
+    EPSILON = 0.0001
+
+    for m, n in dimensions:
+        for int_type in int_types:
+            # long is not tested for high dimensions because of integer overflow
+            if m > 20 and int_type == "long":
+                continue
+
+            A = make_integer_matrix(m, n, int_type=int_type).transpose()
+            G = tools.compute_gram(A)
+
+            for float_type in float_types:
+                M_A = GSO.Mat(copy(A), float_type=float_type, gram=False, flags=GSO.INT_GRAM)
+                M_A.update_gso()
+
+                M_G = GSO.Mat(copy(G), float_type=float_type, gram=True, flags=GSO.INT_GRAM)
+                M_G.update_gso()
+
+                # Check that the gram matrix coincide
+                for i in range(m):
+                    for j in range(i):
+                        assert M_A.get_int_gram(i, j) == G[i, j]
+
+                # Check if computations coincide
+                for i in range(m):
+                    M_A.get_r(i, i) == pytest.approx(M_G.get_r(i, j), rel=EPSILON)
+
+                    for j in range(i):
+                        assert (
+                            M_A.get_r(i, j) == 
+                            pytest.approx(M_G.get_r(i, j), rel=EPSILON)
+                        )
+                        assert (
+                            M_A.get_mu(i, j) == 
+                            pytest.approx(M_G.get_mu(i, j), rel=EPSILON)
+                        )
