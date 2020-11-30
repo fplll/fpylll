@@ -148,6 +148,8 @@ def test_gso_coherence_gram_matrix():
 
                 # Check if computations coincide
                 for i in range(m):
+                    M_A.get_r(i, i) == pytest.approx(M_G.get_r(i, j), rel=EPSILON)
+
                     for j in range(i):
                         assert (
                             M_A.get_r(i, j) == 
