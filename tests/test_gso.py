@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import pytest
+
 from fpylll import GSO, IntegerMatrix, LLL
 from fpylll.config import float_types, int_types
 from copy import copy
@@ -72,6 +74,8 @@ def test_gso_int_gram_enabled():
 
 
 def test_gso_update_gso():
+    EPSILON = 0.0001
+
     for int_type in int_types:
         for m, n in dimensions:
             A = make_integer_matrix(m, n, int_type=int_type)
@@ -90,9 +94,9 @@ def test_gso_update_gso():
                 g00.append(M.get_gram(0, 0))
 
             for i in range(1, len(r00)):
-                assert tools.float_equals(r00[0], r00[i])
-                assert tools.float_equals(re00[0], re00[i])
-                assert tools.float_equals(g00[0], g00[i])
+                assert r00[0] ==  pytest.approx(r00[i], rel=EPSILON)
+                assert re00[0] ==  pytest.approx(re00[i], rel=EPSILON)
+                assert g00[0] ==  pytest.approx(g00[i], rel=EPSILON)
 
 
 def test_gso_io():
@@ -118,6 +122,9 @@ def test_gso_coherence_gram_matrix():
         Test if the GSO is coherent if it is given a matrix A or its associated
         Gram matrix A*A^T
     """
+
+    EPSILON = 0.0001
+
     for m, n in dimensions:
         for int_type in int_types:
             # long is not tested for high dimensions because of integer overflow
@@ -142,8 +149,11 @@ def test_gso_coherence_gram_matrix():
                 # Check if computations coincide
                 for i in range(m):
                     for j in range(i):
-                        assert tools.float_equals(M_A.get_r(i, j), M_G.get_r(i, j))
-                        assert tools.float_equals(
-                            M_A.get_mu(i, j), 
-                            M_G.get_mu(i, j)
+                        assert (
+                            M_A.get_r(i, j) == 
+                            pytest.approx(M_G.get_r(i, j), rel=EPSILON)
+                        )
+                        assert (
+                            M_A.get_mu(i, j) == 
+                            pytest.approx(M_G.get_mu(i, j), rel=EPSILON)
                         )
