@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-
+
+import sys
+import io
+import os
+
 from cpython.int cimport PyInt_AS_LONG
 from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set
 from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
@@ -51,3 +55,30 @@ cdef object mpz_get_python(mpz_srcptr z):
         return Integer(r)
     else:
         return r
+
+class SuppressStream(object):
+    """
+    Suppress errors (being printed by FPLLL, which are to be expected).
+    """
+
+    def __init__(self, stream=sys.stderr):
+        try:
+            self.orig_stream_fileno = stream.fileno()
+            self.skip = False
+        except io.UnsupportedOperation:
+            self.skip = True
+
+    def __enter__(self):
+        if self.skip:
+            return
+        self.orig_stream_dup = os.dup(self.orig_stream_fileno)
+        self.devnull = open(os.devnull, "w")
+        os.dup2(self.devnull.fileno(), self.orig_stream_fileno)
+
+    def __exit__(self, type, value, traceback):
+        if self.skip:
+            return
+        os.close(self.orig_stream_fileno)
+        os.dup2(self.orig_stream_dup, self.orig_stream_fileno)
+        os.close(self.orig_stream_dup)
+        self.devnull.close()
