@@ -7,6 +7,7 @@ Shortest and Closest Vectors.
 
 include "fpylll/config.pxi"
 
+import warnings
 from cysignals.signals cimport sig_on, sig_off
 
 from libcpp.vector cimport vector
@@ -99,6 +100,10 @@ def shortest_vector(IntegerMatrix B, method="fast", int flags=SVP_DEFAULT, pruni
                 break
             except RuntimeError:
                 pass
+
+    if pruning is True: # it didn't work
+        warnings.warn("Pruning failed, proceeding without it.", RuntimeWarning)
+        pruning = [1]*d
 
     cdef vector[Z_NR[mpz_t]] sol_coord
     cdef vector[Z_NR[mpz_t]] solution
