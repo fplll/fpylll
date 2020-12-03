@@ -16,7 +16,6 @@ IF HAVE_QD:
 from .fplll cimport dpe_t
 from .fplll cimport Z_NR, FP_NR
 from .fplll cimport ZZ_mat, MatGSOInterface, LLLReduction, BKZAutoAbort, BKZReduction, Enumeration
-from .fplll cimport GaussSieve
 from .fplll cimport Evaluator, FastEvaluator, ErrorBoundedEvaluator, FastErrorBoundedEvaluator, Pruner
 
 from libcpp.vector cimport vector
@@ -82,10 +81,6 @@ ctypedef enum fplll_z_type_t:
 ctypedef union zz_mat_core_t:
     ZZ_mat[long]  *long
     ZZ_mat[mpz_t] *mpz
-
-ctypedef union gauss_sieve_core_t:
-    GaussSieve[long, FP_NR[double]]   *long_d
-    GaussSieve[mpz_t, FP_NR[double]]  *mpz_d
 
 ctypedef struct z_nr_t:
     Z_NR[long] long
