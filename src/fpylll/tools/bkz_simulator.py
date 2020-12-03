@@ -76,6 +76,22 @@ rk = (
 )
 
 
+def _extract_log_norms(r):
+    if isinstance(r, IntegerMatrix):
+        r = GSO.Mat(r)
+    elif isinstance(r, MatGSO):
+        r.update_gso()
+        r = r.r()
+    else:
+        for ri in r:
+            if (ri <= 0):
+                raise ValueError("squared norms in r should be positive")
+
+    # code uses log2 of norms, FPLLL uses squared norms
+    r = list(map(lambda x: log(x, 2) / 2.0, r))
+    return r
+
+
 def simulate(r, param):
     """
     BKZ simulation algorithm as proposed by Chen and Nguyen in "BKZ 2.0: Better Lattice Security
@@ -98,20 +114,9 @@ def simulate(r, param):
         {"i":        3,  "r_0":   2^32.1,  "r_0/gh": 2.583479,  "rhf": 1.013966,  "/": -0.05560,  "hv/hv": 2.000296}
     """
 
-    if isinstance(r, IntegerMatrix):
-        r = GSO.Mat(r)
-    elif isinstance(r, MatGSO):
-        r.update_gso()
-        r = r.r()
-    else:
-        for ri in r:
-            if (ri <= 0):
-                raise ValueError("squared norms in r should be positive")
+    r = _extract_log_norms(r)
 
     d = len(r)
-
-    # code uses log2 of norms, FPLLL uses squared norms
-    r = list(map(lambda x: log(x, 2) / 2.0, r))
 
     r1 = copy(r)
     r2 = copy(r)
@@ -168,7 +173,7 @@ def simulate(r, param):
     return r1, i + 1
 
 
-def simulate_prob(r, param, prng_seed=0xdeadbeef):  # noqa: C901
+def simulate_prob(r, param, prng_seed=0xdeadbeef):
     """
     BKZ simulation algorithm as proposed by Bai and Stehlé and Wen in "Measuring, simulating and
     exploiting the head concavity phenomenon in BKZ".  Returns the reduced squared norms of the
@@ -191,98 +196,85 @@ def simulate_prob(r, param, prng_seed=0xdeadbeef):  # noqa: C901
         {"i":        3,  "r_0":   2^32.2,  "r_0/gh": 2.783102,  "rhf": 1.014344,  "/": -0.05603,  "hv/hv": 2.013191}
     """
 
-    assert (param.block_size >= 3)
+    if param.block_size <= 2:
+        raise ValueError("The BSW18 simulator requires block size >= 3.")
 
-    if not prng_seed:
-        prng_seed = FPLLL.randint(0, 2**32-1)
+    # fix PRNG seed
+    random.seed(prng_seed if prng_seed else FPLLL.randint(0, 2**32-1))
 
-    random.seed(prng_seed)
+    r = _extract_log_norms(r)
 
-    if isinstance(r, IntegerMatrix):
-        r = GSO.Mat(r)
-    elif isinstance(r, MatGSO):
-        r.update_gso()
-        r = r.r()
-    else:
-        for ri in r:
-            if (ri <= 0):
-                raise ValueError("squared norms in r should be positive")
+    d = len(r)
 
-    n = len(r)
-    assert (n >= 45)  # I didn't check this, presumably this is not needed in any case.
-
-    # code uses log2 of norms, FPLLL uses squared norms
-    r = list(map(lambda x: log(x, 2) / 2.0, r))
-    l = copy(r)
-    l2 = copy(r)
+    r1 = copy(r)
+    r2 = copy(r)
     c = [rk[-j] - sum(rk[-j:]) / j for j in range(1, 46)]
     c += [
-        (lgamma(d / 2.0 + 1) * (1.0 / d) - log(sqrt(pi))) / log(2.0)
-        for d in range(46, param.block_size + 1)
+        (lgamma(beta / 2.0 + 1) * (1.0 / beta) - log(sqrt(pi))) / log(2.0)
+        for beta in range(46, param.block_size + 1)
     ]
 
     if param.max_loops:
         N = param.max_loops
     else:
-        N = param.block_size
+        N = d
 
-    t0 = [True for _ in range(n)]
-    for ntours in range(N):
-
-        t1 = [False for _ in range(n)]
-        for k in range(n - min(45, param.block_size)):
-            bs = min(param.block_size, n - k)
-            e = k + bs
-            tau = False
-            for kp in range(k, e):
-                tau |= t0[kp]
-            logdet = sum(l[:e]) - sum(l2[:k])
-            if tau:
+    t0 = [True for _ in range(d)]
+    for i in range(N):
+        t1 = [False for _ in range(d)]
+        for k in range(d - min(45, param.block_size)):
+            beta = min(param.block_size, d - k)
+            f = k + beta
+            phi = False
+            for kp in range(k, f):
+                phi |= t0[kp]
+            logV = sum(r1[:f]) - sum(r2[:k])
+            if phi:
                 X = random.expovariate(.5)
-                g = (log(X, 2) + logdet) / bs + c[bs - 1]
-                if g < l[k]:
-                    l2[k] = g
-                    l2[k+1] = l[k] + log(sqrt(1-1./bs), 2)
-                    dec = (l[k]-g) + (l[k+1] - l2[k+1])
-                    for j in range(k+2, e):
-                        l2[j] = l[j] + dec/(bs-2.)
+                lma = (log(X, 2) + logV) / beta + c[beta - 1]
+                if lma < r1[k]:
+                    r2[k] = lma
+                    r2[k+1] = r1[k] + log(sqrt(1-1./beta), 2)
+                    dec = (r1[k]-lma) + (r1[k+1] - r2[k+1])
+                    for j in range(k+2, f):
+                        r2[j] = r1[j] + dec/(beta-2.)
                         t1[j] = True
-                    tau = False
+                    phi = False
 
-            for j in range(k, e):
-                l[j] = l2[j]
+            for j in range(k, f):
+                r1[j] = r2[j]
 
         # early termination
         if True not in t1:
             break
 
         # last block
-        d = min(45, param.block_size)
-        logdet = sum(l) - sum(l2[:-d])
+        beta = min(45, param.block_size)
+        logV = sum(r1) - sum(r2[:-beta])
         if param.block_size < 45:
-            rk1 = normalize_GSO_unitary(rk[-d:])
+            rk1 = normalize_GSO_unitary(rk[-beta:])
         else:
             rk1 = rk
-        K = range(n-d, n)
+        K = range(d-beta, d)
         for k, r in zip(K, rk1):
-            l2[k] = logdet / d + r
+            r2[k] = logV / beta + r
             t1[k] = True
 
         # early termination
-        if (l == l2):
+        if (r1 == r2):
             break
-        l = copy(l2)
+        r1 = copy(r2)
         t0 = copy(t1)
 
         if param.flags & BKZ.VERBOSE:
             r = OrderedDict()
-            r["i"] = ntours
-            for k, v in basis_quality(list(map(lambda x: 2.0 ** (2 * x), l))).items():
+            r["i"] = i
+            for k, v in basis_quality(list(map(lambda x: 2.0 ** (2 * x), r1))).items():
                 r[k] = v
             print(pretty_dict(r))
 
-    l = list(map(lambda x: 2.0 ** (2 * x), l))
-    return l, ntours + 1
+    r1 = list(map(lambda x: 2.0 ** (2 * x), r1))
+    return r1, i + 1
 
 
 def normalize_GSO_unitary(l):
