@@ -211,7 +211,6 @@ extensions = [
     Extension("fpylll.fplll.enumeration", ["src/fpylll/fplll/enumeration.pyx"], fplll=True),
     Extension("fpylll.fplll.svpcvp", ["src/fpylll/fplll/svpcvp.pyx"], fplll=True),
     Extension("fpylll.fplll.pruner", ["src/fpylll/fplll/pruner.pyx"], fplll=True),
-    Extension("fpylll.fplll.sieve_gauss", ["src/fpylll/fplll/sieve_gauss.pyx"], fplll=True),
     Extension("fpylll.util", ["src/fpylll/util.pyx"], fplll=True),
     Extension("fpylll.io", ["src/fpylll/io.pyx"], fplll=True),
     Extension("fpylll.config", ["src/fpylll/config.pyx"], fplll=True),

@@ -956,26 +956,6 @@ cdef extern from "fplll/pruner/pruner.h" namespace "fplll":
     FT svp_probability[FT](const vector[double] &pr)
 
 
-
-# Sieving
-
-cdef extern from "fplll/sieve/sieve_gauss.h" namespace "fplll":
-    cdef cppclass GaussSieve[ZT, FT]:
-        GaussSieve(ZZ_mat[ZT] &B, int algorithm, bool verbose, int seed)
-
-        bool sieve(Z_NR[ZT] target_norm)
-
-        void set_verbose(bool verbose)
-        bool verbose
-
-        int alg
-
-        # norms/listsize for all iterations
-        vector[Z_NR[ZT]] iters_norm
-        vector[long] iters_ls
-
-        NumVect[Z_NR[ZT]] return_first()
-
 # Threads
 
 cdef extern from "fplll/threadpool.h" namespace "fplll":
