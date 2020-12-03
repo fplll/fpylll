@@ -107,7 +107,7 @@ def simulate(r, param):
         for ri in r:
             if (ri <= 0):
                 raise ValueError("squared norms in r should be positive")
-            
+
     d = len(r)
 
     # code uses log2 of norms, FPLLL uses squared norms
@@ -120,7 +120,7 @@ def simulate(r, param):
         (lgamma(beta / 2.0 + 1) * (1.0 / beta) - log(sqrt(pi))) / log(2.0)
         for beta in range(46, param.block_size + 1)
     ]
-        
+
     if param.max_loops:
         N = param.max_loops
     else:
@@ -191,8 +191,8 @@ def simulate_prob(r, param, prng_seed=0xdeadbeef):
         {"i":        3,  "r_0":   2^32.2,  "r_0/gh": 2.783102,  "rhf": 1.014344,  "/": -0.05603,  "hv/hv": 2.013191}
     """
 
-    assert (param.block_size >= 3) 
-    
+    assert (param.block_size >= 3)
+
     if not prng_seed:
         prng_seed = FPLLL.randint(0, 2**32-1)
 
@@ -207,10 +207,10 @@ def simulate_prob(r, param, prng_seed=0xdeadbeef):
         for ri in r:
             if (ri <= 0):
                 raise ValueError("squared norms in r should be positive")
-            
+
     n = len(r)
     assert (n >= 45)  # I didn't check this, presumably this is not needed in any case.
-    
+
     # code uses log2 of norms, FPLLL uses squared norms
     r = list(map(lambda x: log(x, 2) / 2.0, r))
     l = copy(r)
@@ -220,15 +220,15 @@ def simulate_prob(r, param, prng_seed=0xdeadbeef):
         (lgamma(d / 2.0 + 1) * (1.0 / d) - log(sqrt(pi))) / log(2.0)
         for d in range(46, param.block_size + 1)
     ]
-        
+
     if param.max_loops:
         N = param.max_loops
     else:
         N = param.block_size
-        
+
     t0 = [True for _ in range(n)]
     for ntours in range(N):
-        
+
         t1 = [False for _ in range(n)]
         for k in range(n - min(45, param.block_size)):
             bs = min(param.block_size, n - k)
@@ -248,14 +248,14 @@ def simulate_prob(r, param, prng_seed=0xdeadbeef):
                         l2[j] = l[j] + dec/(bs-2.)
                         t1[j] = True
                     tau = False
-                    
+
             for j in range(k, e):
                 l[j] = l2[j]
 
         # early termination
         if True not in t1:
             break
-                
+
         # last block
         d = min(45, param.block_size)
         logdet = sum(l) - sum(l2[:-d])
@@ -273,7 +273,7 @@ def simulate_prob(r, param, prng_seed=0xdeadbeef):
             break
         l = copy(l2)
         t0 = copy(t1)
-            
+
         if param.flags & BKZ.VERBOSE:
             r = OrderedDict()
             r["i"] = ntours
@@ -281,10 +281,8 @@ def simulate_prob(r, param, prng_seed=0xdeadbeef):
                 r[k] = v
             print(pretty_dict(r))
 
-    
     l = list(map(lambda x: 2.0 ** (2 * x), l))
     return l, ntours + 1
-
 
 
 def normalize_GSO_unitary(l):
@@ -297,7 +295,7 @@ def normalize_GSO_unitary(l):
 
 
 def averaged_simulate_prob(L, param, tries=10):
-    """ 
+    """
     This wrapper calls the [BSW18] probabilistic BKZ simulator with different
     PRNG seeds, and returns the average output.
     :param r: squared norms of the GSO vectors of the basis.
