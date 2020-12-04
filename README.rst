@@ -1,7 +1,7 @@
 fpylll
 ======
 
-A Python (2 and 3) wrapper for `fplll <https://github.com/fplll/fplll>`__.
+A Python wrapper for `fplll <https://github.com/fplll/fplll>`__.
 
 .. image:: https://github.com/fplll/fpylll/workflows/Tests/badge.svg
     :target: https://github.com/fplll/fpylll/actions?query=workflow%3ATests
