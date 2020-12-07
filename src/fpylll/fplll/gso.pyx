@@ -1788,8 +1788,8 @@ cdef class MatGSO:
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
-    def get_root_det(self, int start_row, int stop_row):
-        """ Return (squared) root determinant of the basis.
+    def get_root_det(self, int start_row = 0, int stop_row = -1):
+        """ Return `d`-th root of the (squared) determinant of the basis.
 
         :param int start_row: start row (inclusive)
         :param int stop_row: stop row (exclusive)
@@ -1867,8 +1867,8 @@ cdef class MatGSO:
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
-    def get_log_det(self, int start_row, int stop_row):
-        """ Return log of the (squared) determinant of the basis.
+    def get_log_det(self, int start_row = 0, int stop_row = -1):
+        """ Return natural log of the (squared) determinant of the basis.
 
         :param int start_row: start row (inclusive)
         :param int stop_row: stop row (exclusive)
@@ -1946,12 +1946,12 @@ cdef class MatGSO:
 
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
-    def get_slide_potential(self, int start_row, int stop_row, int block_size):
+    def get_slide_potential(self, int block_size, int start_row = 0, int stop_row = -1):
         """ Return slide potential of the basis
 
+        :param int block_size: block size
         :param int start_row: start row (inclusive)
         :param int stop_row: stop row (exclusive)
-        :param int block_size: block size
 
         """
         preprocess_indices(start_row, stop_row, self.d, self.d+1)
