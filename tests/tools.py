@@ -2,6 +2,7 @@
 
 from copy import copy
 
+
 def compute_gram(B):
     """
         Compute the Gram matrix of the row-lattice with basis B

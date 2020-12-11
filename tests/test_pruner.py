@@ -3,7 +3,7 @@
 from fpylll import Enumeration, GSO, IntegerMatrix, LLL, Pruning
 from fpylll.util import gaussian_heuristic
 try:
-    from time import process_time # Python 3
+    from time import process_time  # Python 3
 except ImportError:
     from time import clock as process_time  # Python 2
 

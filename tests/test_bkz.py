@@ -43,6 +43,7 @@ def test_bkz_bkz():
         for i in range(1, len(b00)):
             assert b00[0] == b00[i]
 
+
 def test_bkz_gram_bkz_coherence():
     """
         Test if BKZ is coherent if it is given a matrix A or its associated
@@ -68,7 +69,7 @@ def test_bkz_gram_bkz_coherence():
             param = BKZ.Param(block_size=min(m, 40), strategies=BKZ.DEFAULT_STRATEGY)
             bkz_a = BKZ.Reduction(GSO_A, lll_obj_a, param)
             bkz_g = BKZ.Reduction(GSO_G, lll_obj_g, param)
-            
+
             bkz_a()
             bkz_g()
 
@@ -76,4 +77,3 @@ def test_bkz_gram_bkz_coherence():
             for i in range(m):
                 for j in range(i + 1):
                     assert G_updated[i, j] == G[i, j]
-

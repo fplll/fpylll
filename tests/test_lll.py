@@ -79,4 +79,3 @@ def test_lll_gram_lll_coherence():
                 for i in range(m):
                     for j in range(i + 1):
                         assert G_updated[i, j] == G[i, j]
-

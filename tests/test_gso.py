@@ -117,6 +117,7 @@ def test_gso_io():
                 v_ = list(v_[0])
                 assert v == v_
 
+
 def test_gso_coherence_gram_matrix():
     """
         Test if the GSO is coherent if it is given a matrix A or its associated
@@ -152,10 +153,8 @@ def test_gso_coherence_gram_matrix():
 
                     for j in range(i):
                         assert (
-                            M_A.get_r(i, j) == 
-                            pytest.approx(M_G.get_r(i, j), rel=EPSILON)
+                            M_A.get_r(i, j) == pytest.approx(M_G.get_r(i, j), rel=EPSILON)
                         )
                         assert (
-                            M_A.get_mu(i, j) == 
-                            pytest.approx(M_G.get_mu(i, j), rel=EPSILON)
+                            M_A.get_mu(i, j) == pytest.approx(M_G.get_mu(i, j), rel=EPSILON)
                         )

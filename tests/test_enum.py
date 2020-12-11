@@ -5,6 +5,7 @@ from copy import copy
 
 import tools
 
+
 def make_integer_matrix(m, n, int_type="mpz"):
     A = IntegerMatrix(m, n, int_type=int_type)
     A.randomize("qary", k=m // 2, bits=m)
@@ -34,7 +35,7 @@ def test_enum_enum():
 def test_enum_gram_coherence():
     """
         Test if the enumeration algorithm is consistent with the Gram matrices
-        The vectors returned by the enumeration should be the same wether a 
+        The vectors returned by the enumeration should be the same wether a
         lattice is given by its basis or by its Gram matrix
     """
 
