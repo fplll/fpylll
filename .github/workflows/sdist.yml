@@ -1,0 +1,66 @@
+name: Source Distribution Test
+
+on: 
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 0' # weekly
+
+env:
+  JOBS: 2
+  DEPS: libgmp-dev libmpfr-dev libqd-dev libtool autoconf python3-pip python3-dev python3-flake8
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.8]
+        have_qd: [yes, no]
+        have_numpy: [yes, no]
+
+    env:
+        HAVE_QD: ${{ matrix.have_qd }}
+        HAVE_NUMPY: ${{ matrix.have_numpy }}
+        
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check out
+        uses: actions/checkout@v2
+      - name: Install prerequisites
+        run: |
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install $DEPS
+          
+      - name: Dependencies
+        run: |
+          git clone https://github.com/fplll/fplll
+          cd fplll || exit
+          ./autogen.sh
+          ./configure --disable-static --prefix=/usr --with-max-enum-dim=64 --with-max-parallel-enum-dim=20
+          make -j $JOBS
+          sudo make install
+          cd ..
+
+          pip install Cython
+          pip install -r requirements.txt
+          pip install -r suggestions.txt
+          cd ..
+
+          rm -rf ./fplll
+          
+      - name: Compile
+        run: |
+          python setup.py sdist
+          cd dist
+          tar xvfz fpylll-*.tar.gz
+          cd $(ls -1 *.tar.gz | sed s/\.tar\.gz//)
+          python setup.py build_ext -j $JOBS
+          python setup.py install
+          
+      - name: Test
+        run: PY_IGNORE_IMPORTMISMATCH=1 python -m pytest
