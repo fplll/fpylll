@@ -11,4 +11,4 @@ from .fplll.svpcvp import CVP
 from .fplll.pruner import Pruning
 from .util import ReductionError
 from .util import FPLLL
-__version__ = "0.6"
+__version__ = "0.5.4"
