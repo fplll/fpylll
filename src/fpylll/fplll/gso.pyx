@@ -93,7 +93,7 @@ cdef class MatGSO:
     """
 
     def __init__(self, IntegerMatrix B, U=None, UinvT=None,
-                 int flags=GSO_DEFAULT, float_type="double", gram=False):
+                 int flags=GSO_DEFAULT, float_type="double", gram=False, update=False):
         """
         :param IntegerMatrix B: The matrix on which row operations are performed.  It must not be
             empty.
@@ -125,6 +125,8 @@ cdef class MatGSO:
             object and do not change the precision during the lifetime of this object.
 
         :param gram: The input ``B`` is a Gram matrix of the lattice, rather than a basis.
+
+        :param update: Call ``update_gso()``.
 
         Note that matching integer types for ``B``, ``U`` and ``UinvT`` are enforced::
 
@@ -303,6 +305,9 @@ cdef class MatGSO:
                     ELSE:
                         raise ValueError("Float type '%s' not understood."%float_type)
             self._G = B
+
+        if update:
+            self.update_gso()
 
     def __dealloc__(self):
         # We are making sure the correct destructor is called, even when it's not virtual, by explicit casting
