@@ -49,13 +49,19 @@ cdef extern from "<map>" namespace "std":
 
 
 cdef extern from "fplll/fplll_config.h":
-    int FPLLL_WITH_QD
+    """
+    #ifdef FPLLL_WITH_RECURSIVE_ENUM
+    #define FPLLL_HAVE_RECURSIVE_ENUM 1
+    #else
+    #define FPLLL_HAVE_RECURSIVE_ENUM 0
+    #endif
+    """
     int FPLLL_MAJOR_VERSION
     int FPLLL_MINOR_VERSION
     int FPLLL_MICRO_VERSION
 
     int FPLLL_MAX_ENUM_DIM
-    bool FPLLL_WITH_RECURSIVE_ENUM
+    bool FPLLL_HAVE_RECURSIVE_ENUM
     int FPLLL_MAX_PARALLEL_ENUM_DIM
 
 #

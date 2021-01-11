@@ -9,7 +9,7 @@ from .fplll.fplll cimport FPLLL_MAJOR_VERSION as FPLLL_MAJOR_VERSION_c
 from .fplll.fplll cimport FPLLL_MINOR_VERSION as FPLLL_MINOR_VERSION_c
 from .fplll.fplll cimport FPLLL_MICRO_VERSION as FPLLL_MICRO_VERSION_c
 from .fplll.fplll cimport FPLLL_MAX_ENUM_DIM as FPLLL_MAX_ENUM_DIM_c
-from .fplll.fplll cimport FPLLL_WITH_RECURSIVE_ENUM as FPLLL_WITH_RECURSIVE_ENUM_c
+from .fplll.fplll cimport FPLLL_HAVE_RECURSIVE_ENUM as FPLLL_HAVE_RECURSIVE_ENUM_c
 from .fplll.fplll cimport FPLLL_MAX_PARALLEL_ENUM_DIM as FPLLL_MAX_PARALLEL_ENUM_DIM_c
 
 IF HAVE_LONG_DOUBLE:
@@ -37,5 +37,5 @@ micro_version         = FPLLL_MICRO_VERSION_c
 version               = "{0}.{1}.{2}".format(major_version, minor_version, micro_version)
 
 max_enum_dim          = FPLLL_MAX_ENUM_DIM_c
-with_recursive_enum   = FPLLL_WITH_RECURSIVE_ENUM_c
+have_recursive_enum   = FPLLL_HAVE_RECURSIVE_ENUM_c
 max_parallel_enum_dim = FPLLL_MAX_PARALLEL_ENUM_DIM_c
