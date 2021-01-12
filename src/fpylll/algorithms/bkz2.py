@@ -44,6 +44,10 @@ class BKZReduction(BKZBase):
         if max_row - min_row < 2:
             return  # there is nothing to do
 
+        for i in range(max_row):
+            self.M.update_gso_row(i, i)
+            print("X")
+
         # 1. permute rows
         niter = 4 * (max_row-min_row)  # some guestimate
         with self.M.row_ops(min_row, max_row):
