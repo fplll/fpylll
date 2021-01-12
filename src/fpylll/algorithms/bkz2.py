@@ -46,7 +46,6 @@ class BKZReduction(BKZBase):
 
         for i in range(max_row):
             self.M.update_gso_row(i, i)
-            print("X")
 
         # 1. permute rows
         niter = 4 * (max_row-min_row)  # some guestimate
