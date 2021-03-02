@@ -105,7 +105,7 @@ def plot_gso_norms(gso_norms, block_size, basename="bkz-gso-norms",
     x = range(d)
 
     beta = float(block_size)
-    delta_0 = (beta/(2.*pi*e) * (pi*beta)**(1./beta))**(1./(2.*beta-1.))
+    delta_0 = (beta/(2.*pi*e) * (pi*beta)**(1./beta))**(1./(2.*(beta-1)))
     alpha = delta_0**(-2.*d/(d-1.))
     logvol = sum(maplog2(gso_norms[0]))  # already squared
     gsa = [log(alpha, 2)*(2*i) + log(delta_0, 2)*(2*d) + logvol*(1./d) for i in range(d)]
