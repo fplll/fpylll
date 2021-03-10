@@ -37,7 +37,7 @@ For a quick tour of the library, you can check out the `tutorial <https://github
 How to cite
 -----------
 
-.. code-block:: python
+.. code-block:: 
 
     @unpublished{fplll,
         author = {The {FPyLLL} development team},
