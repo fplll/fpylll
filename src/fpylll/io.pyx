@@ -2,7 +2,6 @@
 include "fpylll/config.pxi"
 
 import sys
-import io
 import os
 
 from cpython.int cimport PyInt_AS_LONG
@@ -65,7 +64,7 @@ class SuppressStream(object):
         try:
             self.orig_stream_fileno = stream.fileno()
             self.skip = False
-        except io.UnsupportedOperation:
+        except OSError:
             self.skip = True
 
     def __enter__(self):
