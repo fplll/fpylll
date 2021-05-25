@@ -39,12 +39,12 @@ How to cite
 
 .. code-block:: 
 
-    @unpublished{fplll,
-        author = {The {FPyLLL} development team},
-        title = {{fpylll}, lattice reduction for {Python}, {Version}: 0.5.6},
+    @unpublished{fpylll,
+        author = {The {FPLLL} development team},
+        title = {{fpylll}, a {Python} wraper for the {fplll} lattice reduction library, {Version}: 0.5.6},
         year = 2021,
-        note = {Available at \url{https://github.com/fplll/fplll}},
-        url = {https://github.com/fplll/fplll}
+        note = {Available at \url{https://github.com/fplll/fpylll}},
+        url = {https://github.com/fplll/fpylll}
     }
 
 
