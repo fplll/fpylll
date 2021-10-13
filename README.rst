@@ -323,4 +323,4 @@ We copied a decent bit of code over from Sage, mostly from it's fpLLL interface.
 
 **fpylll** is licensed under the GPLv2+.
 
-This project was supported through the European Union PROMETHEUS project (Horizon 2020 Research and Innovation Program, grant 780701).
+This project was supported through the European Union PROMETHEUS project (Horizon 2020 Research and Innovation Program, grant 780701), EPSRC grant EP/P009417/1 and EPSRC grant EP/S020330/1.
