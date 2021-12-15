@@ -78,7 +78,7 @@ class BKZReduction(object):
             except KeyError:
                 label = "bkz"
             tracer = BKZTreeTracer(self, root_label=label, verbosity=params.flags & BKZ.VERBOSE, start_clocks=True)
-        else if tracer==False:
+        elif tracer==False:
             tracer = dummy_tracer
 
         if params.flags & BKZ.AUTO_ABORT:
