@@ -64,21 +64,21 @@ class BKZReduction(object):
         else:
             self.lll_obj = L
 
-    def __call__(self, params, min_row=0, max_row=-1, tracing=False):
+    def __call__(self, params, min_row=0, max_row=-1, tracer=False):
         """Run the BKZ algorithm with parameters `param`.
 
         :param params: BKZ parameters
         :param min_row: start processing in this row
         :param max_row: stop processing in this row (exclusive)
-
+        :param tracer: True for BKZTreeTracer, False for dummy_tracer, or any other value for custom tracer.
         """
-        if tracing:
+        if tracer==True:
             try:
                 label = params["name"]
             except KeyError:
                 label = "bkz"
             tracer = BKZTreeTracer(self, root_label=label, verbosity=params.flags & BKZ.VERBOSE, start_clocks=True)
-        else:
+        else if tracer==False:
             tracer = dummy_tracer
 
         if params.flags & BKZ.AUTO_ABORT:
