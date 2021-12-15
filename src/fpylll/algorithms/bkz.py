@@ -72,13 +72,13 @@ class BKZReduction(object):
         :param max_row: stop processing in this row (exclusive)
         :param tracer: True for BKZTreeTracer, False for dummy_tracer, or any other value for custom tracer.
         """
-        if tracer==True:
+        if tracer is True:
             try:
                 label = params["name"]
             except KeyError:
                 label = "bkz"
             tracer = BKZTreeTracer(self, root_label=label, verbosity=params.flags & BKZ.VERBOSE, start_clocks=True)
-        elif tracer==False:
+        elif tracer is False:
             tracer = dummy_tracer
 
         if params.flags & BKZ.AUTO_ABORT:
