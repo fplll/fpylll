@@ -9,6 +9,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import time
+
 try:
     from time import process_time  # Python 3
 except ImportError:
@@ -38,35 +39,35 @@ def pretty_dict(d, keyword_width=None, round_bound=9999, suppress_length=128):
         v = d[k]
 
         if keyword_width:
-            fmt = u"\"%%%ds\"" % keyword_width
+            fmt = u'"%%%ds"' % keyword_width
             k = fmt % k
         else:
-            k = "\"%s\""%k
+            k = '"%s"' % k
 
         if isinstance(v, int):
             if abs(v) > round_bound:
-                s.append(u"%s: %8s" %(k,  u"%s2^%.1f"%("" if v > 0 else "-", log(abs(v), 2))))
+                s.append(u"%s: %8s" % (k, u"%s2^%.1f" % ("" if v > 0 else "-", log(abs(v), 2))))
             else:
-                s.append(u"%s: %8d"%(k, v))
+                s.append(u"%s: %8d" % (k, v))
             continue
         elif not isinstance(v, float):
             try:
                 v = float(v)
             except TypeError:
                 if len(str(v)) <= suppress_length:
-                    s.append(u"%s: %s"%(k, v))
+                    s.append(u"%s: %s" % (k, v))
                 else:
-                    s.append(u"%s: '...'"%(k,))
+                    s.append(u"%s: '...'" % (k,))
                 continue
 
         if 0 <= v < 10.0:
-            s.append(u"%s: %8.6f"%(k, v))
+            s.append(u"%s: %8.6f" % (k, v))
         elif -10 < v < 0:
-            s.append(u"%s: %8.5f"%(k, v))
+            s.append(u"%s: %8.5f" % (k, v))
         elif abs(v) < round_bound:
-            s.append(u"%s: %8.3f"%(k, v))
+            s.append(u"%s: %8.3f" % (k, v))
         else:
-            s.append(u"%s: %8s" %(k,  u"%s2^%.1f"%("" if v > 0 else "-", log(abs(v), 2))))
+            s.append(u"%s: %8s" % (k, u"%s2^%.1f" % ("" if v > 0 else "-", log(abs(v), 2))))
 
     return u"{" + u",  ".join(s) + u"}"
 
@@ -116,7 +117,7 @@ class Accumulator(object):
         self._min = value
         self._max = value
         self._sum = value
-        self._sqr = value*value
+        self._sqr = value * value
         self._ctr = 1 if count else 0
         self._repr = repr
         self._bessel_correction = bessel_correction
@@ -136,7 +137,7 @@ class Accumulator(object):
         self._min = min(self._min, value)
         self._max = max(self._max, value)
         self._sum += value
-        self._sqr += value*value
+        self._sqr += value * value
         self._ctr += 1
         return self
 
@@ -171,7 +172,7 @@ class Accumulator(object):
         3.5
 
         """
-        return self._sum/self._ctr
+        return self._sum / self._ctr
 
     mean = avg
 
@@ -195,9 +196,9 @@ class Accumulator(object):
         2.25
 
         """
-        s = self._sqr/self._ctr - self.avg**2
+        s = self._sqr / self._ctr - self.avg ** 2
         if self._bessel_correction:
-            return self._ctr * (s/(self._ctr-1))
+            return self._ctr * (s / (self._ctr - 1))
         else:
             return s
 
@@ -225,7 +226,7 @@ class Accumulator(object):
             return ret.add(other)
         else:
             if self._repr != other._repr:
-                raise ValueError("%s != %s"%(self._repr, other._repr))
+                raise ValueError("%s != %s" % (self._repr, other._repr))
             ret = Accumulator(0)
             ret._min = min(self.min, other.min)
             ret._max = max(self.max, other.max)
@@ -289,6 +290,7 @@ class TraceContext(object):
     A trace context collects data about an underlying process on entry/exit of particular parts of
     the code.
     """
+
     def __init__(self, tracer, *args, **kwds):
         """Create a new context for gathering statistics.
 
@@ -298,7 +300,7 @@ class TraceContext(object):
 
         """
         self.tracer = tracer
-        self.what = args if len(args)>1 else args[0]
+        self.what = args if len(args) > 1 else args[0]
         self.kwds = kwds
 
     def __enter__(self):
@@ -323,6 +325,7 @@ class Tracer(object):
 
     This base class does nothing.
     """
+
     def __init__(self, instance, verbosity=False):
         """
         Create a new tracer instance.
@@ -363,6 +366,7 @@ class Node(object):
     """
     A simple tree implementation with labels and associated data.
     """
+
     def __init__(self, label, parent=None, data=None):
         """Create a new node.
 
@@ -418,7 +422,7 @@ class Node(object):
         >>> str(Node("root", data=OrderedDict([('a',1), ('b', 2)])))
         '{"root": {"a":        1,  "b":        2}}'
         """
-        return u"{\"%s\": %s}"%(self.label, pretty_dict(self.data))
+        return u'{"%s": %s}' % (self.label, pretty_dict(self.data))
 
     __repr__ = __str__
 
@@ -447,11 +451,11 @@ class Node(object):
             {"('child', 1)": {"a":  100.000}}
             {"('child', 2)": {}}
         """
-        s = [" "*indentation + str(self)]
+        s = [" " * indentation + str(self)]
         if depth is None or depth > 0:
             for child in self.children:
-                depth = None if depth is None else depth-1
-                s.append(child.report(indentation+2, depth=depth))
+                depth = None if depth is None else depth - 1
+                s.append(child.report(indentation + 2, depth=depth))
         return "\n".join(s)
 
     def sum(self, tag, include_self=True, raise_keyerror=False, label=None):
@@ -515,7 +519,7 @@ class Node(object):
                 pass
 
         if raise_keyerror:
-            raise KeyError("Label '%s' not present in '%s"%(label, self))
+            raise KeyError("Label '%s' not present in '%s" % (label, self))
         else:
             return None
 
@@ -606,7 +610,7 @@ class Node(object):
         if r:
             return tuple(r)
         else:
-            raise AttributeError("'Node' object has no attribute '%s'"%(label))
+            raise AttributeError("'Node' object has no attribute '%s'" % (label))
 
     def __getitem__(self, tag):
         """Return associated data tagged ``tag```
@@ -659,7 +663,7 @@ class Node(object):
         """
 
         if not isinstance(rhs, Node):
-            raise ValueError("Expected node but got '%s'"%type(rhs))
+            raise ValueError("Expected node but got '%s'" % type(rhs))
         diff = Node(self.label)
         for k in self.data:
             diff.data[k] = self.data[k] - rhs.data.get(k, 0)
@@ -670,7 +674,7 @@ class Node(object):
                     diff.children.append(lchild - rchild)
                     break
             else:
-                print("Skipping missing node '%s'"%lchild.label)
+                print("Skipping missing node '%s'" % lchild.label)
         return diff
 
     def copy(self, deepcopy=True):
@@ -745,18 +749,18 @@ class TimeTreeTracer(Tracer):
         self.reenter()
 
     def reenter(self, **kwds):
-        """Reenter current context, i.e. restart clocks
-
-        """
+        """Reenter current context, i.e. restart clocks"""
 
         if self.current is None:
             # we exited the root node
             self.current = self.trace
         node = self.current
-        node.data["cputime"]  = node.data.get("cputime",  0) + Accumulator(-process_time(),
-                                                                           repr="sum", count=False)
-        node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(-time.time(),
-                                                                           repr="sum", count=False)
+        node.data["cputime"] = node.data.get("cputime", 0) + Accumulator(
+            -process_time(), repr="sum", count=False
+        )
+        node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(
+            -time.time(), repr="sum", count=False
+        )
 
     def exit(self, **kwds):
         """
@@ -782,6 +786,7 @@ class BKZTreeTracer(Tracer):
     """
     Default tracer for BKZ-like algorithms.
     """
+
     def __init__(self, instance, verbosity=False, root_label="bkz", start_clocks=False):
         """
         Create a new tracer instance.
@@ -809,15 +814,15 @@ class BKZTreeTracer(Tracer):
         self.reenter()
 
     def reenter(self, **kwds):
-        """Reenter current context, i.e. restart clocks
-
-        """
+        """Reenter current context, i.e. restart clocks"""
 
         node = self.current
-        node.data["cputime"]  = node.data.get("cputime",  0) + Accumulator(-process_time(),
-                                                                           repr="sum", count=False)
-        node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(-time.time(),
-                                                                           repr="sum", count=False)
+        node.data["cputime"] = node.data.get("cputime", 0) + Accumulator(
+            -process_time(), repr="sum", count=False
+        )
+        node.data["walltime"] = node.data.get("walltime", 0) + Accumulator(
+            -time.time(), repr="sum", count=False
+        )
 
     def exit(self, **kwds):  # noqa, shut up linter about this function being too complex
         """
@@ -837,11 +842,17 @@ class BKZTreeTracer(Tracer):
             full = kwds.get("full", True)
             if full:
                 try:
-                    node.data["#enum"] = Accumulator(kwds["enum_obj"].get_nodes(), repr="sum") + node.data.get("#enum", None)  # noqa
+                    node.data["#enum"] = Accumulator(
+                        kwds["enum_obj"].get_nodes(), repr="sum"
+                    ) + node.data.get(
+                        "#enum", None
+                    )  # noqa
                 except KeyError:
                     pass
                 try:
-                    node.data["%"] = Accumulator(kwds["probability"], repr="avg") + node.data.get("%", None)
+                    node.data["%"] = Accumulator(kwds["probability"], repr="avg") + node.data.get(
+                        "%", None
+                    )
                 except KeyError:
                     pass
 
@@ -878,3 +889,29 @@ class BKZTreeTracer(Tracer):
             print(pretty_dict(report))
 
         self.current = self.current.parent
+
+
+def normalize_tracer(tracer):
+    """
+    Normalize tracer inputs for convenience.
+
+    :param tracer:  ``True`` for ``BKZTreeTracer``, ``False`` for ``dummy_tracer``
+                     or any other value for custom tracer.
+
+    EXAMPLE::
+
+        >>> from fpylll.tools.bkz_stats import normalize_tracer, BKZTreeTracer, dummy_tracer
+        >>> normalize_tracer(True) == BKZTreeTracer
+        True
+        >>> normalize_tracer(False) == dummy_tracer
+        True
+        >>> normalize_tracer(BKZTreeTracer) == BKZTreeTracer
+        True
+
+    """
+    if tracer is True:
+        return BKZTreeTracer
+    elif tracer is False:
+        return dummy_tracer
+    else:
+        return tracer

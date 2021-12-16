@@ -9,6 +9,7 @@ implementation in fplll's core.  Additionally, this implementation collects some
 statistics.  Hence, it should provide a good basis for implementing variants of this algorithm.
 """
 from __future__ import absolute_import
+
 try:
     from time import process_time  # Python 3
 except ImportError:
@@ -18,7 +19,7 @@ from fpylll import BKZ
 from fpylll import Enumeration
 from fpylll import EnumerationError
 from fpylll.util import adjust_radius_to_gh_bound
-from fpylll.tools.bkz_stats import BKZTreeTracer, dummy_tracer
+from fpylll.tools.bkz_stats import dummy_tracer, normalize_tracer, Tracer
 
 
 class BKZReduction(object):
@@ -29,6 +30,7 @@ class BKZReduction(object):
     implementation collects some additional statistics.  Hence, it should provide a good basis for
     implementing variants of this algorithm.
     """
+
     def __init__(self, A):
         """Construct a new instance of the BKZ algorithm.
 
@@ -48,7 +50,7 @@ class BKZReduction(object):
             M = None
             A = A
         else:
-            raise TypeError("Matrix must be IntegerMatrix but got type '%s'"%type(A))
+            raise TypeError("Matrix must be IntegerMatrix but got type '%s'" % type(A))
 
         if M is None and L is None:
             # run LLL first, but only if a matrix was passed
@@ -70,16 +72,33 @@ class BKZReduction(object):
         :param params: BKZ parameters
         :param min_row: start processing in this row
         :param max_row: stop processing in this row (exclusive)
-        :param tracer: True for BKZTreeTracer, False for dummy_tracer, or any other value for custom tracer.
+        :param tracer: see ``normalize_tracer`` for accepted values
+
+
+        TESTS::
+
+            >>> from fpylll import *
+            >>> A = IntegerMatrix.random(60, "qary", k=30, q=127)
+            >>> from fpylll.algorithms.bkz import BKZReduction
+            >>> bkz = BKZReduction(A)
+            >>> _ = bkz(BKZ.EasyParam(10), tracer=True); bkz.trace is None
+            False
+            >>> _ = bkz(BKZ.EasyParam(10), tracer=False); bkz.trace is None
+            True
+
         """
-        if tracer is True:
-            try:
-                label = params["name"]
-            except KeyError:
-                label = "bkz"
-            tracer = BKZTreeTracer(self, root_label=label, verbosity=params.flags & BKZ.VERBOSE, start_clocks=True)
-        elif tracer is False:
-            tracer = dummy_tracer
+
+        tracer = normalize_tracer(tracer)
+
+        try:
+            label = params["name"]
+        except KeyError:
+            label = "bkz"
+
+        if not isinstance(tracer, Tracer):
+            tracer = tracer(
+                self, root_label=label, verbosity=params.flags & BKZ.VERBOSE, start_clocks=True
+            )
 
         if params.flags & BKZ.AUTO_ABORT:
             auto_abort = BKZ.AutoAbort(self.M, self.A.nrows)
@@ -104,7 +123,10 @@ class BKZReduction(object):
                 break
 
         tracer.exit()
-        self.trace = tracer.trace
+        try:
+            self.trace = tracer.trace
+        except AttributeError:
+            self.trace = None
         return clean
 
     def tour(self, params, min_row=0, max_row=-1, tracer=dummy_tracer):
@@ -121,11 +143,11 @@ class BKZReduction(object):
 
         clean = True
 
-        for kappa in range(min_row, max_row-1):
+        for kappa in range(min_row, max_row - 1):
             block_size = min(params.block_size, max_row - kappa)
             clean &= self.svp_reduction(kappa, block_size, params, tracer)
 
-        self.lll_obj.size_reduction(max(0, max_row-1), max_row, max(0, max_row-2))
+        self.lll_obj.size_reduction(max(0, max_row - 1), max_row, max(0, max_row - 2))
         return clean
 
     def svp_preprocessing(self, kappa, block_size, params, tracer):
@@ -171,13 +193,17 @@ class BKZReduction(object):
         delta_max_dist = self.lll_obj.delta * max_dist
 
         if params.flags & BKZ.GH_BND:
-            root_det = self.M.get_root_det(kappa, kappa+block_size)
-            max_dist, expo = adjust_radius_to_gh_bound(max_dist, expo, block_size, root_det, params.gh_factor)
+            root_det = self.M.get_root_det(kappa, kappa + block_size)
+            max_dist, expo = adjust_radius_to_gh_bound(
+                max_dist, expo, block_size, root_det, params.gh_factor
+            )
 
         try:
             enum_obj = Enumeration(self.M)
             with tracer.context("enumeration", enum_obj=enum_obj, probability=1.0):
-                max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, max_dist, expo)[0]
+                max_dist, solution = enum_obj.enumerate(kappa, kappa + block_size, max_dist, expo)[
+                    0
+                ]
 
         except EnumerationError as msg:
             if params.flags & BKZ.GH_BND:
@@ -185,12 +211,12 @@ class BKZReduction(object):
             else:
                 raise EnumerationError(msg)
 
-        if max_dist >= delta_max_dist * (1<<expo):
+        if max_dist >= delta_max_dist * (1 << expo):
             return None
         else:
             return solution
 
-    def svp_postprocessing(self, kappa, block_size, solution, tracer):
+    def svp_postprocessing(self, kappa, block_size, solution, tracer=dummy_tracer):
         """Insert SVP solution into basis. Note that this does not run LLL; instead,
            it resolves the linear dependencies internally.
 
@@ -253,7 +279,10 @@ class BKZReduction(object):
                     while k - offset >= 0:
                         if solution[k] or solution[k - offset]:
                             if solution[k] < solution[k - offset]:
-                                solution[k], solution[k - offset] = solution[k - offset], solution[k]
+                                solution[k], solution[k - offset] = (
+                                    solution[k - offset],
+                                    solution[k],
+                                )
                                 self.M.swap_rows(kappa + k - offset, kappa + k)
 
                             while solution[k - offset]:
@@ -261,7 +290,10 @@ class BKZReduction(object):
                                     solution[k] = solution[k] - solution[k - offset]
                                     self.M.row_addmul(kappa + k - offset, kappa + k, 1)
 
-                                solution[k], solution[k - offset] = solution[k - offset], solution[k]
+                                solution[k], solution[k - offset] = (
+                                    solution[k - offset],
+                                    solution[k],
+                                )
                                 self.M.swap_rows(kappa + k - offset, kappa + k)
                         k -= 2 * offset
                     offset *= 2
@@ -292,5 +324,5 @@ class BKZReduction(object):
             clean_post = self.svp_postprocessing(kappa, block_size, solution, tracer)
         clean &= clean_post
 
-        self.lll_obj.size_reduction(0, kappa+1)
+        self.lll_obj.size_reduction(0, kappa + 1)
         return clean
