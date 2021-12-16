@@ -97,7 +97,11 @@ class BKZReduction(object):
 
         if not isinstance(tracer, Tracer):
             tracer = tracer(
-                self, root_label=label, verbosity=params.flags & BKZ.VERBOSE, start_clocks=True
+                self,
+                root_label=label,
+                verbosity=params.flags & BKZ.VERBOSE,
+                start_clocks=True,
+                max_depth=2,
             )
 
         if params.flags & BKZ.AUTO_ABORT:

@@ -326,16 +326,18 @@ class Tracer(object):
     This base class does nothing.
     """
 
-    def __init__(self, instance, verbosity=False):
+    def __init__(self, instance, verbosity=False, max_depth=16):
         """
         Create a new tracer instance.
 
         :param instance: BKZ-like object instance
         :param verbosity: print information, integers ≥ 0 are also accepted
+        :param max_depth: record up to this depth.
 
         """
         self.instance = instance
         self.verbosity = int(verbosity)
+        self.max_depth = max_depth
 
     def context(self, *args, **kwds):
         """
@@ -356,6 +358,13 @@ class Tracer(object):
         given by ``label`` is left.
         """
         pass
+
+    def _pop(self):
+        # NOTE: we handle ``max_depth`` by removing children when we exit.
+        child = self.current
+        self.current = self.current.parent
+        if child.level > self.max_depth:
+            self.current.del_child(child)
 
 
 # use a dummy_trace whenever no tracing is required
@@ -393,6 +402,21 @@ class Node(object):
         child.parent = self
         self.children.append(child)
         return child
+
+    def del_child(self, child):
+        """
+
+        >>> root = Node("root")
+        >>> c1 = root.child("child1")
+        >>> c2 = root.child("child2")
+        >>> root.children
+        [{"child1": {}}, {"child2": {}}]
+        >>> root.del_child(c1)
+        >>> root.children
+        [{"child2": {}}]
+
+        """
+        self.children.remove(child)
 
     def child(self, label):
         """
@@ -722,7 +746,14 @@ class TimeTreeTracer(Tracer):
     Collect CPU and wall time for every context visited, creating a tree structure along the way.
     """
 
-    def __init__(self, instance, verbosity=False, root_label="root", start_clocks=False):
+    def __init__(
+        self,
+        instance,
+        verbosity=False,
+        root_label="root",
+        start_clocks=False,
+        max_depth=1024,
+    ):
         """
         Create a new tracer instance.
 
@@ -730,10 +761,11 @@ class TimeTreeTracer(Tracer):
         :param verbosity: print information, integers ≥ 0 are also accepted
         :param root_label: label to give to root node
         :param start_clocks: start tracking time for the root node immediately
+        :param max_depth: record up to this depth.
 
         """
 
-        Tracer.__init__(self, instance, verbosity)
+        Tracer.__init__(self, instance, verbosity, max_depth)
         self.trace = Node(root_label)
         self.current = self.trace
         if start_clocks:
@@ -779,7 +811,7 @@ class TimeTreeTracer(Tracer):
         if self.verbosity and self.verbosity >= self.current.level:
             print(self.current)
 
-        self.current = self.current.parent
+        self._pop()
 
 
 class BKZTreeTracer(Tracer):
@@ -787,7 +819,9 @@ class BKZTreeTracer(Tracer):
     Default tracer for BKZ-like algorithms.
     """
 
-    def __init__(self, instance, verbosity=False, root_label="bkz", start_clocks=False):
+    def __init__(
+        self, instance, verbosity=False, root_label="bkz", start_clocks=False, max_depth=16
+    ):
         """
         Create a new tracer instance.
 
@@ -795,10 +829,25 @@ class BKZTreeTracer(Tracer):
         :param verbosity: print information, integers ≥ 0 are also accepted
         :param root_label: label to give to root node
         :param start_clocks: start tracking time for the root node immediately
+        :param max_depth: record up to this depth.
+
+        TESTS::
+
+            >>> from fpylll.tools.bkz_stats import BKZTreeTracer
+            >>> tracer = BKZTreeTracer(None)
+            >>> for i in range(3): tracer.enter("level-%d"%i)
+            >>> for i in range(3): tracer.exit()
+            >>> "level-2" in tracer.trace.report()
+            True
+            >>> tracer = BKZTreeTracer(None, max_depth=2)
+            >>> for i in range(3): tracer.enter("level-%d"%i)
+            >>> for i in range(3): tracer.exit()
+            >>> "level-2" in tracer.trace.report()
+            False
 
         """
 
-        Tracer.__init__(self, instance, verbosity)
+        Tracer.__init__(self, instance, verbosity, max_depth)
         self.trace = Node(root_label)
         self.current = self.trace
         if start_clocks:
@@ -888,7 +937,7 @@ class BKZTreeTracer(Tracer):
 
             print(pretty_dict(report))
 
-        self.current = self.current.parent
+        self._pop()
 
 
 def normalize_tracer(tracer):
