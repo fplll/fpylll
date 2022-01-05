@@ -120,7 +120,7 @@ cdef class MatGSO:
                 - ``GSO.OP_FORCE_LONG`` - Affects the behaviour of ``row_addmul``.  See its
                   documentation.
 
-        :param float_type: A floating point type, i.e. an element of ``fpylll.fpylll.float_types``.
+        :param float_type: A floating point type, i.e. an element of ``fpylll.config.float_types``.
             If ``float_type="mpfr"`` set precision with ``set_precision()`` before constructing this
             object and do not change the precision during the lifetime of this object.
 

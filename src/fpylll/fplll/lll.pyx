@@ -558,7 +558,7 @@ def lll_reduction(IntegerMatrix B, U=None,
     :param double delta: LLL parameter `0.25 < δ ≤ 1`
     :param double eta:  LLL parameter `0 ≤ η < √δ`
     :param method: one of ``'wrapper'``, ``'proved'``, ``'heuristic'``, ``'fast'`` or ``None``.
-    :param float_type: an element of `fpylll.float_types` or ``None``
+    :param float_type: an element of `fpylll.config.float_types` or ``None``
     :param precision: bit precision to use if ``float_tpe`` is ``'mpfr'``
     :param int flags: LLL flags.
 

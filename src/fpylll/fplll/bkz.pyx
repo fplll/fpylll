@@ -1112,8 +1112,8 @@ def bkz_reduction(IntegerMatrix B, BKZParam o, float_type=None, int precision=0)
 
     :param IntegerMatrix B: Integer matrix, modified in place.
     :param BKZParam o: BKZ parameters
-    :param float_type: either ``None``: for automatic choice or an entry of `fpylll.float_types`
-    :param precision: bit precision to use if ``float_tpe`` is ``'mpfr'``
+    :param float_type: either ``None``: for automatic choice or an entry of `fpylll.config.float_types`
+    :param precision: bit precision to use if ``float_type`` is ``'mpfr'``
 
     :returns: modified matrix ``B``
     """
