@@ -31,6 +31,8 @@ from fpylll.config import default_strategy
 from .pruner cimport PruningParams
 
 from collections import OrderedDict
+from os import path, environ
+
 import json
 
 cdef class Strategy:
@@ -255,10 +257,20 @@ def load_strategies_json(filename):
         >>> strategies = load_strategies_json(BKZ.DEFAULT_STRATEGY)
         >>> strategies[80].preprocessing_block_sizes
         (56,)
-
+        
         >>> strategies[80].pruning_parameters[0].expectation
         0.14362574329237188
 
+        >>> from fpylll import load_strategies_json, BKZ
+        >>> from os import environ
+        >>> environ['SAGE_LOCAL'] = BKZ.DEFAULT_STRATEGY.decode().partition('fplll')[0]
+        >>> strategies = load_strategies_json('default.json')
+        >>> strategies[80].preprocessing_block_sizes
+        (56,)
+
+        >>> strategies[80].pruning_parameters[0].expectation
+        0.14362574329237188
+        
     """
     if isinstance(filename, bytes):
         filename = filename.decode("UTF-8")
@@ -266,8 +278,28 @@ def load_strategies_json(filename):
         filename = filename.encode('UTF-8')
 
     cdef vector[Strategy_c] strategies
+
+    """
+      It turns out that on some platforms (e.g pre-compiled Sagemath) the BKZ.DEFAULT_STRATEGY
+      path gets a bit broken. If this happens there's a C++ exception thrown from fplll, which we
+      catch. If it just so happens that we fail, we read the Sagemath environment variables and try
+      to navigate to the default file relative to that directory. 
+
+      Note that we only do this once: if that load fails then we let the exception
+      propagate to the caller.
+    """
+    
     sig_on()
-    strategies = load_strategies_json_c(filename)
+    try:
+        strategies = load_strategies_json_c(filename)
+    except RuntimeError:
+        filename = path.join(environ['SAGE_LOCAL'], 'fplll', 'strategies', 'default.json')
+        # Mirroring previous code. 
+        if isinstance(filename, bytes):
+            filename = filename.decode("UTF-8")
+        if isinstance(filename, (str, unicode)):
+            filename = filename.encode('UTF-8')
+        strategies = load_strategies_json_c(filename)
     sig_off()
     strategies_ = strategies_c_to_strategies(strategies)
     strategies_ = _load_strategies_aux_json(strategies_, filename)
