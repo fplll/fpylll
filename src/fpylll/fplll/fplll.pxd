@@ -837,7 +837,7 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
 
         string dump_gso_filename
 
-    vector[Strategy] load_strategies_json(const string &filename) nogil except+
+    vector[Strategy] load_strategies_json(const string &filename) nogil
     const string default_strategy_path() nogil
     const string default_strategy() nogil
     const string strategy_full_path(const string &strategy_path) nogil
