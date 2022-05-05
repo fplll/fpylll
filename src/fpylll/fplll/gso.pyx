@@ -2114,7 +2114,7 @@ cdef class MatGSO:
 
     def babai(self, v, int start=0, int dimension=-1, gso=False):
         """
-        Return lattice vector close to `v` using Babai's nearest plane algorithm.
+        Return vector `w` s.t. `‖B⋅w - v‖` is small using Babai's nearest plane algorithm.
 
         :param v: a tuple-like object
         :param start: only consider subbasis starting at ``start```
@@ -2122,7 +2122,27 @@ cdef class MatGSO:
         :param gso: if ``True`` vector is represented wrt to the Gram-Schmidt basis, otherwise
             canonical basis is assumed.
 
-        :returns: a tuple of dimension `M.B.nrows`
+        :returns: a tuple of dimension ``M.B.nrows``
+
+        The output vector is a coefficient vector wrt to `B`::
+
+            >>> from fpylll.util import vector_norm
+            >>> A = LLL.reduction(IntegerMatrix.random(50, "qary", k=25, q=7681))
+            >>> M = GSO.Mat(A, update=True)
+            >>> v = (100,)*50
+            >>> w = M.babai(v)
+            >>> vector_norm(A.multiply_left(w), v)  # ‖A⋅w - v‖
+            58851
+            >>> vector_norm(A.multiply_left(w)) # ‖A⋅w‖
+            530251
+
+        We may consider the input vector as a coefficient vector wrt to `B^*`::
+
+            >>> v = M.from_canonical((100,)*50)
+            >>> w = M.babai(v, gso=True)
+            >>> vector_norm(A.multiply_left(w), (100,)*50)
+            58851
+
         """
         if dimension == -1:
             dimension = self.d - start
