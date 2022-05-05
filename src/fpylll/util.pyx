@@ -18,6 +18,7 @@ from fpylll.fplll.gso cimport MatGSO
 from fpylll.gmp.random cimport gmp_randstate_t, gmp_randseed_ui, gmp_urandomm_ui
 from fpylll.mpfr.mpfr cimport mpfr_t
 from math import log, exp, lgamma, pi
+from math import sqrt as sqrtf
 from libcpp.functional cimport function
 
 IF HAVE_QD:
@@ -289,7 +290,7 @@ def vector_norm(x, y=None, sqrt=False):
         d += (x[i]-y[i])**2
 
     if sqrt:
-        d = sqrt(d)
+        d = sqrtf(d)
 
     return d
 
