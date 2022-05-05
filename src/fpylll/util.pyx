@@ -267,6 +267,32 @@ def gaussian_heuristic(r):
     log_gh =  1./n * (log_vol - 2 * ball_log_vol(n))
     return exp(log_gh)
 
+def vector_norm(x, y=None, sqrt=False):
+    """
+    Return the squared Euclidean norm of `x`
+
+    :param x: a vector-like object
+    :param y: if not ``None`` compute norm of `x-y`
+    :param sqrt: if ``False`` compute squared norm
+    :returns: (squared) Euclidean norm of `x-y`
+
+    .. note :: We consider the minimum dimension of `x` and `y`.
+
+    """
+
+    d = 0
+
+    if y is None:
+        y = (0,)*len(x)
+
+    for i in range(min(len(x), len(y))):
+        d += (x[i]-y[i])**2
+
+    if sqrt:
+        d = sqrt(d)
+
+    return d
+
 cpdef set_external_enumerator(enumerator):
     """
     Set an external enumeration library.
