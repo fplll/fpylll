@@ -2114,7 +2114,7 @@ cdef class MatGSO:
 
     def babai(self, v, int start=0, int dimension=-1, gso=False):
         """
-        Return vector `w` s.t. `‖B⋅w - v‖` is small using Babai's nearest plane algorithm.
+        Return vector `w` s.t. `‖w⋅B - v‖` is small using Babai's nearest plane algorithm.
 
         :param v: a tuple-like object
         :param start: only consider subbasis starting at ``start```
@@ -2131,9 +2131,9 @@ cdef class MatGSO:
             >>> M = GSO.Mat(A, update=True)
             >>> v = (100,)*50
             >>> w = M.babai(v)
-            >>> vector_norm(A.multiply_left(w), v)  # ‖A⋅w - v‖
+            >>> vector_norm(A.multiply_left(w), v)  # ‖w⋅A - v‖
             58851
-            >>> vector_norm(A.multiply_left(w)) # ‖A⋅w‖
+            >>> vector_norm(A.multiply_left(w)) # ‖w⋅A‖
             530251
 
         We may consider the input vector as a coefficient vector wrt to `B^*`::
