@@ -301,7 +301,7 @@ def averaged_simulate_prob(L, param, tries=10):
         >>> from fpylll.tools.bkz_simulator import averaged_simulate_prob
         >>> _ = averaged_simulate_prob(M, BKZ.Param(block_size=40, max_loops=4))
         >>> print(_[0][:3])
-        [4663149828.487716, 4267813469.1884093, 4273411937.5775056]
+        [4663149828.487..., 4267813469.1884..., 4273411937.5775...]
     """
     if tries < 1:
         raise ValueError("Need to average over positive number of tries.")
