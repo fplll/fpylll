@@ -261,16 +261,6 @@ def load_strategies_json(filename):
         >>> strategies[80].pruning_parameters[0].expectation
         0.14362574329237188
 
-        >>> from fpylll import load_strategies_json, BKZ
-        >>> from os import environ
-        >>> environ['SAGE_LOCAL'] = BKZ.DEFAULT_STRATEGY.decode().partition('fplll')[0]
-        >>> strategies = load_strategies_json('default.json')
-        >>> strategies[80].preprocessing_block_sizes
-        (56,)
-
-        >>> strategies[80].pruning_parameters[0].expectation
-        0.14362574329237188
-
     """
 
     #  It turns out that on some platforms (e.g pre-compiled Sagemath) the BKZ.DEFAULT_STRATEGY
