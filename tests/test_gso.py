@@ -99,9 +99,9 @@ def test_gso_update_gso():
                 assert g00[0] ==  pytest.approx(g00[i], rel=EPSILON)
 
 
-def test_gso_io():
+def test_gso_babai():
     for int_type in int_types:
-        for m, n in dimensions:
+        for m, n in ((0, 0), (2, 2), (3, 3), (10, 10), (30, 30)):
             if m <= 2 or n <= 2:
                 continue
 
@@ -110,12 +110,33 @@ def test_gso_io():
             LLL.reduction(A)
 
             for float_type in float_types:
-                M = GSO.Mat(copy(A), float_type=float_type)
-                M.update_gso()
-                w = M.babai(v)
-                v_ = IntegerMatrix.from_iterable(1, m, w) * A
-                v_ = list(v_[0])
-                assert v == v_
+                M = GSO.Mat(copy(A), update=True, float_type=float_type)
+                try:
+                    w = M.babai(v)
+                    v_ = IntegerMatrix.from_iterable(1, m, w) * A
+                    v_ = list(v_[0])
+                    assert v == v_
+                except NotImplementedError:
+                    pass
+
+def test_gso_conversion():
+    for int_type in int_types:
+        for m, n in ((0, 0), (2, 2), (3, 3), (10, 10), (30, 30)):
+            if m <= 2 or n <= 2:
+                continue
+
+            A = make_integer_matrix(m, n, int_type=int_type)
+            v = list(A[0])
+            LLL.reduction(A)
+
+            for float_type in float_types:
+                M = GSO.Mat(copy(A), update=True, float_type=float_type)
+                try:
+                    w = M.from_canonical(v)
+                    v_ = [int(round(v__)) for v__ in M.to_canonical(w)]
+                    assert v == v_
+                except NotImplementedError:
+                    pass
 
 
 def test_gso_coherence_gram_matrix():

@@ -460,3 +460,7 @@ ELSE:
             vector[FP_NR[d_t]] d
             vector[FP_NR[dpe_t]] dpe
             vector[FP_NR[mpfr_t]] mpfr
+
+ctypedef struct vector_z_nr_t:
+    vector[Z_NR[mpz_t]] mpz
+    vector[Z_NR[long]] long

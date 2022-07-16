@@ -10,17 +10,19 @@ A ``MatGSO`` object stores the following information:
 
     - the Gram-Schmidt coefficients `μ_{i,j} = `⟨b_i, b^*_j⟩ / ||b^*_j||^2` for `i>j`, and
 
-    - the coefficients `r_{i,j} = ⟨b_i, b^*_j⟩` for `i>j`
+    - the coefficients `r_{i,j} = ⟨b_i, b^*_j⟩` for `i≥j`
 
 It holds that: `B = R × Q = (μ × D) × (D^{-1} × B^*)` where `Q` is orthonormal and `R` is lower
 triangular.
+
 """
 
 include "fpylll/config.pxi"
 
 from cysignals.signals cimport sig_on, sig_off
 
-from .decl cimport mat_gso_mpz_d, mat_gso_mpz_ld, mat_gso_mpz_dpe, mat_gso_mpz_mpfr, fp_nr_t, zz_mat_core_t, z_nr_t
+from .decl cimport mat_gso_mpz_d, mat_gso_mpz_ld, mat_gso_mpz_dpe, mat_gso_mpz_mpfr
+from .decl cimport vector_fp_nr_t, vector_z_nr_t, z_nr_t, fp_nr_t, zz_mat_core_t
 from .decl cimport mat_gso_long_d, mat_gso_long_ld, mat_gso_long_dpe, mat_gso_long_mpfr
 from .decl cimport d_t
 from .decl cimport mat_gso_gso_t, mat_gso_gram_t
@@ -37,6 +39,7 @@ from .fplll cimport get_current_slope
 from fpylll.gmp.mpz cimport mpz_t
 from fpylll.mpfr.mpfr cimport mpfr_t
 from fpylll.util cimport preprocess_indices, check_float_type
+from fpylll.io cimport vector_fp_nr_barf, vector_fp_nr_slurp, vector_z_nr_slurp
 from fpylll.io cimport mpz_get_python
 from .integer_matrix cimport IntegerMatrix
 
@@ -2032,12 +2035,12 @@ cdef class MatGSO:
         raise RuntimeError("MatGSO object '%s' has no core."%self)
 
 
-    def from_canonical(self, v, int start=0, int dimension=-1):
-        """Given a vector `v` wrt the canonical basis `\mathbb{Z}^n` return a vector wrt the
+    def from_canonical(self, w, int start=0, int dimension=-1):
+        """Given a vector `w` wrt the canonical basis `\ZZ^n` return a vector `v` wrt the
         Gram-Schmidt basis `B^*`
 
         :param v: a tuple-like object of dimension ``M.B.ncols``
-        :param start: only consider subbasis starting at ``start```
+        :param start: only consider subbasis starting at ``start``
         :param dimension: only consider ``dimension`` vectors or all if ``-1``
 
         :returns: a tuple of dimension ``dimension``` or ``M.d``` when ``dimension`` is ``None``
@@ -2058,67 +2061,244 @@ cdef class MatGSO:
             True
 
         """
-        cdef Py_ssize_t i, j, d
-
         if self._alg != mat_gso_gso_t:
             raise TypeError("This function is only defined for GSO objects over a basis")
 
-        if dimension == -1:
-            d = self.d - start
-        else:
-            d = dimension
+        cdef vector_fp_nr_t cv, cw
+        cdef fp_nr_t tmp
 
-        cdef list ret = [0]*(start+d)
-        for i in range(start+d):
-            for j in range(self.B.ncols):
-                ret[i] += self.B[i, j] * v[j]
+        if self._type == mat_gso_mpz_d:
+            vector_fp_nr_barf(cw, w, FT_DOUBLE)
+            sig_on()
+            (<MatGSO_c[Z_NR[mpz_t],FP_NR[d_t]]*>self._core.mpz_d).from_canonical(cv.d, cw.d, start, dimension)
+            sig_off()
+            return vector_fp_nr_slurp(cv, FT_DOUBLE)
+        elif self._type == mat_gso_mpz_ld:
+            vector_fp_nr_barf(cw, w, FT_LONG_DOUBLE)
+            sig_on()
+            (<MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]]*>self._core.mpz_ld).from_canonical(cv.ld, cw.ld, start, dimension)
+            sig_off()
+            return vector_fp_nr_slurp(cv, FT_LONG_DOUBLE)
+        # elif self._type == mat_gso_mpz_dpe:
+        #     vector_fp_nr_barf(cw, w, FT_DPE)
+        #     sig_on()
+        #     (<MatGSO_c[Z_NR[mpz_t],FP_NR[dpe_t]]*>self._core.mpz_dpe).from_canonical(cv.dpe, cw.dpe, start, dimension)
+        #     sig_off()
+        #     return vector_fp_nr_slurp(cv, FT_DPE)
+        elif self._type == mat_gso_mpz_mpfr:
+            vector_fp_nr_barf(cw, w, FT_MPFR)
+            sig_on()
+            (<MatGSO_c[Z_NR[mpz_t],FP_NR[mpfr_t]]*>self._core.mpz_mpfr).from_canonical(cv.mpfr, cw.mpfr, start, dimension)
+            sig_off()
+            return vector_fp_nr_slurp(cv, FT_MPFR)
+        elif self._type == mat_gso_long_d:
+            vector_fp_nr_barf(cw, w, FT_DOUBLE)
+            sig_on()
+            (<MatGSO_c[Z_NR[long],FP_NR[d_t]]*>self._core.long_d).from_canonical(cv.d, cw.d, start, dimension)
+            sig_off()
+            return vector_fp_nr_slurp(cv, FT_DOUBLE)
+        elif self._type == mat_gso_long_ld:
+            vector_fp_nr_barf(cw, w, FT_LONG_DOUBLE)
+            sig_on()
+            (<MatGSO_c[Z_NR[long],FP_NR[ld_t]]*>self._core.long_ld).from_canonical(cv.ld, cw.ld, start, dimension)
+            sig_off()
+            return vector_fp_nr_slurp(cv, FT_LONG_DOUBLE)
+        # elif self._type == mat_gso_long_dpe:
+        #     vector_fp_nr_barf(cw, w, FT_DPE)
+        #     sig_on()
+        #     (<MatGSO_c[Z_NR[long],FP_NR[dpe_t]]*>self._core.long_dpe).from_canonical(cv.dpe, cw.dpe, start, dimension)
+        #     sig_off()
+        #     return vector_fp_nr_slurp(cv, FT_DPE)
+        # elif self._type == mat_gso_long_mpfr:
+        #     vector_fp_nr_barf(cw, w, FT_MPFR)
+        #     sig_on()
+        #     (<MatGSO_c[Z_NR[long],FP_NR[mpfr_t]]*>self._core.long_mpfr).from_canonical(cv.mpfr, cw.mpfr, start, dimension)
+        #     sig_off()
+        #     return vector_fp_nr_slurp(cv, FT_MPFR)
+        IF HAVE_QD:
+            if self._type == mat_gso_mpz_dd:
+                vector_fp_nr_barf(cw, w, FT_DD)
+                sig_on()
+                (<MatGSO_c[Z_NR[mpz_t],FP_NR[dd_t]]*>self._core.mpz_dd).from_canonical(cv.dd, cw.dd, start, dimension)
+                sig_off()
+                return vector_fp_nr_slurp(cv, FT_DD)
+            elif self._type == mat_gso_mpz_qd:
+                vector_fp_nr_barf(cw, w, FT_QD)
+                sig_on()
+                (<MatGSO_c[Z_NR[mpz_t],FP_NR[qd_t]]*>self._core.mpz_ld).from_canonical(cv.qd, cw.qd, start, dimension)
+                sig_off()
+                return vector_fp_nr_slurp(cv, FT_QD)
+            elif self._type == mat_gso_long_dd:
+                vector_fp_nr_barf(cw, w, FT_DD)
+                sig_on()
+                (<MatGSO_c[Z_NR[long],FP_NR[dd_t]]*>self._core.long_dd).from_canonical(cv.dd, cw.dd, start, dimension)
+                sig_off()
+                return vector_fp_nr_slurp(cv, FT_DD)
+            # elif self._type == mat_gso_long_qd:
+            #     vector_fp_nr_barf(cw, w, FT_QD)
+            #     sig_on()
+            #     (<MatGSO_c[Z_NR[long],FP_NR[qd_t]]*>self._core.long_ld).from_canonical(cv.qd, cw.qd, start, dimension)
+            #     sig_off()
+            #     return vector_fp_nr_slurp(cw, FT_QD)
 
-            for j in range(i):
-                ret[i] -= self.get_mu(i, j) * ret[j]
+        raise NotImplementedError
 
-        # we drop the first ``start`` entries anyway, so no need to update
-        for i in range(d):
-            ret[start+i] /= self.get_r(start+i, start+i)
 
-        return tuple(ret)[start:]
+    # def _from_canonical_old(self, w, int start=0, int dimension=-1):
+    #     cdef Py_ssize_t i, j, d
 
+    #     if self._alg != mat_gso_gso_t:
+    #         raise TypeError("This function is only defined for GSO objects over a basis")
+
+    #     if dimension == -1:
+    #         d = self.d - start
+    #     else:
+    #         d = dimension
+
+    #     cdef list ret = [0]*(start+d)
+    #     for i in range(start+d):
+    #         for j in range(self.B.ncols):
+    #             ret[i] += self.B[i, j] * w[j]
+
+    #         for j in range(i):
+    #             ret[i] -= self.get_mu(i, j) * ret[j]
+
+    #     # we drop the first ``start`` entries anyway, so no need to update
+    #     for i in range(d):
+    #         ret[start+i] /= self.get_r(start+i, start+i)
+
+    #     return tuple(ret)[start:]
 
     def to_canonical(self, v, int start=0):
         """
-        Given a vector `v` wrt the Gram-Schmidt basis `B^*` return a vector wrt the canonical basis
-        `\mathbb{Z}^n`
+        Given a vector `v` wrt the Gram-Schmidt basis `B^*` return a vector `w` wrt the
+        canonical basis `ZZ^n`, i.e. solve `w = v⋅B^*`.
 
         :param v: a tuple-like object of dimension ``M.d``
-        :param start: only consider subbasis starting at ``start```
+        :param start: only consider subbasis starting at ``start``
 
         :returns: a tuple of dimension ``M.B.ncols``
-
         """
         if self._alg != mat_gso_gso_t:
             raise TypeError("This function is only defined for GSO objects over a basis")
 
-        cdef list vv = list(v)
-        cdef Py_ssize_t i, j
-        cdef Py_ssize_t d = min(len(vv), self.d-start)
-        for i in range(d)[::-1]:
-            for j in range(i+1, d):
-                vv[i] -= self.get_mu(start+j, start+i) * vv[j]
+        cdef vector_fp_nr_t cv, cw
+        cdef fp_nr_t tmp
 
-        ret = [0]*self.B.ncols
-        for i in range(d):
-            for j in range(self.B.ncols):
-                ret[j] += vv[i] * self.B[start+i,j]
+        if self._type == mat_gso_mpz_d:
+            vector_fp_nr_barf(cv, v, FT_DOUBLE)
+            sig_on()
+            (<MatGSO_c[Z_NR[mpz_t],FP_NR[d_t]]*>self._core.mpz_d).to_canonical(cw.d, cv.d, start)
+            sig_off()
+            return vector_fp_nr_slurp(cw, FT_DOUBLE)
+        elif self._type == mat_gso_mpz_ld:
+            vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+            sig_on()
+            (<MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]]*>self._core.mpz_ld).to_canonical(cw.ld, cv.ld, start)
+            sig_off()
+            return vector_fp_nr_slurp(cw, FT_LONG_DOUBLE)
+        # # https://github.com/fplll/fplll/issues/493
+        # elif self._type == mat_gso_mpz_dpe:
+        #     vector_fp_nr_barf(cv, v, FT_DPE)
+        #     sig_on()
+        #     (<MatGSO_c[Z_NR[mpz_t],FP_NR[dpe_t]]*>self._core.mpz_dpe).to_canonical(cw.dpe, cv.dpe, start)
+        #     sig_off()
+        #     return vector_fp_nr_slurp(cw, FT_DPE)
+        elif self._type == mat_gso_mpz_mpfr:
+            vector_fp_nr_barf(cv, v, FT_MPFR)
+            sig_on()
+            (<MatGSO_c[Z_NR[mpz_t],FP_NR[mpfr_t]]*>self._core.mpz_mpfr).to_canonical(cw.mpfr, cv.mpfr, start)
+            sig_off()
+            return vector_fp_nr_slurp(cw, FT_MPFR)
+        elif self._type == mat_gso_long_d:
+            vector_fp_nr_barf(cv, v, FT_DOUBLE)
+            sig_on()
+            (<MatGSO_c[Z_NR[long],FP_NR[d_t]]*>self._core.long_d).to_canonical(cw.d, cv.d, start)
+            sig_off()
+            return vector_fp_nr_slurp(cw, FT_DOUBLE)
+        elif self._type == mat_gso_long_ld:
+            vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+            sig_on()
+            (<MatGSO_c[Z_NR[long],FP_NR[ld_t]]*>self._core.long_ld).to_canonical(cw.ld, cv.ld, start)
+            sig_off()
+            return vector_fp_nr_slurp(cw, FT_LONG_DOUBLE)
+        # # https://github.com/fplll/fplll/issues/493
+        # elif self._type == mat_gso_long_dpe:
+        #     vector_fp_nr_barf(cv, v, FT_DPE)
+        #     sig_on()
+        #     (<MatGSO_c[Z_NR[long],FP_NR[dpe_t]]*>self._core.long_dpe).to_canonical(cw.dpe, cv.dpe, start)
+        #     sig_off()
+        #     return vector_fp_nr_slurp(cw, FT_DPE)
+        # elif self._type == mat_gso_long_mpfr:
+        #     vector_fp_nr_barf(cv, v, FT_MPFR)
+        #     sig_on()
+        #     (<MatGSO_c[Z_NR[long],FP_NR[mpfr_t]]*>self._core.long_mpfr).to_canonical(cw.mpfr, cv.mpfr, start)
+        #     sig_off()
+        #     return vector_fp_nr_slurp(cw, FT_MPFR)
+        IF HAVE_QD:
+            if self._type == mat_gso_mpz_dd:
+                vector_fp_nr_barf(cv, v, FT_DD)
+                sig_on()
+                (<MatGSO_c[Z_NR[mpz_t],FP_NR[dd_t]]*>self._core.mpz_dd).to_canonical(cw.dd, cv.dd, start)
+                sig_off()
+                return vector_fp_nr_slurp(cw, FT_DD)
+            # # https://github.com/fplll/fplll/issues/493
+            # elif self._type == mat_gso_mpz_qd:
+            #     vector_fp_nr_barf(cv, v, FT_QD)
+            #     sig_on()
+            #     (<MatGSO_c[Z_NR[mpz_t],FP_NR[qd_t]]*>self._core.mpz_ld).to_canonical(cw.qd, cv.qd, start)
+            #     sig_off()
+            #     return vector_fp_nr_slurp(cw, FT_QD)
+            elif self._type == mat_gso_long_dd:
+                vector_fp_nr_barf(cv, v, FT_DD)
+                sig_on()
+                (<MatGSO_c[Z_NR[long],FP_NR[dd_t]]*>self._core.long_dd).to_canonical(cw.dd, cv.dd, start)
+                sig_off()
+                return vector_fp_nr_slurp(cw, FT_DD)
+            # # https://github.com/fplll/fplll/issues/493
+            # elif self._type == mat_gso_long_qd:
+            #     vector_fp_nr_barf(cv, v, FT_QD)
+            #     sig_on()
+            #     (<MatGSO_c[Z_NR[long],FP_NR[qd_t]]*>self._core.long_ld).to_canonical(cw.qd, cv.qd, start)
+            #     sig_off()
+            #     return vector_fp_nr_slurp(cw, FT_QD)
 
-        return tuple(ret)
+        raise NotImplementedError
 
+    # def _to_canonical_old(self, v, int start=0):
+
+    #     # We have some `v` s.t. `w = v ⋅ B^*` and we want to recover `w`. We do not store `B^*`, but
+    #     # we store `(B, μ)` s.t. `μ ⋅ B^* = B`:
+    #     # - `w = v ⋅ B^*`
+    #     # - `w = v ⋅ μ^{-1} ⋅ B`
+    #     # - let `x` s.t. `x⋅μ = v`
+    #     # - `w = x ⋅ B`
+
+    #     # 1. triangular system solving
+
+    #     cdef list x = list(v)
+    #     cdef Py_ssize_t i, j
+    #     cdef Py_ssize_t d = min(len(x), self.d-start)
+    #     for i in range(d)[::-1]:
+    #         for j in range(i+1, d):
+    #             x[i] -= self.get_mu(start+j, start+i) * x[j]
+
+    #     # 2. multiply by `B`
+
+    #     w = [0]*self.B.ncols
+    #     for i in range(d):
+    #         for j in range(self.B.ncols):
+    #             w[j] += x[i] * self.B[start+i,j]
+
+    #     return tuple(w)
 
     def babai(self, v, int start=0, int dimension=-1, gso=False):
         """
         Return vector `w` s.t. `‖w⋅B - v‖` is small using Babai's nearest plane algorithm.
 
         :param v: a tuple-like object
-        :param start: only consider subbasis starting at ``start```
-        :param dimension: only consider ``dimension`` vectors or all if ``-1```
+        :param start: only consider subbasis starting at ``start``
+        :param dimension: only consider ``dimension`` vectors or all if ``-1``
         :param gso: if ``True`` vector is represented wrt to the Gram-Schmidt basis, otherwise
             canonical basis is assumed.
 
@@ -2143,19 +2323,206 @@ cdef class MatGSO:
             >>> vector_norm(A.multiply_left(w), (100,)*50)
             58851
 
+        We compute a more interesting example and solve a simple Knapsack::
+
+            >>> from fpylll import *
+            >>> _ = FPLLL.set_precision(500)
+            >>> n = 10
+            >>> B = IntegerMatrix(n, n + 1)
+            >>> B.randomize("intrel", bits=500)
+            >>> v_opt = B.multiply_left([1,0,1,0,1,1,0,0,1,1])
+            >>> s = v_opt[0] # s = <a, x>, where a is vector of knapsack values.
+            >>> t = [s] + (n * [0])
+
+            >>> _ = LLL.reduction(B)
+            >>> M = GSO.Mat(B, update=True, float_type="mpfr")
+
+            >>> y = M.babai(t)
+            >>> v = B.multiply_left(y)
+            >>> t[0] == v[0]
+            True
+
         """
         if dimension == -1:
             dimension = self.d - start
-        if not gso:
-            v = self.from_canonical(v, start, dimension)
 
-        cdef Py_ssize_t i, j
-        cdef list vv = list(v)
-        for i in range(dimension)[::-1]:
-            vv[i] = int(round(vv[i]))
-            for j in range(i):
-                vv[j] -= self.get_mu(start+i, start+j) * vv[i]
-        return tuple(vv)
+        cdef vector_fp_nr_t cv
+        cdef vector_z_nr_t cw
+
+        if gso is False and self._alg != mat_gso_gso_t:
+            raise TypeError("Can only convert to GSO representation with a basis.")
+
+        if not gso:
+            if self._type == mat_gso_mpz_d:
+                vector_fp_nr_barf(cv, v, FT_DOUBLE)
+                sig_on()
+                (<MatGSO_c[Z_NR[mpz_t],FP_NR[d_t]]*>self._core.mpz_d).babai(cw.mpz, cv.d, start, dimension, gso)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_MPZ)
+            elif self._type == mat_gso_mpz_ld:
+                vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+                sig_on()
+                (<MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]]*>self._core.mpz_ld).babai(cw.mpz, cv.ld, start, dimension, gso)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_MPZ)
+            # # https://github.com/fplll/fplll/issues/493
+            # elif self._type == mat_gso_mpz_dpe:
+            #     vector_fp_nr_barf(cv, v, FT_DPE)
+            #     sig_on()
+            #     (<MatGSO_c[Z_NR[mpz_t],FP_NR[dpe_t]]*>self._core.mpz_dpe).babai(cw.mpz, cv.dpe, start, dimension, gso)
+            #     sig_off()
+            #     return vector_z_nr_slurp(cw, ZT_MPZ)
+            elif self._type == mat_gso_mpz_mpfr:
+                vector_fp_nr_barf(cv, v, FT_MPFR)
+                sig_on()
+                (<MatGSO_c[Z_NR[mpz_t],FP_NR[mpfr_t]]*>self._core.mpz_mpfr).babai(cw.mpz, cv.mpfr, start, dimension, gso)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_MPZ)
+            elif self._type == mat_gso_long_d:
+                vector_fp_nr_barf(cv, v, FT_DOUBLE)
+                sig_on()
+                (<MatGSO_c[Z_NR[long],FP_NR[d_t]]*>self._core.long_d).babai(cw.long, cv.d, start, dimension, gso)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_LONG)
+            elif self._type == mat_gso_long_ld:
+                vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+                sig_on()
+                (<MatGSO_c[Z_NR[long],FP_NR[ld_t]]*>self._core.long_ld).babai(cw.long, cv.ld, start, dimension, gso)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_LONG)
+            # # https://github.com/fplll/fplll/issues/493
+            # elif self._type == mat_gso_long_dpe:
+            #     vector_fp_nr_barf(cv, v, FT_DPE)
+            #     sig_on()
+            #     (<MatGSO_c[Z_NR[long],FP_NR[dpe_t]]*>self._core.long_dpe).babai(cw.long, cv.dpe, start, dimension, gso)
+            #     sig_off()
+            #     return vector_z_nr_slurp(cw, ZT_LONG)
+            # elif self._type == mat_gso_long_mpfr:
+            #     vector_fp_nr_barf(cv, v, FT_MPFR)
+            #     sig_on()
+            #     (<MatGSO_c[Z_NR[long],FP_NR[mpfr_t]]*>self._core.long_mpfr).babai(cw.long, cv.mpfr, start, dimension, gso)
+            #     sig_off()
+            #     return vector_z_nr_slurp(cw, ZT_LONG)
+            IF HAVE_QD:
+                if self._type == mat_gso_mpz_dd:
+                    vector_fp_nr_barf(cv, v, FT_DD)
+                    sig_on()
+                    (<MatGSO_c[Z_NR[mpz_t],FP_NR[dd_t]]*>self._core.mpz_dd).babai(cw.mpz, cv.dd, start, dimension, gso)
+                    sig_off()
+                    return vector_z_nr_slurp(cw, ZT_MPZ)
+                # # https://github.com/fplll/fplll/issues/493
+                # elif self._type == mat_gso_mpz_qd:
+                #     vector_fp_nr_barf(cv, v, FT_QD)
+                #     sig_on()
+                #     (<MatGSO_c[Z_NR[mpz_t],FP_NR[qd_t]]*>self._core.mpz_qd).babai(cw.mpz, cv.qd, start, dimension, gso)
+                #     sig_off()
+                #     return vector_z_nr_slurp(cw, ZT_MPZ)
+                elif self._type == mat_gso_long_dd:
+                    vector_fp_nr_barf(cv, v, FT_DD)
+                    sig_on()
+                    (<MatGSO_c[Z_NR[long],FP_NR[dd_t]]*>self._core.long_dd).babai(cw.long, cv.dd, start, dimension, gso)
+                    sig_off()
+                    return vector_z_nr_slurp(cw, ZT_LONG)
+                # # https://github.com/fplll/fplll/issues/493
+                # elif self._type == mat_gso_long_qd:
+                #     vector_fp_nr_barf(cv, v, FT_QD)
+                #     sig_on()
+                #     (<MatGSO_c[Z_NR[long],FP_NR[qd_t]]*>self._core.long_qd).babai(cw.long, cv.qd, start, dimension, gso)
+                #     sig_off()
+                #     return vector_z_nr_slurp(cw, ZT_LONG)
+
+            raise NotImplementedError
+        else:
+            if self._type == mat_gso_mpz_d:
+                vector_fp_nr_barf(cv, v, FT_DOUBLE)
+                sig_on()
+                self._core.mpz_d.babai(cw.mpz, cv.d, start, dimension)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_MPZ)
+            elif self._type == mat_gso_mpz_ld:
+                vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+                sig_on()
+                self._core.mpz_ld.babai(cw.mpz, cv.ld, start, dimension)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_MPZ)
+            elif self._type == mat_gso_mpz_dpe:
+                vector_fp_nr_barf(cv, v, FT_DPE)
+                sig_on()
+                self._core.mpz_dpe.babai(cw.mpz, cv.dpe, start, dimension)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_MPZ)
+            elif self._type == mat_gso_mpz_mpfr:
+                vector_fp_nr_barf(cv, v, FT_MPFR)
+                sig_on()
+                self._core.mpz_mpfr.babai(cw.mpz, cv.mpfr, start, dimension)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_MPZ)
+            elif self._type == mat_gso_long_d:
+                vector_fp_nr_barf(cv, v, FT_DOUBLE)
+                sig_on()
+                self._core.long_d.babai(cw.long, cv.d, start, dimension)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_LONG)
+            elif self._type == mat_gso_long_ld:
+                vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+                sig_on()
+                self._core.long_ld.babai(cw.long, cv.ld, start, dimension)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_LONG)
+            elif self._type == mat_gso_long_dpe:
+                vector_fp_nr_barf(cv, v, FT_DPE)
+                sig_on()
+                self._core.long_dpe.babai(cw.long, cv.dpe, start, dimension)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_LONG)
+            elif self._type == mat_gso_long_mpfr:
+                vector_fp_nr_barf(cv, v, FT_MPFR)
+                sig_on()
+                self._core.long_mpfr.babai(cw.long, cv.mpfr, start, dimension)
+                sig_off()
+                return vector_z_nr_slurp(cw, ZT_LONG)
+
+            IF HAVE_QD:
+                if self._type == mat_gso_mpz_dd:
+                    vector_fp_nr_barf(cv, v, FT_DD)
+                    sig_on()
+                    self._core.mpz_dd.babai(cw.mpz, cv.dd, start, dimension)
+                    sig_off()
+                    return vector_z_nr_slurp(cw, ZT_MPZ)
+                elif self._type == mat_gso_mpz_qd:
+                    vector_fp_nr_barf(cv, v, FT_QD)
+                    sig_on()
+                    self._core.mpz_qd.babai(cw.mpz, cv.qd, start, dimension)
+                    sig_off()
+                    return vector_z_nr_slurp(cw, ZT_MPZ)
+                elif self._type == mat_gso_long_dd:
+                    vector_fp_nr_barf(cv, v, FT_DD)
+                    sig_on()
+                    self._core.long_dd.babai(cw.long, cv.dd, start, dimension)
+                    sig_off()
+                    return vector_z_nr_slurp(cw, ZT_LONG)
+                elif self._type == mat_gso_long_qd:
+                    vector_fp_nr_barf(cv, v, FT_QD)
+                    sig_on()
+                    self._core.long_qd.babai(cw.long, cv.qd, start, dimension)
+                    sig_off()
+                    return vector_z_nr_slurp(cw, ZT_LONG)
+
+            raise NotImplementedError
+
+    # def _babai_old(self, v, int start=0, int dimension=-1, gso=False):
+    #     if dimension == -1:
+    #         dimension = self.d - start
+    #     if not gso:
+    #         v = self.from_canonical(v, start, dimension)
+
+    #     cdef Py_ssize_t i, j
+    #     cdef list vv = list(v)
+    #     for i in range(dimension)[::-1]:
+    #         vv[i] = int(round(vv[i]))
+    #         for j in range(i):
+    #             vv[j] -= self.get_mu(start+i, start+j) * vv[i]
+    #     return tuple(vv)
 
     def r(self, start=0, end=-1):
         """
