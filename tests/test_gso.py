@@ -119,6 +119,7 @@ def test_gso_babai():
                 except NotImplementedError:
                     pass
 
+
 def test_gso_conversion():
     for int_type in int_types:
         for m, n in ((0, 0), (2, 2), (3, 3), (10, 10), (30, 30)):
