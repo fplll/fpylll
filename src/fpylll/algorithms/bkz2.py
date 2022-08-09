@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+BKZ 2.0 algorithm in Python.
+
+..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>
+
+"""
 
 from fpylll import BKZ, Enumeration, EnumerationError
 from fpylll.algorithms.bkz import BKZReduction as BKZBase

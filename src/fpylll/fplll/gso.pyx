@@ -2341,6 +2341,14 @@ cdef class MatGSO:
             >>> v = B.multiply_left(y)
             >>> t[0] == v[0]
             True
+            >>> v_ = CVP.babai(B, t)
+            >>> v_ == v
+            True
+
+        .. note :: A separate implementation is available at `CVP.babai()`. That implementation is
+           more numerically stable than this one (by repeatedly calling the Nearest Plane algorithm
+           at a given precision to improve the solution). On the other hand, this implementation
+           supports floating point target vectors and `CVP.babai()` does not.
 
         """
         if dimension == -1:

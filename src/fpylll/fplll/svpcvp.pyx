@@ -34,6 +34,7 @@ from .pruner import Pruning
 from fpylll.io cimport assign_Z_NR_mpz, mpz_get_python
 from fpylll.io import SuppressStream
 from fpylll.util import ReductionError
+from fpylll.algorithms.babai import babai
 
 from .integer_matrix cimport IntegerMatrix
 
@@ -161,18 +162,17 @@ class SVP:
     VERBOSE = SVP_VERBOSE
     OVERRIDE_BND = SVP_OVERRIDE_BND
 
-def closest_vector(IntegerMatrix B, target, method="fast", int flags=CVP_DEFAULT):
+def closest_vector(IntegerMatrix B, t, method="fast", int flags=CVP_DEFAULT):
     """Return a closest vector.
 
     The basis must be LLL-reduced with delta=``LLL.DEFAULT_DELTA`` and eta=``LLL.DEFAULT_ETA``.  The
     result is guaranteed if method = "proved", default is "fast".
 
-    :param IntegerMatrix B:
-    :param vector[Z_NR[mpz_t]] target:
+    :param IntegerMatrix B: Input lattice basis.
+    :param t: Target point (∈ ZZ^n)
     :param method: One of "fast" or "proved".
     :param int flags: Either ``CVP.DEFAULT`` or ``CVP.VERBOSE``.
     :returns coordinates of the solution vector:
-    :rtype tuple:
 
     EXAMPLE ::
 
@@ -183,6 +183,20 @@ def closest_vector(IntegerMatrix B, target, method="fast", int flags=CVP_DEFAULT
         >>> t = (94, -42, 123, 512, -1337)
         >>> print (CVP.closest_vector(A, t))
         (-34, 109, 204, 360, -1548)
+
+       >>> from fpylll import *
+       >>> n = 10
+       >>> B = IntegerMatrix(n, n + 1)
+       >>> B.randomize("intrel", bits=100)
+       >>> v_opt = B.multiply_left([1,0,1,0,1,1,0,0,1,1])
+       >>> s = v_opt[0] # s = <a, x>, where a is vector of knapsack values.
+       >>> t = [s] + (n * [0])
+       >>> _ = LLL.reduction(B)
+       >>> v = CVP.closest_vector(B, t)
+       >>> v[0] == t[0]
+       True
+       >>> v[1:]
+       (1, 0, 1, 0, 1, 1, 0, 0, 1, 1)
 
     """
 
@@ -206,11 +220,10 @@ def closest_vector(IntegerMatrix B, target, method="fast", int flags=CVP_DEFAULT
     cdef vector[Z_NR[mpz_t]] sol_coord
     cdef vector[Z_NR[mpz_t]] solution
 
-    int_target.resize(len(target))
-    cdef Z_NR[mpz_t] t
+    int_target.resize(len(t))
 
-    for i in range(len(target)):
-        assign_Z_NR_mpz(int_target[i], target[i])
+    for i in range(len(t)):
+        assign_Z_NR_mpz(int_target[i], t[i])
 
     sig_on()
     r = closest_vector_c(B._core.mpz[0], int_target, sol_coord, method_, flags)
@@ -229,6 +242,7 @@ def closest_vector(IntegerMatrix B, target, method="fast", int flags=CVP_DEFAULT
     return tuple(v)
 
 class CVP:
+    babai = staticmethod(babai)
     closest_vector = staticmethod(closest_vector)
     DEFAULT = CVP_DEFAULT
     VERBOSE = CVP_VERBOSE
