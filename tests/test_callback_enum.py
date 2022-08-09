@@ -11,9 +11,9 @@ def test_callback_enum(d=40):
 
     # we are not imposing a constraint
     enum_obj = Enumeration(M)
-    solutions = enum_obj.enumerate(0, d, 0.99*M.get_r(0, 0), 0)
+    solutions = enum_obj.enumerate(0, d, 0.99 * M.get_r(0, 0), 0)
     max_dist, sol = solutions[0]
-    assert(A.multiply_left(sol)[0] != 2)
+    assert A.multiply_left(sol)[0] != 2
 
     # now we do
     def callback(new_sol_coord):
@@ -23,7 +23,7 @@ def test_callback_enum(d=40):
             return False
 
     enum_obj = Enumeration(M, callbackf=callback)
-    solutions = enum_obj.enumerate(0, d, 0.99*M.get_r(0, 0), 0)
+    solutions = enum_obj.enumerate(0, d, 0.99 * M.get_r(0, 0), 0)
     max_dist, sol = solutions[0]
 
-    assert(A.multiply_left(sol)[0] == 2)
+    assert A.multiply_left(sol)[0] == 2

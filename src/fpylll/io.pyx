@@ -9,6 +9,11 @@ from fpylll.gmp.mpz cimport mpz_init, mpz_clear, mpz_set
 from fpylll.gmp.pylong cimport mpz_get_pyintlong, mpz_set_pylong
 from .gmp.mpz cimport mpz_t, mpz_set_si, mpz_set
 from cpython.version cimport PY_MAJOR_VERSION
+from fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
+from fplll.fplll cimport ZT_MPZ, ZT_LONG
+
+IF HAVE_QD:
+    from fpylll.fplll.fplll cimport FT_DD, FT_QD
 
 try:
     from sage.all import ZZ
@@ -54,6 +59,88 @@ cdef object mpz_get_python(mpz_srcptr z):
         return Integer(r)
     else:
         return r
+
+cdef void vector_fp_nr_barf(vector_fp_nr_t &out, object inp, FloatType float_type):
+    cdef fp_nr_t tmp
+    cdef bytes py_bytes
+    if float_type == FT_DOUBLE:
+        for entry in inp:
+            # this is slow but we want to cover all kinds of Python types here
+            py_bytes = str(entry).encode()
+            tmp.d = <char*>py_bytes
+            out.d.push_back(tmp.d)
+    elif float_type == FT_LONG_DOUBLE:
+        for entry in inp:
+            py_bytes = str(entry).encode()
+            tmp.ld = <char*>py_bytes
+            out.ld.push_back(tmp.ld)
+    elif float_type == FT_DPE:
+        for entry in inp:
+            py_bytes = str(entry).encode()
+            tmp.dpe = <char*>py_bytes
+            out.dpe.push_back(tmp.dpe)
+    elif float_type == FT_MPFR:
+        for entry in inp:
+            py_bytes = str(entry).encode()
+            tmp.mpfr = <char*>py_bytes
+            out.mpfr.push_back(tmp.mpfr)
+    else:
+        IF HAVE_QD:
+            if float_type == FT_DD:
+                for entry in inp:
+                    py_bytes = str(entry).encode()
+                    tmp.dd = <char*>py_bytes
+                    out.dd.push_back(tmp.dd)
+            elif float_type == FT_QD:
+                for entry in inp:
+                    py_bytes = str(entry).encode()
+                    tmp.qd = <char*>py_bytes
+                    out.qd.push_back(tmp.qd)
+            else:
+                raise ValueError("Float type '%s' not understood."%float_type)
+        ELSE:
+            raise ValueError("Float type '%s' not understood."%float_type)
+
+cdef object vector_fp_nr_slurp(vector_fp_nr_t &inp, FloatType float_type):
+    out = []
+    if float_type == FT_DOUBLE:
+        for i in range(inp.d.size()):
+            out.append(inp.d[i].get_d())
+    elif float_type == FT_LONG_DOUBLE:
+        for i in range(inp.ld.size()):
+            out.append(inp.ld[i].get_d())
+    elif float_type == FT_DPE:
+        for i in range(inp.dpe.size()):
+            out.append(inp.dpe[i].get_d())
+    elif float_type == FT_MPFR:
+        for i in range(inp.mpfr.size()):
+            out.append(inp.mpfr[i].get_d())
+    else:
+        IF HAVE_QD:
+            if float_type == FT_DD:
+                for i in range(inp.dd.size()):
+                    out.append(inp.dd[i].get_d())
+            elif float_type == FT_QD:
+                for i in range(inp.qd.size()):
+                    out.append(inp.qd[i].get_d())
+            else:
+                raise ValueError("Float type '%s' not understood."%float_type)
+        ELSE:
+            raise ValueError("Float type '%s' not understood."%float_type)
+    return tuple(out)
+
+cdef object vector_z_nr_slurp(vector_z_nr_t &inp, IntType int_type):
+    out = []
+    if int_type == ZT_MPZ:
+        for i in range(inp.mpz.size()):
+            out.append(mpz_get_python(inp.mpz[i].get_data()))
+    elif int_type == ZT_LONG:
+        for i in range(inp.long.size()):
+            out.append(inp.long[i].get_data())
+    else:
+        raise ValueError("Int type '%s' not understood."%int_type)
+    return tuple(out)
+
 
 class SuppressStream(object):
     """

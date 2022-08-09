@@ -3,7 +3,7 @@ include "fpylll/config.pxi"
 
 from contextlib import contextmanager
 
-from fpylll.fplll.decl cimport fp_nr_t
+
 from fpylll.fplll.fplll cimport FP_NR, RandGen, dpe_t
 from fpylll.fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fpylll.fplll.fplll cimport IntType, ZT_LONG, ZT_MPZ
@@ -117,7 +117,6 @@ cdef int check_delta(float delta) except -1:
         raise TypeError("delta must be > 0.25")
     elif delta > 1.0:
         raise TypeError("delta must be <= 1.0")
-
 
 def set_random_seed(unsigned long seed):
     """Set random seed.

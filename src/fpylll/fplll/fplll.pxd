@@ -124,6 +124,7 @@ cdef extern from "fplll/nr/nr.h" namespace "fplll":
         double get_d() nogil
         inline void operator=(const FP_NR[T]& a) nogil
         inline void operator=(double a) nogil
+        inline void operator=(const char *s) nogil
 
         @staticmethod
         unsigned int get_prec() nogil
@@ -464,6 +465,10 @@ cdef extern from "fplll/gso.h" namespace "fplll":
         FT get_log_det(int start_row, int stop_row) nogil
         FT get_slide_potential(int start_row, int stop_row, int block_size) nogil
 
+        void to_canonical(vector[FT] &w, const vector[FT] &v, long start) nogil
+        void from_canonical(vector[FT] &v, const vector[FT] &w, long start, long dimension) nogil
+        int babai(vector[ZT] w, vector[FT] v, int start, int dimension, bool gsa) nogil
+
         const int enable_int_gram
         const int enable_row_expo
         const int enable_transform
@@ -564,6 +569,8 @@ cdef extern from "fplll/gso_interface.h" namespace "fplll":
         FT get_root_det(int start_row, int end_row) nogil
         FT get_log_det(int start_row, int end_row) nogil
         FT get_slide_potential(int start_row, int end_row, int block_size) nogil
+
+        int babai(vector[ZT] w, vector[FT] v, int start, int dimension) nogil
 
         const bool enable_int_gram
         const bool enable_row_expo
@@ -989,5 +996,3 @@ cdef extern from "fplll/fplll.h" namespace "fplll":
     int hkz_reduction(ZZ_mat[mpz_t] b) nogil
 
     const char* get_red_status_str(int status) nogil
-
-
