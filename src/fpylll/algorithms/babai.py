@@ -44,10 +44,17 @@ def babai(B, t):
     for i in range(B.nrows):
         for j in range(B.ncols):
             A[i, j] = B[i, j]
+
+    # make sure the input is LLL reduced before reading the norm of the last vector
+    LLL.reduction(A)
+    # zero vector at the end
+    A.swap_rows(0, B.nrows)
+
     for j in range(B.ncols):
         A[-1, j] = t[j]
-    A[-1, -1] = ceil(B[-1].norm())
-    LLL.reduction(A)
+    A[-1, -1] = ceil(A[-2].norm())
+
+    LLL.reduction(A)  # now call LLL to run Babai
 
     v = [0] * len(t)
     if A[-1, -1] > 0:
