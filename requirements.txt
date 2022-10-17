@@ -1,4 +1,4 @@
 Cython
 pytest
 cysignals
-flake8
+black
