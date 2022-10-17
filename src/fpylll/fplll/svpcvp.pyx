@@ -52,7 +52,7 @@ def shortest_vector(IntegerMatrix B, method="fast", int flags=SVP_DEFAULT, pruni
 
     d = B.nrows
 
-    if pruning is True and d <= 10:
+    if pruning is True and d <= 20:
         pruning = None # HACK: pruning in small dimensions can go wrong.
 
     if d > MAX_ENUM_DIM:
