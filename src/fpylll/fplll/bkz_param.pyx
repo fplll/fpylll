@@ -26,7 +26,7 @@ from .fplll cimport strategy_full_path
 from fpylll.util cimport check_delta, check_pruner_metric
 from cython.operator cimport dereference as deref, preincrement as inc
 
-from fpylll.config import default_strategy
+from fpylll.config import default_strategy_path, default_strategy
 
 from .pruner cimport PruningParams
 
@@ -269,7 +269,11 @@ def load_strategies_json(filename):
     #  to navigate to the default file relative to that directory.
 
     if not path.exists(filename) and filename == "default.json":
-        filename = path.join(environ['SAGE_LOCAL'], 'fplll', 'strategies', 'default.json')
+        if 'SAGE_LOCAL' in environ:
+            # NOTE: some people are quite angry about this: https://github.com/fplll/fpylll/issues/221
+            filename = path.join(environ['SAGE_LOCAL'], 'fplll', 'strategies', 'default.json')
+        else:
+            filename = path.join(default_strategy_path, filename)
 
     if not path.exists(filename):
         raise FileNotFoundError("File '%s' not found."%filename)
