@@ -16,7 +16,7 @@ IF HAVE_QD:
     from fpylll.fplll.fplll cimport FT_DD, FT_QD
 
 try:
-    from sage.all import ZZ
+    from sage.rings.integer import Integer
     have_sage = True
 except Exception:
     have_sage = False
@@ -44,7 +44,6 @@ cdef int assign_mpz(mpz_t& t, value) except -1:
         mpz_set_pylong(t, value)
         return 0
     if have_sage:
-        from sage.rings.integer import Integer
         if isinstance(value, Integer):
             value = long(value)
             mpz_set_pylong(t, value)
@@ -55,7 +54,6 @@ cdef int assign_mpz(mpz_t& t, value) except -1:
 cdef object mpz_get_python(mpz_srcptr z):
     r = mpz_get_pyintlong(z)
     if have_sage:
-        from sage.rings.integer import Integer
         return Integer(r)
     else:
         return r
