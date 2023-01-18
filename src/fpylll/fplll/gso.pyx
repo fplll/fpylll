@@ -2074,11 +2074,14 @@ cdef class MatGSO:
             sig_off()
             return vector_fp_nr_slurp(cv, FT_DOUBLE)
         elif self._type == mat_gso_mpz_ld:
-            vector_fp_nr_barf(cw, w, FT_LONG_DOUBLE)
-            sig_on()
-            (<MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]]*>self._core.mpz_ld).from_canonical(cv.ld, cw.ld, start, dimension)
-            sig_off()
-            return vector_fp_nr_slurp(cv, FT_LONG_DOUBLE)
+            IF HAVE_LONG_DOUBLE:
+                vector_fp_nr_barf(cw, w, FT_LONG_DOUBLE)
+                sig_on()
+                (<MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]]*>self._core.mpz_ld).from_canonical(cv.ld, cw.ld, start, dimension)
+                sig_off()
+                return vector_fp_nr_slurp(cv, FT_LONG_DOUBLE)
+            ELSE:
+                raise RuntimeError("Float type not understood.")
         # elif self._type == mat_gso_mpz_dpe:
         #     vector_fp_nr_barf(cw, w, FT_DPE)
         #     sig_on()
@@ -2098,11 +2101,14 @@ cdef class MatGSO:
             sig_off()
             return vector_fp_nr_slurp(cv, FT_DOUBLE)
         elif self._type == mat_gso_long_ld:
-            vector_fp_nr_barf(cw, w, FT_LONG_DOUBLE)
-            sig_on()
-            (<MatGSO_c[Z_NR[long],FP_NR[ld_t]]*>self._core.long_ld).from_canonical(cv.ld, cw.ld, start, dimension)
-            sig_off()
-            return vector_fp_nr_slurp(cv, FT_LONG_DOUBLE)
+            IF HAVE_LONG_DOUBLE:
+                vector_fp_nr_barf(cw, w, FT_LONG_DOUBLE)
+                sig_on()
+                (<MatGSO_c[Z_NR[long],FP_NR[ld_t]]*>self._core.long_ld).from_canonical(cv.ld, cw.ld, start, dimension)
+                sig_off()
+                return vector_fp_nr_slurp(cv, FT_LONG_DOUBLE)
+            ELSE:
+                raise RuntimeError("Float type not understood.")
         # elif self._type == mat_gso_long_dpe:
         #     vector_fp_nr_barf(cw, w, FT_DPE)
         #     sig_on()
@@ -2192,11 +2198,14 @@ cdef class MatGSO:
             sig_off()
             return vector_fp_nr_slurp(cw, FT_DOUBLE)
         elif self._type == mat_gso_mpz_ld:
-            vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
-            sig_on()
-            (<MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]]*>self._core.mpz_ld).to_canonical(cw.ld, cv.ld, start)
-            sig_off()
-            return vector_fp_nr_slurp(cw, FT_LONG_DOUBLE)
+            IF HAVE_LONG_DOUBLE:
+                vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+                sig_on()
+                (<MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]]*>self._core.mpz_ld).to_canonical(cw.ld, cv.ld, start)
+                sig_off()
+                return vector_fp_nr_slurp(cw, FT_LONG_DOUBLE)
+            ELSE:
+                raise RuntimeError("Float type not understood.")
         # # https://github.com/fplll/fplll/issues/493
         # elif self._type == mat_gso_mpz_dpe:
         #     vector_fp_nr_barf(cv, v, FT_DPE)
@@ -2217,11 +2226,14 @@ cdef class MatGSO:
             sig_off()
             return vector_fp_nr_slurp(cw, FT_DOUBLE)
         elif self._type == mat_gso_long_ld:
-            vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
-            sig_on()
-            (<MatGSO_c[Z_NR[long],FP_NR[ld_t]]*>self._core.long_ld).to_canonical(cw.ld, cv.ld, start)
-            sig_off()
-            return vector_fp_nr_slurp(cw, FT_LONG_DOUBLE)
+            IF HAVE_LONG_DOUBLE:
+                vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+                sig_on()
+                (<MatGSO_c[Z_NR[long],FP_NR[ld_t]]*>self._core.long_ld).to_canonical(cw.ld, cv.ld, start)
+                sig_off()
+                return vector_fp_nr_slurp(cw, FT_LONG_DOUBLE)
+            ELSE:
+                raise RuntimeError("Float type not understood.")
         # # https://github.com/fplll/fplll/issues/493
         # elif self._type == mat_gso_long_dpe:
         #     vector_fp_nr_barf(cv, v, FT_DPE)
@@ -2368,11 +2380,14 @@ cdef class MatGSO:
                 sig_off()
                 return vector_z_nr_slurp(cw, ZT_MPZ)
             elif self._type == mat_gso_mpz_ld:
-                vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
-                sig_on()
-                (<MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]]*>self._core.mpz_ld).babai(cw.mpz, cv.ld, start, dimension, gso)
-                sig_off()
-                return vector_z_nr_slurp(cw, ZT_MPZ)
+                IF HAVE_LONG_DOUBLE:
+                    vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+                    sig_on()
+                    (<MatGSO_c[Z_NR[mpz_t],FP_NR[ld_t]]*>self._core.mpz_ld).babai(cw.mpz, cv.ld, start, dimension, gso)
+                    sig_off()
+                    return vector_z_nr_slurp(cw, ZT_MPZ)
+                ELSE:
+                    raise RuntimeError("Float type not understood.")
             # # https://github.com/fplll/fplll/issues/493
             # elif self._type == mat_gso_mpz_dpe:
             #     vector_fp_nr_barf(cv, v, FT_DPE)
@@ -2393,11 +2408,14 @@ cdef class MatGSO:
                 sig_off()
                 return vector_z_nr_slurp(cw, ZT_LONG)
             elif self._type == mat_gso_long_ld:
-                vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
-                sig_on()
-                (<MatGSO_c[Z_NR[long],FP_NR[ld_t]]*>self._core.long_ld).babai(cw.long, cv.ld, start, dimension, gso)
-                sig_off()
-                return vector_z_nr_slurp(cw, ZT_LONG)
+                IF HAVE_LONG_DOUBLE:
+                    vector_fp_nr_barf(cv, v, FT_LONG_DOUBLE)
+                    sig_on()
+                    (<MatGSO_c[Z_NR[long],FP_NR[ld_t]]*>self._core.long_ld).babai(cw.long, cv.ld, start, dimension, gso)
+                    sig_off()
+                    return vector_z_nr_slurp(cw, ZT_LONG)
+                ELSE:
+                    raise RuntimeError("Float type not understood.")
             # # https://github.com/fplll/fplll/issues/493
             # elif self._type == mat_gso_long_dpe:
             #     vector_fp_nr_barf(cv, v, FT_DPE)
