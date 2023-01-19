@@ -68,10 +68,13 @@ cdef void vector_fp_nr_barf(vector_fp_nr_t &out, object inp, FloatType float_typ
             tmp.d = <char*>py_bytes
             out.d.push_back(tmp.d)
     elif float_type == FT_LONG_DOUBLE:
-        for entry in inp:
-            py_bytes = str(entry).encode()
-            tmp.ld = <char*>py_bytes
-            out.ld.push_back(tmp.ld)
+        IF HAVE_LONG_DOUBLE:
+            for entry in inp:
+                py_bytes = str(entry).encode()
+                tmp.ld = <char*>py_bytes
+                out.ld.push_back(tmp.ld)
+        ELSE:
+            raise ValueError("Float type '%s' not understood."%float_type)
     elif float_type == FT_DPE:
         for entry in inp:
             py_bytes = str(entry).encode()
@@ -105,8 +108,11 @@ cdef object vector_fp_nr_slurp(vector_fp_nr_t &inp, FloatType float_type):
         for i in range(inp.d.size()):
             out.append(inp.d[i].get_d())
     elif float_type == FT_LONG_DOUBLE:
-        for i in range(inp.ld.size()):
-            out.append(inp.ld[i].get_d())
+        IF HAVE_LONG_DOUBLE:
+            for i in range(inp.ld.size()):
+                out.append(inp.ld[i].get_d())
+        ELSE:
+            raise ValueError("Float type '%s' not understood."%float_type)
     elif float_type == FT_DPE:
         for i in range(inp.dpe.size()):
             out.append(inp.dpe[i].get_d())
