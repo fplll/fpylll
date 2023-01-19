@@ -2081,7 +2081,7 @@ cdef class MatGSO:
                 sig_off()
                 return vector_fp_nr_slurp(cv, FT_LONG_DOUBLE)
             ELSE:
-                raise RuntimeError("Float type not understood.")
+                raise RuntimeError("Float type long double not supported.")
         # elif self._type == mat_gso_mpz_dpe:
         #     vector_fp_nr_barf(cw, w, FT_DPE)
         #     sig_on()
@@ -2108,7 +2108,7 @@ cdef class MatGSO:
                 sig_off()
                 return vector_fp_nr_slurp(cv, FT_LONG_DOUBLE)
             ELSE:
-                raise RuntimeError("Float type not understood.")
+                raise RuntimeError("Float type long double not supported.")
         # elif self._type == mat_gso_long_dpe:
         #     vector_fp_nr_barf(cw, w, FT_DPE)
         #     sig_on()
@@ -2205,7 +2205,7 @@ cdef class MatGSO:
                 sig_off()
                 return vector_fp_nr_slurp(cw, FT_LONG_DOUBLE)
             ELSE:
-                raise RuntimeError("Float type not understood.")
+                raise RuntimeError("Float type long double not supported.")
         # # https://github.com/fplll/fplll/issues/493
         # elif self._type == mat_gso_mpz_dpe:
         #     vector_fp_nr_barf(cv, v, FT_DPE)
@@ -2233,7 +2233,7 @@ cdef class MatGSO:
                 sig_off()
                 return vector_fp_nr_slurp(cw, FT_LONG_DOUBLE)
             ELSE:
-                raise RuntimeError("Float type not understood.")
+                raise RuntimeError("Float type long double not supported.")
         # # https://github.com/fplll/fplll/issues/493
         # elif self._type == mat_gso_long_dpe:
         #     vector_fp_nr_barf(cv, v, FT_DPE)
@@ -2387,7 +2387,7 @@ cdef class MatGSO:
                     sig_off()
                     return vector_z_nr_slurp(cw, ZT_MPZ)
                 ELSE:
-                    raise RuntimeError("Float type not understood.")
+                    raise RuntimeError("Float type long double not supported.")
             # # https://github.com/fplll/fplll/issues/493
             # elif self._type == mat_gso_mpz_dpe:
             #     vector_fp_nr_barf(cv, v, FT_DPE)
@@ -2415,7 +2415,7 @@ cdef class MatGSO:
                     sig_off()
                     return vector_z_nr_slurp(cw, ZT_LONG)
                 ELSE:
-                    raise RuntimeError("Float type not understood.")
+                    raise RuntimeError("Float type long double not supported.")
             # # https://github.com/fplll/fplll/issues/493
             # elif self._type == mat_gso_long_dpe:
             #     vector_fp_nr_barf(cv, v, FT_DPE)
@@ -2473,7 +2473,7 @@ cdef class MatGSO:
                     sig_off()
                     return vector_z_nr_slurp(cw, ZT_MPZ)
                 ELSE:
-                    raise RuntimeError("Float type not understood.")
+                    raise RuntimeError("Float type long double not supported.")
             elif self._type == mat_gso_mpz_dpe:
                 vector_fp_nr_barf(cv, v, FT_DPE)
                 sig_on()
@@ -2500,7 +2500,7 @@ cdef class MatGSO:
                     sig_off()
                     return vector_z_nr_slurp(cw, ZT_LONG)
                 ELSE:
-                    raise RuntimeError("Float type not understood.")
+                    raise RuntimeError("Float type long double not supported.")
             elif self._type == mat_gso_long_dpe:
                 vector_fp_nr_barf(cv, v, FT_DPE)
                 sig_on()
