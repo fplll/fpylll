@@ -2131,7 +2131,7 @@ cdef class MatGSO:
             elif self._type == mat_gso_mpz_qd:
                 vector_fp_nr_barf(cw, w, FT_QD)
                 sig_on()
-                (<MatGSO_c[Z_NR[mpz_t],FP_NR[qd_t]]*>self._core.mpz_ld).from_canonical(cv.qd, cw.qd, start, dimension)
+                (<MatGSO_c[Z_NR[mpz_t],FP_NR[qd_t]]*>self._core.mpz_qd).from_canonical(cv.qd, cw.qd, start, dimension)
                 sig_off()
                 return vector_fp_nr_slurp(cv, FT_QD)
             elif self._type == mat_gso_long_dd:
