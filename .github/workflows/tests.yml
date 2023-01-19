@@ -18,10 +18,12 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
         have_qd: [yes, no]
+        have_ld: [yes, no]
         have_numpy: [yes, no]
 
     env:
         HAVE_QD: ${{ matrix.have_qd }}
+        HAVE_LONG_DOUBLE: ${{ matrix.have_ld }}
         HAVE_NUMPY: ${{ matrix.have_numpy }}
         
     steps:
