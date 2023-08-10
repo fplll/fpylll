@@ -5,9 +5,9 @@
 #include <Python.h>
 #include <fplll/fplll.h>
 
-//extern "C" {
+extern "C" {
   bool evaluator_callback_call_obj(PyObject *obj, int n, double *new_sol_coord);
-//}
+}
 
 class PyCallbackEvaluatorWrapper {
 public:
