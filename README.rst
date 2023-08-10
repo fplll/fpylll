@@ -118,7 +118,6 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
 
    .. code-block:: bash
 
-     $ (fpylll) pip install Cython
      $ (fpylll) pip install -r requirements.txt
 
    to install the required Python packages (see above).
@@ -224,7 +223,6 @@ The instructions are very similar to the manual ones above.
 
    .. code-block:: bash
 
-     $ (sage-sh) pip3 install Cython
      $ (sage-sh) pip3 install -r requirements.txt
 
    to install the required Python packages (see above).

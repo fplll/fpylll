@@ -17,7 +17,6 @@ RUN apt update && \
 
 RUN git clone --branch $BRANCH https://github.com/fplll/fpylll && \
     cd fpylll && \
-    pip3 install Cython && \
     pip3 install -r requirements.txt && \
     pip3 install -r suggestions.txt && \
     CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS python3 setup.py build -j $JOBS && \
