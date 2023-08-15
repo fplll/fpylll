@@ -15,6 +15,7 @@ IF not HAVE_NUMPY:
 
 import numpy
 from numpy.__init__ cimport ndarray  # TODO: that __init__ shouldn't be needed
+from numpy.__init__ cimport integer as np_integer
 
 def _dump_mu(ndarray[double, ndim=2, mode="c"] mu not None, MatGSO M, int kappa, int block_size):
     u"""
@@ -130,3 +131,11 @@ def dump_r(MatGSO M, int kappa, int block_size):
     r = ndarray(dtype='float64', shape=block_size)
     _dump_r(r, M, kappa, block_size)
     return r
+
+def is_numpy_integer(value):
+    """
+    Return true if value is a numpy integer, false otherwise.
+    :param value: the value to be checked.
+    :returns: True if value is a numpy integer, false otherwise.
+    """
+    return isinstance(value, np_integer)
