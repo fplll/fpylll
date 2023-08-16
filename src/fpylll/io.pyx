@@ -11,7 +11,9 @@ from .gmp.mpz cimport mpz_t, mpz_set_si, mpz_set
 from cpython.version cimport PY_MAJOR_VERSION
 from fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fplll.fplll cimport ZT_MPZ, ZT_LONG
-from fpylll.numpy import is_numpy_integer
+
+# Note: this uses fpylll's numpy and not the global numpy package.
+from numpy import is_numpy_integer
 
 IF HAVE_QD:
     from fpylll.fplll.fplll cimport FT_DD, FT_QD
