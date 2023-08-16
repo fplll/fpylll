@@ -13,7 +13,8 @@ from fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fplll.fplll cimport ZT_MPZ, ZT_LONG
 
 # Note: this uses fpylll's numpy and not the global numpy package.
-from numpy import is_numpy_integer
+IF HAVE_NUMPY:
+    from numpy import is_numpy_integer
 
 IF HAVE_QD:
     from fpylll.fplll.fplll cimport FT_DD, FT_QD
@@ -52,10 +53,11 @@ cdef int assign_mpz(mpz_t& t, value) except -1:
             mpz_set_pylong(t, value)
             return 0
 
-    if is_numpy_integer(value):
-        value = long(value)
-        mpz_set_pylong(t, value)
-        return 0
+    IF HAVE_NUMPY:
+        if is_numpy_integer(value):
+            value = long(value)
+            mpz_set_pylong(t, value)
+            return 0
 
     raise NotImplementedError("Type '%s' not supported"%type(value))
 
