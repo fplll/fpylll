@@ -36,3 +36,14 @@ def test_dump_r(nrows=10):
 
     for i in range(nrows):
         assert abs(M.get_r(i, i) - r[i]) < 0.001
+
+
+def test_is_numpy_integer(nrows=10):
+    if not have_numpy:
+        return
+
+    import numpy as np
+    B = np.eye(nrows, dtype=np.int32)
+    Bfpy = IntegerMatrix.from_matrix(B)
+    for i in range(nrows):
+        assert Bfpy[i][i] == 1
