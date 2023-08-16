@@ -326,13 +326,8 @@ cdef class IntegerMatrix:
             >>> B[0,0]
             1
 
-        IntegerMatrix also supports numpy's integer types::
-            >>> import numpy as np
-            >>> B = np.eye(5, dtype=np.int32)
-            >>> Bfpy = IntegerMatrix.from_matrix(B)
-            >>> Bfpy[0,0]
-            1
-
+        IntegerMatrix also supports numpy's integer types, if numpy is supported.
+        See tests/test_numpy.py for example usage.
         """
         self._type = check_int_type(int_type)
 
