@@ -14,7 +14,7 @@ from fplll.fplll cimport ZT_MPZ, ZT_LONG
 
 # Note: this uses fpylll's numpy and not the global numpy package.
 IF HAVE_NUMPY:
-    from numpy import is_numpy_integer
+    from .numpy import is_numpy_integer
 
 IF HAVE_QD:
     from fpylll.fplll.fplll cimport FT_DD, FT_QD
