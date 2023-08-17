@@ -12,6 +12,10 @@ from cpython.version cimport PY_MAJOR_VERSION
 from fplll.fplll cimport FT_DEFAULT, FT_DOUBLE, FT_LONG_DOUBLE, FT_DPE, FT_MPFR
 from fplll.fplll cimport ZT_MPZ, ZT_LONG
 
+# Note: this uses fpylll's numpy and not the global numpy package.
+IF HAVE_NUMPY:
+    from .numpy import is_numpy_integer
+
 IF HAVE_QD:
     from fpylll.fplll.fplll cimport FT_DD, FT_QD
 
@@ -36,7 +40,7 @@ cdef int assign_Z_NR_mpz(Z_NR[mpz_t]& t, value) except -1:
 cdef int assign_mpz(mpz_t& t, value) except -1:
     """
     Assign Python integer to Z_NR[mpz_t]
-    """
+    """     
     if isinstance(value, int) and PY_MAJOR_VERSION == 2:
             mpz_set_si(t, PyInt_AS_LONG(value))
             return 0
@@ -45,6 +49,12 @@ cdef int assign_mpz(mpz_t& t, value) except -1:
         return 0
     if have_sage:
         if isinstance(value, Integer):
+            value = long(value)
+            mpz_set_pylong(t, value)
+            return 0
+
+    IF HAVE_NUMPY:
+        if is_numpy_integer(value):
             value = long(value)
             mpz_set_pylong(t, value)
             return 0
