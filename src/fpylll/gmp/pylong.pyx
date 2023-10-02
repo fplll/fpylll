@@ -28,6 +28,9 @@ AUTHORS:
 
 from cpython.int cimport PyInt_FromLong
 from cpython.long cimport PyLong_CheckExact, PyLong_FromLong
+from cpython.longintrepr cimport _PyLong_New, digit, PyLong_SHIFT
+from .pycore_long cimport (ob_digit, _PyLong_IsZero, _PyLong_IsNegative,
+        _PyLong_IsPositive, _PyLong_DigitCount, _PyLong_SetSignAndDigitCount)
 from .mpz cimport *
 
 # Unused bits in every PyLong digit
@@ -40,11 +43,9 @@ cdef mpz_get_pylong_large(mpz_srcptr z):
     """
     cdef size_t nbits = mpz_sizeinbase(z, 2)
     cdef size_t pylong_size = (nbits + PyLong_SHIFT - 1) // PyLong_SHIFT
-    L = _PyLong_New(pylong_size)
-    mpz_export((<PyLongObject*>L).ob_digit, NULL,
-            -1, sizeof(digit), 0, PyLong_nails, z)
-    if mpz_sgn(z) < 0:
-        (<PyVarObject*>L).ob_size = -(<PyVarObject*>L).ob_size
+    cdef py_long L = _PyLong_New(pylong_size)
+    mpz_export(ob_digit(L), NULL, -1, sizeof(digit), 0, PyLong_nails, z)
+    _PyLong_SetSignAndDigitCount(L, mpz_sgn(z), pylong_size)
     return L
 
 
@@ -67,16 +68,13 @@ cdef mpz_get_pyintlong(mpz_srcptr z):
     return mpz_get_pylong_large(z)
 
 
-cdef int mpz_set_pylong(mpz_ptr z, L) except -1:
+cdef int mpz_set_pylong(mpz_ptr z, py_long L) except -1:
     """
     Convert a Python ``long`` `L` to an ``mpz``.
     """
-    cdef Py_ssize_t pylong_size = (<PyVarObject*>L).ob_size
-    if pylong_size < 0:
-        pylong_size = -pylong_size
-    mpz_import(z, pylong_size, -1, sizeof(digit), 0, PyLong_nails,
-            (<PyLongObject*>L).ob_digit)
-    if (<PyVarObject*>L).ob_size < 0:
+    cdef Py_ssize_t pylong_size = _PyLong_DigitCount(L)
+    mpz_import(z, pylong_size, -1, sizeof(digit), 0, PyLong_nails, ob_digit(L))
+    if _PyLong_IsNegative(L):
         mpz_neg(z, z)
 
 
