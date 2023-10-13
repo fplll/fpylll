@@ -844,7 +844,7 @@ cdef extern from "fplll/bkz_param.h" namespace "fplll":
 
         string dump_gso_filename
 
-    vector[Strategy] load_strategies_json(const string &filename) nogil except+
+    vector[Strategy] load_strategies_json(const string &filename) except + nogil
     const string default_strategy_path() nogil
     const string default_strategy() nogil
     const string strategy_full_path(const string &strategy_path) nogil
@@ -859,19 +859,19 @@ cdef extern from "fplll/bkz.h" namespace "fplll":
         int svp_preprocessing(int kappa, int block_size, const BKZParam &param) nogil
         int svp_postprocessing(int kappa, int block_size, const vector[FT] &solution) nogil
 
-        int svp_reduction(int kappa, int block_size, const BKZParam &param, int dual) nogil except +
+        int svp_reduction(int kappa, int block_size, const BKZParam &param, int dual) except + nogil
 
-        int tour(const int loop, int &kappa_max, const BKZParam &param, int min_row, int max_row) nogil except +
-        int sd_tour(const int loop, const BKZParam &param, int min_row, int max_row) nogil except +
-        int slide_tour(const int loop, const BKZParam &param, int min_row, int max_row) nogil except +
+        int tour(const int loop, int &kappa_max, const BKZParam &param, int min_row, int max_row) except + nogil
+        int sd_tour(const int loop, const BKZParam &param, int min_row, int max_row) except + nogil
+        int slide_tour(const int loop, const BKZParam &param, int min_row, int max_row) except + nogil
 
-        int hkz(int &kappaMax, const BKZParam &param, int min_row, int max_row) nogil except +
+        int hkz(int &kappaMax, const BKZParam &param, int min_row, int max_row) except + nogil
 
         int bkz()
 
-        void rerandomize_block(int min_row, int max_row, int density) nogil except +
+        void rerandomize_block(int min_row, int max_row, int density) except + nogil
 
-        void dump_gso(const string filename, const string prefix, int append) nogil except +
+        void dump_gso(const string filename, const string prefix, int append) except + nogil
 
         int status
 

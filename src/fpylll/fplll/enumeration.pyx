@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 include "fpylll/config.pxi"
-
+
 from cython.operator cimport dereference as deref, preincrement as inc
 
 from libcpp.vector cimport vector
