@@ -1,4 +1,4 @@
-Cython
+Cython>=3.0
 pytest
 cysignals
 black
