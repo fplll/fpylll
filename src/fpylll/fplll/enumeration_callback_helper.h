@@ -5,9 +5,10 @@
 #include <Python.h>
 #include <fplll/fplll.h>
 
-extern "C" {
+// TODO annoyingly Cython 3.0 insists on this gone, Cython < 3.0 insists on this being present
+// extern "C" {
   bool evaluator_callback_call_obj(PyObject *obj, int n, double *new_sol_coord);
-}
+// }
 
 class PyCallbackEvaluatorWrapper {
 public:
