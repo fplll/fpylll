@@ -17,8 +17,8 @@ RUN apt update && \
 
 RUN git clone --branch $BRANCH https://github.com/fplll/fpylll && \
     cd fpylll && \
-    pip3 install -r requirements.txt && \
-    pip3 install -r suggestions.txt && \
+    pip3 --break-system-packages install -r requirements.txt && \
+    pip3 --break-system-packages install -r suggestions.txt && \
     CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS python3 setup.py build -j $JOBS && \
     python3 setup.py -q install && \
     cd .. && \
