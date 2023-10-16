@@ -15,10 +15,14 @@ RUN apt update && \
     apt install -y python3-pip python3-dev zlib1g-dev libjpeg-dev && \
     apt clean
 
-RUN git clone --branch $BRANCH https://github.com/fplll/fpylll && \
-    cd fpylll && \
-    pip3 --break-system-packages install -r requirements.txt && \
-    pip3 --break-system-packages install -r suggestions.txt && \
+RUN rm /usr/lib/python3.11/EXTERNALLY-MANAGED
+
+RUN git clone --branch $BRANCH https://github.com/fplll/fpylll
+
+RUN pip3 install -r fpylll/requirements.txt
+RUN pip3 install -r fpylll/suggestions.txt
+
+RUN cd fpylll && \
     CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS python3 setup.py build -j $JOBS && \
     python3 setup.py -q install && \
     cd .. && \
