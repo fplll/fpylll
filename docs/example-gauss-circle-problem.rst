@@ -59,13 +59,11 @@ The parameter `nr_solutions` is by default `1.` If we set say, `{\rm{nr\_solutio
   >>> from fpylll.fplll.gso import MatGSO
   >>> from fpylll.fplll.integer_matrix import IntegerMatrix
   >>> from fpylll import Enumeration, EvaluatorStrategy
-  >>> import numpy as np
+  >>> from math import pi, ceil, sqrt
   >>> def n(radius):
   ...   dim = 2
-  ...   pi = np.pi
-  ...   nr = np.ceil(pi*radius**2 + 2*np.sqrt(2)*pi*radius)
-  ...   B = np.matlib.identity(dim)
-  ...   A = npmat2fpmat(B)   #define the latttice Z^dim
+  ...   nr = ceil(pi*radius**2 + 2*sqrt(2)*pi*radius)
+  ...   A = IntegerMatrix.idenity(dim) 
   ...   M = MatGSO(A)
   ...   _ = M.update_gso()
   ...   enum = Enumeration(M,nr_solutions = nr)
