@@ -296,7 +296,7 @@ from the top-level directory which runs all tests in ``tests/test_*.py``. We run
 
     $ (fpylll) flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241 src
 
-Note that **fpylll** supports Python 3. In particular, tests are run using Python 3.8, 3.9 and 3.10. See `.tests.yml <https://github.com/fplll/fpylll/blob/master/.github/workflows/tests.yml>`_ for details on automated testing.
+Note that **fpylll** supports Python 3. In particular, tests are run using Python 3.10, 3.11 and 3.12. See `.tests.yml <https://github.com/fplll/fpylll/blob/master/.github/workflows/tests.yml>`_ for details on automated testing.
 
 
 Attribution & License
