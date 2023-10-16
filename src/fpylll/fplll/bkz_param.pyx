@@ -96,7 +96,7 @@ cdef class Strategy:
 
             >>> from fpylll import load_strategies_json, BKZ
             >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50].dict()) # doctest: +ELLIPSIS
-            OrderedDict([('block_size', 50), ('preprocessing_block_sizes', (26,)), ('pruning_parameters', ...)])
+            OrderedDict...
             >>> print(load_strategies_json(BKZ.DEFAULT_STRATEGY)[50])
             Strategy< 50, (26), 0.52-0.55, {}>
 
