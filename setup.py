@@ -25,7 +25,7 @@ try:
     from setuptools.command.build_ext import build_ext as _build_ext
     from setuptools.core import setup
     from setuptools.extension import Extension as _Extension
-    aux_setup_kwds = {"install_requires": ["Cython", "cysignals"]}
+    aux_setup_kwds = {"install_requires": ["cysignals"]}
 except ImportError:
     from distutils.command.build_ext import build_ext as _build_ext
     from distutils.core import setup
