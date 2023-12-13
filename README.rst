@@ -74,7 +74,7 @@ We also suggest
 Online
 ------
 
-**fpylll** ships with Sage. Thus, it is available via `SageMathCell <http://sagecell.sagemath.org/?z=eJxtjk1rwzAMhu-F_gfRUzpCKGODXXxwWTfGWlrWDPZBMWrjFK-2lcketPv1U0657CJePUiP1DIFaLuL9x5c6IgzXI1HGhQ8xWyPlleY2Z0rxthQKO5mJUy-kS-TEoLqu5O6kbp3OUmYjkcdu5hBf852VSQOhaCUGcXlbBKtJ2zMQMxXoljMnz-q-8WDfl3WZlu_6Hrx-C6LPWbb_ByykyFdQg82yBiKvafDyST3a9W13B-EaojyIp6NJ-qSui2h9XhMqles9JtZrteb7fT_h_8AredZkw==&lang=sage>`__ and `CoCalc <https://cocalc.com/>`__ (select a Jupyter notebook with a Sage kernel). You can also fire up a `dply.co virtual server <https://dply.co/b/pBZ2QbxW>`__ with the latest fpylll/fplll preinstalled (it takes perhaps 15 minutes until everything is compiled).
+**fpylll** ships with Sage. Thus, it is available via `SageMathCell <https://sagecell.sagemath.org/?z=eJxtjk1rAjEQhu-C_2HwlC3LImKhlxxSaktRUeoW-kEJo5uVaD62kxS0v76zp730MrzzMPPwthQ9tN3VOQfWd5Ey3IxHCiQ8h2yOhtaYyV4qwtBEL-6mJUy-ka6TErzst7Oc89zbnDgU41FHNmShPqdfVYjkRcEsZUKWWZPY6yI2eiD6lGIQ98uP6mHxqF5Xtd7VL6pePL3zY4_JND-HbPlIldCDLRJ6sXfxcNbJ_ho54wKDUA6RO-JFuxi7JG9LaB0ek-wVa_WmV5vNdlf82_gPldJZ3g==&lang=sage&interacts=eJyLjgUAARUAuQ==>`__ and `CoCalc <https://cocalc.com/>`__ (select a Jupyter notebook with a Sage kernel).
 
 Getting Started
 ---------------
