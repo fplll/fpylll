@@ -19,6 +19,7 @@ jobs:
       - name: Build
         run: |
           pip install Cython
+          pip install setuptools
           python setup.py sdist
           
       - name: Create Release
