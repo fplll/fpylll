@@ -568,8 +568,7 @@ cdef class MatGSO:
         >>> M = GSO.Mat(A)
         >>> M.float_type
         'double'
-        >>> FPLLL.set_precision(100)
-        53
+        >>> _ = FPLLL.set_precision(100)
         >>> M = GSO.Mat(A, float_type='mpfr')
         >>> M.float_type
         'mpfr'
