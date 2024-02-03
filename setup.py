@@ -83,6 +83,7 @@ class build_ext(_build_ext, object):
                 "libraries": ["gmp", "mpfr", "fplll"],
                 "extra_compile_args": ["-std=c++11"] + cxxflags,
                 "extra_link_args": ["-std=c++11"],
+                "define_macros": [("__PYX_EXTERN_C", 'extern "C++"')],
             }
 
             if def_vars["HAVE_QD"]:
