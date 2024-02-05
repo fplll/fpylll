@@ -1140,6 +1140,7 @@ def bkz_reduction(IntegerMatrix B, BKZParam o, U=None, float_type=None, int prec
         >>> print(A)
         >>> A == U * B
         True
+
     """
     check_precision(precision)
 
