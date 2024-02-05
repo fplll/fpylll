@@ -1117,6 +1117,29 @@ def bkz_reduction(IntegerMatrix B, BKZParam o, U=None, float_type=None, int prec
     :param precision: bit precision to use if ``float_type`` is ``'mpfr'``
 
     :returns: modified matrix ``B``
+
+    Example::
+
+        >>> from fpylll import IntegerMatrix, BKZ
+        >>> A = IntegerMatrix(9, 10)
+        >>> A.randomize("intrel", bits=10)
+        >>> print(A)
+        >>> BKZ.reduction(A, BKZ.Param(3))
+        >>> print(A)
+
+    We can obtain the transformation matrix as well::
+
+        >>> import copy
+        >>> from fpylll import IntegerMatrix, BKZ
+        >>> A = IntegerMatrix(9, 10)
+        >>> A.randomize("intrel", bits=10)
+        >>> print(A)
+        >>> B = copy.copy(A)
+        >>> U = IntegerMatrix(9, 9)
+        >>> BKZ.reduction(A, BKZ.Param(3), U=U)
+        >>> print(A)
+        >>> A == U * B
+        True
     """
     check_precision(precision)
 
