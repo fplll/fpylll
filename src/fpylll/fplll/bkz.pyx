@@ -1120,24 +1120,40 @@ def bkz_reduction(IntegerMatrix B, BKZParam o, U=None, float_type=None, int prec
 
     Example::
 
-        >>> from fpylll import IntegerMatrix, BKZ
+        >>> from fpylll import FPLLL, IntegerMatrix, BKZ
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix(9, 10)
         >>> A.randomize("intrel", bits=10)
-        >>> print(A)
-        >>> BKZ.reduction(A, BKZ.Param(3))
-        >>> print(A)
+        >>> print(BKZ.reduction(A, BKZ.Param(3)))
+        [  0  0  0  0 -1 -1  0  1  1  0 ]
+        [  0  0  0 -1  1 -1  0  0 -1  0 ]
+        [  0 -1  1  1  0  0  0  0 -1  0 ]
+        [  0 -1 -1  0 -1  0  0  1  0  1 ]
+        [  1 -1  1 -1 -1  0 -1  0  1  1 ]
+        [  2  1  0  1 -1  0  1  0  0  0 ]
+        [  0 -1 -1  1  1  0 -1  1  1 -1 ]
+        [ -2  0 -1  0  1 -1  1 -2  0  1 ]
+        [ -1  1  1  0  0 -1 -2  0  0  2 ]
 
     We can obtain the transformation matrix as well::
 
         >>> import copy
-        >>> from fpylll import IntegerMatrix, BKZ
+        >>> from fpylll import FPLLL, IntegerMatrix, BKZ
+        >>> FPLLL.set_random_seed(1337)
         >>> A = IntegerMatrix(9, 10)
         >>> A.randomize("intrel", bits=10)
-        >>> print(A)
         >>> B = copy.copy(A)
         >>> U = IntegerMatrix(9, 9)
-        >>> BKZ.reduction(A, BKZ.Param(3), U=U)
-        >>> print(A)
+        >>> print(BKZ.reduction(A, BKZ.Param(3), U=U))
+        [  0  0  0  0 -1 -1  0  1  1  0 ]
+        [  0  0  0 -1  1 -1  0  0 -1  0 ]
+        [  0 -1  1  1  0  0  0  0 -1  0 ]
+        [  0 -1 -1  0 -1  0  0  1  0  1 ]
+        [  1 -1  1 -1 -1  0 -1  0  1  1 ]
+        [  2  1  0  1 -1  0  1  0  0  0 ]
+        [  0 -1 -1  1  1  0 -1  1  1 -1 ]
+        [ -2  0 -1  0  1 -1  1 -2  0  1 ]
+        [ -1  1  1  0  0 -1 -2  0  0  2 ]
         >>> A == U * B
         True
 
