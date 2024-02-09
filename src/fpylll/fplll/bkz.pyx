@@ -1106,16 +1106,57 @@ cdef class BKZReduction:
 
 
 
-def bkz_reduction(IntegerMatrix B, BKZParam o, float_type=None, int precision=0):
+def bkz_reduction(IntegerMatrix B, BKZParam o, U=None, float_type=None, int precision=0):
     """
     Run BKZ reduction.
 
     :param IntegerMatrix B: Integer matrix, modified in place.
     :param BKZParam o: BKZ parameters
+    :param U: Transformation matrix or ``None``
     :param float_type: either ``None``: for automatic choice or an entry of `fpylll.config.float_types`
     :param precision: bit precision to use if ``float_type`` is ``'mpfr'``
 
     :returns: modified matrix ``B``
+
+    Example::
+
+        >>> from fpylll import FPLLL, IntegerMatrix, BKZ
+        >>> FPLLL.set_random_seed(1337)
+        >>> A = IntegerMatrix(9, 10)
+        >>> A.randomize("intrel", bits=10)
+        >>> print(BKZ.reduction(A, BKZ.Param(3)))
+        [  0  0  0  0 -1 -1  0  1  1  0 ]
+        [  0  0  0 -1  1 -1  0  0 -1  0 ]
+        [  0 -1  1  1  0  0  0  0 -1  0 ]
+        [  0 -1 -1  0 -1  0  0  1  0  1 ]
+        [  1 -1  1 -1 -1  0 -1  0  1  1 ]
+        [  2  1  0  1 -1  0  1  0  0  0 ]
+        [  0 -1 -1  1  1  0 -1  1  1 -1 ]
+        [ -2  0 -1  0  1 -1  1 -2  0  1 ]
+        [ -1  1  1  0  0 -1 -2  0  0  2 ]
+
+    We can obtain the transformation matrix as well::
+
+        >>> import copy
+        >>> from fpylll import FPLLL, IntegerMatrix, BKZ
+        >>> FPLLL.set_random_seed(1337)
+        >>> A = IntegerMatrix(9, 10)
+        >>> A.randomize("intrel", bits=10)
+        >>> B = copy.copy(A)
+        >>> U = IntegerMatrix(9, 9)
+        >>> print(BKZ.reduction(A, BKZ.Param(3), U=U))
+        [  0  0  0  0 -1 -1  0  1  1  0 ]
+        [  0  0  0 -1  1 -1  0  0 -1  0 ]
+        [  0 -1  1  1  0  0  0  0 -1  0 ]
+        [  0 -1 -1  0 -1  0  0  1  0  1 ]
+        [  1 -1  1 -1 -1  0 -1  0  1  1 ]
+        [  2  1  0  1 -1  0  1  0  0  0 ]
+        [  0 -1 -1  1  1  0 -1  1  1 -1 ]
+        [ -2  0 -1  0  1 -1  1 -2  0  1 ]
+        [ -1  1  1  0  0 -1 -2  0  0  2 ]
+        >>> A == U * B
+        True
+
     """
     check_precision(precision)
 
@@ -1125,10 +1166,20 @@ def bkz_reduction(IntegerMatrix B, BKZParam o, float_type=None, int precision=0)
     if B._type != ZT_MPZ:
         raise NotImplementedError("C++ BKZ is not implemented over longs, try the Python version.")
 
-    with nogil:
-        sig_on()
-        r = bkz_reduction_c(B._core.mpz, NULL, o.o[0], float_type_, precision)
-        sig_off()
+    if U is not None and isinstance(U, IntegerMatrix):
+        with nogil:
+            sig_on()
+            r = bkz_reduction_c((<IntegerMatrix>B)._core.mpz,
+                                (<IntegerMatrix>U)._core.mpz,
+                                o.o[0], float_type_, precision)
+            sig_off()
+    else:
+        with nogil:
+            sig_on()
+            r = bkz_reduction_c((<IntegerMatrix>B)._core.mpz,
+                                NULL, o.o[0], float_type_, precision)
+            sig_off()
+
 
     if r and r not in (RED_BKZ_LOOPS_LIMIT, RED_BKZ_TIME_LIMIT):
         raise ReductionError( str(get_red_status_str(r)) )
