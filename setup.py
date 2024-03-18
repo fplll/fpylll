@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import platform
 import subprocess
 import sys
 import io
@@ -196,7 +197,7 @@ class build_ext(_build_ext, object):
         # Ideally this would check the fplll headers explicitly for the
         # the FPLLL_WITH_LONG_DOUBLE define, but for now it suffices to
         # say that long double support is disabled on Cygwin
-        return not sys.platform.startswith("cygwin")
+        return not (sys.platform.startswith("cygwin") or ("macOS" in (_ := platform.platform()) and "arm" in _))
 
 
 # EXTENSIONS
