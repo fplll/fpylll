@@ -8,15 +8,17 @@ Babai's Nearest Plane algorithm
 """
 
 from fpylll import IntegerMatrix, LLL
-from math import ceil
+from math import isqrt
 
 
-def babai(B, t):
+def babai(B, t, *args, **kwargs):
     """
     Run Babai's Nearest Plane algorithm by running LLL.
 
     :param B: Input lattice basis.
     :param target: Target point (∈ ZZ^n)
+    :param args: Passed onto LLL.reduction
+    :param kwargs: Passed onto LLL.reduction
     :returns coordinates of the solution vector:
 
     This implementation is more numerically stable compared to the one offered by `MatGSO.babai()`.
@@ -46,15 +48,16 @@ def babai(B, t):
             A[i, j] = B[i, j]
 
     # make sure the input is LLL reduced before reading the norm of the last vector
-    LLL.reduction(A)
+    LLL.reduction(A, *args, **kwargs)
     # zero vector at the end
     A.swap_rows(0, B.nrows)
 
     for j in range(B.ncols):
         A[-1, j] = t[j]
-    A[-1, -1] = ceil(A[-2].norm())
+    # precise norm, +1 to make sure it's not too small, too big doesn't matter
+    A[-1, -1] = isqrt(sum(x**2 for x in A[-2])) + 1
 
-    LLL.reduction(A)  # now call LLL to run Babai
+    LLL.reduction(A, *args, **kwargs)  # now call LLL to run Babai
 
     v = [0] * len(t)
     if A[-1, -1] > 0:
