@@ -57,7 +57,7 @@ def babai(B, t, *args, **kwargs):
     # precise norm
     A[-1, -1] = isqrt(sum(x**2 for x in A[-2])) + 1
 
-    LLL.reduction(A)  # now call LLL to run Babai
+    LLL.reduction(A, *args, **kwargs)  # now call LLL to run Babai
 
     v = [0] * len(t)
     if A[-1, -1] > 0:
