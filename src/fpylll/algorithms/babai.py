@@ -17,6 +17,8 @@ def babai(B, t, *args, **kwargs):
 
     :param B: Input lattice basis.
     :param target: Target point (∈ ZZ^n)
+    :param args: Passed onto LLL.reduction
+    :param kwargs: Passed onto LLL.reduction
     :returns coordinates of the solution vector:
 
     This implementation is more numerically stable compared to the one offered by `MatGSO.babai()`.
