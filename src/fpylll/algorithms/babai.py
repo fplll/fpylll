@@ -54,7 +54,7 @@ def babai(B, t, *args, **kwargs):
 
     for j in range(B.ncols):
         A[-1, j] = t[j]
-    # precise norm
+    # precise norm, +1 to make sure it's not too small, too big doesn't matter
     A[-1, -1] = isqrt(sum(x**2 for x in A[-2])) + 1
 
     LLL.reduction(A, *args, **kwargs)  # now call LLL to run Babai
