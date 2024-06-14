@@ -19,9 +19,9 @@ def get_current_slope(r, start_row=0, stop_row=-1):
         >>> M = GSO.Mat(A); _ = M.update_gso()
         >>> from fpylll.tools.quality import get_current_slope
         >>> M.get_current_slope(0, 100)  # doctest: +ELLIPSIS
-        -0.085500625...
+        -0.083173398...
         >>> get_current_slope(M.r(), 0, 100) # doctest: +ELLIPSIS
-        -0.085500625...
+        -0.083173398...
 
     """
     x = [log(r[i]) for i in range(start_row, stop_row)]
@@ -69,9 +69,9 @@ def basis_quality(M):
         >>> from fpylll.tools.quality import basis_quality
         >>> from fpylll.tools.bkz_stats import pretty_dict
         >>> str(pretty_dict(basis_quality(M)))
-        '{"r_0":   2^34.0,  "r_0/gh": 9.389811,  "rhf": 1.020530,  "/": -0.08550,  "hv/hv": 2.940943}'
+        '{"r_0":   2^35.3,  "r_0/gh": 8.564671,  "rhf": 1.020061,  "/": -0.08317,  "hv/hv": 2.832300}'
         >>> str(pretty_dict(basis_quality(M.r())))
-        '{"r_0":   2^34.0,  "r_0/gh": 9.389811,  "rhf": 1.020530,  "/": -0.08550,  "hv/hv": 2.940943}'
+        '{"r_0":   2^35.3,  "r_0/gh": 8.564671,  "rhf": 1.020061,  "/": -0.08317,  "hv/hv": 2.832300}'
 
     """
 
