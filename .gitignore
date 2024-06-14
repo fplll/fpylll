@@ -55,6 +55,11 @@ target/
 
 /.vagrant/
 /Vagrantfile
+
+# Ignore any build files
+/src/fpylll/*.so
+/src/fpylll/*/*.so
+
 /src/fpylll/config.pxi
 /.ipynb_checkpoints/*.ipynb
 /MANIFEST
