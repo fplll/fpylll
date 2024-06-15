@@ -388,11 +388,11 @@ cdef extern from "fplll/nr/matrix.h" namespace "fplll":
         void gen_intrel(int bits) nogil
         void gen_simdioph(int bits, int bits2) nogil
         void gen_uniform(int bits) nogil
-        void gen_ntrulike(int bits) nogil
-        void gen_ntrulike_withq(int q) nogil
-        void gen_ntrulike2(int bits) nogil
-        void gen_ntrulike2_withq(int q) nogil
-        void gen_qary_withq(int k, int q) nogil
+        void gen_ntrulike(const Z_NR[T] &q) nogil
+        void gen_ntrulike_bits(int bits) nogil
+        void gen_ntrulike2(const Z_NR[T] &q) nogil
+        void gen_ntrulike2_bits(int bits) nogil
+        void gen_qary(int k, const Z_NR[T] &q) nogil
         void gen_qary_prime(int k, int bits) nogil
         void gen_trg(double alpha) nogil
 

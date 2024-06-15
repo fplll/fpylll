@@ -979,6 +979,9 @@ cdef class IntegerMatrix:
         :seealso: :func:`~IntegerMatrix.random`
 
         """
+        cdef Z_NR[mpz_t] t_mpz
+        cdef Z_NR[long] t_long
+
         if algorithm == "intrel":
             bits = int(kwds["bits"])
             sig_on()
@@ -1018,9 +1021,11 @@ cdef class IntegerMatrix:
                 q = int(kwds["q"])
                 sig_on()
                 if self._type == ZT_MPZ:
-                    self._core.mpz.gen_ntrulike_withq(q)
+                    assign_Z_NR_mpz(t_mpz, q)
+                    self._core.mpz.gen_ntrulike(t_mpz)
                 elif self._type == ZT_LONG:
-                    self._core.long.gen_ntrulike_withq(q)
+                    t_long = <long> q
+                    self._core.long.gen_ntrulike(t_long)
                 else:
                     raise RuntimeError("Integer type '%s' not understood."%self._type)
                 sig_off()
@@ -1028,9 +1033,9 @@ cdef class IntegerMatrix:
                 bits = int(kwds["bits"])
                 sig_on()
                 if self._type == ZT_MPZ:
-                    self._core.mpz.gen_ntrulike(bits)
+                    self._core.mpz.gen_ntrulike_bits(bits)
                 elif self._type == ZT_LONG:
-                    self._core.long.gen_ntrulike(bits)
+                    self._core.long.gen_ntrulike_bits(bits)
                 else:
                     raise RuntimeError("Integer type '%s' not understood."%self._type)
                 sig_off()
@@ -1042,9 +1047,11 @@ cdef class IntegerMatrix:
                 q = int(kwds["q"])
                 sig_on()
                 if self._type == ZT_MPZ:
-                    self._core.mpz.gen_ntrulike2_withq(q)
+                    assign_Z_NR_mpz(t_mpz, q)
+                    self._core.mpz.gen_ntrulike2(t_mpz)
                 elif self._type == ZT_LONG:
-                    self._core.long.gen_ntrulike2_withq(q)
+                    t_long = <long> q
+                    self._core.long.gen_ntrulike2(t_long)
                 else:
                     raise RuntimeError("Integer type '%s' not understood."%self._type)
                 sig_off()
@@ -1052,9 +1059,9 @@ cdef class IntegerMatrix:
                 bits = int(kwds["bits"])
                 sig_on()
                 if self._type == ZT_MPZ:
-                    self._core.mpz.gen_ntrulike2(bits)
+                    self._core.mpz.gen_ntrulike2_bits(bits)
                 elif self._type == ZT_LONG:
-                    self._core.long.gen_ntrulike2(bits)
+                    self._core.long.gen_ntrulike2_bits(bits)
                 else:
                     raise RuntimeError("Integer type '%s' not understood."%self._type)
                 sig_off()
@@ -1067,9 +1074,11 @@ cdef class IntegerMatrix:
                 q = int(kwds["q"])
                 sig_on()
                 if self._type == ZT_MPZ:
-                    self._core.mpz.gen_qary_withq(k, q)
+                    assign_Z_NR_mpz(t_mpz, q)
+                    self._core.mpz.gen_qary(k, t_mpz)
                 elif self._type == ZT_LONG:
-                    self._core.long.gen_qary_withq(k, q)
+                    t_long = <long> q
+                    self._core.long.gen_qary(k, t_long)
                 else:
                     raise RuntimeError("Integer type '%s' not understood."%self._type)
                 sig_off()

@@ -12,10 +12,12 @@ EXAMPLE::
     >>> radius = sum([m.get_r(0, 0) for m in M])/len(M)
     >>> pr = Pruning.run(radius, 10000, [m.r() for m in M], 0.4)
     >>> print(pr)  # doctest: +ELLIPSIS
-    PruningParams<7.797437, (1.00,...,0.80), 0.6594>
+    PruningParams<1.397930, (1.00,...,0.43), 0.4055>
+
 
     >>> print(Pruning.run(M[0].get_r(0, 0), 2**20, [m.r() for m in M], 0.9, pruning=pr))
-    PruningParams<1.001130, (1.00,...,0.98), 0.9410>
+    PruningParams<1.437235, (1.00,...,0.98), 0.9410>
+
 
 
 ..  moduleauthor:: Martin R.  Albrecht <martinralbrecht+fpylll@googlemail.com>

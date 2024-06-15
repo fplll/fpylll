@@ -108,10 +108,10 @@ def simulate(r, param):
         >>> M = GSO.Mat(A)
         >>> from fpylll.tools.bkz_simulator import simulate
         >>> _ = simulate(M, BKZ.Param(block_size=40, max_loops=4, flags=BKZ.VERBOSE))
-        {"i":        0,  "r_0":   2^33.3,  "r_0/gh": 6.110565,  "rhf": 1.018340,  "/": -0.07013,  "hv/hv": 2.424131}
-        {"i":        1,  "r_0":   2^32.7,  "r_0/gh": 4.018330,  "rhf": 1.016208,  "/": -0.06161,  "hv/hv": 2.156298}
-        {"i":        2,  "r_0":   2^32.3,  "r_0/gh": 2.973172,  "rhf": 1.014679,  "/": -0.05745,  "hv/hv": 2.047014}
-        {"i":        3,  "r_0":   2^32.1,  "r_0/gh": 2.583479,  "rhf": 1.013966,  "/": -0.05560,  "hv/hv": 2.000296}
+        {"i":        0,  "r_0":   2^34.7,  "r_0/gh": 5.547855,  "rhf": 1.017849,  "/": -0.06928,  "hv/hv": 2.406481}
+        {"i":        1,  "r_0":   2^34.2,  "r_0/gh": 3.894188,  "rhf": 1.016049,  "/": -0.06136,  "hv/hv": 2.150078}
+        {"i":        2,  "r_0":   2^33.8,  "r_0/gh": 2.949459,  "rhf": 1.014638,  "/": -0.05735,  "hv/hv": 2.044402}
+        {"i":        3,  "r_0":   2^33.6,  "r_0/gh": 2.574565,  "rhf": 1.013949,  "/": -0.05556,  "hv/hv": 1.999163}
     """
 
     r = _extract_log_norms(r)
@@ -190,10 +190,10 @@ def simulate_prob(r, param, prng_seed=0xdeadbeef):
         >>> M = GSO.Mat(A)
         >>> from fpylll.tools.bkz_simulator import simulate_prob
         >>> _ = simulate_prob(M, BKZ.Param(block_size=40, max_loops=4, flags=BKZ.VERBOSE))
-        {"i":        0,  "r_0":   2^33.1,  "r_0/gh": 5.193166,  "rhf": 1.017512,  "/": -0.07022,  "hv/hv": 2.428125}
-        {"i":        1,  "r_0":   2^32.7,  "r_0/gh": 3.997766,  "rhf": 1.016182,  "/": -0.06214,  "hv/hv": 2.168460}
-        {"i":        2,  "r_0":   2^32.3,  "r_0/gh": 3.020156,  "rhf": 1.014759,  "/": -0.05808,  "hv/hv": 2.059562}
-        {"i":        3,  "r_0":   2^32.2,  "r_0/gh": 2.783102,  "rhf": 1.014344,  "/": -0.05603,  "hv/hv": 2.013191}
+        {"i":        0,  "r_0":   2^34.5,  "r_0/gh": 4.714937,  "rhf": 1.017021,  "/": -0.06936,  "hv/hv": 2.410445}
+        {"i":        1,  "r_0":   2^34.2,  "r_0/gh": 3.874259,  "rhf": 1.016023,  "/": -0.06189,  "hv/hv": 2.162205}
+        {"i":        2,  "r_0":   2^33.8,  "r_0/gh": 2.996068,  "rhf": 1.014718,  "/": -0.05798,  "hv/hv": 2.056934}
+        {"i":        3,  "r_0":   2^33.7,  "r_0/gh": 2.773499,  "rhf": 1.014326,  "/": -0.05598,  "hv/hv": 2.012050}
     """
 
     if param.block_size <= 2:
@@ -301,7 +301,7 @@ def averaged_simulate_prob(L, param, tries=10):
         >>> from fpylll.tools.bkz_simulator import averaged_simulate_prob
         >>> _ = averaged_simulate_prob(M, BKZ.Param(block_size=40, max_loops=4))
         >>> print(_[0][:3])
-        [4663149828.487..., 4267813469.1884..., 4273411937.5775...]
+        [13371442256.252..., 12239031147.433..., 12256303707.863...]
     """
     if tries < 1:
         raise ValueError("Need to average over positive number of tries.")

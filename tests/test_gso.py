@@ -18,7 +18,7 @@ else:
 
 def make_integer_matrix(m, n, int_type="mpz"):
     A = IntegerMatrix(m, n, int_type=int_type)
-    A.randomize("qary", k=m//2, bits=m)
+    A.randomize("qary", k=m//2, bits=max(1, m))
     return A
 
 
@@ -94,9 +94,9 @@ def test_gso_update_gso():
                 g00.append(M.get_gram(0, 0))
 
             for i in range(1, len(r00)):
-                assert r00[0] ==  pytest.approx(r00[i], rel=EPSILON)
-                assert re00[0] ==  pytest.approx(re00[i], rel=EPSILON)
-                assert g00[0] ==  pytest.approx(g00[i], rel=EPSILON)
+                assert r00[0] == pytest.approx(r00[i], rel=EPSILON)
+                assert re00[0] == pytest.approx(re00[i], rel=EPSILON)
+                assert g00[0] == pytest.approx(g00[i], rel=EPSILON)
 
 
 def test_gso_babai():
@@ -145,11 +145,10 @@ def test_gso_coherence_gram_matrix():
         Test if the GSO is coherent if it is given a matrix A or its associated
         Gram matrix A*A^T
     """
-
     EPSILON = 0.0001
 
-    for m, n in dimensions:
-        for int_type in int_types:
+    for int_type in int_types:
+        for m, n in dimensions:
             # long is not tested for high dimensions because of integer overflow
             if m > 20 and int_type == "long":
                 continue
@@ -171,12 +170,8 @@ def test_gso_coherence_gram_matrix():
 
                 # Check if computations coincide
                 for i in range(m):
-                    M_A.get_r(i, i) == pytest.approx(M_G.get_r(i, j), rel=EPSILON)
+                    assert M_A.get_r(i, i) == pytest.approx(M_G.get_r(i, i), rel=EPSILON)
 
                     for j in range(i):
-                        assert (
-                            M_A.get_r(i, j) == pytest.approx(M_G.get_r(i, j), rel=EPSILON)
-                        )
-                        assert (
-                            M_A.get_mu(i, j) == pytest.approx(M_G.get_mu(i, j), rel=EPSILON)
-                        )
+                        assert M_A.get_r(i, j) == pytest.approx(M_G.get_r(i, j), rel=EPSILON)
+                        assert M_A.get_mu(i, j) == pytest.approx(M_G.get_mu(i, j), rel=EPSILON)
