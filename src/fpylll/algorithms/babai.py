@@ -24,7 +24,7 @@ def babai(B, t, *args, **kwargs):
     This implementation is more numerically stable compared to the one offered by `MatGSO.babai()`.
     On the other hand, this implementation will only accept tatgets with Integer coefficients.
 
-    EXAMPLE ::
+    EXAMPLE::
 
        >>> from fpylll import *
        >>> n = 10

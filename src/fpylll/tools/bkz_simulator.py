@@ -238,7 +238,7 @@ def simulate(r, param):
     :returns: tuple with:
               1. the reduced squared norms of the GSO vectors of the basis,
               2. and the number of BKZ tours simulated.
-    EXAMPLE:
+    EXAMPLE::
         >>> from fpylll import IntegerMatrix, GSO, LLL, FPLLL, BKZ
         >>> FPLLL.set_random_seed(1337)
         >>> A = LLL.reduction(IntegerMatrix.random(100, "qary", bits=30, k=50))
@@ -273,7 +273,7 @@ def simulate_prob(r, param, prng_seed=0xdeadbeef):
     :returns: tuple with:
               1. the reduced squared norms of the GSO vectors of the basis,
               2. and the number of BKZ tours simulated.
-    EXAMPLE:
+    EXAMPLE::
         >>> from fpylll import IntegerMatrix, GSO, LLL, FPLLL, BKZ
         >>> FPLLL.set_random_seed(1337)
         >>> A = LLL.reduction(IntegerMatrix.random(100, "qary", bits=30, k=50))
@@ -304,7 +304,7 @@ def averaged_simulate_prob(r, param, tries=10):
     :returns: tuple with:
               1. averaged reduced squared norms of GSO vectors of the basis,
               2. the averaged number of BKZ tours simulated.
-    EXAMPLE:
+    EXAMPLE::
         >>> from fpylll import IntegerMatrix, GSO, LLL, FPLLL, BKZ
         >>> from fpylll.tools.bkz_simulator import averaged_simulate_prob
         >>> FPLLL.set_random_seed(1337)
