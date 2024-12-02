@@ -174,7 +174,7 @@ def closest_vector(IntegerMatrix B, t, method="fast", int flags=CVP_DEFAULT):
     :param int flags: Either ``CVP.DEFAULT`` or ``CVP.VERBOSE``.
     :returns coordinates of the solution vector:
 
-    EXAMPLE ::
+    EXAMPLE::
 
         >>> from fpylll import *
         >>> FPLLL.set_random_seed(42)
