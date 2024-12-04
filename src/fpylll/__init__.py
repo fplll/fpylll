@@ -12,4 +12,4 @@ from .fplll.pruner import Pruning
 from .util import ReductionError
 from .util import FPLLL
 
-__version__ = "0.6.1"
+__version__ = "0.6.2"
