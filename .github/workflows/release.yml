@@ -61,8 +61,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository:   sagemath/sage
-          ref:          develop
+          # Use fplll 5.5.0 upgrade from https://github.com/passagemath/passagemath/pull/444
+          repository:   passagemath/passagemath
+          ref:          refs/pull/444/merge
 
       - uses: actions/download-artifact@v4
         with:
@@ -96,5 +97,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels
+          name: ${{ matrix.os }}-${{ matrix.arch }}-wheels
           path: ./wheelhouse/*.whl
