@@ -23,6 +23,7 @@ jobs:
         with:
           pattern: "dist"
           path: dist
+          merge-multiple: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           run-id: ${{ github.event.inputs.run-id }}
