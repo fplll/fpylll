@@ -6,6 +6,8 @@ import platform
 import subprocess
 import sys
 import io
+from ast import parse
+from copy import copy
 
 if "READTHEDOCS" in os.environ:
     # When building with readthedocs, install the dependencies too.
@@ -19,9 +21,6 @@ try:
 except ImportError:
     pass  # python 3
 
-from os import path
-from ast import parse
-
 try:
     from setuptools.command.build_ext import build_ext as _build_ext
     from setuptools.core import setup
@@ -32,8 +31,6 @@ except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension as _Extension
     aux_setup_kwds = {}
-
-from copy import copy
 
 try:
     FileNotFoundError
@@ -84,7 +81,7 @@ class build_ext(_build_ext, object):
                 "libraries": ["gmp", "mpfr", "fplll"],
                 "extra_compile_args": ["-std=c++11"] + cxxflags,
                 "extra_link_args": ["-std=c++11"],
-                "define_macros": [("__PYX_EXTERN_C", 'extern "C++"')],
+                "define_macros": [("CYTHON_EXTERN_C", 'extern "C++"')],
             }
 
             if def_vars["HAVE_QD"]:
@@ -221,10 +218,11 @@ extensions = [
 
 # VERSION
 
-with open(path.join("src", "fpylll", "__init__.py")) as f:
+with open(os.path.join("src", "fpylll", "__init__.py")) as f:
     __version__ = (
-        parse(next(filter(lambda line: line.startswith("__version__"), f))).body[0].value.s
+        parse(next(filter(lambda line: line.startswith("__version__"), f))).body[0].value.value
     )
+
 # FIRE
 
 
