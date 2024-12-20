@@ -79,7 +79,7 @@ cd ..
 # Install FPyLLL
 
 $PYTHON setup.py clean
-if ! $PYTHON setup.py build $jobs || $PYTHON setup.py build_ext; then
+if ! ( $PYTHON setup.py build $jobs || $PYTHON setup.py build_ext ); then
     echo "Failed to build FPyLLL!"
     echo "Check the logs above - they'll contain more information."
     exit 5
