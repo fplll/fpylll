@@ -5,8 +5,6 @@ if [ "$1" = "-j" ]; then
    jobs="-j $2 "
 fi
 
-# Create Virtual Environment
-
 if [ "$PYTHON" = "" ]; then PYTHON=python; export PYTHON; fi
 PIP="$PYTHON -m pip"
 
@@ -20,73 +18,76 @@ echo "Using python version: $PYVER"
 echo "Using $jobs"
 sleep 1
 
-rm -rf fpylll-env
-$PYTHON -m virtualenv fpylll-env
+# Create Virtual Environment
 
+rm -rf fpylll-env activate
+$PYTHON -m virtualenv fpylll-env
 if [ ! -d fpylll-env ]; then
-	echo "Failed to create virtual environment in 'fpylll-env' !"
-	echo "Is '$PYTHON -m virtualenv' working?"
-	echo "Try '$PYTHON -m pip install virtualenv' otherwise."
-	exit 1
+    echo "Failed to create virtual environment in 'fpylll-env'!"
+    echo "Is '$PYTHON -m virtualenv' working?"
+    echo "Try '$PIP install virtualenv' otherwise."
+    exit 1 # 1 is the exit value if creating virtualenv fails
 fi
 
 cat <<EOF >>fpylll-env/bin/activate
+
 ### LD_LIBRARY_HACK
 _OLD_LD_LIBRARY_PATH="\$LD_LIBRARY_PATH"
 LD_LIBRARY_PATH="\$VIRTUAL_ENV/lib:\$LD_LIBRARY_PATH"
 export LD_LIBRARY_PATH
 ### END_LD_LIBRARY_HACK
-EOF
 
-ln -s fpylll-env/bin/activate
-source ./activate
-
-$PIP install -U pip
-$PIP install Cython
-$PIP install cysignals
-
-# Install FPLLL
-
-cat <<EOF >>fpylll-env/bin/activate
 CFLAGS="\$CFLAGS -O3 -march=native -Wp,-U_FORTIFY_SOURCE"
 CXXFLAGS="\$CXXFLAGS -O3 -march=native -Wp,-U_FORTIFY_SOURCE"
 export CFLAGS
 export CXXFLAGS
 EOF
 
-deactivate
+ln -s fpylll-env/bin/activate
 source ./activate
+
+$PIP install -U pip -r requirements.txt -r suggestions.txt
+
+# Install FPLLL
 
 git clone https://github.com/fplll/fplll fpylll-fplll
 cd fpylll-fplll || exit
+git pull # Update if it was checked-out before
 ./autogen.sh
 ./configure --prefix="$VIRTUAL_ENV" $CONFIGURE_FLAGS
-make clean
-make $jobs
 
-retval=$?
-if [ $retval -ne 0 ]; then
-    echo "Making fplll failed."
+if ! make clean; then
+    echo "Make clean failed in fplll. This is usually because there was an error with either autogen.sh or configure."
     echo "Check the logs above - they'll contain more information."
-    exit 2 # 2 is the exit value if building fplll fails as a result of make $jobs.
+    exit 2 # 2 is the exit value if building fplll fails via configure or autogen
 fi
 
-make install
+if ! make $jobs; then
+    echo "Making fplll failed."
+    echo "Check the logs above - they'll contain more information."
+    exit 3 # 3 is the exit value if building fplll fails as a result of make $jobs.
+fi
 
-if [ $retval -ne 0 ]; then
+if ! make install; then
     echo "Make install failed for fplll."
     echo "Check the logs above - they'll contain more information."
-    exit 3 # 3 is the exit value if installing fplll failed.
+    exit 4 # 4 is the exit value if installing fplll failed.
 fi
 
 cd ..
 
-$PIP install -r requirements.txt
-$PIP install -r suggestions.txt
+# Install FPyLLL
 
 $PYTHON setup.py clean
-$PYTHON setup.py build $jobs || $PYTHON setup.py build_ext
+if ! $PYTHON setup.py build $jobs || $PYTHON setup.py build_ext; then
+    echo "Failed to build FPyLLL!"
+    echo "Check the logs above - they'll contain more information."
+    exit 5
+fi
 $PYTHON setup.py install
 
+# Fin
+
+echo " "
 echo "Don't forget to activate environment each time:"
 echo " source ./activate"
