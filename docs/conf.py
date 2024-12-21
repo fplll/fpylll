@@ -14,7 +14,6 @@
 
 import sys
 import os
-import shlex
 
 try:
     from itertools import ifilter as filter
@@ -24,7 +23,7 @@ except ImportError:
 from ast import parse
 
 with open(os.path.join('..', 'src', 'fpylll', '__init__.py')) as f:
-    __version__ = parse(next(filter(lambda line: line.startswith('__version__'), f))).body[0].value.s
+    __version__ = parse(next(filter(lambda line: line.startswith('__version__'), f))).body[0].value.value
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
