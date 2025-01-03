@@ -41,6 +41,13 @@ def babai(B, t, *args, **kwargs):
        >>> _ = LLL.reduction(B)
        >>> v == CVP.closest_vector(B, t)
        True
+
+       >>> from fpylll import *
+       >>> A = [428812188057600, 1, 0, 409148314550272, 0, 1]
+       >>> A = IntegerMatrix.from_iterable(2, 3, A)
+       >>> CVP.babai(A, (292633475057909760, 256, 256))
+       (292633475057909760, 296, 405)
+
     """
     A = IntegerMatrix(B.nrows + 1, B.ncols + 1)
     for i in range(B.nrows):
@@ -59,12 +66,17 @@ def babai(B, t, *args, **kwargs):
 
     LLL.reduction(A, *args, **kwargs)  # now call LLL to run Babai
 
+    # HACK: LLL might have done some swaps, but it shouldn't have!
+    for row in range(A.nrows):
+        if A[row, -1] != 0:
+            break
+
     v = [0] * len(t)
-    if A[-1, -1] > 0:
+    if A[row, -1] > 0:
         for i in range(len(t)):
-            v[i] = t[i] - A[-1][i]
+            v[i] = t[i] - A[row][i]
     else:
         for i in range(len(t)):
-            v[i] = t[i] + A[-1][i]
+            v[i] = t[i] + A[row][i]
 
     return tuple(v)
