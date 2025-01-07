@@ -41,8 +41,8 @@ How to cite
 
     @unpublished{fpylll,
         author = {The {FPLLL} development team},
-        title = {{fpylll}, a {Python} wrapper for the {fplll} lattice reduction library, {Version}: 0.6.2},
-        year = 2024,
+        title = {{fpylll}, a {Python} wrapper for the {fplll} lattice reduction library, {Version}: 0.6.3},
+        year = 2025,
         note = {Available at \url{https://github.com/fplll/fpylll}},
         url = {https://github.com/fplll/fpylll}
     }
