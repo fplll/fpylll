@@ -61,9 +61,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Use fplll 5.5.0 upgrade from https://github.com/passagemath/passagemath/pull/444
           repository:   passagemath/passagemath
-          ref:          refs/pull/444/merge
+          ref:          main
 
       - uses: actions/download-artifact@v4
         with:
