@@ -1,5 +1,6 @@
 [build-system]
 requires = ["setuptools",
             "Cython>=3.0",
-            "cysignals"]
+            "cysignals",
+            "numpy"]
 build-backend = "setuptools.build_meta"

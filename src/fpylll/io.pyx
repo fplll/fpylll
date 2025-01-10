@@ -14,7 +14,11 @@ from fplll.fplll cimport ZT_MPZ, ZT_LONG
 
 # Note: this uses fpylll's numpy and not the global numpy package.
 IF HAVE_NUMPY:
-    from .numpy import is_numpy_integer
+    try:
+        from .numpy import is_numpy_integer
+        have_numpy = True
+    except ImportError:
+        have_numpy = False
 
 IF HAVE_QD:
     from fpylll.fplll.fplll cimport FT_DD, FT_QD
@@ -54,7 +58,7 @@ cdef int assign_mpz(mpz_t& t, value) except -1:
             return 0
 
     IF HAVE_NUMPY:
-        if is_numpy_integer(value):
+        if have_numpy and is_numpy_integer(value):
             value = long(value)
             mpz_set_pylong(t, value)
             return 0
