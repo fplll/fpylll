@@ -1,6 +1,6 @@
 Overview
-========  
-  
+========
+
 .. include:: ../README.rst
 
 Modules
@@ -10,7 +10,7 @@ Modules
   :maxdepth: 2
 
   modules
-             
+
 Indices and Tables
 ==================
 

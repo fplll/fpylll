@@ -37,7 +37,7 @@ For a quick tour of the library, you can check out the `tutorial <https://github
 How to cite
 -----------
 
-.. code-block:: 
+.. code-block::
 
     @unpublished{fpylll,
         author = {The {FPLLL} development team},

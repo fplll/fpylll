@@ -63,7 +63,7 @@ The parameter `nr_solutions` is by default `1.` If we set say, `{\rm{nr\_solutio
   >>> def n(radius):
   ...   dim = 2
   ...   nr = ceil(pi*radius**2 + 2*sqrt(2)*pi*radius)
-  ...   A = IntegerMatrix.idenity(dim) 
+  ...   A = IntegerMatrix.identity(dim)
   ...   M = MatGSO(A)
   ...   _ = M.update_gso()
   ...   enum = Enumeration(M,nr_solutions = nr)
