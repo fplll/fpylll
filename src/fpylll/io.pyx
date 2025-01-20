@@ -44,22 +44,22 @@ cdef int assign_Z_NR_mpz(Z_NR[mpz_t]& t, value) except -1:
 cdef int assign_mpz(mpz_t& t, value) except -1:
     """
     Assign Python integer to Z_NR[mpz_t]
-    """     
+    """
     if isinstance(value, int) and PY_MAJOR_VERSION == 2:
             mpz_set_si(t, PyInt_AS_LONG(value))
             return 0
-    if isinstance(value, long):
+    if isinstance(value, int):
         mpz_set_pylong(t, value)
         return 0
     if have_sage:
         if isinstance(value, Integer):
-            value = long(value)
+            value = int(value)
             mpz_set_pylong(t, value)
             return 0
 
     IF HAVE_NUMPY:
         if have_numpy and is_numpy_integer(value):
-            value = long(value)
+            value = int(value)
             mpz_set_pylong(t, value)
             return 0
 

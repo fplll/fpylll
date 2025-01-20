@@ -41,10 +41,10 @@ where `N_1`, `N_2` are some positive integers. Say `(x_1,x_2,...,x_n,x_{n+1},x_{
     ...     M[i, -1] = a[i]*N2
     ...     M[i,  i] = 1
     ...
-  
+
     >>> M[-1, -2] = N1
     >>> M[-1, -1] = -a0 * N2
- 
+
 
 We can now apply LLL::
 
