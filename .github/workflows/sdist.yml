@@ -46,7 +46,6 @@ jobs:
           sudo make install
           cd ..
 
-          pip install Cython
           pip install -r requirements.txt
           pip install -r suggestions.txt
           cd ..
@@ -59,8 +58,8 @@ jobs:
           cd dist
           tar xvfz fpylll-*.tar.gz
           cd $(ls -1 *.tar.gz | sed s/\.tar\.gz//)
-          python setup.py build_ext -j $JOBS
-          python setup.py install
+          python setup.py build -j $JOBS
+          pip install .
           
       - name: Test
         run: PY_IGNORE_IMPORTMISMATCH=1 python -m pytest

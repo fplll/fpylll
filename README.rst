@@ -135,8 +135,8 @@ We indicate active virtualenvs by the prefix ``(fpylll)``.
    .. code-block:: bash
 
      $ (fpylll) export PKG_CONFIG_PATH="$VIRTUAL_ENV/lib/pkgconfig:$PKG_CONFIG_PATH"
-     $ (fpylll) python setup.py build_ext
-     $ (fpylll) python setup.py install
+     $ (fpylll) python setup.py build
+     $ (fpylll) pip install .
 
 7. To run **fpylll**, you will need to:
 
@@ -240,8 +240,8 @@ The instructions are very similar to the manual ones above.
    .. code-block:: bash
 
      $ (sage-sh) export PKG_CONFIG_PATH="$SAGE_LOCAL/lib/pkgconfig:$PKG_CONFIG_PATH"
-     $ (sage-sh) python3 setup.py build_ext
-     $ (sage-sh) python3 setup.py install
+     $ (sage-sh) python3 setup.py build
+     $ (sage-sh) pip3 install .
      $ (sage-sh) exit
 
 7. Verify the upgrade went well:
