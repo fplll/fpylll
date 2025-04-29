@@ -49,7 +49,6 @@ jobs:
           sudo make install
           cd ..
 
-          pip install Cython
           pip install -r requirements.txt
           pip install -r suggestions.txt
           cd ..
