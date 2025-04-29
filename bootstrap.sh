@@ -84,7 +84,7 @@ if ! ( $PYTHON setup.py build $jobs || $PYTHON setup.py build_ext ); then
     echo "Check the logs above - they'll contain more information."
     exit 5
 fi
-$PYTHON setup.py install
+$PIP install .
 
 # Fin
 

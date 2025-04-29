@@ -24,7 +24,7 @@ RUN pip3 install -r fpylll/suggestions.txt
 
 RUN cd fpylll && \
     CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS python3 setup.py build -j $JOBS && \
-    python3 setup.py -q install && \
+    pip3 install . && \
     cd .. && \
     rm -rf fpylll
 
