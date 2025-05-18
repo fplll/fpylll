@@ -968,7 +968,7 @@ cdef extern from "fplll/pruner/pruner.h" namespace "fplll":
                    const double target, const PrunerMetric metric, const int flags,
                    const double target, const PrunerMetric metric, const int flags)
 
-    FT svp_probability[FT](const PruningParams &pruning)
+    # FT svp_probability[FT](const PruningParams &pruning)
     FT svp_probability[FT](const vector[double] &pr)
 
 
