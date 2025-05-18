@@ -1,5 +1,5 @@
 setuptools
-Cython>=3.0,<3.1
+Cython>=3.0
 cysignals
 pytest
 black

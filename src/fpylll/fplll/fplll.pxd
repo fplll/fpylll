@@ -952,20 +952,23 @@ cdef extern from "fplll/pruner/pruner.h" namespace "fplll":
         FT gaussian_heuristic()
 
     void prune[FT](PruningParams &pruning, const double enumeration_radius,
-                   const double preproc_cost, const vector[double] &gso_r)
-
-    void prune[FT](PruningParams &pruning, const double enumeration_radius,
-                   const double preproc_cost, const vector[double] &gso_r,
+                   const double preproc_cost, const vector[vector[double]] &gso_r,
                    const double target, const PrunerMetric metric, const int flags)
-
-    void prune[FT](PruningParams &pruning, const double enumeration_radius,
-                   const double preproc_cost, const vector[vector[double]] &gso_r)
 
     void prune[FT](PruningParams &pruning, const double enumeration_radius,
                    const double preproc_cost, const vector[vector[double]] &gso_r,
                    const double target, const PrunerMetric metric, const int flags)
 
-    FT svp_probability[FT](const PruningParams &pruning)
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[vector[double]] &gso_r,
+                   const double target, const PrunerMetric metric, const int flags)
+
+    void prune[FT](PruningParams &pruning, const double enumeration_radius,
+                   const double preproc_cost, const vector[vector[double]] &gso_r,
+                   const double target, const PrunerMetric metric, const int flags,
+                   const double target, const PrunerMetric metric, const int flags)
+
+    # FT svp_probability[FT](const PruningParams &pruning)
     FT svp_probability[FT](const vector[double] &pr)
 
 
