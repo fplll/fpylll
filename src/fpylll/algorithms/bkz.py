@@ -86,6 +86,16 @@ class BKZReduction(object):
             >>> _ = bkz(BKZ.EasyParam(10), tracer=False); bkz.trace is None
             True
 
+            >>> G = [4265, 7442,  5364,  5334,  6350, \
+                     7442,  17726,  8388,  16002,  5461, \
+                     5364,  8388,  6949,  5334,  9144, \
+                     5334,  16002,  5334,  16129,  0, \
+                     6350,  5461,  9144,  0,  16129]
+            >>> G = IntegerMatrix.from_iterable(5, 5, G)
+            >>> M = GSO.Mat(G, gram=True, update=True)
+            >>> bkz = BKZReduction(M)
+            >>> _ = bkz(BKZ.EasyParam(3))
+
         """
 
         tracer = normalize_tracer(tracer)
@@ -105,7 +115,7 @@ class BKZReduction(object):
             )
 
         if params.flags & BKZ.AUTO_ABORT:
-            auto_abort = BKZ.AutoAbort(self.M, self.A.nrows)
+            auto_abort = BKZ.AutoAbort(self.M, self.M.d)
 
         cputime_start = process_time()
 
@@ -117,7 +127,7 @@ class BKZReduction(object):
             with tracer.context("tour", i, dump_gso=params.flags & BKZ.DUMP_GSO):
                 clean = self.tour(params, min_row, max_row, tracer)
             i += 1
-            if clean or params.block_size >= self.A.nrows:
+            if clean or params.block_size >= self.M.d:
                 break
             if (params.flags & BKZ.AUTO_ABORT) and auto_abort.test_abort():
                 break
@@ -143,7 +153,7 @@ class BKZReduction(object):
         :returns: ``True`` if no change was made and ``False`` otherwise
         """
         if max_row == -1:
-            max_row = self.A.nrows
+            max_row = self.M.d
 
         clean = True
 
