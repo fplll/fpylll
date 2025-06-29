@@ -94,21 +94,10 @@ jobs:
           export PATH=build/bin:$PATH
           export CIBW_BEFORE_ALL="( $(sage-print-system-package-command debian --yes --no-install-recommends install $(sage-get-system-packages debian $SPKGS)) || $(sage-print-system-package-command fedora --yes --no-install-recommends install $(sage-get-system-packages fedora $SPKGS | sed s/pkg-config/pkgconfig/)) || ( $(sage-print-system-package-command homebrew --yes --no-install-recommends install $(sage-get-system-packages homebrew $SPKGS)) || $(sage-print-system-package-command alpine --yes --no-install-recommends install $(sage-get-system-packages alpine $SPKGS)) || echo error ignored) ) && ./bootstrap && ./configure --enable-build-as-root --enable-fat-binary && MAKE=\"make -j6\" make V=0 $TARGETS_PRE"
           mkdir -p unpacked
-          set -x
-          for sdist in dist/$pkg*.tar.gz; do
-              (cd unpacked && tar xfz - && base=${sdist#dist/} && mv ${base%.tar.gz} ${base%-*}) < $sdist
+          for pkg in fpylll; do
+              (cd unpacked && tar xfz - ) < dist/$pkg*.tar.gz
+              "${{ steps.python.outputs.python-path }}" -m pipx run cibuildwheel==2.21.3 unpacked/$pkg*
           done
-
-      - name: fpylll wheels
-        id:   fpylll
-        uses: pypa/cibuildwheel@v2.23.0
-        with:
-          package-dir: unpacked/fpylll
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}-${{ matrix.arch }}-wheels
-          path: ./wheelhouse/*.whl
 
   build_wheels_windows:
     name: Build wheels on ${{ matrix.os }}, arch ${{ matrix.arch }}
@@ -155,7 +144,7 @@ jobs:
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -vv -w {dest_dir} {wheel}"
       #
       CIBW_PLATFORM: windows
-
+    steps:
       - uses: actions/checkout@v4
         with:
           repository:   passagemath/passagemath
@@ -301,6 +290,7 @@ jobs:
 
   release:
     needs: [build, build_wheels, build_wheels_windows]
+    if: startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
