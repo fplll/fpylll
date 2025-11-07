@@ -93,7 +93,7 @@ jobs:
           mkdir -p unpacked
           for pkg in fpylll; do
               (cd unpacked && tar xfz - ) < dist/$pkg*.tar.gz
-              "${{ steps.python.outputs.python-path }}" -m pipx run cibuildwheel==2.21.3 unpacked/$pkg*
+              "${{ steps.python.outputs.python-path }}" -m pipx run cibuildwheel==3.2.1 unpacked/$pkg*
           done
 
       - uses: actions/upload-artifact@v4
