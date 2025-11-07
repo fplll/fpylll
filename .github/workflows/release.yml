@@ -41,7 +41,7 @@ jobs:
             arch: i686
           - os: ubuntu-24.04-arm
             arch: aarch64
-          - os: macos-13
+          - os: macos-15-intel
             arch: auto
           - os: macos-14
             arch: auto
@@ -93,7 +93,7 @@ jobs:
           mkdir -p unpacked
           for pkg in fpylll; do
               (cd unpacked && tar xfz - ) < dist/$pkg*.tar.gz
-              "${{ steps.python.outputs.python-path }}" -m pipx run cibuildwheel==2.21.3 unpacked/$pkg*
+              "${{ steps.python.outputs.python-path }}" -m pipx run cibuildwheel==3.2.1 unpacked/$pkg*
           done
 
       - uses: actions/upload-artifact@v4
