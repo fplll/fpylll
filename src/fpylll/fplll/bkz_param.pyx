@@ -352,9 +352,11 @@ cdef class BKZParam:
             flags |= BKZ_MAX_LOOPS
         if max_time > 0:
             flags |= BKZ_MAX_TIME
-        if gh_factor is not None:
+        if auto_abort is not None and auto_abort is not False:
+            flags |= BKZ_AUTO_ABORT
+        if gh_factor is not None and gh_factor is not False:
             flags |= BKZ_GH_BND
-        if gh_factor in (True, False, None):
+        if gh_factor is True or gh_factor is False or gh_factor is None:
             gh_factor = BKZ_DEF_GH_FACTOR
 
         if block_size <= 0:
@@ -393,20 +395,17 @@ cdef class BKZParam:
         o.flags = flags
         o.gh_factor = float(gh_factor)
 
-        if auto_abort is True:
-            o.flags |= BKZ_AUTO_ABORT
-
         if o.flags & BKZ_AUTO_ABORT:
-            if auto_abort in (True, None):
+            if auto_abort is True or auto_abort is None:
                 pass
             else:
                 try:
                     a_scale, a_max = auto_abort
-                    o.auto_abort_scale = a_scale
-                    o.auto_abort_max_no_dec = a_max
-                except TypeError:
+                    o.auto_abort_scale = float(a_scale)
+                    o.auto_abort_max_no_dec = int(a_max)
+                except (TypeError, ValueError, OverflowError):
                     del o
-                    raise ValueError("Parameter auto_abort (%s) not understood."%auto_abort)
+                    raise ValueError("Parameter auto_abort (%s) not understood." % repr(auto_abort))
 
         if o.flags & BKZ_MAX_LOOPS:
             o.max_loops = max_loops

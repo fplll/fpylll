@@ -77,3 +77,37 @@ def test_bkz_gram_bkz_coherence():
             for i in range(m):
                 for j in range(i + 1):
                     assert G_updated[i, j] == G[i, j]
+
+
+def test_bkz_param_auto_abort_tuple():
+    # try valid tuple
+    param = BKZ.Param(block_size=10, auto_abort=(1.0, 2))
+    assert param.flags & BKZ.AUTO_ABORT
+    assert param.auto_abort == (1.0, 2)
+    assert param.dict(False)["auto_abort"] == (1.0, 2)
+    # try invalid tuple
+    try:
+        BKZ.Param(block_size=10, auto_abort=(1.0, 2, 3))
+        assert False
+    except ValueError:
+        pass
+    # try invalid value
+    try:
+        BKZ.Param(block_size=10, auto_abort=("not-a-float", 2))
+        assert False
+    except ValueError:
+        pass
+    try:
+        BKZ.Param(block_size=10, auto_abort=(1.0, "not-a-int"))
+        assert False
+    except ValueError:
+        pass
+
+
+def test_bkz_param_gh_factor():
+    param = BKZ.Param(block_size=10, gh_factor=1)
+    assert param.flags & BKZ.GH_BND
+    assert param.gh_factor == 1.0
+    # when gh_factor is False, should not set flag
+    param = BKZ.Param(block_size=10, gh_factor=False)
+    assert not (param.flags & BKZ.GH_BND)
