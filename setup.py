@@ -246,6 +246,9 @@ setup(
     ext_modules=extensions,
     package_dir={"": "src"},
     packages=["fpylll", "fpylll.gmp", "fpylll.fplll", "fpylll.algorithms", "fpylll.tools"],
+    install_requires = [
+        "cysignals",
+    ],
     license="GNU General Public License, version 2 or later",
     long_description=readme_to_long_description(),
     cmdclass={"build_ext": build_ext},
