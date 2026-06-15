@@ -993,9 +993,9 @@ cdef extern from "fplll/fplll.h" namespace "fplll":
                       int precision, int flags) nogil
 
     int bkz_reduction(ZZ_mat[mpz_t] *b, ZZ_mat[mpz_t] *u,
-                      BKZParam &param, FloatType float_type, int precision) nogil
-    int bkz_reduction(ZZ_mat[mpz_t] *b, int block_size, int flags, FloatType float_type, int precision) nogil
+                      BKZParam &param, FloatType float_type, int precision) except + nogil
+    int bkz_reduction(ZZ_mat[mpz_t] *b, int block_size, int flags, FloatType float_type, int precision) except + nogil
 
-    int hkz_reduction(ZZ_mat[mpz_t] b) nogil
+    int hkz_reduction(ZZ_mat[mpz_t] b) except + nogil
 
     const char* get_red_status_str(int status) nogil
