@@ -3,6 +3,9 @@ name: Source Distribution Test
 on: 
   push:
   pull_request:
+    paths:
+      - '**'
+      - '!.github/workflows/**'
   schedule:
     - cron: '0 0 * * 0' # weekly
 

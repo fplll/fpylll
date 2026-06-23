@@ -3,6 +3,9 @@ name: Tests
 on: 
   push:
   pull_request:
+    paths:
+      - '**'
+      - '!.github/workflows/**'
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * 0' # weekly

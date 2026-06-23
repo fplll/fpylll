@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
   push:
     tags:
     - '*'
@@ -97,13 +100,198 @@ jobs:
               "${{ steps.python.outputs.python-path }}" -m pipx run cibuildwheel==3.2.1 unpacked/$pkg*
           done
 
+  build_wheels_windows:
+    name: Build wheels on ${{ matrix.os }}, arch ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os:      [windows-2022]
+        arch:    [auto]
+        build:   ["win_*64"]
+    env:
+      # SPKGs to install as system packages
+      SPKGS: _bootstrap _prereq
+      # Non-Python packages to install as spkgs
+      TARGETS_PRE: gmp mpfr mpc fplll-ensure
+      # Disable building PyPy wheels on all platforms
+      CIBW_SKIP: "pp*"
+      #
+      CIBW_ARCHS: ${{ matrix.arch }}
+      # https://cibuildwheel.readthedocs.io/en/stable/options/#requires-python
+      CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9"
+      # Run before wheel build
+      CIBW_BEFORE_BUILD_WINDOWS: |
+        pip install delvewheel && msys2 -c "set -x; cat constraints.txt && (echo passagemath-conf @ file:///D:/a/sage/sage/pkgs/sage-conf && echo passagemath-setup @ file:///D:/a/sage/sage/pkgs/sage-setup && echo passagemath-environment @ file:///D:/a/sage/sage/pkgs/sagemath-environment) > constraints.txt && cat constraints.txt"
+      # Environment during wheel build
+      # PYTHONUTF8=1 is for delvewheel
+      CIBW_ENVIRONMENT: >-
+        PATH="D:\\a\\sage\\sage\\sage-local\\bin;D:\\a\\sage\\sage\\build\\bin;$PATH"
+        INCLUDE="D:\\a\\sage\\sage\\sage-local\\include;%INCLUDE%"
+        LIB="D:\\a\\sage\\sage\\sage-local\\bin;D:\\a\\sage\\sage\\sage-local\\lib;%LIB%"
+        PKG_CONFIG_PATH=$(pwd)/prefix/lib/pkgconfig:$PKG_CONFIG_PATH
+        ACLOCAL_PATH=/usr/share/aclocal
+        LINBOX_CONFIGURE=--without-ntl
+        GIAC_CONFIGURE=--disable-ntl
+        SAGE_MACAULAY2_BUILD_OPTIONS=-DWITH_PYTHON=off
+        PIP_CONSTRAINT=D:\\a\\sage\\sage\\constraints.txt
+        PIP_FIND_LINKS=D:\\a\\sage\\sage\\wheelhouse' 'D:\\a\\sage\\sage\\dist
+        SAGE_NUM_THREADS=6
+        PYTHONUTF8=1
+      # Use 'build', not 'pip wheel'
+      CIBW_BUILD_FRONTEND: build
+      # CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -vv --custom-patch -w {dest_dir} {wheel}"
+      CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -vv -w {dest_dir} {wheel}"
+      #
+      CIBW_PLATFORM: windows
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository:   passagemath/passagemath
+          ref:          main
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - uses: msys2/setup-msys2@v2
+        name: Setup msys2
+        with:
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            autotools
+            python
+            python-pip
+            python-setuptools
+            patch
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-gtest
+          msystem: ucrt64
+          path-type: inherit
+
+      - name: Retrieve configure tarball cache
+        id: cache-configure
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            build/pkgs/configure
+            upstream/configure*
+          key: >-
+            configure-build=${{
+              hashFiles('build',
+                        'configure.ac',
+                        'm4')
+            }}
+
+      - name: Bootstrap
+        if: steps.cache-configure.outputs.cache-hit != 'true'
+        # Patch python3 spkg-configure to allow Python 3.9.0 during the CIBW_BEFORE_ALL phase
+        run: |
+          export PATH=$(pwd)/build/bin:$PATH
+          eval $(sage-print-system-package-command auto --yes update)
+          eval $(sage-print-system-package-command auto --yes --no-install-recommends --spkg install _bootstrap bzip2 xz liblzma)
+          sed -i.bak '/m4_pushdef.*MIN_VERSION/s/3[0-9.]*/3.9.0/' build/pkgs/python3/spkg-configure.m4
+          ./bootstrap -s
+        shell: msys2 {0}
+
+      - name: Save configure tarball cache
+        if: steps.cache-configure.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            build/pkgs/configure
+            upstream/configure*
+          key: ${{ steps.cache-configure.outputs.cache-primary-key }}
+
+      - name: Retrieve SAGE_LOCAL cache
+        id:   cache-sage-local
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            config.status
+            sage-local
+          key: >-
+            ${{ runner.os }}-cibuildwheel-${{ matrix.arch }}-build=${{
+              hashFiles('build',
+                        'configure.ac',
+                        'm4')
+            }}
+          restore-keys: |
+            ${{ runner.os }}-cibuildwheel-${{ matrix.arch }}
+
+      - name: Unpack and prepare
+        id: unpack
+        # We build the wheels from the sdists so that MANIFEST filtering becomes effective.
+        # But we must run cibuildwheel with the unpacked source directory, not a tarball,
+        # so that SAGE_ROOT is copied into the build containers.
+        #
+        # In the CIBW_BEFORE_ALL phase, we install libraries using the Sage distribution.
+        # https://cibuildwheel.readthedocs.io/en/stable/options/#before-all
+        # For Linux, this is repeated for each of the packages that we build wheels for
+        # because CIBW starts with a fresh container on each invocation.
+        # Therefore we cache it in a directory mounted from the host: /host
+        # https://cibuildwheel.pypa.io/en/stable/faq/#linux-builds-in-containers
+        #
+        # - configure --with-sage-venv makes the SAGE_VENV separate from SAGE_LOCAL.
+        #   SAGE_LOCAL is put in PATH for the wheel building.
+        #   SAGE_VENV must not be in PATH so it does not shadow cibuildwheel's build tools.
+        #
+        run: |
+          if [ ! -x ./configure ]; then ./bootstrap -D; fi
+          touch configure
+          SAGE_LOCAL=$(pwd)/sage-local
+          # We set the installation records to the same mtime so that no rebuilds due to dependencies
+          # among these packages are triggered.
+          dummy="$SAGE_LOCAL"/var/lib/sage/installed/.dummy
+          if [ -f "$dummy" ]; then
+              touch "$dummy"
+              for tree in "$SAGE_LOCAL" "$SAGE_LOCAL"/var/lib/sage/venv*; do
+                  inst="$tree"/var/lib/sage/installed
+                  if [ -d "$inst" ]; then
+                      # -r is --reference; the macOS version of touch does not accept the long option.
+                      (cd "$inst" && touch -r "$dummy" .dummy *)
+                      # Show what has been built already.
+                      ls -l "$tree" "$inst"
+                  fi
+              done
+          fi
+
+          export PATH=build/bin:$PATH
+          echo CIBW_BEFORE_ALL="msys2 tools/cibw_before_all_windows.sh" >> "$GITHUB_ENV"
+          mkdir -p unpacked
+          set -x
+          for sdist in dist/$pkg*.tar.gz; do
+              (cd unpacked && tar xfz - && base=${sdist#dist/} && mv ${base%.tar.gz} ${base%-*}) < $sdist
+          done
+        shell: msys2 {0}
+
+      - name: fpylll wheels
+        id:   fpylll
+        uses: pypa/cibuildwheel@v2.23.0
+        with:
+          package-dir: unpacked/fpylll
+
+      - name: Save SAGE_LOCAL cache
+        if:   (success() || failure()) && steps.unpack.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            config.status
+            sage-local
+            !sage-local/lib64
+          key: ${{ steps.cache-sage-local.outputs.cache-primary-key }}
+
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}-wheels
           path: ./wheelhouse/*.whl
 
   release:
-    needs: [build, build_wheels]
+    needs: [build, build_wheels, build_wheels_windows]
+    if: startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
